@@ -1,6 +1,4 @@
-# GeoPackage
-
-####GeoPackage SDK Sample####
+# GeoPackage SDK Sample
 
 GeoPackage SDK Sample is an app for Android that utilizes and demonstrates the functionality in the GeoPackage SDK.  The GeoPackage SDK is an Android library implementation of the [GeoPackage spec](http://www.geopackage.org/spec/).
 
@@ -8,38 +6,29 @@ The Sample app provides read and write access to GeoPackage files, including fea
 
 The GeoPackage SDK Sample App was developed at the National Geospatial-Intelligence Agency (NGA) in collaboration with [BIT Systems](https://www.bit-sys.com/index.jsp). The government has "unlimited rights" and is releasing this software to increase the impact of government investments by providing developers with the opportunity to take things in new directions. The software use, modification, and distribution rights are stipulated within the [MIT license](http://choosealicense.com/licenses/mit/).
 
-###Pull Requests###
+### Pull Requests ###
 If you'd like to contribute to this project, please make a pull request. We'll review the pull request and discuss the changes. All pull request contributions to this project will be released under the MIT license.
 
 Software source code previously released under an open source license and then modified by NGA staff is considered a "joint work" (see 17 USC § 101); it is partially copyrighted, partially public domain, and as a whole is protected by the copyrights of the non-government authors and must be released according to the terms of the original open source license.
 
-###Icons###
+### Icons ###
 
 GeoPackage Icon is from Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/).
 
 App Icons are from [Material Design Icons on GitHub](https://github.com/google/material-design-icons) or generated at [Android Asset Studio](http://romannurik.github.io/AndroidAssetStudio).
 
-Colors and padding used include:
+#### Map Button Colors ####
+* Grey: #989898
+* Yellow: #ffff00
+* Green: #00ff00
+* Red: #f44336
 
-Map Buttons:
-<br>
-Grey: #989898
-<br>
-Yellow: #ffff00
-<br>
-Green: #00ff00
-<br>
-Red: #f44336
+#### Map Button Padding ####
+* ic_shape_draw: 30%
+* ic_shape_hole_draw: 30%
+* ic_shape_edit: 50%
 
-Padding:
-<br>
-ic_shape_draw: 30%
-<br>
-ic_shape_hole_draw: 30%
-<br>
-ic_shape_edit: 50%
-
-###License###
+### License ###
 
     The MIT License (MIT)
 
@@ -63,15 +52,14 @@ ic_shape_edit: 50%
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-###Dependencies###
+### Dependencies ###
 
-GeoPackage SDK
-<br>
+#### GeoPackage SDK ####
 The MIT License (MIT)
 
-[aFileChooser](https://github.com/iPaulPro/aFileChooser)
-<br>
+#### [aFileChooser](https://github.com/iPaulPro/aFileChooser) ####
+
 Modified Version of: src/com/ipaulpro/afilechooser/utils/FileUtils.java
-<br>
+
 Apache License, Version 2.0
 

@@ -1,3 +1,1 @@
-include ':library'
-include ':geopackageSDK'
-include ':geoPackageSDKSample'
+include ':sample'

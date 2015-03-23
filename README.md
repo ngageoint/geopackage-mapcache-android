@@ -1,6 +1,6 @@
 # GeoPackage SDK Sample
 
-GeoPackage SDK Sample is an app for Android that utilizes and demonstrates the functionality in the GeoPackage SDK.  The GeoPackage SDK is an Android library implementation of the [GeoPackage spec](http://www.geopackage.org/spec/).
+GeoPackage SDK Sample is an app for Android that utilizes and demonstrates the functionality in the [GeoPackage SDK](https://git.geointapps.org/geopackage/geopackage-android).  The GeoPackage SDK is an Android library implementation of the [GeoPackage spec](http://www.geopackage.org/spec/).
 
 The Sample app provides read and write access to GeoPackage files, including features and tiles. Features are visualized and editable on the map. Tiles are visualized on the map and can be loaded from a tile provider or WMS url.
 
@@ -54,7 +54,7 @@ App Icons are from [Material Design Icons on GitHub](https://github.com/google/m
 
 ### Dependencies ###
 
-#### GeoPackage SDK ####
+#### [GeoPackage SDK](https://git.geointapps.org/geopackage/geopackage-android) ####
 The MIT License (MIT)
 
 #### [aFileChooser](https://github.com/iPaulPro/aFileChooser) ####

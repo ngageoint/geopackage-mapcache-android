@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * MODIFIED FOR GeoPackage Sample
+ *
+ * - Removed LocalStorageProvider references
+ * - Added and modified to use isDocumentUri and getDocumentId methods with KITKAT target api annotation
+ */
+
 package com.ipaulpro.afilechooser.utils;
 
 import android.annotation.TargetApi;

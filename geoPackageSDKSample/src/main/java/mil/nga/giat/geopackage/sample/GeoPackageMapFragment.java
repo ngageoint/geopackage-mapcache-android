@@ -411,6 +411,7 @@ public class GeoPackageMapFragment extends Fragment implements
 		map.setOnMapClickListener(this);
 		map.setOnMarkerClickListener(this);
 		map.setOnMarkerDragListener(this);
+        map.getUiSettings().setZoomControlsEnabled(true);
 
 		manager = GeoPackageFactory.getManager(getActivity());
 

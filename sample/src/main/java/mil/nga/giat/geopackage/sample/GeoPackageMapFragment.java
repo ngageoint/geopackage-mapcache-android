@@ -76,9 +76,9 @@ import mil.nga.giat.geopackage.factory.GeoPackageFactory;
 import mil.nga.giat.geopackage.features.user.FeatureCursor;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.features.user.FeatureRow;
-import mil.nga.giat.geopackage.geom.Geometry;
-import mil.nga.giat.geopackage.geom.GeometryType;
-import mil.nga.giat.geopackage.geom.LineString;
+import mil.nga.giat.wkb.geom.Geometry;
+import mil.nga.giat.wkb.geom.GeometryType;
+import mil.nga.giat.wkb.geom.LineString;
 import mil.nga.giat.geopackage.geom.conversion.GoogleMapShape;
 import mil.nga.giat.geopackage.geom.conversion.GoogleMapShapeConverter;
 import mil.nga.giat.geopackage.geom.conversion.GoogleMapShapeMarkers;
@@ -92,11 +92,11 @@ import mil.nga.giat.geopackage.geom.conversion.MultiPolylineOptions;
 import mil.nga.giat.geopackage.geom.conversion.PolygonHoleMarkers;
 import mil.nga.giat.geopackage.geom.conversion.ShapeMarkers;
 import mil.nga.giat.geopackage.geom.conversion.ShapeWithChildrenMarkers;
-import mil.nga.giat.geopackage.geom.data.GeoPackageGeometryData;
-import mil.nga.giat.geopackage.geom.unit.ProjectionConstants;
-import mil.nga.giat.geopackage.geom.unit.ProjectionFactory;
-import mil.nga.giat.geopackage.geom.unit.ProjectionTransform;
-import mil.nga.giat.geopackage.geom.util.GeometryPrinter;
+import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.giat.geopackage.projection.ProjectionConstants;
+import mil.nga.giat.geopackage.projection.ProjectionFactory;
+import mil.nga.giat.geopackage.projection.ProjectionTransform;
+import mil.nga.giat.wkb.util.GeometryPrinter;
 import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.giat.geopackage.tiles.overlay.GeoPackageOverlayFactory;
 import mil.nga.giat.geopackage.tiles.user.TileDao;
@@ -836,7 +836,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 case POINT:
 
                     for (Marker pointMarker : editPoints.values()) {
-                        mil.nga.giat.geopackage.geom.Point point = converter
+                        mil.nga.giat.wkb.geom.Point point = converter
                                 .toPoint(pointMarker.getPosition());
                         FeatureRow newPoint = featureDao.newRow();
                         GeoPackageGeometryData pointGeomData = new GeoPackageGeometryData(
@@ -863,7 +863,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 case POLYGON:
                 case POLYGON_HOLE:
 
-                    mil.nga.giat.geopackage.geom.Polygon polygon = converter
+                    mil.nga.giat.wkb.geom.Polygon polygon = converter
                             .toPolygon(editPolygon);
                     FeatureRow newPolygon = featureDao.newRow();
                     GeoPackageGeometryData polygonGeomData = new GeoPackageGeometryData(
@@ -1746,7 +1746,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void processFeatureRow(MapUpdateTask task, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
                                    boolean editable) {
-        mil.nga.giat.geopackage.geom.unit.Projection projection = featureDao
+        mil.nga.giat.geopackage.projection.Projection projection = featureDao
                 .getProjection();
         final GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
                 projection);

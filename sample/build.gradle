@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'maven'
 
 def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY: ''
 

@@ -1,6 +1,6 @@
 package mil.nga.giat.geopackage.sample;
 
-import mil.nga.giat.geopackage.geom.GeometryType;
+import mil.nga.giat.wkb.geom.GeometryType;
 
 /**
  * GeoPackage table information

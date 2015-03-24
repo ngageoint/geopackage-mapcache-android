@@ -63,3 +63,29 @@ Modified Version of: src/com/ipaulpro/afilechooser/utils/FileUtils.java
 
 Apache License, Version 2.0
 
+### Screen Shots ###
+
+Manager View with GeoPackages
+ 
+* [Technology Test Data Set] (http://www.geopackage.org/data/gdal_sample.gpkg)
+* [Geonames data for Belgium] (http://www.geopackage.org/data/geonames_belgium.gpkg)
+* [Haiti OpenStreetMap tiles and point features] (http://www.geopackage.org/data/haiti-vectors-split.gpkg)
+* [Simple Sewers test data set] (http://www.geopackage.org/data/simple_sewer_features.gpkg)
+
+![Screenshot 1](screenshots/screenshot1.jpg)
+
+[Haiti Polygon Features] (http://www.geopackage.org/data/haiti-vectors-split.gpkg)
+
+![Screenshot 2](screenshots/screenshot2.jpg)
+
+[Belgium Point Features] (http://www.geopackage.org/data/geonames_belgium.gpkg)
+
+![Screenshot 3](screenshots/screenshot3.jpg)
+
+Editing [Haiti Features] (http://www.geopackage.org/data/haiti-vectors-split.gpkg) with [OpenStreetMap] (http://www.openstreetmap.org/#map=5/51.500/-0.100) tiles
+
+![Screenshot 4](screenshots/screenshot4.jpg)
+
+[nowCOAST] (http://nowcoast.noaa.gov) tiles
+
+![Screenshot 5](screenshots/screenshot5.jpg)

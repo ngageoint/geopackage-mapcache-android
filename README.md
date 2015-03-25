@@ -54,14 +54,8 @@ App Icons are from [Material Design Icons on GitHub](https://github.com/google/m
 
 ### Dependencies ###
 
-#### [GeoPackage SDK](https://git.geointapps.org/geopackage/geopackage-android) ####
-The MIT License (MIT)
-
-#### [aFileChooser](https://github.com/iPaulPro/aFileChooser) ####
-
-Modified Version of: src/com/ipaulpro/afilechooser/utils/FileUtils.java
-
-Apache License, Version 2.0
+* [GeoPackage SDK](https://git.geointapps.org/geopackage/geopackage-android) (The MIT License (MIT)) - GeoPackage Library
+* [aFileChooser](https://github.com/iPaulPro/aFileChooser) (Apache License, Version 2.0) - Uri Paths using modified FileUtils
 
 ### Screen Shots ###
 

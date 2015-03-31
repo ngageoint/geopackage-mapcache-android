@@ -2048,7 +2048,7 @@ public class GeoPackageMapFragment extends Fragment implements
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
         Contents contents = tileMatrixSet.getContents();
         ProjectionTransform transform = ProjectionFactory.getProjection(
-                tileMatrixSet.getSrs().getOrganizationCoordsysId())
+                contents.getSrs().getOrganizationCoordsysId())
                 .getTransformation(
                         ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
         BoundingBox boundingBox = transform

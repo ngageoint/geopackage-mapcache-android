@@ -22,6 +22,9 @@ import mil.nga.giat.geopackage.factory.GeoPackageFactory;
 import mil.nga.giat.geopackage.features.columns.GeometryColumns;
 import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
+import mil.nga.giat.geopackage.projection.ProjectionConstants;
+import mil.nga.giat.geopackage.projection.ProjectionFactory;
+import mil.nga.giat.geopackage.projection.ProjectionTransform;
 import mil.nga.giat.wkb.geom.GeometryType;
 import mil.nga.giat.geopackage.io.GeoPackageIOUtils;
 import mil.nga.giat.geopackage.io.GeoPackageProgress;
@@ -798,7 +801,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 							GeoPackage geoPackage = manager.open(database);
 							try {
 								geoPackage.createFeatureTableWithMetadata(
-										geometryColumns, boundingBox, 4326);
+										geometryColumns, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 							} finally {
 								geoPackage.close();
 							}
@@ -933,11 +936,19 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 							// If not importing tiles, just create the table
 							if (tileUrl == null || tileUrl.isEmpty()) {
+                                ProjectionTransform wgs84ToWebMercatorTransform = ProjectionFactory
+                                        .getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+                                        .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
+                                BoundingBox webMercatorBoundingBox = wgs84ToWebMercatorTransform.transform(boundingBox);
 								GeoPackage geoPackage = manager.open(database);
 								try {
+                                    // Create the web mercator srs if needed
+                                    SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
+                                    srsDao.getOrCreate(getActivity(), ProjectionConstants.EPSG_WEB_MERCATOR);
+                                    // Create the tile table
 									geoPackage.createTileTableWithMetadata(
-											tableName, boundingBox,
-											boundingBox, 4326);
+											tableName, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
+                                            webMercatorBoundingBox, ProjectionConstants.EPSG_WEB_MERCATOR);
 								} finally {
 									geoPackage.close();
 								}
@@ -1100,6 +1111,13 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 			if (tileDao != null) {
 				TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
+
+                SpatialReferenceSystem tileMatrixSetSrs = tileMatrixSet.getSrs();
+                if(tileMatrixSetSrs.getId() != srs.getId()){
+                    info.append("\n\nTile Matrix Set Spatial Reference System:");
+                    addSrs(info, tileMatrixSetSrs);
+                }
+
 				info.append("\n\nTile Matrix Set:");
 				info.append("\nTable Name: ").append(
 						tileMatrixSet.getTableName());

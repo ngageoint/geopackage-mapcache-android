@@ -76,9 +76,7 @@ import mil.nga.giat.geopackage.factory.GeoPackageFactory;
 import mil.nga.giat.geopackage.features.user.FeatureCursor;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.features.user.FeatureRow;
-import mil.nga.giat.wkb.geom.Geometry;
-import mil.nga.giat.wkb.geom.GeometryType;
-import mil.nga.giat.wkb.geom.LineString;
+import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.giat.geopackage.geom.map.GoogleMapShape;
 import mil.nga.giat.geopackage.geom.map.GoogleMapShapeConverter;
 import mil.nga.giat.geopackage.geom.map.GoogleMapShapeMarkers;
@@ -92,14 +90,16 @@ import mil.nga.giat.geopackage.geom.map.MultiPolylineOptions;
 import mil.nga.giat.geopackage.geom.map.PolygonHoleMarkers;
 import mil.nga.giat.geopackage.geom.map.ShapeMarkers;
 import mil.nga.giat.geopackage.geom.map.ShapeWithChildrenMarkers;
-import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.giat.geopackage.projection.ProjectionConstants;
 import mil.nga.giat.geopackage.projection.ProjectionFactory;
 import mil.nga.giat.geopackage.projection.ProjectionTransform;
-import mil.nga.giat.wkb.util.GeometryPrinter;
 import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.giat.geopackage.tiles.overlay.GeoPackageOverlayFactory;
 import mil.nga.giat.geopackage.tiles.user.TileDao;
+import mil.nga.giat.wkb.geom.Geometry;
+import mil.nga.giat.wkb.geom.GeometryType;
+import mil.nga.giat.wkb.geom.LineString;
+import mil.nga.giat.wkb.util.GeometryPrinter;
 
 /**
  * GeoPackage Map Fragment
@@ -239,6 +239,20 @@ public class GeoPackageMapFragment extends Fragment implements
      * Mapping between marker ids and the feature ids
      */
     private Map<String, Long> editFeatureIds = new HashMap<String, Long>();
+
+    /**
+     * Marker feature
+     */
+    class MarkerFeature{
+        long featureId;
+        String database;
+        String tableName;
+    }
+
+    /**
+     * Mapping between marker ids and the features
+     */
+    private Map<String, MarkerFeature> markerIds = new HashMap<String, MarkerFeature>();
 
     /**
      * Mapping between marker ids and feature objects
@@ -1350,6 +1364,7 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackages.clear();
         featuresBoundingBox = null;
         tilesBoundingBox = null;
+        markerIds.clear();
         updateTask = new MapUpdateTask();
         int maxFeatures = getMaxFeatures();
         updateTask.execute(zoom, maxFeatures);
@@ -1408,14 +1423,18 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         @Override
         protected void onProgressUpdate(Object... shapeUpdate) {
-            GoogleMapShape shape = (GoogleMapShape) shapeUpdate[1];
+            GoogleMapShape shape = (GoogleMapShape) shapeUpdate[3];
 
             GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
                     map, shape);
 
+            long featureId = (Long) shapeUpdate[0];
+            String database = (String) shapeUpdate[1];
+            String tableName = (String) shapeUpdate[2];
             if (editFeaturesMode) {
-                long featureId = (Long) shapeUpdate[0];
                 addEditableShape(featureId, mapShape);
+            }else{
+                addMarkerShape(featureId, database, tableName, mapShape);
             }
 
         }
@@ -1451,10 +1470,12 @@ public class GeoPackageMapFragment extends Fragment implements
          * Add a shape to the map
          *
          * @param featureId
+         * @param database
+         * @param tableName
          * @param shape
          */
-        public void addToMap(long featureId, GoogleMapShape shape) {
-            publishProgress(new Object[]{featureId, shape});
+        public void addToMap(long featureId, String database, String tableName, GoogleMapShape shape) {
+            publishProgress(new Object[]{featureId, database, tableName, shape});
         }
 
     }
@@ -1651,10 +1672,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (threadPool != null) {
                     // Process the feature row in the thread pool
                     FeatureRowProcessor processor = new FeatureRowProcessor(
-                            task, featureDao, row, count, maxFeatures, editable);
+                            task, database, featureDao, row, count, maxFeatures, editable);
                     threadPool.execute(processor);
                 } else {
-                    processFeatureRow(task, featureDao, row, count,
+                    processFeatureRow(task, database, featureDao, row, count,
                             maxFeatures, editable);
                 }
             }
@@ -1675,6 +1696,11 @@ public class GeoPackageMapFragment extends Fragment implements
          * Map update task
          */
         private final MapUpdateTask task;
+
+        /**
+         * Database
+         */
+        private final String database;
 
         /**
          * Feature DAO
@@ -1705,16 +1731,18 @@ public class GeoPackageMapFragment extends Fragment implements
          * Constructor
          *
          * @param task
+         * @param database
          * @param featureDao
          * @param row
          * @param count
          * @param maxFeatures
          * @param editable
          */
-        public FeatureRowProcessor(MapUpdateTask task, FeatureDao featureDao,
+        public FeatureRowProcessor(MapUpdateTask task, String database, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
                                    boolean editable) {
             this.task = task;
+            this.database = database;
             this.featureDao = featureDao;
             this.row = row;
             this.count = count;
@@ -1727,7 +1755,7 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         @Override
         public void run() {
-            processFeatureRow(task, featureDao, row, count, maxFeatures,
+            processFeatureRow(task, database, featureDao, row, count, maxFeatures,
                     editable);
         }
 
@@ -1737,13 +1765,14 @@ public class GeoPackageMapFragment extends Fragment implements
      * Process the feature row
      *
      * @param task
+     * @param database
      * @param featureDao
      * @param row
      * @param count
      * @param maxFeatures
      * @param editable
      */
-    private void processFeatureRow(MapUpdateTask task, FeatureDao featureDao,
+    private void processFeatureRow(MapUpdateTask task, String database, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
                                    boolean editable) {
         mil.nga.giat.geopackage.projection.Projection projection = featureDao
@@ -1762,7 +1791,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     final GoogleMapShape shape = converter.toShape(geometry);
                     updateFeaturesBoundingBox(shape);
                     prepareShapeOptions(shape, editable, true);
-                    task.addToMap(featureId, shape);
+                    task.addToMap(featureId, database, featureDao.getTableName(), shape);
                 }
             }
         }
@@ -1935,6 +1964,26 @@ public class GeoPackageMapFragment extends Fragment implements
                 editFeatureIds.put(marker.getId(), featureId);
                 editFeatureObjects.put(marker.getId(), shape);
             }
+        }
+    }
+
+    /**
+     * Add marker shape
+     *
+     * @param featureId
+     * @param database
+     * @param tableName
+     * @param shape
+     */
+    private void addMarkerShape(long featureId, String database, String tableName, GoogleMapShape shape) {
+
+        if (shape.getShapeType() == GoogleMapShapeType.MARKER) {
+            Marker marker = (Marker) shape.getShape();
+            MarkerFeature markerFeature = new MarkerFeature();
+            markerFeature.database = database;
+            markerFeature.tableName = tableName;
+            markerFeature.featureId = featureId;
+            markerIds.put(marker.getId(), markerFeature);
         }
     }
 
@@ -2464,9 +2513,9 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        if (editFeaturesMode) {
+        String markerId = marker.getId();
 
-            String markerId = marker.getId();
+        if (editFeaturesMode) {
 
             // Handle clicks to edit contents of an existing feature
             if (editFeatureShape != null && editFeatureShape.contains(markerId)) {
@@ -2475,26 +2524,33 @@ public class GeoPackageMapFragment extends Fragment implements
             }
 
             // Handle clicks on an existing feature in edit mode
-            Long featureId = editFeatureIds.get(marker.getId());
+            Long featureId = editFeatureIds.get(markerId);
             if (featureId != null) {
                 editExistingFeatureClick(marker, featureId);
                 return true;
             }
 
             // Handle clicks on new edit points
-            Marker editPoint = editPoints.get(marker.getId());
+            Marker editPoint = editPoints.get(markerId);
             if (editPoint != null) {
                 editMarkerClick(marker, editPoints);
                 return true;
             }
 
             // Handle clicks on new edit hole points
-            editPoint = editHolePoints.get(marker.getId());
+            editPoint = editHolePoints.get(markerId);
             if (editPoint != null) {
                 editMarkerClick(marker, editHolePoints);
                 return true;
             }
 
+        }else {
+            // Handle clicks on point markers
+            MarkerFeature markerFeature = markerIds.get(markerId);
+            if(markerFeature != null){
+                infoFeatureClick(marker, markerFeature);
+                return true;
+            }
         }
         return false;
     }
@@ -2634,18 +2690,13 @@ public class GeoPackageMapFragment extends Fragment implements
             final GeometryType geometryType = geomData.getGeometry()
                     .getGeometryType();
 
-            LatLng position = marker.getPosition();
-
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                     getActivity(), android.R.layout.select_dialog_item);
             adapter.add(getString(R.string.edit_features_info_label));
             adapter.add(getString(R.string.edit_features_edit_label));
             adapter.add(getString(R.string.edit_features_delete_label));
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            DecimalFormat formatter = new DecimalFormat("0.0###");
-            final String title = geometryType.getName() + "\n(lat="
-                    + formatter.format(position.latitude) + ", lon="
-                    + formatter.format(position.longitude) + ")";
+            final String title = getTitle(geometryType, marker);
             builder.setTitle(title);
             builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
@@ -2661,7 +2712,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     if (item >= 0) {
                         switch (item) {
                             case 0:
-                                infoExistingFeatureOption(title, geomData);
+                                infoExistingFeatureOption(featureRow, title, geomData);
                                 if (geoPackage != null) {
                                     geoPackage.close();
                                 }
@@ -2695,16 +2746,75 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
+     * Get a title from the Geometry Type and marker
+     * @param geometryType
+     * @param marker
+     * @return
+     */
+    private String getTitle(GeometryType geometryType, Marker marker){
+        LatLng position = marker.getPosition();
+        DecimalFormat formatter = new DecimalFormat("0.0###");
+        String title = geometryType.getName() + "\n(lat="
+                + formatter.format(position.latitude) + ", lon="
+                + formatter.format(position.longitude) + ")";
+        return title;
+    }
+
+    /**
+     * Info feature click
+     *
+     * @param marker
+     * @param featureId
+     */
+    private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
+        final GeoPackage geoPackage = manager.open(markerFeature.database);
+        final FeatureDao featureDao = geoPackage
+                .getFeatureDao(markerFeature.tableName);
+
+        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
+
+        if (featureRow != null) {
+            final GeoPackageGeometryData geomData = featureRow.getGeometry();
+            final GeometryType geometryType = geomData.getGeometry()
+                    .getGeometryType();
+
+            String title = getTitle(geometryType, marker);
+            infoExistingFeatureOption(featureRow, title, geomData);
+
+        }
+        geoPackage.close();
+    }
+
+    /**
      * Info existing feature option
      *
+     * @param featureRow
      * @param title
      * @param marker
      */
-    private void infoExistingFeatureOption(String title,
+    private void infoExistingFeatureOption(FeatureRow featureRow,
+                                           String title,
                                            GeoPackageGeometryData geomData) {
 
-        String message = GeometryPrinter.getGeometryString(geomData
-                .getGeometry());
+        StringBuilder message = new StringBuilder();
+        int geometryColumn = featureRow.getGeometryColumnIndex();
+        for(int i = 0; i < featureRow.columnCount(); i++){
+            if(i != geometryColumn){
+                Object value = featureRow.getValue(i);
+                if(value != null) {
+                    message.append(featureRow.getColumn(i).getName()).append(": ");
+                    message.append(value);
+                    message.append("\n");
+                }
+            }
+        }
+
+        if(message.length() > 0){
+            message.append("\n");
+        }
+
+        message.append(GeometryPrinter.getGeometryString(geomData
+                .getGeometry()));
 
         AlertDialog viewDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(title)

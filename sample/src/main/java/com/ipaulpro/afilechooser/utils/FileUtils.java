@@ -19,6 +19,8 @@
  *
  * - Removed LocalStorageProvider references
  * - Added and modified to use isDocumentUri and getDocumentId methods with KITKAT target api annotation
+ * - Added ExternalStorageProvider SD card handler section in the getPath method
+ * - Added getFileIfExists method
  */
 
 package com.ipaulpro.afilechooser.utils;
@@ -250,6 +252,25 @@ public class FileUtils {
     }
 
     /**
+     * Attempt to get the file location from the base path and path if the file exists
+     * @param basePath
+     * @param path
+     * @return
+     */
+    private static File getFileIfExists(String basePath, String path){
+        File result = null;
+        File file = new File(basePath);
+        if(file.exists())
+        {
+            file = new File(file, path);
+            if(file.exists()){
+                result = file;
+            }
+        }
+        return result;
+    }
+
+    /**
      * Get a file path from a Uri. This will get the the path for Storage Access
      * Framework Documents, as well as the _data field for the MediaStore and
      * other file-based ContentProviders.<br>
@@ -293,6 +314,24 @@ public class FileUtils {
 
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
+                }
+
+                // Handle SD cards
+                File file = getFileIfExists("/storage/extSdCard", split[1]);
+                if(file != null){
+                    return file.getAbsolutePath();
+                }
+                file = getFileIfExists("/storage/sdcard1", split[1]);
+                if(file != null){
+                    return file.getAbsolutePath();
+                }
+                file = getFileIfExists("/storage/usbcard1", split[1]);
+                if(file != null){
+                    return file.getAbsolutePath();
+                }
+                file = getFileIfExists("/storage/sdcard0", split[1]);
+                if(file != null){
+                    return file.getAbsolutePath();
                 }
 
                 // TODO handle non-primary volumes

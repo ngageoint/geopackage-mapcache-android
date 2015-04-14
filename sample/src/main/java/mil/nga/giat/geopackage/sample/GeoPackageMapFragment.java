@@ -73,6 +73,7 @@ import mil.nga.giat.geopackage.GeoPackageException;
 import mil.nga.giat.geopackage.GeoPackageManager;
 import mil.nga.giat.geopackage.core.contents.Contents;
 import mil.nga.giat.geopackage.factory.GeoPackageFactory;
+import mil.nga.giat.geopackage.features.columns.GeometryColumns;
 import mil.nga.giat.geopackage.features.user.FeatureCursor;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.features.user.FeatureRow;
@@ -93,7 +94,9 @@ import mil.nga.giat.geopackage.geom.map.ShapeWithChildrenMarkers;
 import mil.nga.giat.geopackage.projection.ProjectionConstants;
 import mil.nga.giat.geopackage.projection.ProjectionFactory;
 import mil.nga.giat.geopackage.projection.ProjectionTransform;
+import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
 import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.giat.geopackage.tiles.overlay.FeatureOverlay;
 import mil.nga.giat.geopackage.tiles.overlay.GeoPackageOverlayFactory;
 import mil.nga.giat.geopackage.tiles.user.TileDao;
 import mil.nga.giat.wkb.geom.Geometry;
@@ -1508,7 +1511,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     // Display the tiles
                     for (GeoPackageTable tiles : database.getTiles()) {
                         try {
-                            displayTiles(task, tiles);
+                            displayTiles(tiles);
                         } catch (Exception e) {
                             Log.e(GeoPackageMapFragment.class.getSimpleName(),
                                     e.getMessage());
@@ -1525,6 +1528,19 @@ public class GeoPackageMapFragment extends Fragment implements
                     break;
                 }
             }
+
+            /* TODO allow features to display as tiles
+            for(String database: manager.databases()){
+                GeoPackage geoPackage = geoPackages.get(database);
+                if (geoPackage == null) {
+                    geoPackage = manager.open(database);
+                    geoPackages.put(database, geoPackage);
+                }
+                for(String featureTable: geoPackage.getFeatureTables()){
+                    GeoPackageTable featureGeoPackageTable = GeoPackageTable.createFeature(database, featureTable, null, 0);
+                    displayFeatureTiles(featureGeoPackageTable);
+                }
+            } */
 
             // Add features
             Map<String, List<String>> featureTables = new HashMap<String, List<String>>();
@@ -2079,10 +2095,9 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Display tiles
      *
-     * @param task
      * @param tiles
      */
-    private void displayTiles(MapUpdateTask task, GeoPackageTable tiles) {
+    private void displayTiles(GeoPackageTable tiles) {
 
         GeoPackage geoPackage = geoPackages.get(tiles.getDatabase());
 
@@ -2090,12 +2105,44 @@ public class GeoPackageMapFragment extends Fragment implements
 
         TileProvider overlay = GeoPackageOverlayFactory
                 .getTileProvider(tileDao);
+
+        TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
+        Contents contents = tileMatrixSet.getContents();
+
+        displayTiles(overlay, contents);
+    }
+
+    /**
+     * Display feature tiles
+     *
+     * @param tiles
+     */
+    private void displayFeatureTiles(GeoPackageTable tiles) {
+
+        GeoPackage geoPackage = geoPackages.get(tiles.getDatabase());
+
+        FeatureDao featureDao = geoPackage.getFeatureDao(tiles.getName());
+
+        FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+        TileProvider overlay = new FeatureOverlay(featureTiles);
+
+        GeometryColumns geometryColumns = featureDao.getGeometryColumns();
+        Contents contents = geometryColumns.getContents();
+
+        displayTiles(overlay, contents);
+    }
+
+    /**
+     * Display tiles
+     * @param overlay
+     * @param contents
+     */
+    private void displayTiles(TileProvider overlay, Contents contents){
+
         final TileOverlayOptions overlayOptions = new TileOverlayOptions();
         overlayOptions.tileProvider(overlay);
         overlayOptions.zIndex(-1);
 
-        TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
-        Contents contents = tileMatrixSet.getContents();
         ProjectionTransform transform = ProjectionFactory.getProjection(
                 contents.getSrs().getOrganizationCoordsysId())
                 .getTransformation(

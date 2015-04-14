@@ -1,12 +1,5 @@
 package mil.nga.giat.geopackage.sample;
 
-import mil.nga.giat.geopackage.BoundingBox;
-import mil.nga.giat.geopackage.GeoPackage;
-import mil.nga.giat.geopackage.GeoPackageException;
-import mil.nga.giat.geopackage.GeoPackageManager;
-import mil.nga.giat.geopackage.factory.GeoPackageFactory;
-import mil.nga.giat.geopackage.io.GeoPackageProgress;
-import mil.nga.giat.geopackage.tiles.TileGenerator;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +7,15 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
 import android.os.PowerManager;
+
+import mil.nga.giat.geopackage.BoundingBox;
+import mil.nga.giat.geopackage.GeoPackage;
+import mil.nga.giat.geopackage.GeoPackageException;
+import mil.nga.giat.geopackage.GeoPackageManager;
+import mil.nga.giat.geopackage.factory.GeoPackageFactory;
+import mil.nga.giat.geopackage.io.GeoPackageProgress;
+import mil.nga.giat.geopackage.tiles.TileGenerator;
+import mil.nga.giat.geopackage.tiles.UrlTileGenerator;
 
 /**
  * Load tiles task
@@ -56,7 +58,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
 
 		GeoPackageManager manager = GeoPackageFactory.getManager(activity);
 		GeoPackage geoPackage = manager.open(database);
-		TileGenerator tileGenerator = new TileGenerator(activity, geoPackage,
+		TileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
 				tableName, tileUrl, minZoom, maxZoom);
 		tileGenerator.setCompressFormat(compressFormat);
 		tileGenerator.setCompressQuality(compressQuality);

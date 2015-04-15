@@ -1,40 +1,5 @@
 package mil.nga.giat.geopackage.sample;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import mil.nga.giat.geopackage.BoundingBox;
-import mil.nga.giat.geopackage.GeoPackage;
-import mil.nga.giat.geopackage.GeoPackageConstants;
-import mil.nga.giat.geopackage.GeoPackageException;
-import mil.nga.giat.geopackage.GeoPackageManager;
-import mil.nga.giat.geopackage.core.contents.Contents;
-import mil.nga.giat.geopackage.core.contents.ContentsDao;
-import mil.nga.giat.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.giat.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.giat.geopackage.factory.GeoPackageFactory;
-import mil.nga.giat.geopackage.features.columns.GeometryColumns;
-import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
-import mil.nga.giat.geopackage.features.user.FeatureDao;
-import mil.nga.giat.geopackage.projection.ProjectionConstants;
-import mil.nga.giat.geopackage.projection.ProjectionFactory;
-import mil.nga.giat.geopackage.projection.ProjectionTransform;
-import mil.nga.giat.wkb.geom.GeometryType;
-import mil.nga.giat.geopackage.io.GeoPackageIOUtils;
-import mil.nga.giat.geopackage.io.GeoPackageProgress;
-import mil.nga.giat.geopackage.schema.TableColumnKey;
-import mil.nga.giat.geopackage.tiles.matrix.TileMatrix;
-import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
-import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSetDao;
-import mil.nga.giat.geopackage.tiles.user.TileDao;
-import mil.nga.giat.geopackage.user.UserColumn;
-import mil.nga.giat.geopackage.user.UserTable;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -46,6 +11,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -74,9 +41,48 @@ import android.widget.TextView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import mil.nga.giat.geopackage.BoundingBox;
+import mil.nga.giat.geopackage.GeoPackage;
+import mil.nga.giat.geopackage.GeoPackageConstants;
+import mil.nga.giat.geopackage.GeoPackageException;
+import mil.nga.giat.geopackage.GeoPackageManager;
+import mil.nga.giat.geopackage.core.contents.Contents;
+import mil.nga.giat.geopackage.core.contents.ContentsDao;
+import mil.nga.giat.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.giat.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.giat.geopackage.factory.GeoPackageFactory;
+import mil.nga.giat.geopackage.features.columns.GeometryColumns;
+import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.giat.geopackage.features.user.FeatureDao;
+import mil.nga.giat.geopackage.io.GeoPackageIOUtils;
+import mil.nga.giat.geopackage.io.GeoPackageProgress;
+import mil.nga.giat.geopackage.projection.Projection;
+import mil.nga.giat.geopackage.projection.ProjectionConstants;
+import mil.nga.giat.geopackage.projection.ProjectionFactory;
+import mil.nga.giat.geopackage.projection.ProjectionTransform;
+import mil.nga.giat.geopackage.schema.TableColumnKey;
+import mil.nga.giat.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
+import mil.nga.giat.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.giat.geopackage.tiles.user.TileDao;
+import mil.nga.giat.geopackage.user.UserColumn;
+import mil.nga.giat.geopackage.user.UserTable;
+import mil.nga.giat.wkb.geom.GeometryType;
+
 /**
  * GeoPackage Manager Fragment
- * 
+ *
  * @author osbornb
  */
 public class GeoPackageManagerFragment extends Fragment implements
@@ -240,7 +246,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Show options for the GeoPackage database
-	 * 
+	 *
 	 * @param database
 	 */
 	private void databaseOptions(final String database) {
@@ -299,7 +305,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * View database information
-	 * 
+	 *
 	 * @param database
 	 */
 	private void viewDatabaseOption(final String database) {
@@ -346,7 +352,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Add Spatial Reference System to the info
-	 * 
+	 *
 	 * @param info
 	 * @param srs
 	 */
@@ -361,7 +367,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Delete database alert option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void deleteDatabaseOption(final String database) {
@@ -395,7 +401,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Rename database option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void renameDatabaseOption(final String database) {
@@ -452,7 +458,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Copy database option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void copyDatabaseOption(final String database) {
@@ -507,7 +513,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Export database option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void exportDatabaseOption(final String database) {
@@ -552,7 +558,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Share database option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void shareDatabaseOption(final String database) {
@@ -587,7 +593,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Launch the provided share intent with the database Uri
-	 * 
+	 *
 	 * @param shareIntent
 	 * @param databaseUri
 	 */
@@ -623,7 +629,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param shareIntent
 		 */
 		ShareCopyTask(Intent shareIntent) {
@@ -706,7 +712,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Get the database cache directory
-	 * 
+	 *
 	 * @return
 	 */
 	private File getDatabaseCacheDirectory() {
@@ -715,7 +721,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Create features option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void createFeaturesOption(final String database) {
@@ -828,7 +834,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Create tiles option
-	 * 
+	 *
 	 * @param database
 	 */
 	private void createTilesOption(final String database) {
@@ -845,15 +851,15 @@ public class GeoPackageManagerFragment extends Fragment implements
 		final Button preloadedUrlsButton = (Button) createTilesView
 				.findViewById(R.id.load_tiles_preloaded);
 		final EditText minZoomInput = (EditText) createTilesView
-				.findViewById(R.id.load_tiles_min_zoom_input);
+				.findViewById(R.id.generate_tiles_min_zoom_input);
 		final EditText maxZoomInput = (EditText) createTilesView
-				.findViewById(R.id.load_tiles_max_zoom_input);
+				.findViewById(R.id.generate_tiles_max_zoom_input);
 		final Spinner compressFormatInput = (Spinner) createTilesView
-				.findViewById(R.id.load_tiles_compress_format);
+				.findViewById(R.id.generate_tiles_compress_format);
 		final EditText compressQualityInput = (EditText) createTilesView
-				.findViewById(R.id.load_tiles_compress_quality);
+				.findViewById(R.id.generate_tiles_compress_quality);
 		final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
-				.findViewById(R.id.load_tiles_type_google_radio_button);
+				.findViewById(R.id.generate_tiles_type_google_radio_button);
 		final EditText minLatInput = (EditText) createTilesView
 				.findViewById(R.id.bounding_box_min_latitude_input);
 		final EditText maxLatInput = (EditText) createTilesView
@@ -1004,7 +1010,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Show options for the GeoPackage table
-	 * 
+	 *
 	 * @param table
 	 */
 	private void tableOptions(final GeoPackageTable table) {
@@ -1016,7 +1022,9 @@ public class GeoPackageManagerFragment extends Fragment implements
 		adapter.add(getString(R.string.geopackage_table_delete_label));
 		if (table.isTile()) {
 			adapter.add(getString(R.string.geopackage_table_tiles_load_label));
-		}
+		} else if(table.isFeature()){
+            adapter.add(getString(R.string.geopackage_table_create_feature_tiles_label));
+        }
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(table.getDatabase() + " - " + table.getName());
 		builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -1037,7 +1045,9 @@ public class GeoPackageManagerFragment extends Fragment implements
 					case 3:
 						if (table.isTile()) {
 							loadTilesTableOption(table);
-						}
+						}else if(table.isFeature()){
+                            createFeatureTilesTableOption(table);
+                        }
 						break;
 
 					default:
@@ -1052,7 +1062,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * View table information
-	 * 
+	 *
 	 * @param table
 	 */
 	private void viewTableOption(final GeoPackageTable table) {
@@ -1188,7 +1198,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Edit table information
-	 * 
+	 *
 	 * @param table
 	 */
 	private void editTableOption(final GeoPackageTable table) {
@@ -1458,7 +1468,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Delete table alert option
-	 * 
+	 *
 	 * @param table
 	 */
 	private void deleteTableOption(final GeoPackageTable table) {
@@ -1506,7 +1516,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Load tiles table alert option
-	 * 
+	 *
 	 * @param table
 	 */
 	private void loadTilesTableOption(final GeoPackageTable table) {
@@ -1521,15 +1531,15 @@ public class GeoPackageManagerFragment extends Fragment implements
 		final Button preloadedUrlsButton = (Button) loadTilesView
 				.findViewById(R.id.load_tiles_preloaded);
 		final EditText minZoomInput = (EditText) loadTilesView
-				.findViewById(R.id.load_tiles_min_zoom_input);
+				.findViewById(R.id.generate_tiles_min_zoom_input);
 		final EditText maxZoomInput = (EditText) loadTilesView
-				.findViewById(R.id.load_tiles_max_zoom_input);
+				.findViewById(R.id.generate_tiles_max_zoom_input);
 		final Spinner compressFormatInput = (Spinner) loadTilesView
-				.findViewById(R.id.load_tiles_compress_format);
+				.findViewById(R.id.generate_tiles_compress_format);
 		final EditText compressQualityInput = (EditText) loadTilesView
-				.findViewById(R.id.load_tiles_compress_quality);
+				.findViewById(R.id.generate_tiles_compress_quality);
 		final RadioButton googleTilesRadioButton = (RadioButton) loadTilesView
-				.findViewById(R.id.load_tiles_type_google_radio_button);
+				.findViewById(R.id.generate_tiles_type_google_radio_button);
 		final EditText minLatInput = (EditText) loadTilesView
 				.findViewById(R.id.bounding_box_min_latitude_input);
 		final EditText maxLatInput = (EditText) loadTilesView
@@ -1629,9 +1639,272 @@ public class GeoPackageManagerFragment extends Fragment implements
 		dialog.show();
 	}
 
+    /**
+     * Create feature tiles table option
+     *
+     * @param table
+     */
+    private void createFeatureTilesTableOption(final GeoPackageTable table) {
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View createTilesView = inflater.inflate(R.layout.feature_tiles, null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setView(createTilesView);
+
+        final EditText nameInput = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_name_input);
+        final EditText minZoomInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_min_zoom_input);
+        final EditText maxZoomInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_zoom_input);
+        final Spinner compressFormatInput = (Spinner) createTilesView
+                .findViewById(R.id.generate_tiles_compress_format);
+        final EditText compressQualityInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_compress_quality);
+        final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
+                .findViewById(R.id.generate_tiles_type_google_radio_button);
+        final EditText minLatInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_min_latitude_input);
+        final EditText maxLatInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_max_latitude_input);
+        final EditText minLonInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_min_longitude_input);
+        final EditText maxLonInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_max_longitude_input);
+        final Button preloadedLocationsButton = (Button) createTilesView
+                .findViewById(R.id.bounding_box_preloaded);
+        final Spinner pointColor = (Spinner) createTilesView
+                .findViewById(R.id.feature_tiles_point_color);
+        final EditText pointAlpha = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_point_alpha);
+        final EditText pointRadius = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_point_radius);
+        final Spinner lineColor = (Spinner) createTilesView
+                .findViewById(R.id.feature_tiles_line_color);
+        final EditText lineAlpha = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_line_alpha);
+        final EditText lineStroke = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_line_stroke);
+        final Spinner polygonColor = (Spinner) createTilesView
+                .findViewById(R.id.feature_tiles_polygon_color);
+        final EditText polygonAlpha = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_polygon_alpha);
+        final EditText polygonStroke = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_polygon_stroke);
+        final CheckBox polygonFill = (CheckBox) createTilesView
+                .findViewById(R.id.feature_tiles_polygon_fill);
+        final Spinner polygonFillColor = (Spinner) createTilesView
+                .findViewById(R.id.feature_tiles_polygon_fill_color);
+        final EditText polygonFillAlpha = (EditText) createTilesView
+                .findViewById(R.id.feature_tiles_polygon_fill_alpha);
+
+        GeoPackageUtils
+                .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                        maxLatInput, minLonInput, maxLonInput,
+                        preloadedLocationsButton);
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, null, nameInput, null,
+                compressFormatInput, compressQualityInput);
+
+        // Preset the bounding box to the feature contents
+        GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+        GeoPackage geoPackage = manager.open(table.getDatabase());
+        ContentsDao contentsDao = geoPackage.getContentsDao();
+        try {
+            Contents contents = contentsDao.queryForId(table.getName());
+            if(contents != null){
+                BoundingBox boundingBox = contents.getBoundingBox();
+                Projection projection = ProjectionFactory.getProjection(
+                        contents.getSrs().getOrganizationCoordsysId());
+                ProjectionTransform worldGeodeticTransform = projection.getTransformation(
+                        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                BoundingBox worldGeodeticBoundingBox = worldGeodeticTransform.transform(boundingBox);
+                minLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLongitude()));
+                minLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLatitude()));
+                maxLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLongitude()));
+                maxLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLatitude()));
+
+                // Try to find a good zoom starting point
+                ProjectionTransform webMercatorTransform = projection.getTransformation(
+                        ProjectionConstants.EPSG_WEB_MERCATOR);
+                BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(boundingBox);
+                int zoomLevel = TileBoundingBoxUtils.getZoomLevel(webMercatorBoundingBox);
+                int maxZoomLevel = getActivity().getResources().getInteger(
+                        R.integer.load_tiles_max_zoom_default);
+                zoomLevel = Math.max(0, Math.min(zoomLevel, maxZoomLevel) - 1);
+                minZoomInput.setText(String.valueOf(zoomLevel));
+                maxZoomInput.setText(String.valueOf(maxZoomLevel));
+            }
+        }catch(Exception e){
+            // don't preset the bounding box
+        }
+
+        // Set a default name
+        nameInput.setText(table.getName() + getString(R.string.feature_tiles_name_suffix));
+
+        // Set feature limits
+        pointAlpha.setFilters(new InputFilter[] { new InputFilterMinMax(
+                0, 255) });
+        lineAlpha.setFilters(new InputFilter[] { new InputFilterMinMax(
+                0, 255) });
+        polygonAlpha.setFilters(new InputFilter[] { new InputFilterMinMax(
+                0, 255) });
+        polygonFillAlpha.setFilters(new InputFilter[] { new InputFilterMinMax(
+                0, 255) });
+
+        // Set default feature attributes
+        FeatureTiles featureTiles = new FeatureTiles(getActivity(), null);
+        String defaultColor = "black";
+
+        Paint pointPaint = featureTiles.getPointPaint();
+        pointColor.setSelection(((ArrayAdapter) pointColor.getAdapter()).getPosition(defaultColor));
+        pointAlpha.setText(String.valueOf(pointPaint.getAlpha()));
+        pointRadius.setText(String.valueOf(featureTiles.getPointRadius()));
+
+        Paint linePaint = featureTiles.getLinePaint();
+        lineColor.setSelection(((ArrayAdapter) lineColor.getAdapter()).getPosition(defaultColor));
+        lineAlpha.setText(String.valueOf(linePaint.getAlpha()));
+        lineStroke.setText(String.valueOf(linePaint.getStrokeWidth()));
+
+        Paint polygonPaint = featureTiles.getPolygonPaint();
+        polygonColor.setSelection(((ArrayAdapter) polygonColor.getAdapter()).getPosition(defaultColor));
+        polygonAlpha.setText(String.valueOf(polygonPaint.getAlpha()));
+        polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
+
+        polygonFill.setChecked(featureTiles.isFillPolygon());
+        Paint polygonFillPaint = featureTiles.getPolygonPaint();
+        polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(defaultColor));
+        polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
+
+        dialog.setPositiveButton(
+                getString(R.string.geopackage_table_create_feature_tiles_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        try {
+
+                            String tableName = nameInput.getText().toString();
+                            if (tableName == null || tableName.isEmpty()) {
+                                throw new GeoPackageException(
+                                        getString(R.string.feature_tiles_name_label)
+                                                + " is required");
+                            }
+                            int minZoom = Integer.valueOf(minZoomInput
+                                    .getText().toString());
+                            int maxZoom = Integer.valueOf(maxZoomInput
+                                    .getText().toString());
+                            double minLat = Double.valueOf(minLatInput
+                                    .getText().toString());
+                            double maxLat = Double.valueOf(maxLatInput
+                                    .getText().toString());
+                            double minLon = Double.valueOf(minLonInput
+                                    .getText().toString());
+                            double maxLon = Double.valueOf(maxLonInput
+                                    .getText().toString());
+
+                            if (minLat > maxLat) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_latitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_latitude_label));
+                            }
+
+                            if (minLon > maxLon) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_longitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_longitude_label));
+                            }
+
+                            CompressFormat compressFormat = null;
+                            Integer compressQuality = null;
+                            if (compressFormatInput.getSelectedItemPosition() > 0) {
+                                compressFormat = CompressFormat
+                                        .valueOf(compressFormatInput
+                                                .getSelectedItem().toString());
+                                compressQuality = Integer
+                                        .valueOf(compressQualityInput.getText()
+                                                .toString());
+                            }
+
+                            boolean googleTiles = googleTilesRadioButton
+                                    .isChecked();
+
+                            BoundingBox boundingBox = new BoundingBox(minLon,
+                                    maxLon, minLat, maxLat);
+
+                                // Load tiles
+                            GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+                            GeoPackage geoPackage = manager.open(table.getDatabase());
+                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
+                            FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+
+                            Paint pointPaint = featureTiles.getPointPaint();
+                            if (pointColor.getSelectedItemPosition() >= 0) {
+                                pointPaint.setColor(Color.parseColor(pointColor.getSelectedItem().toString()));
+                            }
+                            pointPaint.setAlpha(Integer.valueOf(pointAlpha
+                                    .getText().toString()));
+                            featureTiles.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
+
+                            Paint linePaint = featureTiles.getLinePaint();
+                            if (lineColor.getSelectedItemPosition() >= 0) {
+                                linePaint.setColor(Color.parseColor(lineColor.getSelectedItem().toString()));
+                            }
+                            linePaint.setAlpha(Integer.valueOf(lineAlpha
+                                    .getText().toString()));
+                            linePaint.setStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
+
+                            Paint polygonPaint = featureTiles.getPolygonPaint();
+                            if (polygonColor.getSelectedItemPosition() >= 0) {
+                                polygonPaint.setColor(Color.parseColor(polygonColor.getSelectedItem().toString()));
+                            }
+                            polygonPaint.setAlpha(Integer.valueOf(polygonAlpha
+                                    .getText().toString()));
+                            polygonPaint.setStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
+
+                            featureTiles.setFillPolygon(polygonFill.isChecked());
+                            if(featureTiles.isFillPolygon()) {
+                                Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
+                                if (polygonFillColor.getSelectedItemPosition() >= 0) {
+                                    polygonFillPaint.setColor(Color.parseColor(polygonFillColor.getSelectedItem().toString()));
+                                }
+                                polygonFillPaint.setAlpha(Integer.valueOf(polygonFillAlpha
+                                        .getText().toString()));
+                            }
+
+                            LoadTilesTask.loadTiles(getActivity(),
+                                    GeoPackageManagerFragment.this, active,
+                                    geoPackage, tableName, featureTiles, minZoom,
+                                    maxZoom, compressFormat,
+                                    compressQuality, googleTiles,
+                                    boundingBox);
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.geopackage_create_tiles_label),
+                                            e.getMessage());
+                        }
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        dialog.show();
+
+    }
+
 	/**
 	 * Handle manager menu clicks
-	 * 
+	 *
 	 * @param item
 	 * @return
 	 */
@@ -1740,7 +2013,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Create a download progress dialog
-	 * 
+	 *
 	 * @param database
 	 * @param url
 	 * @param downloadTask
@@ -1778,7 +2051,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * @param database
 		 * @param url
 		 */
@@ -1969,7 +2242,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Import the GeoPackage file selected
-	 * 
+	 *
 	 * @param data
 	 */
 	private void importFile(Intent data) {
@@ -2105,7 +2378,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 	/**
 	 * Get display name from the uri
-	 * 
+	 *
 	 * @param resolver
 	 * @param uri
 	 * @return

@@ -3041,15 +3041,15 @@ public class GeoPackageMapFragment extends Fragment implements
         final Button preloadedUrlsButton = (Button) createTilesView
                 .findViewById(R.id.load_tiles_preloaded);
         final EditText minZoomInput = (EditText) createTilesView
-                .findViewById(R.id.load_tiles_min_zoom_input);
+                .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
-                .findViewById(R.id.load_tiles_max_zoom_input);
+                .findViewById(R.id.generate_tiles_max_zoom_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
-                .findViewById(R.id.load_tiles_compress_format);
+                .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
-                .findViewById(R.id.load_tiles_compress_quality);
+                .findViewById(R.id.generate_tiles_compress_quality);
         final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
-                .findViewById(R.id.load_tiles_type_google_radio_button);
+                .findViewById(R.id.generate_tiles_type_google_radio_button);
         final EditText minLatInput = (EditText) createTilesView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) createTilesView

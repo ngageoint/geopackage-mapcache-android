@@ -73,71 +73,73 @@ public class GeoPackageUtils {
 		compressQualityInput.setText(String.valueOf(activity.getResources()
 				.getInteger(R.integer.load_tiles_compress_quality_default)));
 
-		button.setOnClickListener(new View.OnClickListener() {
+        if(button != null) {
+            button.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-						activity, android.R.layout.select_dialog_item);
-				adapter.addAll(activity.getResources().getStringArray(
-						R.array.preloaded_tile_url_labels));
-				AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-				builder.setTitle(activity
-						.getString(R.string.load_tiles_preloaded_label));
-				builder.setAdapter(adapter,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int item) {
-								if (item >= 0) {
-									String[] urls = activity
-											.getResources()
-											.getStringArray(
-													R.array.preloaded_tile_urls);
-									String[] names = activity
-											.getResources()
-											.getStringArray(
-													R.array.preloaded_tile_url_names);
-									int[] minZooms = activity
-											.getResources()
-											.getIntArray(
-													R.array.preloaded_tile_url_min_zoom);
-									int[] maxZooms = activity
-											.getResources()
-											.getIntArray(
-													R.array.preloaded_tile_url_max_zoom);
-									int[] defaultMinZooms = activity
-											.getResources()
-											.getIntArray(
-													R.array.preloaded_tile_url_default_min_zoom);
-									int[] defaultMaxZooms = activity
-											.getResources()
-											.getIntArray(
-													R.array.preloaded_tile_url_default_max_zoom);
-									if (nameInput != null) {
-										nameInput.setText(names[item]);
-									}
-									urlInput.setText(urls[item]);
+                @Override
+                public void onClick(View v) {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                            activity, android.R.layout.select_dialog_item);
+                    adapter.addAll(activity.getResources().getStringArray(
+                            R.array.preloaded_tile_url_labels));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle(activity
+                            .getString(R.string.load_tiles_preloaded_label));
+                    builder.setAdapter(adapter,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int item) {
+                                    if (item >= 0) {
+                                        String[] urls = activity
+                                                .getResources()
+                                                .getStringArray(
+                                                        R.array.preloaded_tile_urls);
+                                        String[] names = activity
+                                                .getResources()
+                                                .getStringArray(
+                                                        R.array.preloaded_tile_url_names);
+                                        int[] minZooms = activity
+                                                .getResources()
+                                                .getIntArray(
+                                                        R.array.preloaded_tile_url_min_zoom);
+                                        int[] maxZooms = activity
+                                                .getResources()
+                                                .getIntArray(
+                                                        R.array.preloaded_tile_url_max_zoom);
+                                        int[] defaultMinZooms = activity
+                                                .getResources()
+                                                .getIntArray(
+                                                        R.array.preloaded_tile_url_default_min_zoom);
+                                        int[] defaultMaxZooms = activity
+                                                .getResources()
+                                                .getIntArray(
+                                                        R.array.preloaded_tile_url_default_max_zoom);
+                                        if (nameInput != null) {
+                                            nameInput.setText(names[item]);
+                                        }
+                                        urlInput.setText(urls[item]);
 
-									int minZoom = minZooms[item];
-									int maxZoom = maxZooms[item];
-									minZoomInput
-											.setFilters(new InputFilter[] { new InputFilterMinMax(
-													minZoom, maxZoom) });
-									maxZoomInput
-											.setFilters(new InputFilter[] { new InputFilterMinMax(
-													minZoom, maxZoom) });
+                                        int minZoom = minZooms[item];
+                                        int maxZoom = maxZooms[item];
+                                        minZoomInput
+                                                .setFilters(new InputFilter[]{new InputFilterMinMax(
+                                                        minZoom, maxZoom)});
+                                        maxZoomInput
+                                                .setFilters(new InputFilter[]{new InputFilterMinMax(
+                                                        minZoom, maxZoom)});
 
-									minZoomInput.setText(String
-											.valueOf(defaultMinZooms[item]));
-									maxZoomInput.setText(String
-											.valueOf(defaultMaxZooms[item]));
-								}
-							}
-						});
+                                        minZoomInput.setText(String
+                                                .valueOf(defaultMinZooms[item]));
+                                        maxZoomInput.setText(String
+                                                .valueOf(defaultMaxZooms[item]));
+                                    }
+                                }
+                            });
 
-				AlertDialog alert = builder.create();
-				alert.show();
-			}
-		});
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            });
+        }
 	}
 
 	/**

@@ -1793,13 +1793,6 @@ public class GeoPackageManagerFragment extends Fragment implements
                 BoundingBox boundingBox = contents.getBoundingBox();
                 Projection projection = ProjectionFactory.getProjection(
                         contents.getSrs().getOrganizationCoordsysId());
-                ProjectionTransform worldGeodeticTransform = projection.getTransformation(
-                        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-                BoundingBox worldGeodeticBoundingBox = worldGeodeticTransform.transform(boundingBox);
-                minLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLongitude()));
-                minLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLatitude()));
-                maxLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLongitude()));
-                maxLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLatitude()));
 
                 // Try to find a good zoom starting point
                 ProjectionTransform webMercatorTransform = projection.getTransformation(
@@ -1811,6 +1804,14 @@ public class GeoPackageManagerFragment extends Fragment implements
                 zoomLevel = Math.max(0, Math.min(zoomLevel, maxZoomLevel) - 1);
                 minZoomInput.setText(String.valueOf(zoomLevel));
                 maxZoomInput.setText(String.valueOf(maxZoomLevel));
+
+                ProjectionTransform worldGeodeticTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
+                        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                BoundingBox worldGeodeticBoundingBox = worldGeodeticTransform.transform(webMercatorBoundingBox);
+                minLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLongitude()));
+                minLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLatitude()));
+                maxLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLongitude()));
+                maxLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLatitude()));
             }
         } catch (Exception e) {
             // don't preset the bounding box

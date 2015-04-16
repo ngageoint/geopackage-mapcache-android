@@ -52,6 +52,7 @@
     <string name="generate_tiles_type_label">Tile Format:</string>
     <string name="generate_tiles_type_geopackage_label">GeoPackage</string>
     <string name="generate_tiles_type_google_label">Google</string>
+    <string name="feature_tiles_index_warning">WARNING: Table is not indexed!</string>
     <string name="feature_tiles_name_label">Name: </string>
     <string name="feature_tiles_name_suffix">_tiles</string>
     <string name="feature_tiles_point_label">Points - </string>
@@ -122,6 +123,10 @@
     <string name="geopackage_table_delete_label">Delete</string>
     <string name="geopackage_table_tiles_load_label">Load Tiles</string>
     <string name="geopackage_table_create_feature_tiles_label">Create Tiles</string>
+    <string name="geopackage_table_index_features_label">Index Features</string>
+    <string name="geopackage_table_index_features_index_title">Index</string>
+    <string name="geopackage_table_index_features_indexed_message">Table index is up to date</string>
+    <string name="geopackage_table_index_features_index_message">Table index required. Index?</string>
     <string name="edit_contents_identifier_label">Identifier: </string>
     <string name="edit_contents_description_label">Description: </string>
     <string name="edit_contents_min_y_label">Min Y: </string>

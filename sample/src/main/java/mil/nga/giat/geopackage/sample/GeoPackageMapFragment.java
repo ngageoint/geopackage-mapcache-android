@@ -72,6 +72,7 @@ import mil.nga.giat.geopackage.GeoPackage;
 import mil.nga.giat.geopackage.GeoPackageException;
 import mil.nga.giat.geopackage.GeoPackageManager;
 import mil.nga.giat.geopackage.core.contents.Contents;
+import mil.nga.giat.geopackage.core.contents.ContentsDao;
 import mil.nga.giat.geopackage.factory.GeoPackageFactory;
 import mil.nga.giat.geopackage.features.columns.GeometryColumns;
 import mil.nga.giat.geopackage.features.user.FeatureCursor;
@@ -907,9 +908,14 @@ public class GeoPackageMapFragment extends Fragment implements
                         featureDao.deleteById(featureId);
                         editFeatureMarker = null;
                     }
+                    updateLastChange(geoPackage, featureDao);
                     active.setModified(true);
 
                     break;
+            }
+
+            if(changesMade){
+                updateLastChange(geoPackage, featureDao);
             }
         } catch (Exception e) {
             if (GeoPackageUtils.isFutureSQLiteException(e)) {
@@ -2921,6 +2927,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     if (featureObject != null) {
                                         featureObject.remove();
                                     }
+                                    updateLastChange(geoPackage, featureDao);
 
                                     active.setModified(true);
                                 } catch (Exception e) {
@@ -2964,6 +2971,24 @@ public class GeoPackageMapFragment extends Fragment implements
                             }
                         }).create();
         deleteDialog.show();
+    }
+
+    /**
+     * Update the last change date of the contents
+     * @param geoPackage
+     * @param featureDao
+     */
+    private static void updateLastChange(GeoPackage geoPackage, FeatureDao featureDao){
+        try {
+            Contents contents = featureDao.getGeometryColumns().getContents();
+            contents.setLastChange(new Date());
+            ContentsDao contentsDao = geoPackage.getContentsDao();
+            contentsDao.update(contents);
+        }catch(Exception e){
+            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                    "Failed to update contents last change date. GeoPackage: "
+                            + geoPackage.getName() + ", Table: " + featureDao.getTableName(), e);
+        }
     }
 
     /**

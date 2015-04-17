@@ -13,6 +13,7 @@
     <string name="map_features">Features</string>
     <string name="map_bounding_box">Bounding Box</string>
     <string name="map_download_tiles">Download Tiles</string>
+    <string name="map_feature_tiles">Feature Tiles</string>
     <string name="map_clear_bounding_box">Clear Bounding Box</string>
     <string name="map_edit_point">Points</string>
     <string name="map_edit_linestring">Linestrings</string>

@@ -1967,6 +1967,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                                         .getText().toString()));
                             }
 
+                            featureTiles.calculateDrawOverlap();
+
                             LoadTilesTask.loadTiles(getActivity(),
                                     GeoPackageManagerFragment.this, active,
                                     geoPackage, tableName, featureTiles, minZoom,

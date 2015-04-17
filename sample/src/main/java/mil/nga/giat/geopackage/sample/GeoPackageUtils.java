@@ -47,12 +47,14 @@ public class GeoPackageUtils {
 	 * @param urlInput
 	 * @param compressFormatInput
 	 * @param compressQualityInput
+     * @param setZooms
 	 */
 	public static void prepareTileLoadInputs(final Activity activity,
 			final EditText minZoomInput, final EditText maxZoomInput,
 			Button button, final EditText nameInput, final EditText urlInput,
 			final Spinner compressFormatInput,
-			final EditText compressQualityInput) {
+			final EditText compressQualityInput,
+            final boolean setZooms) {
 
 		int minZoom = activity.getResources().getInteger(
 				R.integer.load_tiles_min_zoom_default);
@@ -63,10 +65,12 @@ public class GeoPackageUtils {
 		maxZoomInput.setFilters(new InputFilter[] { new InputFilterMinMax(
 				minZoom, maxZoom) });
 
-		minZoomInput.setText(String.valueOf(activity.getResources().getInteger(
-				R.integer.load_tiles_default_min_zoom_default)));
-		maxZoomInput.setText(String.valueOf(activity.getResources().getInteger(
-				R.integer.load_tiles_default_max_zoom_default)));
+        if(setZooms) {
+            minZoomInput.setText(String.valueOf(activity.getResources().getInteger(
+                    R.integer.load_tiles_default_min_zoom_default)));
+            maxZoomInput.setText(String.valueOf(activity.getResources().getInteger(
+                    R.integer.load_tiles_default_max_zoom_default)));
+        }
 
 		compressQualityInput
 				.setFilters(new InputFilter[] { new InputFilterMinMax(0, 100) });
@@ -127,10 +131,25 @@ public class GeoPackageUtils {
                                                 .setFilters(new InputFilter[]{new InputFilterMinMax(
                                                         minZoom, maxZoom)});
 
-                                        minZoomInput.setText(String
-                                                .valueOf(defaultMinZooms[item]));
-                                        maxZoomInput.setText(String
-                                                .valueOf(defaultMaxZooms[item]));
+                                        if(setZooms) {
+                                            minZoomInput.setText(String
+                                                    .valueOf(defaultMinZooms[item]));
+                                            maxZoomInput.setText(String
+                                                    .valueOf(defaultMaxZooms[item]));
+                                        }else{
+                                            int currentMin = Integer.valueOf(minZoomInput.getText().toString());
+                                            int currentMax = Integer.valueOf(maxZoomInput.getText().toString());
+
+                                            currentMin = Math.max(currentMin, minZoom);
+                                            currentMin = Math.min(currentMin, maxZoom);
+                                            currentMax = Math.max(currentMax, minZoom);
+                                            currentMax = Math.min(currentMax, maxZoom);
+
+                                            minZoomInput.setText(String
+                                                    .valueOf(currentMin));
+                                            maxZoomInput.setText(String
+                                                    .valueOf(currentMax));
+                                        }
                                     }
                                 }
                             });

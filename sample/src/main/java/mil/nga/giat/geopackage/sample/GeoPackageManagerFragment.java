@@ -1824,7 +1824,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
         FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
         final boolean indexed = indexer.isIndexed();
-        if(indexed){
+        if (indexed) {
             indexWarning.setVisibility(View.GONE);
         }
 
@@ -2093,7 +2093,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 url, downloadTask, null);
                         progressDialog.setIndeterminate(true);
 
-                        downloadTask.execute(database, url);
+                        downloadTask.execute();
                     }
                 }).setNegativeButton(getString(R.string.button_cancel_label),
                 new DialogInterface.OnClickListener() {
@@ -2401,41 +2401,40 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     boolean copy = copyRadioButton.isChecked();
 
                                     try {
-                                        InputStream stream = resolver
-                                                .openInputStream(uri);
-                                        boolean imported = false;
 
-                                        // Import the GeoPackage by copying the
-                                        // file
+                                        // Import the GeoPackage by copying the file
                                         if (copy) {
-                                            imported = manager
-                                                    .importGeoPackage(value,
-                                                            stream);
+                                            ImportTask importTask = new ImportTask(value, path, uri);
+                                            progressDialog = createImportProgressDialog(value,
+                                                    importTask, path, uri, null);
+                                            progressDialog.setIndeterminate(true);
+                                            importTask.execute();
                                         } else {
                                             // Import the GeoPackage by linking
                                             // to the file
-                                            imported = manager
+                                            boolean imported = manager
                                                     .importGeoPackageAsExternalLink(
                                                             path, value);
-                                        }
-                                        if (imported) {
-                                            update();
-                                        } else {
-                                            try {
-                                                getActivity().runOnUiThread(
-                                                        new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                GeoPackageUtils
-                                                                        .showMessage(
-                                                                                getActivity(),
-                                                                                "URL Import",
-                                                                                "Failed to import Uri: "
-                                                                                        + uri.getPath());
-                                                            }
-                                                        });
-                                            } catch (Exception e2) {
-                                                // eat
+
+                                            if (imported) {
+                                                update();
+                                            } else {
+                                                try {
+                                                    getActivity().runOnUiThread(
+                                                            new Runnable() {
+                                                                @Override
+                                                                public void run() {
+                                                                    GeoPackageUtils
+                                                                            .showMessage(
+                                                                                    getActivity(),
+                                                                                    "URL Import",
+                                                                                    "Failed to import Uri: "
+                                                                                            + uri.getPath());
+                                                                }
+                                                            });
+                                                } catch (Exception e2) {
+                                                    // eat
+                                                }
                                             }
                                         }
                                     } catch (final Exception e) {
@@ -2471,6 +2470,187 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         dialog.show();
     }
+
+    /**
+     * Create a import progress dialog
+     *
+     * @param database
+     * @param importTask
+     * @param path
+     * @param uri
+     * @param suffix
+     * @return
+     */
+    private ProgressDialog createImportProgressDialog(String database, final ImportTask importTask,
+                                                      String path, Uri uri,
+                                                      String suffix) {
+        ProgressDialog dialog = new ProgressDialog(getActivity());
+        dialog.setMessage(getString(R.string.geopackage_import_label) + " "
+                + database + "\n\n" + (path != null ? path : uri.getPath()) + (suffix != null ? suffix : ""));
+        dialog.setCancelable(false);
+        dialog.setButton(ProgressDialog.BUTTON_NEGATIVE,
+                getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        importTask.cancel(true);
+                    }
+                });
+        return dialog;
+    }
+
+    /**
+     * Import a GeoPackage from a stream in the background
+     */
+    private class ImportTask extends AsyncTask<String, Integer, String>
+            implements GeoPackageProgress {
+
+        private Integer max = null;
+        private int progress = 0;
+        private final String database;
+        private final String path;
+        private final Uri uri;
+        private PowerManager.WakeLock wakeLock;
+
+        /**
+         * Constructor
+         *
+         * @param database
+         * @param path
+         * @param uri
+         */
+        public ImportTask(String database, String path, Uri uri) {
+            this.database = database;
+            this.path = path;
+            this.uri = uri;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void setMax(int max) {
+            this.max = max;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void addProgress(int progress) {
+            this.progress += progress;
+            if (max != null) {
+                int total = (int) (this.progress / ((double) max) * 100);
+                publishProgress(total);
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean isActive() {
+            return !isCancelled();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean cleanupOnCancel() {
+            return true;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+            PowerManager pm = (PowerManager) getActivity().getSystemService(
+                    Context.POWER_SERVICE);
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    getClass().getName());
+            wakeLock.acquire();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+
+            // If the indeterminate progress dialog is still showing, swap to a
+            // determinate horizontal bar
+            if (progressDialog.isIndeterminate()) {
+
+                String messageSuffix = "\n\n"
+                        + GeoPackageIOUtils.formatBytes(max);
+
+                ProgressDialog newProgressDialog = createImportProgressDialog(
+                        database, this, path, uri, messageSuffix);
+                newProgressDialog
+                        .setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                newProgressDialog.setIndeterminate(false);
+                newProgressDialog.setMax(100);
+
+                newProgressDialog.show();
+                progressDialog.dismiss();
+                progressDialog = newProgressDialog;
+            }
+
+            // Set the progress
+            progressDialog.setProgress(progress[0]);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void onCancelled(String result) {
+            wakeLock.release();
+            progressDialog.dismiss();
+            update();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            wakeLock.release();
+            progressDialog.dismiss();
+            if (result != null) {
+                GeoPackageUtils.showMessage(getActivity(),
+                        "Import",
+                        "Failed to import: "
+                                + (path != null ? path : uri.getPath()));
+            } else {
+                update();
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                final ContentResolver resolver = getActivity().getContentResolver();
+                InputStream stream = resolver.openInputStream(uri);
+                if (!manager.importGeoPackage(database, stream, this)) {
+                    return "Failed to import GeoPackage '" + database + "'";
+                }
+            } catch (final Exception e) {
+                return e.toString();
+            }
+            return null;
+        }
+
+    }
+
 
     /**
      * Get display name from the uri

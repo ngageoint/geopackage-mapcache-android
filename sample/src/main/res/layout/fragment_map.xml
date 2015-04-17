@@ -45,7 +45,7 @@
             android:contentDescription="@string/map_feature_tiles"
             android:scaleX=".77"
             android:scaleY=".77"
-            android:src="@drawable/ic_download_tiles" />
+            android:src="@drawable/ic_feature_tiles" />
 
         <ImageButton
             android:id="@+id/mapLoadTilesClearButton"

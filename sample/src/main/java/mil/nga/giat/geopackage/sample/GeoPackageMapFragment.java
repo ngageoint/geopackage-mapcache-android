@@ -95,6 +95,7 @@ import mil.nga.giat.geopackage.geom.map.ShapeWithChildrenMarkers;
 import mil.nga.giat.geopackage.projection.ProjectionConstants;
 import mil.nga.giat.geopackage.projection.ProjectionFactory;
 import mil.nga.giat.geopackage.projection.ProjectionTransform;
+import mil.nga.giat.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
 import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.giat.geopackage.tiles.overlay.FeatureOverlay;
@@ -247,7 +248,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Marker feature
      */
-    class MarkerFeature{
+    class MarkerFeature {
         long featureId;
         String database;
         String tableName;
@@ -914,7 +915,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     break;
             }
 
-            if(changesMade){
+            if (changesMade) {
                 updateLastChange(geoPackage, featureDao);
             }
         } catch (Exception e) {
@@ -1442,7 +1443,7 @@ public class GeoPackageMapFragment extends Fragment implements
             String tableName = (String) shapeUpdate[2];
             if (editFeaturesMode) {
                 addEditableShape(featureId, mapShape);
-            }else{
+            } else {
                 addMarkerShape(featureId, database, tableName, mapShape);
             }
 
@@ -2140,10 +2141,11 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Display tiles
+     *
      * @param overlay
      * @param contents
      */
-    private void displayTiles(TileProvider overlay, Contents contents){
+    private void displayTiles(TileProvider overlay, Contents contents) {
 
         final TileOverlayOptions overlayOptions = new TileOverlayOptions();
         overlayOptions.tileProvider(overlay);
@@ -2597,10 +2599,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 return true;
             }
 
-        }else {
+        } else {
             // Handle clicks on point markers
             MarkerFeature markerFeature = markerIds.get(markerId);
-            if(markerFeature != null){
+            if (markerFeature != null) {
                 infoFeatureClick(marker, markerFeature);
                 return true;
             }
@@ -2800,11 +2802,12 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Get a title from the Geometry Type and marker
+     *
      * @param geometryType
      * @param marker
      * @return
      */
-    private String getTitle(GeometryType geometryType, Marker marker){
+    private String getTitle(GeometryType geometryType, Marker marker) {
         LatLng position = marker.getPosition();
         DecimalFormat formatter = new DecimalFormat("0.0###");
         String title = geometryType.getName() + "\n(lat="
@@ -2851,10 +2854,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
         StringBuilder message = new StringBuilder();
         int geometryColumn = featureRow.getGeometryColumnIndex();
-        for(int i = 0; i < featureRow.columnCount(); i++){
-            if(i != geometryColumn){
+        for (int i = 0; i < featureRow.columnCount(); i++) {
+            if (i != geometryColumn) {
                 Object value = featureRow.getValue(i);
-                if(value != null) {
+                if (value != null) {
                     message.append(featureRow.getColumn(i).getName()).append(": ");
                     message.append(value);
                     message.append("\n");
@@ -2862,7 +2865,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         }
 
-        if(message.length() > 0){
+        if (message.length() > 0) {
             message.append("\n");
         }
 
@@ -2975,16 +2978,17 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Update the last change date of the contents
+     *
      * @param geoPackage
      * @param featureDao
      */
-    private static void updateLastChange(GeoPackage geoPackage, FeatureDao featureDao){
+    private static void updateLastChange(GeoPackage geoPackage, FeatureDao featureDao) {
         try {
             Contents contents = featureDao.getGeometryColumns().getContents();
             contents.setLastChange(new Date());
             ContentsDao contentsDao = geoPackage.getContentsDao();
             contentsDao.update(contents);
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.e(GeoPackageMapFragment.class.getSimpleName(),
                     "Failed to update contents last change date. GeoPackage: "
                             + geoPackage.getName() + ", Table: " + featureDao.getTableName(), e);
@@ -3091,9 +3095,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         maxLatInput, minLonInput, maxLonInput,
                         preloadedLocationsButton);
 
-        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput);
+        boolean setZooms = true;
 
         if (boundingBox != null) {
             double minLat = 90.0;
@@ -3110,7 +3112,25 @@ public class GeoPackageMapFragment extends Fragment implements
             maxLatInput.setText(String.valueOf(maxLat));
             minLonInput.setText(String.valueOf(minLon));
             maxLonInput.setText(String.valueOf(maxLon));
+
+            // Try to find a good zoom starting point
+            ProjectionTransform webMercatorTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
+                    .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
+            BoundingBox bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+            BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(bbox);
+            int zoomLevel = TileBoundingBoxUtils.getZoomLevel(webMercatorBoundingBox);
+            int maxZoomLevel = getActivity().getResources().getInteger(
+                    R.integer.load_tiles_max_zoom_default);
+            zoomLevel = Math.max(0, Math.min(zoomLevel, maxZoomLevel) - 2);
+            minZoomInput.setText(String.valueOf(zoomLevel));
+            maxZoomInput.setText(String.valueOf(maxZoomLevel));
+
+            setZooms = false;
         }
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
+                compressFormatInput, compressQualityInput, setZooms);
 
         geopackagesButton.setOnClickListener(new View.OnClickListener() {
 

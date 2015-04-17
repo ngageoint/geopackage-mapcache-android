@@ -879,7 +879,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput);
+                compressFormatInput, compressQualityInput, true);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_create_tiles_label),
@@ -1584,7 +1584,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, null, urlInput,
-                compressFormatInput, compressQualityInput);
+                compressFormatInput, compressQualityInput, true);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_tiles_load_label),
@@ -1779,9 +1779,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         maxLatInput, minLonInput, maxLonInput,
                         preloadedLocationsButton);
 
-        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, null, nameInput, null,
-                compressFormatInput, compressQualityInput);
+        boolean setZooms = true;
 
         // Preset the bounding box to the feature contents
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
@@ -1804,6 +1802,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 zoomLevel = Math.max(0, Math.min(zoomLevel, maxZoomLevel) - 1);
                 minZoomInput.setText(String.valueOf(zoomLevel));
                 maxZoomInput.setText(String.valueOf(maxZoomLevel));
+                setZooms = false;
 
                 ProjectionTransform worldGeodeticTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
                         ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
@@ -1816,6 +1815,10 @@ public class GeoPackageManagerFragment extends Fragment implements
         } catch (Exception e) {
             // don't preset the bounding box
         }
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, null, nameInput, null,
+                compressFormatInput, compressQualityInput, setZooms);
 
         // Check if indexed
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());

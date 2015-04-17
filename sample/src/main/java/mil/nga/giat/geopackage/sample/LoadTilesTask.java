@@ -81,6 +81,12 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
                                  CompressFormat compressFormat, Integer compressQuality,
                                  boolean googleTiles, BoundingBox boundingBox) {
 
+        // TODO The projection for 27700 returns different values when going to and from web mercator
+        // Buffer the pixels around the image when querying the feature index
+        if (featureTiles.getFeatureDao().getProjection().getEpsg() == 27700) {
+            featureTiles.setHeightDrawOverlap(featureTiles.getHeightDrawOverlap() + 10);
+        }
+
         TileGenerator tileGenerator = new FeatureTileGenerator(activity, geoPackage,
                 tableName, featureTiles, minZoom, maxZoom);
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, googleTiles, boundingBox);

@@ -1861,7 +1861,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
 
         polygonFill.setChecked(featureTiles.isFillPolygon());
-        Paint polygonFillPaint = featureTiles.getPolygonPaint();
+        Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
         polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(defaultColor));
         polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
 

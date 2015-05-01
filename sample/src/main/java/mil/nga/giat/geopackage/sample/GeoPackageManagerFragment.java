@@ -1054,27 +1054,23 @@ public class GeoPackageManagerFragment extends Fragment implements
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.select_dialog_item);
 
+        adapter.add(getString(R.string.geopackage_table_view_label));
+        adapter.add(getString(R.string.geopackage_table_edit_label));
+        adapter.add(getString(R.string.geopackage_table_delete_label));
+
         switch (table.getType()) {
 
             case FEATURE:
-                adapter.add(getString(R.string.geopackage_table_view_label));
-                adapter.add(getString(R.string.geopackage_table_edit_label));
-                adapter.add(getString(R.string.geopackage_table_delete_label));
                 adapter.add(getString(R.string.geopackage_table_index_features_label));
                 adapter.add(getString(R.string.geopackage_table_create_feature_tiles_label));
                 adapter.add(getString(R.string.geopackage_table_add_feature_overlay_label));
                 break;
 
             case TILE:
-                adapter.add(getString(R.string.geopackage_table_view_label));
-                adapter.add(getString(R.string.geopackage_table_edit_label));
-                adapter.add(getString(R.string.geopackage_table_delete_label));
                 adapter.add(getString(R.string.geopackage_table_tiles_load_label));
                 break;
 
             case FEATURE_OVERLAY:
-                adapter.add(getString(R.string.geopackage_table_edit_label));
-                adapter.add(getString(R.string.geopackage_table_delete_label));
                 break;
 
             default:
@@ -1093,10 +1089,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             switch (table.getType()) {
                                 case FEATURE:
                                 case TILE:
-                                    viewTableOption(table);
-                                    break;
                                 case FEATURE_OVERLAY:
-                                    editFeatureOverlayTableOption((GeoPackageFeatureOverlayTable) table);
+                                    viewTableOption(table);
                                     break;
                             }
                             break;
@@ -1107,8 +1101,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     editTableOption(table);
                                     break;
                                 case FEATURE_OVERLAY:
-                                    active.removeTable(table);
-                                    update();
+                                    editFeatureOverlayTableOption((GeoPackageFeatureOverlayTable) table);
                                     break;
                             }
                             break;
@@ -1117,6 +1110,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 case FEATURE:
                                 case TILE:
                                     deleteTableOption(table);
+                                    break;
+                                case FEATURE_OVERLAY:
+                                    active.removeTable(table);
+                                    update();
                                     break;
                             }
                             break;
@@ -1164,6 +1161,7 @@ public class GeoPackageManagerFragment extends Fragment implements
     private void viewTableOption(final GeoPackageTable table) {
         StringBuilder info = new StringBuilder();
         GeoPackage geoPackage = manager.open(table.getDatabase());
+        String tableName = table.getName();
         try {
             Contents contents = null;
             FeatureDao featureDao = null;
@@ -1172,8 +1170,10 @@ public class GeoPackageManagerFragment extends Fragment implements
 
             switch (table.getType()) {
 
+                case FEATURE_OVERLAY:
+                    tableName = ((GeoPackageFeatureOverlayTable)table).getFeatureTable();
                 case FEATURE:
-                    featureDao = geoPackage.getFeatureDao(table.getName());
+                    featureDao = geoPackage.getFeatureDao(tableName);
                     contents = featureDao.getGeometryColumns().getContents();
                     info.append("Feature Table");
                     info.append("\nFeatures: ").append(featureDao.count());
@@ -1181,7 +1181,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     break;
 
                 case TILE:
-                    tileDao = geoPackage.getTileDao(table.getName());
+                    tileDao = geoPackage.getTileDao(tableName);
                     contents = tileDao.getTileMatrixSet().getContents();
                     info.append("Tile Table");
                     info.append("\nZoom Levels: ").append(
@@ -1264,7 +1264,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 }
             }
 
-            info.append("\n\n").append(table.getName()).append(" columns:");
+            info.append("\n\n").append(tableName).append(" columns:");
             for (UserColumn userColumn : userTable.getColumns()) {
                 info.append("\n\nIndex: ").append(userColumn.getIndex());
                 info.append("\nName: ").append(userColumn.getName());
@@ -1289,7 +1289,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             geoPackage.close();
         }
         AlertDialog viewDialog = new AlertDialog.Builder(getActivity())
-                .setTitle(table.getDatabase() + " - " + table.getName())
+                .setTitle(table.getDatabase() + " - " + tableName)
                 .setPositiveButton(getString(R.string.button_ok_label),
 
                         new DialogInterface.OnClickListener() {

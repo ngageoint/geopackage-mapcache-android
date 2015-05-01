@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
@@ -132,15 +133,21 @@ public class GeoPackageDatabases {
      * @return
      */
     public Collection<GeoPackageFeatureOverlayTable> featureOverlays(String databaseName) {
-        Collection<GeoPackageFeatureOverlayTable> featureOverlays = null;
-        GeoPackageDatabase database = getDatabase(databaseName);
-        if (database != null) {
-            featureOverlays = database.getFeatureOverlays();
+
+        List<GeoPackageFeatureOverlayTable> response = new ArrayList<GeoPackageFeatureOverlayTable>();
+
+        Set<String> featureOverlays = settings.getStringSet(
+                getFeatureOverlayTablesPreferenceKey(databaseName),
+                new HashSet<String>());
+
+        for (String featureOverlay : featureOverlays) {
+            GeoPackageTable geoPackageTable = readTableFile(databaseName, featureOverlay);
+            if (geoPackageTable != null) {
+                response.add((GeoPackageFeatureOverlayTable) geoPackageTable);
+            }
         }
-        if (featureOverlays == null) {
-            featureOverlays = new ArrayList<GeoPackageFeatureOverlayTable>();
-        }
-        return featureOverlays;
+
+        return response;
     }
 
     public GeoPackageDatabase getDatabase(GeoPackageTable table) {
@@ -208,20 +215,27 @@ public class GeoPackageDatabases {
             removeTableFromPreferences(table);
             if (database.isEmpty()) {
                 databases.remove(database.getDatabase());
-                removeDatabaseFromPreferences(database.getDatabase());
+                removeDatabaseFromPreferences(database.getDatabase(), false);
             }
             setModified(true);
         }
     }
 
     /**
-     * Remove all databases
+     * Clear all active databases
      */
-    public void removeAll() {
+    public void clearActive() {
         Set<String> allDatabases = new HashSet<String>();
         allDatabases.addAll(databases.keySet());
         for (String database : allDatabases) {
-            removeDatabase(database);
+            GeoPackageDatabase db = databases.get(database);
+            for (GeoPackageTable table : db.getFeatureOverlays()) {
+                if(table.isActive()) {
+                    table.setActive(false);
+                    addTable(table, true);
+                }
+            }
+            removeDatabase(database, true);
         }
     }
 
@@ -229,10 +243,11 @@ public class GeoPackageDatabases {
      * Remove a database
      *
      * @param database
+     * @param preserveOverlays
      */
-    public void removeDatabase(String database) {
+    public void removeDatabase(String database, boolean preserveOverlays) {
         databases.remove(database);
-        removeDatabaseFromPreferences(database);
+        removeDatabaseFromPreferences(database, preserveOverlays);
         setModified(true);
     }
 
@@ -247,7 +262,7 @@ public class GeoPackageDatabases {
         if (geoPackageDatabase != null) {
             geoPackageDatabase.setDatabase(newDatabase);
             databases.put(newDatabase, geoPackageDatabase);
-            removeDatabaseFromPreferences(database);
+            removeDatabaseFromPreferences(database, false);
             for (GeoPackageTable featureTable : geoPackageDatabase
                     .getFeatures()) {
                 featureTable.setDatabase(newDatabase);
@@ -256,6 +271,10 @@ public class GeoPackageDatabases {
             for (GeoPackageTable tileTable : geoPackageDatabase.getTiles()) {
                 tileTable.setDatabase(newDatabase);
                 addTableToPreferences(tileTable);
+            }
+            for (GeoPackageTable featureOverlayTable : geoPackageDatabase.getFeatureOverlays()) {
+                featureOverlayTable.setDatabase(newDatabase);
+                addTableToPreferences(featureOverlayTable);
             }
         }
         setModified(true);
@@ -299,8 +318,9 @@ public class GeoPackageDatabases {
      * Remove the database from the saved preferences
      *
      * @param database
+     * @param preserveOverlays
      */
-    private void removeDatabaseFromPreferences(String database) {
+    private void removeDatabaseFromPreferences(String database, boolean preserveOverlays) {
         Editor editor = settings.edit();
 
         Set<String> databases = settings.getStringSet(DATABASES_PREFERENCE,
@@ -313,8 +333,10 @@ public class GeoPackageDatabases {
         }
         editor.remove(getTileTablesPreferenceKey(database));
         editor.remove(getFeatureTablesPreferenceKey(database));
-        editor.remove(getFeatureOverlayTablesPreferenceKey(database));
-        deleteTableFiles(database);
+        if(!preserveOverlays) {
+            editor.remove(getFeatureOverlayTablesPreferenceKey(database));
+            deleteTableFiles(database);
+        }
 
         editor.commit();
     }

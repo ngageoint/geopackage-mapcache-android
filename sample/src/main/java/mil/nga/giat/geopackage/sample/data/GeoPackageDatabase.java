@@ -115,15 +115,15 @@ public class GeoPackageDatabase {
         switch (table.getType()) {
 
             case FEATURE:
-                features.put(table.getName(), (GeoPackageFeatureTable)table);
+                features.put(table.getName(), (GeoPackageFeatureTable) table);
                 break;
 
             case TILE:
-                tiles.put(table.getName(), (GeoPackageTileTable)table);
+                tiles.put(table.getName(), (GeoPackageTileTable) table);
                 break;
 
             case FEATURE_OVERLAY:
-                featureOverlays.put(table.getName(), (GeoPackageFeatureOverlayTable)table);
+                featureOverlays.put(table.getName(), (GeoPackageFeatureOverlayTable) table);
                 break;
 
             default:

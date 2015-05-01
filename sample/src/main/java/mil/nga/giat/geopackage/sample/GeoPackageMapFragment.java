@@ -1530,7 +1530,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         }
                     }
                 } else {
-                    active.removeDatabase(database.getDatabase());
+                    active.removeDatabase(database.getDatabase(), false);
                 }
 
                 if (task.isCancelled()) {

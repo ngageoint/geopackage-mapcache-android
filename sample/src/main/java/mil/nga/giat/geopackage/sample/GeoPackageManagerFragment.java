@@ -248,11 +248,11 @@ public class GeoPackageManagerFragment extends Fragment implements
                 table.setActive(active.exists(table));
                 tables.add(table);
             }
-            for (GeoPackageFeatureOverlayTable featureOverlayTable : active.featureOverlays(database)) {
-                FeatureDao featureDao = geoPackage.getFeatureDao(featureOverlayTable.getFeatureTable());
+            for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
+                FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
                 int count = featureDao.count();
-                featureOverlayTable.setCount(count);
-                tables.add(featureOverlayTable);
+                table.setCount(count);
+                tables.add(table);
             }
             databaseTables.add(tables);
             geoPackage.close();
@@ -400,7 +400,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             public void onClick(DialogInterface dialog, int which) {
 
                                 manager.delete(database);
-                                active.removeDatabase(database);
+                                active.removeDatabase(database, false);
                                 update();
                             }
                         })
@@ -1096,7 +1096,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     viewTableOption(table);
                                     break;
                                 case FEATURE_OVERLAY:
-                                    editFeatureOverlayTableOption((GeoPackageFeatureOverlayTable)table);
+                                    editFeatureOverlayTableOption((GeoPackageFeatureOverlayTable) table);
                                     break;
                             }
                             break;
@@ -2523,7 +2523,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 createGeoPackage();
                 break;
             case R.id.clear_selected_tables:
-                active.removeAll();
+                active.clearActive();
                 update();
                 break;
             default:

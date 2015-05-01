@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.sample;
+package mil.nga.giat.geopackage.sample.load;
 
 /**
  * Interface for load tile callbacks

@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.sample;
+package mil.nga.giat.geopackage.sample.load;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -14,6 +14,9 @@ import mil.nga.giat.geopackage.GeoPackageException;
 import mil.nga.giat.geopackage.GeoPackageManager;
 import mil.nga.giat.geopackage.factory.GeoPackageFactory;
 import mil.nga.giat.geopackage.io.GeoPackageProgress;
+import mil.nga.giat.geopackage.sample.GeoPackageUtils;
+import mil.nga.giat.geopackage.sample.R;
+import mil.nga.giat.geopackage.sample.data.GeoPackageDatabases;
 import mil.nga.giat.geopackage.tiles.TileGenerator;
 import mil.nga.giat.geopackage.tiles.UrlTileGenerator;
 import mil.nga.giat.geopackage.tiles.features.FeatureTileGenerator;
@@ -81,11 +84,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
                                  CompressFormat compressFormat, Integer compressQuality,
                                  boolean googleTiles, BoundingBox boundingBox) {
 
-        // TODO The projection for 27700 returns different values when going to and from web mercator
-        // Buffer the pixels around the image when querying the feature index
-        if (featureTiles.getFeatureDao().getProjection().getEpsg() == 27700) {
-            featureTiles.setHeightDrawOverlap(featureTiles.getHeightDrawOverlap() + 10);
-        }
+        GeoPackageUtils.prepareFeatureTiles(featureTiles);
 
         TileGenerator tileGenerator = new FeatureTileGenerator(activity, geoPackage,
                 tableName, featureTiles, minZoom, maxZoom);

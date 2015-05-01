@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:scrollbars="vertical" >
+
+        <TextView
+            android:id="@+id/feature_tiles_draw_point_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/feature_tiles_draw_point_label" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_point_color_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_point_color_label" />
+
+            <Spinner
+                android:id="@+id/feature_tiles_draw_point_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/feature_tiles_draw_colors"
+                android:prompt="@string/feature_tiles_draw_point_color_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_point_alpha_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_point_alpha_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_point_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_point_radius_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_point_radius_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_point_radius"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/feature_tiles_draw_line_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/feature_tiles_draw_line_label" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_line_color_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_line_color_label" />
+
+            <Spinner
+                android:id="@+id/feature_tiles_draw_line_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/feature_tiles_draw_colors"
+                android:prompt="@string/feature_tiles_draw_line_color_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_line_alpha_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_line_alpha_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_line_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_line_stroke_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_line_stroke_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_line_stroke"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/feature_tiles_draw_polygon_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/feature_tiles_draw_polygon_label" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_polygon_color_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_polygon_color_label" />
+
+            <Spinner
+                android:id="@+id/feature_tiles_draw_polygon_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/feature_tiles_draw_colors"
+                android:prompt="@string/feature_tiles_draw_polygon_color_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_polygon_alpha_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_polygon_alpha_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_polygon_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_polygon_stroke_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/feature_tiles_draw_polygon_stroke_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_polygon_stroke"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/feature_tiles_draw_polygon_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="20dp"
+            android:text="@string/feature_tiles_draw_polygon_fill_label" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_polygon_fill_color_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="@string/feature_tiles_draw_polygon_fill_color_label" />
+
+            <Spinner
+                android:id="@+id/feature_tiles_draw_polygon_fill_color"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/feature_tiles_draw_colors"
+                android:prompt="@string/feature_tiles_draw_polygon_fill_color_label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/feature_tiles_draw_polygon_fill_alpha_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:text="@string/feature_tiles_draw_polygon_fill_alpha_label" />
+
+            <EditText
+                android:id="@+id/feature_tiles_draw_polygon_fill_alpha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

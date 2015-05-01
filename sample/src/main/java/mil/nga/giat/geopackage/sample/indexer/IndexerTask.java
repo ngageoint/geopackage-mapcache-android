@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.sample;
+package mil.nga.giat.geopackage.sample.indexer;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -13,6 +13,7 @@ import mil.nga.giat.geopackage.db.FeatureIndexer;
 import mil.nga.giat.geopackage.factory.GeoPackageFactory;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.io.GeoPackageProgress;
+import mil.nga.giat.geopackage.sample.R;
 
 /**
  * Indexer task

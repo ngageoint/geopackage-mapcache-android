@@ -101,6 +101,15 @@ import mil.nga.giat.geopackage.geom.map.ShapeWithChildrenMarkers;
 import mil.nga.giat.geopackage.projection.ProjectionConstants;
 import mil.nga.giat.geopackage.projection.ProjectionFactory;
 import mil.nga.giat.geopackage.projection.ProjectionTransform;
+import mil.nga.giat.geopackage.sample.data.GeoPackageDatabase;
+import mil.nga.giat.geopackage.sample.data.GeoPackageDatabases;
+import mil.nga.giat.geopackage.sample.data.GeoPackageFeatureOverlayTable;
+import mil.nga.giat.geopackage.sample.data.GeoPackageTable;
+import mil.nga.giat.geopackage.sample.data.GeoPackageTileTable;
+import mil.nga.giat.geopackage.sample.filter.InputFilterMinMax;
+import mil.nga.giat.geopackage.sample.indexer.IIndexerTask;
+import mil.nga.giat.geopackage.sample.load.ILoadTilesTask;
+import mil.nga.giat.geopackage.sample.load.LoadTilesTask;
 import mil.nga.giat.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
 import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
@@ -388,6 +397,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Bounding box around the tiles on the map
      */
     private BoundingBox tilesBoundingBox;
+
+    /**
+     * True when a tile layer is drawn from features
+     */
+    private boolean featureOverlayTiles = false;
 
     /**
      * Constructor
@@ -1348,6 +1362,7 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackages.clear();
         featuresBoundingBox = null;
         tilesBoundingBox = null;
+        featureOverlayTiles = false;
         markerIds.clear();
         updateTask = new MapUpdateTask();
         int maxFeatures = getMaxFeatures();
@@ -1490,9 +1505,22 @@ public class GeoPackageMapFragment extends Fragment implements
                     geoPackages.put(database.getDatabase(), geoPackage);
 
                     // Display the tiles
-                    for (GeoPackageTable tiles : database.getTiles()) {
+                    for (GeoPackageTileTable tiles : database.getTiles()) {
                         try {
                             displayTiles(tiles);
+                        } catch (Exception e) {
+                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                    e.getMessage());
+                        }
+                        if (task.isCancelled()) {
+                            break;
+                        }
+                    }
+
+                    // Display the feature tiles
+                    for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
+                        try {
+                            displayFeatureTiles(featureOverlay);
                         } catch (Exception e) {
                             Log.e(GeoPackageMapFragment.class.getSimpleName(),
                                     e.getMessage());
@@ -1593,8 +1621,13 @@ public class GeoPackageMapFragment extends Fragment implements
         float paddingPercentage;
         if (bbox == null) {
             bbox = tilesBoundingBox;
-            paddingPercentage = getActivity().getResources().getInteger(
-                    R.integer.map_tiles_zoom_padding_percentage) * .01f;
+            if(featureOverlayTiles){
+                paddingPercentage = getActivity().getResources().getInteger(
+                        R.integer.map_feature_tiles_zoom_padding_percentage) * .01f;
+            }else {
+                paddingPercentage = getActivity().getResources().getInteger(
+                        R.integer.map_tiles_zoom_padding_percentage) * .01f;
+            }
         } else {
             paddingPercentage = getActivity().getResources().getInteger(
                     R.integer.map_features_zoom_padding_percentage) * .01f;
@@ -2065,7 +2098,7 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param tiles
      */
-    private void displayTiles(GeoPackageTable tiles) {
+    private void displayTiles(GeoPackageTileTable tiles) {
 
         GeoPackage geoPackage = geoPackages.get(tiles.getDatabase());
 
@@ -2077,27 +2110,70 @@ public class GeoPackageMapFragment extends Fragment implements
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
         Contents contents = tileMatrixSet.getContents();
 
-        displayTiles(overlay, contents);
+        displayTiles(overlay, contents, -2, null);
     }
 
     /**
      * Display feature tiles
      *
-     * @param tiles
+     * @param featureOverlayTable
      */
-    private void displayFeatureTiles(GeoPackageTable tiles) {
+    private void displayFeatureTiles(GeoPackageFeatureOverlayTable featureOverlayTable) {
 
-        GeoPackage geoPackage = geoPackages.get(tiles.getDatabase());
+        GeoPackage geoPackage = geoPackages.get(featureOverlayTable.getDatabase());
 
-        FeatureDao featureDao = geoPackage.getFeatureDao(tiles.getName());
+        FeatureDao featureDao = geoPackage.getFeatureDao(featureOverlayTable.getFeatureTable());
 
+        BoundingBox boundingBox = new BoundingBox(featureOverlayTable.getMinLon(),
+                featureOverlayTable.getMaxLon(), featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLat());
+
+        // Load tiles
         FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
-        TileProvider overlay = new FeatureOverlay(featureTiles);
+
+        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
+        featureTiles.setIndexQuery(indexer.isIndexed());
+
+        Paint pointPaint = featureTiles.getPointPaint();
+        pointPaint.setColor(Color.parseColor(featureOverlayTable.getPointColor()));
+
+        pointPaint.setAlpha(featureOverlayTable.getPointAlpha());
+        featureTiles.setPointRadius(featureOverlayTable.getPointRadius());
+
+        Paint linePaint = featureTiles.getLinePaint();
+        linePaint.setColor(Color.parseColor(featureOverlayTable.getLineColor()));
+
+        linePaint.setAlpha(featureOverlayTable.getLineAlpha());
+        linePaint.setStrokeWidth(featureOverlayTable.getLineStrokeWidth());
+
+        Paint polygonPaint = featureTiles.getPolygonPaint();
+        polygonPaint.setColor(Color.parseColor(featureOverlayTable.getPolygonColor()));
+
+        polygonPaint.setAlpha(featureOverlayTable.getPolygonAlpha());
+        polygonPaint.setStrokeWidth(featureOverlayTable.getPolygonStrokeWidth());
+
+        featureTiles.setFillPolygon(featureOverlayTable.isPolygonFill());
+        if (featureTiles.isFillPolygon()) {
+            Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
+            polygonFillPaint.setColor(Color.parseColor(featureOverlayTable.getPolygonFillColor()));
+
+            polygonFillPaint.setAlpha(featureOverlayTable.getPolygonFillAlpha());
+        }
+
+        featureTiles.calculateDrawOverlap();
+
+        FeatureOverlay overlay = new FeatureOverlay(featureTiles);
+        overlay.setBoundingBox(boundingBox, ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
+        overlay.setMinZoom(featureOverlayTable.getMinZoom());
+        overlay.setMaxZoom(featureOverlayTable.getMaxZoom());
 
         GeometryColumns geometryColumns = featureDao.getGeometryColumns();
         Contents contents = geometryColumns.getContents();
 
-        displayTiles(overlay, contents);
+        GeoPackageUtils.prepareFeatureTiles(featureTiles);
+
+        featureOverlayTiles = true;
+
+        displayTiles(overlay, contents, -1, boundingBox);
     }
 
     /**
@@ -2105,19 +2181,31 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param overlay
      * @param contents
+     * @param zIndex
+     * @param specifiedBoundingBox
      */
-    private void displayTiles(TileProvider overlay, Contents contents) {
+    private void displayTiles(TileProvider overlay, Contents contents, int zIndex, BoundingBox specifiedBoundingBox) {
 
         final TileOverlayOptions overlayOptions = new TileOverlayOptions();
         overlayOptions.tileProvider(overlay);
-        overlayOptions.zIndex(-1);
+        overlayOptions.zIndex(zIndex);
 
-        ProjectionTransform transform = ProjectionFactory.getProjection(
+        ProjectionTransform transformToWebMercator = ProjectionFactory.getProjection(
                 contents.getSrs().getOrganizationCoordsysId())
+                .getTransformation(
+                        ProjectionConstants.EPSG_WEB_MERCATOR);
+        BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(contents.getBoundingBox());
+        ProjectionTransform transform = ProjectionFactory.getProjection(
+                ProjectionConstants.EPSG_WEB_MERCATOR)
                 .getTransformation(
                         ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
         BoundingBox boundingBox = transform
-                .transform(contents.getBoundingBox());
+                .transform(webMercatorBoundingBox);
+
+        if(specifiedBoundingBox != null) {
+            boundingBox = TileBoundingBoxUtils.overlap(boundingBox, specifiedBoundingBox);
+        }
+
         if (tilesBoundingBox == null) {
             tilesBoundingBox = boundingBox;
         } else {
@@ -3193,7 +3281,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 manager.create(database);
                             }
 
-                            GeoPackageTable table = GeoPackageTable.createTile(
+                            GeoPackageTable table = new GeoPackageTileTable(
                                     database, tableName, 0);
                             active.addTable(table);
 
@@ -3316,29 +3404,29 @@ public class GeoPackageMapFragment extends Fragment implements
         final Button preloadedLocationsButton = (Button) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
         final Spinner pointColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_point_color);
+                .findViewById(R.id.feature_tiles_draw_point_color);
         final EditText pointAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_point_alpha);
+                .findViewById(R.id.feature_tiles_draw_point_alpha);
         final EditText pointRadius = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_point_radius);
+                .findViewById(R.id.feature_tiles_draw_point_radius);
         final Spinner lineColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_line_color);
+                .findViewById(R.id.feature_tiles_draw_line_color);
         final EditText lineAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_line_alpha);
+                .findViewById(R.id.feature_tiles_draw_line_alpha);
         final EditText lineStroke = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_line_stroke);
+                .findViewById(R.id.feature_tiles_draw_line_stroke);
         final Spinner polygonColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_color);
+                .findViewById(R.id.feature_tiles_draw_polygon_color);
         final EditText polygonAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_alpha);
+                .findViewById(R.id.feature_tiles_draw_polygon_alpha);
         final EditText polygonStroke = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_stroke);
+                .findViewById(R.id.feature_tiles_draw_polygon_stroke);
         final CheckBox polygonFill = (CheckBox) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_fill);
+                .findViewById(R.id.feature_tiles_draw_polygon_fill);
         final Spinner polygonFillColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_fill_color);
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_fill_alpha);
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
 
         GeoPackageUtils
                 .prepareBoundingBoxInputs(getActivity(), minLatInput,
@@ -3534,7 +3622,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             featureTiles.calculateDrawOverlap();
 
-                            GeoPackageTable table = GeoPackageTable.createTile(
+                            GeoPackageTable table = new GeoPackageTileTable(
                                     database, tableName, 0);
                             active.addTable(table);
 

@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.sample;
+package mil.nga.giat.geopackage.sample.indexer;
 
 /**
  * Interface for feature indexer callbacks

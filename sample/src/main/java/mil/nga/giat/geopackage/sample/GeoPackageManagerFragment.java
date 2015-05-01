@@ -70,6 +70,16 @@ import mil.nga.giat.geopackage.projection.Projection;
 import mil.nga.giat.geopackage.projection.ProjectionConstants;
 import mil.nga.giat.geopackage.projection.ProjectionFactory;
 import mil.nga.giat.geopackage.projection.ProjectionTransform;
+import mil.nga.giat.geopackage.sample.data.GeoPackageDatabases;
+import mil.nga.giat.geopackage.sample.data.GeoPackageFeatureOverlayTable;
+import mil.nga.giat.geopackage.sample.data.GeoPackageFeatureTable;
+import mil.nga.giat.geopackage.sample.data.GeoPackageTable;
+import mil.nga.giat.geopackage.sample.data.GeoPackageTileTable;
+import mil.nga.giat.geopackage.sample.filter.InputFilterMinMax;
+import mil.nga.giat.geopackage.sample.indexer.IIndexerTask;
+import mil.nga.giat.geopackage.sample.indexer.IndexerTask;
+import mil.nga.giat.geopackage.sample.load.ILoadTilesTask;
+import mil.nga.giat.geopackage.sample.load.LoadTilesTask;
 import mil.nga.giat.geopackage.schema.TableColumnKey;
 import mil.nga.giat.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
@@ -225,7 +235,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 } catch (Exception e) {
                 }
 
-                GeoPackageTable table = GeoPackageTable.createFeature(database,
+                GeoPackageTable table = new GeoPackageFeatureTable(database,
                         tableName, geometryType, count);
                 table.setActive(active.exists(table));
                 tables.add(table);
@@ -233,10 +243,16 @@ public class GeoPackageManagerFragment extends Fragment implements
             for (String tableName : geoPackage.getTileTables()) {
                 TileDao tileDao = geoPackage.getTileDao(tableName);
                 int count = tileDao.count();
-                GeoPackageTable table = GeoPackageTable.createTile(database,
+                GeoPackageTable table = new GeoPackageTileTable(database,
                         tableName, count);
                 table.setActive(active.exists(table));
                 tables.add(table);
+            }
+            for (GeoPackageFeatureOverlayTable featureOverlayTable : active.featureOverlays(database)) {
+                FeatureDao featureDao = geoPackage.getFeatureDao(featureOverlayTable.getFeatureTable());
+                int count = featureDao.count();
+                featureOverlayTable.setCount(count);
+                tables.add(featureOverlayTable);
             }
             databaseTables.add(tables);
             geoPackage.close();
@@ -1037,15 +1053,34 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.select_dialog_item);
-        adapter.add(getString(R.string.geopackage_table_view_label));
-        adapter.add(getString(R.string.geopackage_table_edit_label));
-        adapter.add(getString(R.string.geopackage_table_delete_label));
-        if (table.isTile()) {
-            adapter.add(getString(R.string.geopackage_table_tiles_load_label));
-        } else if (table.isFeature()) {
-            adapter.add(getString(R.string.geopackage_table_index_features_label));
-            adapter.add(getString(R.string.geopackage_table_create_feature_tiles_label));
+
+        switch (table.getType()) {
+
+            case FEATURE:
+                adapter.add(getString(R.string.geopackage_table_view_label));
+                adapter.add(getString(R.string.geopackage_table_edit_label));
+                adapter.add(getString(R.string.geopackage_table_delete_label));
+                adapter.add(getString(R.string.geopackage_table_index_features_label));
+                adapter.add(getString(R.string.geopackage_table_create_feature_tiles_label));
+                adapter.add(getString(R.string.geopackage_table_add_feature_overlay_label));
+                break;
+
+            case TILE:
+                adapter.add(getString(R.string.geopackage_table_view_label));
+                adapter.add(getString(R.string.geopackage_table_edit_label));
+                adapter.add(getString(R.string.geopackage_table_delete_label));
+                adapter.add(getString(R.string.geopackage_table_tiles_load_label));
+                break;
+
+            case FEATURE_OVERLAY:
+                adapter.add(getString(R.string.geopackage_table_edit_label));
+                adapter.add(getString(R.string.geopackage_table_delete_label));
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unsupported table type: " + table.getType());
         }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(table.getDatabase() + " - " + table.getName());
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
@@ -1055,24 +1090,59 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                     switch (item) {
                         case 0:
-                            viewTableOption(table);
-                            break;
-                        case 1:
-                            editTableOption(table);
-                            break;
-                        case 2:
-                            deleteTableOption(table);
-                            break;
-                        case 3:
-                            if (table.isTile()) {
-                                loadTilesTableOption(table);
-                            } else if (table.isFeature()) {
-                                indexFeaturesOption(table);
+                            switch (table.getType()) {
+                                case FEATURE:
+                                case TILE:
+                                    viewTableOption(table);
+                                    break;
+                                case FEATURE_OVERLAY:
+                                    editFeatureOverlayTableOption((GeoPackageFeatureOverlayTable)table);
+                                    break;
                             }
                             break;
+                        case 1:
+                            switch (table.getType()) {
+                                case FEATURE:
+                                case TILE:
+                                    editTableOption(table);
+                                    break;
+                                case FEATURE_OVERLAY:
+                                    active.removeTable(table);
+                                    update();
+                                    break;
+                            }
+                            break;
+                        case 2:
+                            switch (table.getType()) {
+                                case FEATURE:
+                                case TILE:
+                                    deleteTableOption(table);
+                                    break;
+                            }
+                            break;
+                        case 3:
+                            switch (table.getType()) {
+                                case FEATURE:
+                                    indexFeaturesOption(table);
+                                    break;
+                                case TILE:
+                                    loadTilesTableOption(table);
+                                    break;
+                            }
+
+                            break;
                         case 4:
-                            if (table.isFeature()) {
-                                createFeatureTilesTableOption(table);
+                            switch (table.getType()) {
+                                case FEATURE:
+                                    createFeatureTilesTableOption(table);
+                                    break;
+                            }
+                            break;
+                        case 5:
+                            switch (table.getType()) {
+                                case FEATURE:
+                                    addFeatureOverlayTableOption(table);
+                                    break;
                             }
                             break;
 
@@ -1099,20 +1169,29 @@ public class GeoPackageManagerFragment extends Fragment implements
             FeatureDao featureDao = null;
             TileDao tileDao = null;
             UserTable<? extends UserColumn> userTable = null;
-            if (table.isFeature()) {
-                featureDao = geoPackage.getFeatureDao(table.getName());
-                contents = featureDao.getGeometryColumns().getContents();
-                info.append("Feature Table");
-                info.append("\nFeatures: ").append(featureDao.count());
-                userTable = featureDao.getTable();
-            } else {
-                tileDao = geoPackage.getTileDao(table.getName());
-                contents = tileDao.getTileMatrixSet().getContents();
-                info.append("Tile Table");
-                info.append("\nZoom Levels: ").append(
-                        tileDao.getTileMatrices().size());
-                info.append("\nTiles: ").append(tileDao.count());
-                userTable = tileDao.getTable();
+
+            switch (table.getType()) {
+
+                case FEATURE:
+                    featureDao = geoPackage.getFeatureDao(table.getName());
+                    contents = featureDao.getGeometryColumns().getContents();
+                    info.append("Feature Table");
+                    info.append("\nFeatures: ").append(featureDao.count());
+                    userTable = featureDao.getTable();
+                    break;
+
+                case TILE:
+                    tileDao = geoPackage.getTileDao(table.getName());
+                    contents = tileDao.getTileMatrixSet().getContents();
+                    info.append("Tile Table");
+                    info.append("\nZoom Levels: ").append(
+                            tileDao.getTileMatrices().size());
+                    info.append("\nTiles: ").append(tileDao.count());
+                    userTable = tileDao.getTable();
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported table type: " + table.getType());
             }
 
             SpatialReferenceSystem srs = contents.getSrs();
@@ -1231,12 +1310,21 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
 
-        int editTableViewId;
-        if (table.isFeature()) {
-            editTableViewId = R.layout.edit_features;
-        } else {
-            editTableViewId = R.layout.edit_tiles;
+        int editTableViewId = 0;
+        switch (table.getType()) {
+
+            case FEATURE:
+                editTableViewId = R.layout.edit_features;
+                break;
+
+            case TILE:
+                editTableViewId = R.layout.edit_tiles;
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unsupported table type: " + table.getType());
         }
+
         View editTableView = inflater.inflate(editTableViewId, null);
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
         dialog.setView(editTableView);
@@ -1268,56 +1356,63 @@ public class GeoPackageManagerFragment extends Fragment implements
         TileMatrixSet tempTileMatrixSet = null;
         GeometryColumns tempGeometryColumns = null;
         try {
-            if (table.isTile()) {
-                TileMatrixSetDao tileMatrixSetDao = geoPackage
-                        .getTileMatrixSetDao();
-                tempTileMatrixSet = tileMatrixSetDao
-                        .queryForId(table.getName());
-                tempContents = tempTileMatrixSet.getContents();
+            switch (table.getType()) {
 
-                tempMinYMatrixSetInput = (EditText) editTableView
-                        .findViewById(R.id.edit_tiles_min_y_input);
-                tempMaxYMatrixSetInput = (EditText) editTableView
-                        .findViewById(R.id.edit_tiles_max_y_input);
-                tempMinXMatrixSetInput = (EditText) editTableView
-                        .findViewById(R.id.edit_tiles_min_x_input);
-                tempMaxXMatrixSetInput = (EditText) editTableView
-                        .findViewById(R.id.edit_tiles_max_x_input);
+                case FEATURE:
+                    tempGeometryTypeSpinner = (Spinner) editTableView
+                            .findViewById(R.id.edit_features_geometry_type);
+                    tempZInput = (EditText) editTableView
+                            .findViewById(R.id.edit_features_z_input);
+                    tempMInput = (EditText) editTableView
+                            .findViewById(R.id.edit_features_m_input);
 
-                tempMinYMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
-                        .getMinY()));
-                tempMaxYMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
-                        .getMaxY()));
-                tempMinXMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
-                        .getMinX()));
-                tempMaxXMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
-                        .getMaxX()));
-            } else {
+                    tempZInput
+                            .setFilters(new InputFilter[]{new InputFilterMinMax(
+                                    0, 2)});
+                    tempMInput
+                            .setFilters(new InputFilter[]{new InputFilterMinMax(
+                                    0, 2)});
 
-                tempGeometryTypeSpinner = (Spinner) editTableView
-                        .findViewById(R.id.edit_features_geometry_type);
-                tempZInput = (EditText) editTableView
-                        .findViewById(R.id.edit_features_z_input);
-                tempMInput = (EditText) editTableView
-                        .findViewById(R.id.edit_features_m_input);
+                    GeometryColumnsDao geometryColumnsDao = geoPackage
+                            .getGeometryColumnsDao();
+                    tempGeometryColumns = geometryColumnsDao
+                            .queryForTableName(table.getName());
+                    tempContents = tempGeometryColumns.getContents();
 
-                tempZInput
-                        .setFilters(new InputFilter[]{new InputFilterMinMax(
-                                0, 2)});
-                tempMInput
-                        .setFilters(new InputFilter[]{new InputFilterMinMax(
-                                0, 2)});
+                    tempGeometryTypeSpinner.setSelection(tempGeometryColumns
+                            .getGeometryType().getCode());
+                    tempZInput.setText(String.valueOf(tempGeometryColumns.getZ()));
+                    tempMInput.setText(String.valueOf(tempGeometryColumns.getM()));
+                    break;
 
-                GeometryColumnsDao geometryColumnsDao = geoPackage
-                        .getGeometryColumnsDao();
-                tempGeometryColumns = geometryColumnsDao
-                        .queryForTableName(table.getName());
-                tempContents = tempGeometryColumns.getContents();
+                case TILE:
+                    TileMatrixSetDao tileMatrixSetDao = geoPackage
+                            .getTileMatrixSetDao();
+                    tempTileMatrixSet = tileMatrixSetDao
+                            .queryForId(table.getName());
+                    tempContents = tempTileMatrixSet.getContents();
 
-                tempGeometryTypeSpinner.setSelection(tempGeometryColumns
-                        .getGeometryType().getCode());
-                tempZInput.setText(String.valueOf(tempGeometryColumns.getZ()));
-                tempMInput.setText(String.valueOf(tempGeometryColumns.getM()));
+                    tempMinYMatrixSetInput = (EditText) editTableView
+                            .findViewById(R.id.edit_tiles_min_y_input);
+                    tempMaxYMatrixSetInput = (EditText) editTableView
+                            .findViewById(R.id.edit_tiles_max_y_input);
+                    tempMinXMatrixSetInput = (EditText) editTableView
+                            .findViewById(R.id.edit_tiles_min_x_input);
+                    tempMaxXMatrixSetInput = (EditText) editTableView
+                            .findViewById(R.id.edit_tiles_max_x_input);
+
+                    tempMinYMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
+                            .getMinY()));
+                    tempMaxYMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
+                            .getMaxY()));
+                    tempMinXMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
+                            .getMinX()));
+                    tempMaxXMatrixSetInput.setText(String.valueOf(tempTileMatrixSet
+                            .getMaxX()));
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported table type: " + table.getType());
             }
 
             identifierInput.setText(tempContents.getIdentifier());
@@ -1401,60 +1496,68 @@ public class GeoPackageManagerFragment extends Fragment implements
                                                 + getString(R.string.edit_contents_max_x_label));
                             }
 
-                            if (table.isTile()) {
-                                TileMatrixSetDao tileMatrixSetDao = geoPackage
-                                        .getTileMatrixSetDao();
+                            switch (table.getType()) {
 
-                                String minYMatrixSetString = minYMatrixSetInput
-                                        .getText().toString();
-                                Double minMatrixSetY = minYMatrixSetString != null
-                                        && !minYMatrixSetString.isEmpty() ? Double
-                                        .valueOf(minYMatrixSetString) : null;
+                                case FEATURE:
+                                    GeometryColumnsDao geometryColumnsDao = geoPackage
+                                            .getGeometryColumnsDao();
 
-                                String maxYMatrixSetString = maxYMatrixSetInput
-                                        .getText().toString();
-                                Double maxMatrixSetY = maxYMatrixSetString != null
-                                        && !maxYMatrixSetString.isEmpty() ? Double
-                                        .valueOf(maxYMatrixSetString) : null;
+                                    geometryColumns.setGeometryType(GeometryType
+                                            .fromName(geometryTypeSpinner
+                                                    .getSelectedItem().toString()));
+                                    geometryColumns.setZ(Byte.valueOf(zInput
+                                            .getText().toString()));
+                                    geometryColumns.setM(Byte.valueOf(mInput
+                                            .getText().toString()));
 
-                                String minXMatrixSetString = minXMatrixSetInput
-                                        .getText().toString();
-                                Double minMatrixSetX = minXMatrixSetString != null
-                                        && !minXMatrixSetString.isEmpty() ? Double
-                                        .valueOf(minXMatrixSetString) : null;
+                                    geometryColumnsDao.update(geometryColumns);
+                                    break;
 
-                                String maxXMatrixSetString = maxXMatrixSetInput
-                                        .getText().toString();
-                                Double maxMatrixSetX = maxXMatrixSetString != null
-                                        && !maxXMatrixSetString.isEmpty() ? Double
-                                        .valueOf(maxXMatrixSetString) : null;
+                                case TILE:
+                                    TileMatrixSetDao tileMatrixSetDao = geoPackage
+                                            .getTileMatrixSetDao();
 
-                                if (minMatrixSetY == null
-                                        || maxMatrixSetY == null
-                                        || minMatrixSetX == null
-                                        || maxMatrixSetX == null) {
-                                    throw new GeoPackageException(
-                                            "Min and max bounds are required for Tiles");
-                                }
-                                tileMatrixSet.setMinY(minMatrixSetY);
-                                tileMatrixSet.setMaxY(maxMatrixSetY);
-                                tileMatrixSet.setMinX(minMatrixSetX);
-                                tileMatrixSet.setMaxX(maxMatrixSetX);
+                                    String minYMatrixSetString = minYMatrixSetInput
+                                            .getText().toString();
+                                    Double minMatrixSetY = minYMatrixSetString != null
+                                            && !minYMatrixSetString.isEmpty() ? Double
+                                            .valueOf(minYMatrixSetString) : null;
 
-                                tileMatrixSetDao.update(tileMatrixSet);
-                            } else {
-                                GeometryColumnsDao geometryColumnsDao = geoPackage
-                                        .getGeometryColumnsDao();
+                                    String maxYMatrixSetString = maxYMatrixSetInput
+                                            .getText().toString();
+                                    Double maxMatrixSetY = maxYMatrixSetString != null
+                                            && !maxYMatrixSetString.isEmpty() ? Double
+                                            .valueOf(maxYMatrixSetString) : null;
 
-                                geometryColumns.setGeometryType(GeometryType
-                                        .fromName(geometryTypeSpinner
-                                                .getSelectedItem().toString()));
-                                geometryColumns.setZ(Byte.valueOf(zInput
-                                        .getText().toString()));
-                                geometryColumns.setM(Byte.valueOf(mInput
-                                        .getText().toString()));
+                                    String minXMatrixSetString = minXMatrixSetInput
+                                            .getText().toString();
+                                    Double minMatrixSetX = minXMatrixSetString != null
+                                            && !minXMatrixSetString.isEmpty() ? Double
+                                            .valueOf(minXMatrixSetString) : null;
 
-                                geometryColumnsDao.update(geometryColumns);
+                                    String maxXMatrixSetString = maxXMatrixSetInput
+                                            .getText().toString();
+                                    Double maxMatrixSetX = maxXMatrixSetString != null
+                                            && !maxXMatrixSetString.isEmpty() ? Double
+                                            .valueOf(maxXMatrixSetString) : null;
+
+                                    if (minMatrixSetY == null
+                                            || maxMatrixSetY == null
+                                            || minMatrixSetX == null
+                                            || maxMatrixSetX == null) {
+                                        throw new GeoPackageException(
+                                                "Min and max bounds are required for Tiles");
+                                    }
+                                    tileMatrixSet.setMinY(minMatrixSetY);
+                                    tileMatrixSet.setMaxY(maxMatrixSetY);
+                                    tileMatrixSet.setMinX(minMatrixSetX);
+                                    tileMatrixSet.setMaxX(maxMatrixSetX);
+
+                                    tileMatrixSetDao.update(tileMatrixSet);
+                                    break;
+
+                                default:
+                                    throw new IllegalArgumentException("Unsupported table type: " + table.getType());
                             }
 
                             ContentsDao contentsDao = geoPackage
@@ -1750,29 +1853,29 @@ public class GeoPackageManagerFragment extends Fragment implements
         final Button preloadedLocationsButton = (Button) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
         final Spinner pointColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_point_color);
+                .findViewById(R.id.feature_tiles_draw_point_color);
         final EditText pointAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_point_alpha);
+                .findViewById(R.id.feature_tiles_draw_point_alpha);
         final EditText pointRadius = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_point_radius);
+                .findViewById(R.id.feature_tiles_draw_point_radius);
         final Spinner lineColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_line_color);
+                .findViewById(R.id.feature_tiles_draw_line_color);
         final EditText lineAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_line_alpha);
+                .findViewById(R.id.feature_tiles_draw_line_alpha);
         final EditText lineStroke = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_line_stroke);
+                .findViewById(R.id.feature_tiles_draw_line_stroke);
         final Spinner polygonColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_color);
+                .findViewById(R.id.feature_tiles_draw_polygon_color);
         final EditText polygonAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_alpha);
+                .findViewById(R.id.feature_tiles_draw_polygon_alpha);
         final EditText polygonStroke = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_stroke);
+                .findViewById(R.id.feature_tiles_draw_polygon_stroke);
         final CheckBox polygonFill = (CheckBox) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_fill);
+                .findViewById(R.id.feature_tiles_draw_polygon_fill);
         final Spinner polygonFillColor = (Spinner) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_fill_color);
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) createTilesView
-                .findViewById(R.id.feature_tiles_polygon_fill_alpha);
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
 
         GeoPackageUtils
                 .prepareBoundingBoxInputs(getActivity(), minLatInput,
@@ -1834,39 +1937,10 @@ public class GeoPackageManagerFragment extends Fragment implements
         // Set a default name
         nameInput.setText(table.getName() + getString(R.string.feature_tiles_name_suffix));
 
-        // Set feature limits
-        pointAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-        lineAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-        polygonAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-        polygonFillAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-
-        // Set default feature attributes
-        FeatureTiles featureTiles = new FeatureTiles(getActivity(), null);
-        String defaultColor = "black";
-
-        Paint pointPaint = featureTiles.getPointPaint();
-        pointColor.setSelection(((ArrayAdapter) pointColor.getAdapter()).getPosition(defaultColor));
-        pointAlpha.setText(String.valueOf(pointPaint.getAlpha()));
-        pointRadius.setText(String.valueOf(featureTiles.getPointRadius()));
-
-        Paint linePaint = featureTiles.getLinePaint();
-        lineColor.setSelection(((ArrayAdapter) lineColor.getAdapter()).getPosition(defaultColor));
-        lineAlpha.setText(String.valueOf(linePaint.getAlpha()));
-        lineStroke.setText(String.valueOf(linePaint.getStrokeWidth()));
-
-        Paint polygonPaint = featureTiles.getPolygonPaint();
-        polygonColor.setSelection(((ArrayAdapter) polygonColor.getAdapter()).getPosition(defaultColor));
-        polygonAlpha.setText(String.valueOf(polygonPaint.getAlpha()));
-        polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
-
-        polygonFill.setChecked(featureTiles.isFillPolygon());
-        Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
-        polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(defaultColor));
-        polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
+        // Prepare the feature draw
+        prepareFeatureDraw(pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
+                pointColor, lineColor, pointRadius, lineStroke,
+                polygonColor, polygonStroke, polygonFill, polygonFillColor);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_create_feature_tiles_label),
@@ -1996,6 +2070,437 @@ public class GeoPackageManagerFragment extends Fragment implements
                 });
         dialog.show();
 
+    }
+
+    /**
+     * Add feature overlay table option
+     *
+     * @param table
+     */
+    private void addFeatureOverlayTableOption(final GeoPackageTable table) {
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View createFeatureOverlayView = inflater.inflate(R.layout.create_feature_overlay, null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setView(createFeatureOverlayView);
+
+        final EditText nameInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.create_feature_overlay_name_input);
+        final TextView indexWarning = (TextView) createFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_index_warning);
+        final EditText minZoomInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_min_zoom_input);
+        final EditText maxZoomInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_max_zoom_input);
+        final EditText minLatInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.bounding_box_min_latitude_input);
+        final EditText maxLatInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.bounding_box_max_latitude_input);
+        final EditText minLonInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.bounding_box_min_longitude_input);
+        final EditText maxLonInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.bounding_box_max_longitude_input);
+        final Button preloadedLocationsButton = (Button) createFeatureOverlayView
+                .findViewById(R.id.bounding_box_preloaded);
+        final Spinner pointColor = (Spinner) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_point_color);
+        final EditText pointAlpha = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_point_alpha);
+        final EditText pointRadius = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_point_radius);
+        final Spinner lineColor = (Spinner) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_line_color);
+        final EditText lineAlpha = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_line_alpha);
+        final EditText lineStroke = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_line_stroke);
+        final Spinner polygonColor = (Spinner) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_color);
+        final EditText polygonAlpha = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_alpha);
+        final EditText polygonStroke = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_stroke);
+        final CheckBox polygonFill = (CheckBox) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_fill);
+        final Spinner polygonFillColor = (Spinner) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
+        final EditText polygonFillAlpha = (EditText) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
+
+        // Set a default name
+        nameInput.setText(table.getName() + getString(R.string.feature_overlay_tiles_name_suffix));
+
+        GeoPackageUtils
+                .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                        maxLatInput, minLonInput, maxLonInput,
+                        preloadedLocationsButton);
+
+        int minZoomLevel = getActivity().getResources().getInteger(
+                R.integer.load_tiles_min_zoom_default);
+        int maxZoomLevel = getActivity().getResources().getInteger(
+                R.integer.load_tiles_max_zoom_default);
+        minZoomInput.setText(String.valueOf(minZoomLevel));
+        maxZoomInput.setText(String.valueOf(maxZoomLevel));
+
+        GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+        GeoPackage geoPackage = manager.open(table.getDatabase());
+        FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
+        Contents contents = featureDao.getGeometryColumns().getContents();
+
+        BoundingBox boundingBox = contents.getBoundingBox();
+        Projection projection = ProjectionFactory.getProjection(
+                contents.getSrs().getOrganizationCoordsysId());
+
+        ProjectionTransform webMercatorTransform = projection.getTransformation(
+                ProjectionConstants.EPSG_WEB_MERCATOR);
+        BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(boundingBox);
+
+        ProjectionTransform worldGeodeticTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
+                ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+        BoundingBox worldGeodeticBoundingBox = worldGeodeticTransform.transform(webMercatorBoundingBox);
+        minLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLongitude()));
+        minLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLatitude()));
+        maxLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLongitude()));
+        maxLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLatitude()));
+
+        // Check if indexed
+        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
+        final boolean indexed = indexer.isIndexed();
+        if (indexed) {
+            indexWarning.setVisibility(View.GONE);
+        }
+
+        geoPackage.close();
+
+        // Prepare the feature draw
+        prepareFeatureDraw(pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
+                pointColor, lineColor, pointRadius, lineStroke,
+                polygonColor, polygonStroke, polygonFill, polygonFillColor);
+
+        dialog.setPositiveButton(
+                getString(R.string.geopackage_table_add_feature_overlay_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        try {
+
+                            String tableName = nameInput.getText().toString();
+                            if (tableName == null || tableName.isEmpty()) {
+                                throw new GeoPackageException(
+                                        getString(R.string.create_feature_overlay_name_label)
+                                                + " is required");
+                            }
+
+                            GeoPackageFeatureOverlayTable overlayTable = new GeoPackageFeatureOverlayTable(table.getDatabase(), tableName, table.getName(),
+                                    null, 0);
+
+
+                            int minZoom = Integer.valueOf(minZoomInput
+                                    .getText().toString());
+                            int maxZoom = Integer.valueOf(maxZoomInput
+                                    .getText().toString());
+                            double minLat = Double.valueOf(minLatInput
+                                    .getText().toString());
+                            double maxLat = Double.valueOf(maxLatInput
+                                    .getText().toString());
+                            double minLon = Double.valueOf(minLonInput
+                                    .getText().toString());
+                            double maxLon = Double.valueOf(maxLonInput
+                                    .getText().toString());
+
+                            if (minLat > maxLat) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_latitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_latitude_label));
+                            }
+
+                            if (minLon > maxLon) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_longitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_longitude_label));
+                            }
+
+                            overlayTable.setMinZoom(minZoom);
+                            overlayTable.setMaxZoom(maxZoom);
+                            overlayTable.setMinLat(minLat);
+                            overlayTable.setMaxLat(maxLat);
+                            overlayTable.setMinLon(minLon);
+                            overlayTable.setMaxLon(maxLon);
+                            overlayTable.setPointColor(pointColor.getSelectedItem().toString());
+                            overlayTable.setPointAlpha(Integer.valueOf(pointAlpha
+                                    .getText().toString()));
+                            overlayTable.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
+                            overlayTable.setLineColor(lineColor.getSelectedItem().toString());
+                            overlayTable.setLineAlpha(Integer.valueOf(lineAlpha
+                                    .getText().toString()));
+                            overlayTable.setLineStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
+                            overlayTable.setPolygonColor(polygonColor.getSelectedItem().toString());
+                            overlayTable.setPolygonAlpha(Integer.valueOf(polygonAlpha
+                                    .getText().toString()));
+                            overlayTable.setPolygonStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
+                            overlayTable.setPolygonFill(polygonFill.isChecked());
+                            overlayTable.setPolygonFillColor(polygonFillColor.getSelectedItem().toString());
+                            overlayTable.setPolygonFillAlpha(Integer.valueOf(polygonFillAlpha
+                                    .getText().toString()));
+
+                            active.addTable(overlayTable);
+                            update();
+
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.geopackage_create_tiles_label),
+                                            e.getMessage());
+                        }
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        dialog.show();
+    }
+
+
+    /**
+     * Add feature overlay table option
+     *
+     * @param table
+     */
+    private void editFeatureOverlayTableOption(final GeoPackageFeatureOverlayTable table) {
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View editFeatureOverlayView = inflater.inflate(R.layout.edit_feature_overlay, null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        dialog.setView(editFeatureOverlayView);
+
+        final TextView indexWarning = (TextView) editFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_index_warning);
+        final EditText minZoomInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_min_zoom_input);
+        final EditText maxZoomInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_max_zoom_input);
+        final EditText minLatInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.bounding_box_min_latitude_input);
+        final EditText maxLatInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.bounding_box_max_latitude_input);
+        final EditText minLonInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.bounding_box_min_longitude_input);
+        final EditText maxLonInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.bounding_box_max_longitude_input);
+        final Button preloadedLocationsButton = (Button) editFeatureOverlayView
+                .findViewById(R.id.bounding_box_preloaded);
+        final Spinner pointColor = (Spinner) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_point_color);
+        final EditText pointAlpha = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_point_alpha);
+        final EditText pointRadius = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_point_radius);
+        final Spinner lineColor = (Spinner) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_line_color);
+        final EditText lineAlpha = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_line_alpha);
+        final EditText lineStroke = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_line_stroke);
+        final Spinner polygonColor = (Spinner) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_color);
+        final EditText polygonAlpha = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_alpha);
+        final EditText polygonStroke = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_stroke);
+        final CheckBox polygonFill = (CheckBox) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_fill);
+        final Spinner polygonFillColor = (Spinner) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
+        final EditText polygonFillAlpha = (EditText) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
+
+        GeoPackageUtils
+                .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                        maxLatInput, minLonInput, maxLonInput,
+                        preloadedLocationsButton);
+
+        minZoomInput.setText(String.valueOf(table.getMinZoom()));
+        maxZoomInput.setText(String.valueOf(table.getMaxZoom()));
+        minLonInput.setText(String.valueOf(table.getMinLon()));
+        minLatInput.setText(String.valueOf(table.getMinLat()));
+        maxLonInput.setText(String.valueOf(table.getMaxLon()));
+        maxLatInput.setText(String.valueOf(table.getMaxLat()));
+
+        // Check if indexed
+        GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+        GeoPackage geoPackage = manager.open(table.getDatabase());
+        FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
+        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
+        final boolean indexed = indexer.isIndexed();
+        if (indexed) {
+            indexWarning.setVisibility(View.GONE);
+        }
+        geoPackage.close();
+
+        // Prepare the feature draw
+        prepareFeatureDraw(pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
+                pointColor, lineColor, pointRadius, lineStroke,
+                polygonColor, polygonStroke, polygonFill, polygonFillColor);
+
+        pointColor.setSelection(((ArrayAdapter) pointColor.getAdapter()).getPosition(table.getPointColor()));
+        pointAlpha.setText(String.valueOf(table.getPointAlpha()));
+        pointRadius.setText(String.valueOf(table.getPointRadius()));
+
+        lineColor.setSelection(((ArrayAdapter) lineColor.getAdapter()).getPosition(table.getLineColor()));
+        lineAlpha.setText(String.valueOf(table.getLineAlpha()));
+        lineStroke.setText(String.valueOf(table.getLineStrokeWidth()));
+
+        polygonColor.setSelection(((ArrayAdapter) polygonColor.getAdapter()).getPosition(table.getPolygonColor()));
+        polygonAlpha.setText(String.valueOf(table.getPolygonAlpha()));
+        polygonStroke.setText(String.valueOf(table.getPolygonStrokeWidth()));
+
+        polygonFill.setChecked(table.isPolygonFill());
+        polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(table.getPolygonFillColor()));
+        polygonFillAlpha.setText(String.valueOf(table.getPolygonFillAlpha()));
+
+        dialog.setPositiveButton(
+                getString(R.string.geopackage_table_edit_feature_overlay_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        try {
+
+                            int minZoom = Integer.valueOf(minZoomInput
+                                    .getText().toString());
+                            int maxZoom = Integer.valueOf(maxZoomInput
+                                    .getText().toString());
+                            double minLat = Double.valueOf(minLatInput
+                                    .getText().toString());
+                            double maxLat = Double.valueOf(maxLatInput
+                                    .getText().toString());
+                            double minLon = Double.valueOf(minLonInput
+                                    .getText().toString());
+                            double maxLon = Double.valueOf(maxLonInput
+                                    .getText().toString());
+
+                            if (minLat > maxLat) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_latitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_latitude_label));
+                            }
+
+                            if (minLon > maxLon) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_longitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_longitude_label));
+                            }
+
+                            table.setMinZoom(minZoom);
+                            table.setMaxZoom(maxZoom);
+                            table.setMinLat(minLat);
+                            table.setMaxLat(maxLat);
+                            table.setMinLon(minLon);
+                            table.setMaxLon(maxLon);
+                            table.setPointColor(pointColor.getSelectedItem().toString());
+                            table.setPointAlpha(Integer.valueOf(pointAlpha
+                                    .getText().toString()));
+                            table.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
+                            table.setLineColor(lineColor.getSelectedItem().toString());
+                            table.setLineAlpha(Integer.valueOf(lineAlpha
+                                    .getText().toString()));
+                            table.setLineStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
+                            table.setPolygonColor(polygonColor.getSelectedItem().toString());
+                            table.setPolygonAlpha(Integer.valueOf(polygonAlpha
+                                    .getText().toString()));
+                            table.setPolygonStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
+                            table.setPolygonFill(polygonFill.isChecked());
+                            table.setPolygonFillColor(polygonFillColor.getSelectedItem().toString());
+                            table.setPolygonFillAlpha(Integer.valueOf(polygonFillAlpha
+                                    .getText().toString()));
+
+                            active.addTable(table);
+                            update();
+
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.geopackage_create_tiles_label),
+                                            e.getMessage());
+                        }
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        dialog.show();
+    }
+
+    /**
+     * Prepare the feature draw limits and defaults
+     *
+     * @param pointAlpha
+     * @param lineAlpha
+     * @param polygonAlpha
+     * @param polygonFillAlpha
+     * @param pointColor
+     * @param lineColor
+     * @param pointRadius
+     * @param lineStroke
+     * @param polygonColor
+     * @param polygonStroke
+     * @param polygonFill
+     * @param polygonFillColor
+     */
+    private void prepareFeatureDraw(EditText pointAlpha, EditText lineAlpha, EditText polygonAlpha, EditText polygonFillAlpha,
+                                    Spinner pointColor, Spinner lineColor, EditText pointRadius, EditText lineStroke,
+                                    Spinner polygonColor, EditText polygonStroke, CheckBox polygonFill, Spinner polygonFillColor) {
+
+        // Set feature limits
+        pointAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+        lineAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+        polygonAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+        polygonFillAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+
+        // Set default feature attributes
+        FeatureTiles featureTiles = new FeatureTiles(getActivity(), null);
+        String defaultColor = "black";
+
+        Paint pointPaint = featureTiles.getPointPaint();
+        pointColor.setSelection(((ArrayAdapter) pointColor.getAdapter()).getPosition(defaultColor));
+        pointAlpha.setText(String.valueOf(pointPaint.getAlpha()));
+        pointRadius.setText(String.valueOf(featureTiles.getPointRadius()));
+
+        Paint linePaint = featureTiles.getLinePaint();
+        lineColor.setSelection(((ArrayAdapter) lineColor.getAdapter()).getPosition(defaultColor));
+        lineAlpha.setText(String.valueOf(linePaint.getAlpha()));
+        lineStroke.setText(String.valueOf(linePaint.getStrokeWidth()));
+
+        Paint polygonPaint = featureTiles.getPolygonPaint();
+        polygonColor.setSelection(((ArrayAdapter) polygonColor.getAdapter()).getPosition(defaultColor));
+        polygonAlpha.setText(String.valueOf(polygonPaint.getAlpha()));
+        polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
+
+        polygonFill.setChecked(featureTiles.isFillPolygon());
+        Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
+        polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(defaultColor));
+        polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
     }
 
     /**
@@ -2825,49 +3330,63 @@ public class GeoPackageManagerFragment extends Fragment implements
             });
 
             checkBox.setChecked(table.isActive());
-            if (table.isFeature()) {
-                GeometryType geometryType = table.getGeometryType();
-                int drawableId = R.drawable.ic_geometry;
-                if (geometryType != null) {
 
-                    switch (geometryType) {
+            switch (table.getType()) {
 
-                        case POINT:
-                        case MULTIPOINT:
-                            drawableId = R.drawable.ic_point;
-                            break;
+                case FEATURE:
+                    GeometryType geometryType = ((GeoPackageFeatureTable) table).getGeometryType();
+                    int drawableId = R.drawable.ic_geometry;
+                    if (geometryType != null) {
 
-                        case LINESTRING:
-                        case MULTILINESTRING:
-                        case CURVE:
-                        case COMPOUNDCURVE:
-                        case CIRCULARSTRING:
-                        case MULTICURVE:
-                            drawableId = R.drawable.ic_linestring;
-                            break;
+                        switch (geometryType) {
 
-                        case POLYGON:
-                        case SURFACE:
-                        case CURVEPOLYGON:
-                        case TRIANGLE:
-                        case POLYHEDRALSURFACE:
-                        case TIN:
-                        case MULTIPOLYGON:
-                        case MULTISURFACE:
-                            drawableId = R.drawable.ic_polygon;
-                            break;
+                            case POINT:
+                            case MULTIPOINT:
+                                drawableId = R.drawable.ic_point;
+                                break;
 
-                        case GEOMETRY:
-                        case GEOMETRYCOLLECTION:
-                            drawableId = R.drawable.ic_geometry;
-                            break;
+                            case LINESTRING:
+                            case MULTILINESTRING:
+                            case CURVE:
+                            case COMPOUNDCURVE:
+                            case CIRCULARSTRING:
+                            case MULTICURVE:
+                                drawableId = R.drawable.ic_linestring;
+                                break;
+
+                            case POLYGON:
+                            case SURFACE:
+                            case CURVEPOLYGON:
+                            case TRIANGLE:
+                            case POLYHEDRALSURFACE:
+                            case TIN:
+                            case MULTIPOLYGON:
+                            case MULTISURFACE:
+                                drawableId = R.drawable.ic_polygon;
+                                break;
+
+                            case GEOMETRY:
+                            case GEOMETRYCOLLECTION:
+                                drawableId = R.drawable.ic_geometry;
+                                break;
+                        }
                     }
-                }
-                imageView.setImageDrawable(getResources().getDrawable(
-                        drawableId));
-            } else {
-                imageView.setImageDrawable(getResources().getDrawable(
-                        R.drawable.ic_tiles));
+                    imageView.setImageDrawable(getResources().getDrawable(
+                            drawableId));
+                    break;
+
+                case TILE:
+                    imageView.setImageDrawable(getResources().getDrawable(
+                            R.drawable.ic_tiles));
+                    break;
+
+                case FEATURE_OVERLAY:
+                    imageView.setImageDrawable(getResources().getDrawable(
+                            R.drawable.ic_format_paint));
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported table type: " + table.getType());
             }
 
             tableName.setText(table.getName());

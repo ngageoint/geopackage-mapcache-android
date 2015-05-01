@@ -56,22 +56,23 @@
     <string name="feature_tiles_index_warning">WARNING: Table is not indexed!</string>
     <string name="feature_tiles_name_label">Name: </string>
     <string name="feature_tiles_name_suffix">_tiles</string>
-    <string name="feature_tiles_point_label">Points - </string>
-    <string name="feature_tiles_point_color_label">Color: </string>
-    <string name="feature_tiles_point_alpha_label">Alpha: </string>
-    <string name="feature_tiles_point_radius_label">Radius: </string>
-    <string name="feature_tiles_line_label">Lines - </string>
-    <string name="feature_tiles_line_color_label">Color: </string>
-    <string name="feature_tiles_line_alpha_label">Alpha: </string>
-    <string name="feature_tiles_line_stroke_label">Stroke: </string>
-    <string name="feature_tiles_polygon_label">Polygons - </string>
-    <string name="feature_tiles_polygon_color_label">Color: </string>
-    <string name="feature_tiles_polygon_alpha_label">Alpha: </string>
-    <string name="feature_tiles_polygon_stroke_label">Stroke: </string>
-    <string name="feature_tiles_polygon_fill_label">Fill?</string>
-    <string name="feature_tiles_polygon_fill_color_label">Fill Color: </string>
-    <string name="feature_tiles_polygon_fill_alpha_label">Fill Alpha: </string>
-    <array name="feature_tiles_colors">
+    <string name="feature_overlay_tiles_name_suffix">_overlay</string>
+    <string name="feature_tiles_draw_point_label">Points - </string>
+    <string name="feature_tiles_draw_point_color_label">Color: </string>
+    <string name="feature_tiles_draw_point_alpha_label">Alpha: </string>
+    <string name="feature_tiles_draw_point_radius_label">Radius: </string>
+    <string name="feature_tiles_draw_line_label">Lines - </string>
+    <string name="feature_tiles_draw_line_color_label">Color: </string>
+    <string name="feature_tiles_draw_line_alpha_label">Alpha: </string>
+    <string name="feature_tiles_draw_line_stroke_label">Stroke: </string>
+    <string name="feature_tiles_draw_polygon_label">Polygons - </string>
+    <string name="feature_tiles_draw_polygon_color_label">Color: </string>
+    <string name="feature_tiles_draw_polygon_alpha_label">Alpha: </string>
+    <string name="feature_tiles_draw_polygon_stroke_label">Stroke: </string>
+    <string name="feature_tiles_draw_polygon_fill_label">Fill?</string>
+    <string name="feature_tiles_draw_polygon_fill_color_label">Fill Color: </string>
+    <string name="feature_tiles_draw_polygon_fill_alpha_label">Fill Alpha: </string>
+    <array name="feature_tiles_draw_colors">
         <item>aqua</item>
         <item>black</item>
         <item>blue</item>
@@ -97,6 +98,11 @@
     <string name="map_create_tiles_existing_geopackage_label">Existing</string>
     <string name="map_create_tiles_existing_geopackage_dialog_label">GeoPackages</string>
     <string name="create_features_name_label">Name: </string>
+    <string name="create_feature_overlay_name_label">Name: </string>
+    <string name="edit_feature_overlay_index_warning">WARNING: Table is not indexed!</string>
+    <string name="edit_feature_overlay_zoom_label">Zoom - </string>
+    <string name="edit_feature_overlay_min_zoom_label">Min: </string>
+    <string name="edit_feature_overlay_max_zoom_label">Max: </string>
     <string name="bounding_box_min_latitude_label">Min Lat: </string>
     <string name="bounding_box_max_latitude_label">Max Lat: </string>
     <string name="bounding_box_default_min_latitude">-90.0</string>
@@ -124,6 +130,8 @@
     <string name="geopackage_table_delete_label">Delete</string>
     <string name="geopackage_table_tiles_load_label">Load Tiles</string>
     <string name="geopackage_table_create_feature_tiles_label">Create Tiles</string>
+    <string name="geopackage_table_add_feature_overlay_label">Add Tile Overlay</string>
+    <string name="geopackage_table_edit_feature_overlay_label">Edit Tile Overlay</string>
     <string name="geopackage_table_index_features_label">Index Features</string>
     <string name="geopackage_table_index_features_index_title">Index</string>
     <string name="geopackage_table_index_features_indexed_message">Table index is up to date</string>

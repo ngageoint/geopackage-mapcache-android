@@ -189,18 +189,21 @@
         <item>Simple Sewers</item>
         <item>Haiti</item>
         <item>Belgium Geonames</item>
+        <item>ERDC Whitehorse</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
         <item>http://www.geopackage.org/data/gdal_sample.gpkg</item>
         <item>http://www.geopackage.org/data/simple_sewer_features.gpkg</item>
         <item>http://www.geopackage.org/data/haiti-vectors-split.gpkg</item>
         <item>http://www.geopackage.org/data/geonames_belgium.gpkg</item>
+        <item>https://portal.opengeospatial.org/files/60628</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
         <item>gdal_sample</item>
         <item>simple_sewer_features</item>
         <item>haiti-vectors-split</item>
         <item>geonames_belgium</item>
+        <item>erdc_whitehorse</item>
     </string-array>
     
     <string-array name="preloaded_tile_url_labels">

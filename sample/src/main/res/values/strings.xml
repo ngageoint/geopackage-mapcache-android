@@ -196,7 +196,7 @@
         <item>http://www.geopackage.org/data/simple_sewer_features.gpkg</item>
         <item>http://www.geopackage.org/data/haiti-vectors-split.gpkg</item>
         <item>http://www.geopackage.org/data/geonames_belgium.gpkg</item>
-        <item>https://portal.opengeospatial.org/files/60628</item>
+        <item>https://portal.opengeospatial.org/files/63156</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
         <item>gdal_sample</item>

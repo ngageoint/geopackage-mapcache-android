@@ -33,6 +33,7 @@ public class GeoPackageFeatureTable extends GeoPackageTable implements Serializa
     public GeoPackageFeatureTable(String database, String name,
                                   GeometryType geometryType, int count) {
         super(database, name, count);
+        this.geometryType = geometryType;
     }
 
     @Override

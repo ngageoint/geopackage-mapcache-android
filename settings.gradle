@@ -1,2 +1,2 @@
-include ':sample'
-//include ':sdk' // uncomment me to build locally
+include ':mapcache'
+include ':sdk' // uncomment me to build locally

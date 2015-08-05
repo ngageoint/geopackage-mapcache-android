@@ -9,40 +9,15 @@ If you'd like to contribute to this project, please make a pull request. We'll r
 
 Software source code previously released under an open source license and then modified by NGA staff is considered a "joint work" (see 17 USC § 101); it is partially copyrighted, partially public domain, and as a whole is protected by the copyrights of the non-government authors and must be released according to the terms of the original open source license.
 
-### About ###
+### Android App ###
 
 [Download the latest APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/download/1.0.0/mapcache.apk)
+
+### About ###
 
 GeoPackage MapCache is an app for Android that utilizes and demonstrates the functionality in the [GeoPackage Android](https://github.com/ngageoint/geopackage-android).  The GeoPackage SDK is an Android library implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).
 
 The MapCache app provides read and write access to GeoPackage files, including features and tiles. Features are visualized and editable on the map. Tiles are visualized on the map and can be loaded from a tile provider or WMS url.
-
-### Icons ###
-
-GeoPackage Icon is from Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/).
-
-App Icons are from [Material Design Icons on GitHub](https://github.com/google/material-design-icons) or generated at [Android Asset Studio](http://romannurik.github.io/AndroidAssetStudio).
-
-#### Map Button Colors ####
-* Grey: #989898
-* Yellow: #ffff00
-* Green: #00ff00
-* Red: #f44336
-
-#### Map Button Padding ####
-* ic_shape_draw: 30%
-* ic_shape_hole_draw: 30%
-* ic_shape_edit: 50%
-
-### Dependencies ###
-
-#### Remote ####
-
-* [GeoPackage Android](https://github.com/ngageoint/geopackage-android) (The MIT License (MIT)) - GeoPackage Library
-
-#### Embedded ####
-
-* [aFileChooser](https://github.com/iPaulPro/aFileChooser) (Apache License, Version 2.0) - Uri Paths using modified FileUtils
 
 ### Screen Shots ###
 
@@ -70,3 +45,30 @@ Editing [Haiti Features] (http://www.geopackage.org/data/haiti-vectors-split.gpk
 [nowCOAST] (http://nowcoast.noaa.gov) tiles
 
 ![Screenshot 5](screenshots/screenshot5.jpg)
+
+### Icons ###
+
+GeoPackage Icon is from Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/).
+
+App Icons are from [Material Design Icons on GitHub](https://github.com/google/material-design-icons) or generated at [Android Asset Studio](http://romannurik.github.io/AndroidAssetStudio).
+
+#### Map Button Colors ####
+* Grey: #989898
+* Yellow: #ffff00
+* Green: #00ff00
+* Red: #f44336
+
+#### Map Button Padding ####
+* ic_shape_draw: 30%
+* ic_shape_hole_draw: 30%
+* ic_shape_edit: 50%
+
+### Dependencies ###
+
+#### Remote ####
+
+* [GeoPackage Android](https://github.com/ngageoint/geopackage-android) (The MIT License (MIT)) - GeoPackage Library
+
+#### Embedded ####
+
+* [aFileChooser](https://github.com/iPaulPro/aFileChooser) (Apache License, Version 2.0) - Uri Paths using modified FileUtils

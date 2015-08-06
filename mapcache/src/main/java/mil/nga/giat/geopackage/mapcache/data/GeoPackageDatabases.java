@@ -209,16 +209,57 @@ public class GeoPackageDatabases {
      * @param table
      */
     public void removeTable(GeoPackageTable table) {
+        removeTable(table, false);
+    }
+
+    /**
+     * Remove a table
+     *
+     * @param table
+     * @param preserveOverlays
+     */
+    public void removeTable(GeoPackageTable table, boolean preserveOverlays) {
         GeoPackageDatabase database = databases.get(table.getDatabase());
         if (database != null) {
             database.remove(table);
             removeTableFromPreferences(table);
             if (database.isEmpty()) {
                 databases.remove(database.getDatabase());
-                removeDatabaseFromPreferences(database.getDatabase(), false);
+                removeDatabaseFromPreferences(database.getDatabase(), preserveOverlays);
+            }
+            if(!preserveOverlays && table.getType() == GeoPackageTableType.FEATURE){
+                List<GeoPackageFeatureOverlayTable> deleteFeatureOverlays = new ArrayList<GeoPackageFeatureOverlayTable>();
+                for(GeoPackageFeatureOverlayTable featureOverlay: database.getFeatureOverlays()){
+                    if(featureOverlay.getFeatureTable().equals(table.getName())){
+                        deleteFeatureOverlays.add(featureOverlay);
+                    }
+                }
+                for(GeoPackageFeatureOverlayTable featureOverlay: deleteFeatureOverlays){
+                    removeTable(featureOverlay);
+                }
             }
             setModified(true);
         }
+    }
+
+    public boolean isEmpty(){
+        return getTableCount() == 0;
+    }
+
+    public int getTableCount(){
+        int count = 0;
+        for(GeoPackageDatabase database : databases.values()){
+            count += database.getTableCount();
+        }
+        return count;
+    }
+
+    public int getActiveTableCount(){
+        int count = 0;
+        for(GeoPackageDatabase database : databases.values()){
+            count += database.getActiveTableCount();
+        }
+        return count;
     }
 
     /**

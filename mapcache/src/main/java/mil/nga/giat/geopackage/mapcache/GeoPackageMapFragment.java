@@ -1519,11 +1519,13 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     // Display the feature tiles
                     for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
-                        try {
-                            displayFeatureTiles(featureOverlay);
-                        } catch (Exception e) {
-                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                    e.getMessage());
+                        if(featureOverlay.isActive()) {
+                            try {
+                                displayFeatureTiles(featureOverlay);
+                            } catch (Exception e) {
+                                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                        e.getMessage());
+                            }
                         }
                         if (task.isCancelled()) {
                             break;

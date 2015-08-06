@@ -66,6 +66,7 @@ import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.giat.geopackage.features.user.FeatureDao;
 import mil.nga.giat.geopackage.io.GeoPackageIOUtils;
 import mil.nga.giat.geopackage.io.GeoPackageProgress;
+import mil.nga.giat.geopackage.mapcache.data.GeoPackageTableType;
 import mil.nga.giat.geopackage.projection.Projection;
 import mil.nga.giat.geopackage.projection.ProjectionConstants;
 import mil.nga.giat.geopackage.projection.ProjectionFactory;
@@ -1109,11 +1110,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             switch (table.getType()) {
                                 case FEATURE:
                                 case TILE:
-                                    deleteTableOption(table);
-                                    break;
                                 case FEATURE_OVERLAY:
-                                    active.removeTable(table);
-                                    update();
+                                    deleteTableOption(table);
                                     break;
                             }
                             break;
@@ -1615,19 +1613,29 @@ public class GeoPackageManagerFragment extends Fragment implements
                             public void onClick(DialogInterface dialog,
                                                 int which) {
 
-                                GeoPackage geoPackage = manager.open(table
-                                        .getDatabase());
-                                try {
-                                    geoPackage.deleteTable(table.getName());
-                                    active.removeTable(table);
-                                    update();
-                                } catch (Exception e) {
-                                    GeoPackageUtils.showMessage(getActivity(),
-                                            "Delete " + table.getDatabase()
-                                                    + " " + table.getName()
-                                                    + " Table", e.getMessage());
-                                } finally {
-                                    geoPackage.close();
+                                switch(table.getType()){
+                                    case FEATURE:
+                                    case TILE:
+                                        GeoPackage geoPackage = manager.open(table
+                                                .getDatabase());
+                                        try {
+                                            geoPackage.deleteTable(table.getName());
+                                            active.removeTable(table);
+                                            update();
+                                        } catch (Exception e) {
+                                            GeoPackageUtils.showMessage(getActivity(),
+                                                    "Delete " + table.getDatabase()
+                                                            + " " + table.getName()
+                                                            + " Table", e.getMessage());
+                                        } finally {
+                                            geoPackage.close();
+                                        }
+                                        break;
+
+                                    case FEATURE_OVERLAY:
+                                        active.removeTable(table);
+                                        update();
+                                        break;
                                 }
                             }
                         })
@@ -3312,10 +3320,16 @@ public class GeoPackageManagerFragment extends Fragment implements
                                              boolean isChecked) {
                     if (table.isActive() != isChecked) {
                         table.setActive(isChecked);
-                        if (isChecked) {
+
+                        if(table.getType() == GeoPackageTableType.FEATURE_OVERLAY){
+                            active.removeTable(table);
                             active.addTable(table);
                         } else {
-                            active.removeTable(table);
+                            if (isChecked) {
+                                active.addTable(table);
+                            } else {
+                                active.removeTable(table, true);
+                            }
                         }
                     }
                 }

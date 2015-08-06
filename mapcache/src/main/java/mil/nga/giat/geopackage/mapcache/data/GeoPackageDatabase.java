@@ -50,6 +50,14 @@ public class GeoPackageDatabase {
     }
 
     /**
+     * Get the feature count
+     * @return
+     */
+    public int getFeatureCount(){
+        return features.size();
+    }
+
+    /**
      * Get the feature tables
      *
      * @return
@@ -59,12 +67,57 @@ public class GeoPackageDatabase {
     }
 
     /**
+     * Get the feature overlay count
+     * @return
+     */
+    public int getFeatureOverlayCount(){
+        return featureOverlays.size();
+    }
+
+    /**
+     * Get the feature overlay count
+     * @return
+     */
+    public int getActiveFeatureOverlayCount(){
+        int count = 0;
+        for(GeoPackageTable table : featureOverlays.values()){
+            if(table.isActive()){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Get the tile tables
      *
      * @return
      */
     public Collection<GeoPackageTileTable> getTiles() {
         return tiles.values();
+    }
+
+    /**
+     * Get the tile count
+     */
+    public int getTileCount(){
+        return tiles.size();
+    }
+
+    /**
+     * Get the table count
+     * @return
+     */
+    public int getTableCount(){
+        return getFeatureCount() + getTileCount() + getFeatureOverlayCount();
+    }
+
+    /**
+     * Get the active table count
+     * @return
+     */
+    public int getActiveTableCount(){
+        return getFeatureCount() + getTileCount() + getActiveFeatureOverlayCount();
     }
 
     public void setDatabase(String database) {
@@ -164,7 +217,7 @@ public class GeoPackageDatabase {
      * @return
      */
     public boolean isEmpty() {
-        return features.isEmpty() && tiles.isEmpty() && featureOverlays.isEmpty();
+        return getTableCount() == 0;
     }
 
 }

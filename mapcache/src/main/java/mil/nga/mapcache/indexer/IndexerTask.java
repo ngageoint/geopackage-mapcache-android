@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache.indexer;
+package mil.nga.mapcache.indexer;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -7,13 +7,13 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 
-import mil.nga.giat.geopackage.GeoPackage;
-import mil.nga.giat.geopackage.GeoPackageManager;
-import mil.nga.giat.geopackage.db.FeatureIndexer;
-import mil.nga.giat.geopackage.factory.GeoPackageFactory;
-import mil.nga.giat.geopackage.features.user.FeatureDao;
-import mil.nga.giat.geopackage.io.GeoPackageProgress;
-import mil.nga.giat.geopackage.mapcache.R;
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.db.FeatureIndexer;
+import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.mapcache.R;
 
 /**
  * Indexer task

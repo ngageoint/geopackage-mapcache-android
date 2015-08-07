@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache.data;
+package mil.nga.mapcache.data;
 
 /**
  * Table types

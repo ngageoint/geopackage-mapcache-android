@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache;
+package mil.nga.mapcache;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -50,47 +50,47 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import mil.nga.giat.geopackage.BoundingBox;
-import mil.nga.giat.geopackage.GeoPackage;
-import mil.nga.giat.geopackage.GeoPackageConstants;
-import mil.nga.giat.geopackage.GeoPackageException;
-import mil.nga.giat.geopackage.GeoPackageManager;
-import mil.nga.giat.geopackage.core.contents.Contents;
-import mil.nga.giat.geopackage.core.contents.ContentsDao;
-import mil.nga.giat.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.giat.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.giat.geopackage.db.FeatureIndexer;
-import mil.nga.giat.geopackage.factory.GeoPackageFactory;
-import mil.nga.giat.geopackage.features.columns.GeometryColumns;
-import mil.nga.giat.geopackage.features.columns.GeometryColumnsDao;
-import mil.nga.giat.geopackage.features.user.FeatureDao;
-import mil.nga.giat.geopackage.io.GeoPackageIOUtils;
-import mil.nga.giat.geopackage.io.GeoPackageProgress;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageTableType;
-import mil.nga.giat.geopackage.projection.Projection;
-import mil.nga.giat.geopackage.projection.ProjectionConstants;
-import mil.nga.giat.geopackage.projection.ProjectionFactory;
-import mil.nga.giat.geopackage.projection.ProjectionTransform;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageDatabases;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageFeatureOverlayTable;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageFeatureTable;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageTable;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageTileTable;
-import mil.nga.giat.geopackage.mapcache.filter.InputFilterMinMax;
-import mil.nga.giat.geopackage.mapcache.indexer.IIndexerTask;
-import mil.nga.giat.geopackage.mapcache.indexer.IndexerTask;
-import mil.nga.giat.geopackage.mapcache.load.ILoadTilesTask;
-import mil.nga.giat.geopackage.mapcache.load.LoadTilesTask;
-import mil.nga.giat.geopackage.schema.TableColumnKey;
-import mil.nga.giat.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
-import mil.nga.giat.geopackage.tiles.matrix.TileMatrix;
-import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
-import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSetDao;
-import mil.nga.giat.geopackage.tiles.user.TileDao;
-import mil.nga.giat.geopackage.user.UserColumn;
-import mil.nga.giat.geopackage.user.UserTable;
-import mil.nga.giat.wkb.geom.GeometryType;
+import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageConstants;
+import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.core.contents.Contents;
+import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.db.FeatureIndexer;
+import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
+import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.mapcache.data.GeoPackageTableType;
+import mil.nga.geopackage.projection.Projection;
+import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.projection.ProjectionFactory;
+import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
+import mil.nga.mapcache.data.GeoPackageFeatureTable;
+import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.indexer.IndexerTask;
+import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.user.UserColumn;
+import mil.nga.geopackage.user.UserTable;
+import mil.nga.wkb.geom.GeometryType;
 
 /**
  * GeoPackage Manager Fragment
@@ -719,7 +719,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             } else {
                 // Create the content Uri and add intent permissions
                 Uri databaseUri = FileProvider.getUriForFile(getActivity(),
-                        "mil.nga.giat.geopackage.mapcache.fileprovider",
+                        "mil.nga.mapcache.fileprovider",
                         cacheFile);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);

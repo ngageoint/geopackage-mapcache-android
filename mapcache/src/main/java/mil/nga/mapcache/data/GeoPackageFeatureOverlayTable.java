@@ -1,8 +1,8 @@
-package mil.nga.giat.geopackage.mapcache.data;
+package mil.nga.mapcache.data;
 
 import java.io.Serializable;
 
-import mil.nga.giat.wkb.geom.GeometryType;
+import mil.nga.wkb.geom.GeometryType;
 
 /**
  * GeoPackage Feature Overlay table information

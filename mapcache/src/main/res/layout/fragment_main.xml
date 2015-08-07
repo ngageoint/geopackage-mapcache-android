@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="mil.nga.giat.geopackage.mapcache.MainActivity$PlaceholderFragment" >
+    tools:context="mil.nga.mapcache.MainActivity$PlaceholderFragment" >
 
     <TextView
         android:id="@+id/section_label"

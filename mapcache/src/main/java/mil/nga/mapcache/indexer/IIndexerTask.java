@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache.indexer;
+package mil.nga.mapcache.indexer;
 
 /**
  * Interface for feature indexer callbacks

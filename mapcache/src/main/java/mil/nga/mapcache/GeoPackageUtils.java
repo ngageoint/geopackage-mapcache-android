@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache;
+package mil.nga.mapcache;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,9 +10,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import mil.nga.giat.geopackage.mapcache.filter.InputFilterDecimalMinMax;
-import mil.nga.giat.geopackage.mapcache.filter.InputFilterMinMax;
-import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
+import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
+import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
 
 public class GeoPackageUtils {
 

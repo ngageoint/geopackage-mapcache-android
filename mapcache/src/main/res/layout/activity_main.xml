@@ -4,7 +4,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="mil.nga.giat.geopackage.mapcache.MainActivity" >
+    tools:context="mil.nga.mapcache.MainActivity" >
 
     <!--
          As the main content view, the view below consumes the entire
@@ -18,13 +18,13 @@
 
     <fragment
         android:id="@+id/fragment_manager"
-        android:name="mil.nga.giat.geopackage.mapcache.GeoPackageManagerFragment"
+        android:name="mil.nga.mapcache.GeoPackageManagerFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <fragment
         android:id="@+id/fragment_map"
-        android:name="mil.nga.giat.geopackage.mapcache.GeoPackageMapFragment"
+        android:name="mil.nga.mapcache.GeoPackageMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
     
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/navigation_drawer"
-        android:name="mil.nga.giat.geopackage.mapcache.NavigationDrawerFragment"
+        android:name="mil.nga.mapcache.NavigationDrawerFragment"
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="start"

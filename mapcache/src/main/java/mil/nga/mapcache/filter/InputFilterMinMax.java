@@ -1,23 +1,23 @@
-package mil.nga.giat.geopackage.mapcache.filter;
+package mil.nga.mapcache.filter;
 
 import android.text.InputFilter;
 import android.text.Spanned;
 
 /**
- * Input filter to force a double min and max range
+ * Input filter to force a integer min and max range
  */
-public class InputFilterDecimalMinMax implements InputFilter {
+public class InputFilterMinMax implements InputFilter {
 
-	private double min, max;
+	private int min, max;
 
-	public InputFilterDecimalMinMax(double min, double max) {
+	public InputFilterMinMax(int min, int max) {
 		this.min = min;
 		this.max = max;
 	}
 
-	public InputFilterDecimalMinMax(String min, String max) {
-		this.min = Double.parseDouble(min);
-		this.max = Double.parseDouble(max);
+	public InputFilterMinMax(String min, String max) {
+		this.min = Integer.parseInt(min);
+		this.max = Integer.parseInt(max);
 	}
 
 	@Override
@@ -27,10 +27,10 @@ public class InputFilterDecimalMinMax implements InputFilter {
 			String value = dest.subSequence(0, dstart).toString()
 					+ source.subSequence(start, end)
 					+ dest.subSequence(dend, dest.length());
-			if (value.isEmpty() || value.equals("-")) {
+			if (value.isEmpty()) {
 				return null;
 			}
-			double input = Double.parseDouble(value);
+			int input = Integer.parseInt(value);
 			if (isInRange(min, max, input)) {
 				return null;
 			}
@@ -39,7 +39,7 @@ public class InputFilterDecimalMinMax implements InputFilter {
 		return dest.subSequence(dstart, dend);
 	}
 
-	private boolean isInRange(double a, double b, double c) {
+	private boolean isInRange(int a, int b, int c) {
 		return b > a ? c >= a && c <= b : c >= b && c <= a;
 	}
 

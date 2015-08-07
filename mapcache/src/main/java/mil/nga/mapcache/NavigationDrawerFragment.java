@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache;
+package mil.nga.mapcache;
 
 import android.app.ActionBar;
 import android.app.Activity;

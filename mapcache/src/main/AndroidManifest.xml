@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="mil.nga.giat.geopackage.mapcache"
+    package="mil.nga.mapcache"
     android:versionCode="1"
     android:versionName="1.0"
     android:installLocation="auto">
@@ -39,7 +39,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="mil.nga.giat.geopackage.mapcache.fileprovider"
+            android:authorities="mil.nga.mapcache.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true" >
             <meta-data

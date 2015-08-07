@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache.load;
+package mil.nga.mapcache.load;
 
 /**
  * Interface for load tile callbacks

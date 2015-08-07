@@ -46,6 +46,15 @@ Editing [Haiti Features] (http://www.geopackage.org/data/haiti-vectors-split.gpk
 
 ![Screenshot 5](screenshots/screenshot5.jpg)
 
+### Build ###
+
+The following repositories must be built first (Central Repository Artifacts Coming Soon):
+* [GeoPackage WKB Java] (https://github.com/ngageoint/geopackage-wkb-java)
+* [GeoPackage Core Java] (https://github.com/ngageoint/geopackage-core-java)
+* [GeoPackage Android] (https://github.com/ngageoint/geopackage-android)
+
+Build this repository using Android Studio and/or Gradle. Run the "assembleRelease" task on the geopackage-mapcache-android Gradle script.
+
 ### Icons ###
 
 GeoPackage Icon is from Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/).

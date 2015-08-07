@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache;
+package mil.nga.mapcache;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -72,54 +72,54 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import mil.nga.giat.geopackage.BoundingBox;
-import mil.nga.giat.geopackage.GeoPackage;
-import mil.nga.giat.geopackage.GeoPackageException;
-import mil.nga.giat.geopackage.GeoPackageManager;
-import mil.nga.giat.geopackage.core.contents.Contents;
-import mil.nga.giat.geopackage.core.contents.ContentsDao;
-import mil.nga.giat.geopackage.db.FeatureIndexer;
-import mil.nga.giat.geopackage.factory.GeoPackageFactory;
-import mil.nga.giat.geopackage.features.columns.GeometryColumns;
-import mil.nga.giat.geopackage.features.user.FeatureCursor;
-import mil.nga.giat.geopackage.features.user.FeatureDao;
-import mil.nga.giat.geopackage.features.user.FeatureRow;
-import mil.nga.giat.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.giat.geopackage.geom.map.GoogleMapShape;
-import mil.nga.giat.geopackage.geom.map.GoogleMapShapeConverter;
-import mil.nga.giat.geopackage.geom.map.GoogleMapShapeMarkers;
-import mil.nga.giat.geopackage.geom.map.GoogleMapShapeType;
-import mil.nga.giat.geopackage.geom.map.MultiLatLng;
-import mil.nga.giat.geopackage.geom.map.MultiMarker;
-import mil.nga.giat.geopackage.geom.map.MultiPolygon;
-import mil.nga.giat.geopackage.geom.map.MultiPolygonOptions;
-import mil.nga.giat.geopackage.geom.map.MultiPolyline;
-import mil.nga.giat.geopackage.geom.map.MultiPolylineOptions;
-import mil.nga.giat.geopackage.geom.map.PolygonHoleMarkers;
-import mil.nga.giat.geopackage.geom.map.ShapeMarkers;
-import mil.nga.giat.geopackage.geom.map.ShapeWithChildrenMarkers;
-import mil.nga.giat.geopackage.projection.ProjectionConstants;
-import mil.nga.giat.geopackage.projection.ProjectionFactory;
-import mil.nga.giat.geopackage.projection.ProjectionTransform;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageDatabase;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageDatabases;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageFeatureOverlayTable;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageTable;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageTileTable;
-import mil.nga.giat.geopackage.mapcache.filter.InputFilterMinMax;
-import mil.nga.giat.geopackage.mapcache.indexer.IIndexerTask;
-import mil.nga.giat.geopackage.mapcache.load.ILoadTilesTask;
-import mil.nga.giat.geopackage.mapcache.load.LoadTilesTask;
-import mil.nga.giat.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
-import mil.nga.giat.geopackage.tiles.matrixset.TileMatrixSet;
-import mil.nga.giat.geopackage.tiles.overlay.FeatureOverlay;
-import mil.nga.giat.geopackage.tiles.overlay.GeoPackageOverlayFactory;
-import mil.nga.giat.geopackage.tiles.user.TileDao;
-import mil.nga.giat.wkb.geom.Geometry;
-import mil.nga.giat.wkb.geom.GeometryType;
-import mil.nga.giat.wkb.geom.LineString;
-import mil.nga.giat.wkb.util.GeometryPrinter;
+import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.core.contents.Contents;
+import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.db.FeatureIndexer;
+import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.user.FeatureCursor;
+import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureRow;
+import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.geom.map.GoogleMapShape;
+import mil.nga.geopackage.geom.map.GoogleMapShapeConverter;
+import mil.nga.geopackage.geom.map.GoogleMapShapeMarkers;
+import mil.nga.geopackage.geom.map.GoogleMapShapeType;
+import mil.nga.geopackage.geom.map.MultiLatLng;
+import mil.nga.geopackage.geom.map.MultiMarker;
+import mil.nga.geopackage.geom.map.MultiPolygon;
+import mil.nga.geopackage.geom.map.MultiPolygonOptions;
+import mil.nga.geopackage.geom.map.MultiPolyline;
+import mil.nga.geopackage.geom.map.MultiPolylineOptions;
+import mil.nga.geopackage.geom.map.PolygonHoleMarkers;
+import mil.nga.geopackage.geom.map.ShapeMarkers;
+import mil.nga.geopackage.geom.map.ShapeWithChildrenMarkers;
+import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.projection.ProjectionFactory;
+import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
+import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
+import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
+import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.wkb.geom.Geometry;
+import mil.nga.wkb.geom.GeometryType;
+import mil.nga.wkb.geom.LineString;
+import mil.nga.wkb.util.GeometryPrinter;
 
 /**
  * GeoPackage Map Fragment
@@ -883,7 +883,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 case POINT:
 
                     for (Marker pointMarker : editPoints.values()) {
-                        mil.nga.giat.wkb.geom.Point point = converter
+                        mil.nga.wkb.geom.Point point = converter
                                 .toPoint(pointMarker.getPosition());
                         FeatureRow newPoint = featureDao.newRow();
                         GeoPackageGeometryData pointGeomData = new GeoPackageGeometryData(
@@ -910,7 +910,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 case POLYGON:
                 case POLYGON_HOLE:
 
-                    mil.nga.giat.wkb.geom.Polygon polygon = converter
+                    mil.nga.wkb.geom.Polygon polygon = converter
                             .toPolygon(editPolygon);
                     FeatureRow newPolygon = featureDao.newRow();
                     GeoPackageGeometryData polygonGeomData = new GeoPackageGeometryData(
@@ -1794,7 +1794,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void processFeatureRow(MapUpdateTask task, String database, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
                                    boolean editable) {
-        mil.nga.giat.geopackage.projection.Projection projection = featureDao
+        mil.nga.geopackage.projection.Projection projection = featureDao
                 .getProjection();
         final GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
                 projection);

@@ -1,4 +1,4 @@
-package mil.nga.giat.geopackage.mapcache.load;
+package mil.nga.mapcache.load;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -8,19 +8,19 @@ import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 
-import mil.nga.giat.geopackage.BoundingBox;
-import mil.nga.giat.geopackage.GeoPackage;
-import mil.nga.giat.geopackage.GeoPackageException;
-import mil.nga.giat.geopackage.GeoPackageManager;
-import mil.nga.giat.geopackage.factory.GeoPackageFactory;
-import mil.nga.giat.geopackage.io.GeoPackageProgress;
-import mil.nga.giat.geopackage.mapcache.GeoPackageUtils;
-import mil.nga.giat.geopackage.mapcache.R;
-import mil.nga.giat.geopackage.mapcache.data.GeoPackageDatabases;
-import mil.nga.giat.geopackage.tiles.TileGenerator;
-import mil.nga.giat.geopackage.tiles.UrlTileGenerator;
-import mil.nga.giat.geopackage.tiles.features.FeatureTileGenerator;
-import mil.nga.giat.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.BoundingBox;
+import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.mapcache.GeoPackageUtils;
+import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.geopackage.tiles.TileGenerator;
+import mil.nga.geopackage.tiles.UrlTileGenerator;
+import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
 
 /**
  * Load tiles task

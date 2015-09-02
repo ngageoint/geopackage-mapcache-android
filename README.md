@@ -11,7 +11,7 @@ Software source code previously released under an open source license and then m
 
 ### Android App ###
 
-[Download the latest APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/download/1.0.0/mapcache.apk)
+[Download the latest APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/download/1.0/mapcache-1.0.apk)
 
 ### About ###
 
@@ -50,6 +50,15 @@ Editing [Haiti Features] (http://www.geopackage.org/data/haiti-vectors-split.gpk
 [Whitehorse] (https://portal.opengeospatial.org/files/63156) tiles
 
 ![Screenshot 6](screenshots/screenshot6.jpg)
+
+### Build ###
+
+The following repositories must be built first (Central Repository Artifacts Coming Soon):
+* [GeoPackage WKB Java] (https://github.com/ngageoint/geopackage-wkb-java)
+* [GeoPackage Core Java] (https://github.com/ngageoint/geopackage-core-java)
+* [GeoPackage Android] (https://github.com/ngageoint/geopackage-android)
+
+Build this repository using Android Studio and/or Gradle. Run the "assembleRelease" task on the geopackage-mapcache-android Gradle script.
 
 ### Icons ###
 

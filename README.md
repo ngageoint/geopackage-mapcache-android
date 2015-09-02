@@ -27,6 +27,7 @@ Manager View with GeoPackages linked at Open Geospatial Consortium [GeoPackage] 
 * [Geonames data for Belgium] (http://www.geopackage.org/data/geonames_belgium.gpkg)
 * [Haiti OpenStreetMap tiles and point features] (http://www.geopackage.org/data/haiti-vectors-split.gpkg)
 * [Simple Sewers test data set] (http://www.geopackage.org/data/simple_sewer_features.gpkg)
+* [ERDC Whitehorse Tiles] (https://portal.opengeospatial.org/files/63156)
 
 ![Screenshot 1](screenshots/screenshot1.jpg)
 
@@ -45,6 +46,10 @@ Editing [Haiti Features] (http://www.geopackage.org/data/haiti-vectors-split.gpk
 [nowCOAST] (http://nowcoast.noaa.gov) tiles
 
 ![Screenshot 5](screenshots/screenshot5.jpg)
+
+[Whitehorse] (https://portal.opengeospatial.org/files/63156) tiles
+
+![Screenshot 6](screenshots/screenshot6.jpg)
 
 ### Icons ###
 

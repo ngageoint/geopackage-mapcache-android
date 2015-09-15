@@ -15,7 +15,7 @@ Software source code previously released under an open source license and then m
 
 ### About ###
 
-GeoPackage MapCache is an app for Android that utilizes and demonstrates the functionality in the [GeoPackage Android](https://github.com/ngageoint/geopackage-android).  The GeoPackage SDK is an Android library implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/).
+GeoPackage MapCache is an app for Android that utilizes and demonstrates the functionality in the [GeoPackage Android](https://github.com/ngageoint/geopackage-android).  The GeoPackage SDK is an Android library implementation of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/). The app and SDK are listed as [OGC GeoPackage Implementations](http://www.geopackage.org/#implementations) by the National Geospatial-Intelligence Agency.
 
 The MapCache app provides read and write access to GeoPackage files, including features and tiles. Features are visualized and editable on the map. Tiles are visualized on the map and can be loaded from a tile provider or WMS url.
 

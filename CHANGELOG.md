@@ -4,6 +4,6 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## [1.0.0](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.0.0) (09-15-2015)
+## [1.0](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.0) (09-15-2015)
 
 * Initial Release

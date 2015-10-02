@@ -78,9 +78,9 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.db.FeatureIndexer;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -101,6 +101,12 @@ import mil.nga.geopackage.geom.map.ShapeWithChildrenMarkers;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
+import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
+import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
@@ -110,12 +116,6 @@ import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
-import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
-import mil.nga.geopackage.tiles.features.FeatureTiles;
-import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
-import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
-import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
-import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.wkb.geom.Geometry;
 import mil.nga.wkb.geom.GeometryType;
 import mil.nga.wkb.geom.LineString;
@@ -2132,8 +2132,8 @@ public class GeoPackageMapFragment extends Fragment implements
         // Load tiles
         FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
 
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        featureTiles.setIndexQuery(indexer.isIndexed());
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        featureTiles.setIndexManager(indexer);
 
         Paint pointPaint = featureTiles.getPointPaint();
         pointPaint.setColor(Color.parseColor(featureOverlayTable.getPointColor()));
@@ -3476,9 +3476,8 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(database);
         FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
-        if (indexed) {
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
         }
         geoPackage.close();
@@ -3586,7 +3585,10 @@ public class GeoPackageMapFragment extends Fragment implements
                             // Load tiles
                             FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
 
-                            featureTiles.setIndexQuery(indexed);
+                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                            if(indexer.isIndexed()) {
+                                featureTiles.setIndexManager(indexer);
+                            }
 
                             Paint pointPaint = featureTiles.getPointPaint();
                             if (pointColor.getSelectedItemPosition() >= 0) {

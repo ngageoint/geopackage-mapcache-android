@@ -59,28 +59,18 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.db.FeatureIndexer;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
-import mil.nga.mapcache.data.GeoPackageDatabases;
-import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
-import mil.nga.mapcache.data.GeoPackageFeatureTable;
-import mil.nga.mapcache.data.GeoPackageTable;
-import mil.nga.mapcache.data.GeoPackageTileTable;
-import mil.nga.mapcache.filter.InputFilterMinMax;
-import mil.nga.mapcache.indexer.IIndexerTask;
-import mil.nga.mapcache.indexer.IndexerTask;
-import mil.nga.mapcache.load.ILoadTilesTask;
-import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
@@ -90,6 +80,17 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.user.UserColumn;
 import mil.nga.geopackage.user.UserTable;
+import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
+import mil.nga.mapcache.data.GeoPackageFeatureTable;
+import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTableType;
+import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.indexer.IndexerTask;
+import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.wkb.geom.GeometryType;
 
 /**
@@ -1169,7 +1170,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             switch (table.getType()) {
 
                 case FEATURE_OVERLAY:
-                    tableName = ((GeoPackageFeatureOverlayTable)table).getFeatureTable();
+                    tableName = ((GeoPackageFeatureOverlayTable) table).getFeatureTable();
                 case FEATURE:
                     featureDao = geoPackage.getFeatureDao(tableName);
                     contents = featureDao.getGeometryColumns().getContents();
@@ -1613,7 +1614,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             public void onClick(DialogInterface dialog,
                                                 int which) {
 
-                                switch(table.getType()){
+                                switch (table.getType()) {
                                     case FEATURE:
                                     case TILE:
                                         GeoPackage geoPackage = manager.open(table
@@ -1787,41 +1788,162 @@ public class GeoPackageManagerFragment extends Fragment implements
         GeoPackage geoPackage = manager.open(table.getDatabase());
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
 
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        boolean indexed = indexer.isIndexed();
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        final boolean geoPackageIndexed = indexer.isIndexed(FeatureIndexType.GEOPACKAGE);
+        final boolean metadataIndexed = indexer.isIndexed(FeatureIndexType.METADATA);
         geoPackage.close();
 
-        if (indexed) {
-            GeoPackageUtils.showMessage(getActivity(),
-                    getString(R.string.geopackage_table_index_features_index_title),
-                    getString(R.string.geopackage_table_index_features_indexed_message));
-        } else {
-            AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
-                    .setTitle(getString(R.string.geopackage_table_index_features_index_title))
-                    .setMessage(
-                            getString(R.string.geopackage_table_index_features_index_message))
-                    .setPositiveButton(
-                            getString(R.string.button_ok_label),
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.select_dialog_item);
 
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    IndexerTask.indexFeatures(getActivity(), GeoPackageManagerFragment.this, table.getDatabase(), table.getName());
-                                }
-                            })
+        String geoPackageIndexLabel = geoPackageIndexed ?
+                getString(R.string.geopackage_table_index_features_index_delete_label) :
+                getString(R.string.geopackage_table_index_features_index_create_label);
+        geoPackageIndexLabel += " " + getString(R.string.geopackage_table_index_features_index_geopackage_label);
+        adapter.add(geoPackageIndexLabel);
 
-                    .setNegativeButton(getString(R.string.button_cancel_label),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    dialog.dismiss();
-                                }
-                            }).create();
-            indexDialog.show();
+        String metadataIndexLabel = metadataIndexed ?
+                getString(R.string.geopackage_table_index_features_index_delete_label) :
+                getString(R.string.geopackage_table_index_features_index_create_label);
+        metadataIndexLabel += " " + getString(R.string.geopackage_table_index_features_index_metadata_label);
+        adapter.add(metadataIndexLabel);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(table.getDatabase() + " - " + table.getName() + " "
+                + getString(R.string.geopackage_table_index_features_index_title));
+        builder.setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+
+                if (item >= 0) {
+
+                    switch (item) {
+                        case 0:
+                            if (geoPackageIndexed) {
+                                deleteIndexFeaturesOption(table, FeatureIndexType.GEOPACKAGE);
+                            } else {
+                                indexFeaturesOption(table, FeatureIndexType.GEOPACKAGE);
+                            }
+                            break;
+                        case 1:
+                            if (metadataIndexed) {
+                                deleteIndexFeaturesOption(table, FeatureIndexType.METADATA);
+                            } else {
+                                indexFeaturesOption(table, FeatureIndexType.METADATA);
+                            }
+                            break;
+                        default:
+                    }
+                }
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    /**
+     * Delete Index features option
+     *
+     * @param table
+     * @param indexLocation
+     */
+    private void deleteIndexFeaturesOption(final GeoPackageTable table, final FeatureIndexType indexLocation) {
+
+        String message = getString(R.string.geopackage_table_index_features_index_delete_label) + " "
+                + table.getDatabase() + " - " + table.getName()
+                + " " + getString(R.string.geopackage_table_index_features_index_title);
+        switch (indexLocation) {
+            case GEOPACKAGE:
+                message += " " + getString(R.string.geopackage_table_index_features_index_delete_geopackage_label);
+                break;
+            case METADATA:
+                message += " " + getString(R.string.geopackage_table_index_features_index_delete_metadata_label);
+                break;
         }
 
+        AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.geopackage_table_index_features_index_delete_label) + " "
+                        + getString(R.string.geopackage_table_index_features_index_title))
+                .setMessage(message)
+                .setPositiveButton(
+                        getString(R.string.button_ok_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                GeoPackage geoPackage = manager.open(table.getDatabase());
+                                FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
+                                FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                                indexer.setIndexLocation(indexLocation);
+                                indexer.deleteIndex();
+                                geoPackage.close();
+                            }
+                        })
+
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+        indexDialog.show();
+    }
+
+    /**
+     * Index features option
+     *
+     * @param table
+     * @param indexLocation
+     */
+    private void indexFeaturesOption(final GeoPackageTable table, final FeatureIndexType indexLocation) {
+
+        String message = getString(R.string.geopackage_table_index_features_index_create_label) + " "
+                + table.getDatabase() + " - " + table.getName()
+                + " " + getString(R.string.geopackage_table_index_features_index_title);
+        switch (indexLocation) {
+            case GEOPACKAGE:
+                message += " " + getString(R.string.geopackage_table_index_features_index_create_geopackage_label);
+                break;
+            case METADATA:
+                message += " " + getString(R.string.geopackage_table_index_features_index_create_metadata_label);
+                break;
+        }
+
+        AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.geopackage_table_index_features_index_create_label) + " "
+                        + getString(R.string.geopackage_table_index_features_index_title))
+                .setMessage(message)
+                .setPositiveButton(
+                        getString(R.string.button_ok_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                IndexerTask.indexFeatures(getActivity(), GeoPackageManagerFragment.this, table.getDatabase(), table.getName(), indexLocation);
+                            }
+                        })
+
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+        indexDialog.show();
     }
 
     /**
@@ -1933,9 +2055,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Check if indexed
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
-        if (indexed) {
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
         }
 
@@ -2016,7 +2137,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                             // Load tiles
                             FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
 
-                            featureTiles.setIndexQuery(indexed);
+                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                            if (indexer.isIndexed()) {
+                                featureTiles.setIndexManager(indexer);
+                            }
 
                             Paint pointPaint = featureTiles.getPointPaint();
                             if (pointColor.getSelectedItemPosition() >= 0) {
@@ -2172,9 +2296,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         maxLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLatitude()));
 
         // Check if indexed
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
-        if (indexed) {
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
         }
 
@@ -2347,9 +2470,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(table.getDatabase());
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
-        if (indexed) {
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
         }
         geoPackage.close();
@@ -3321,7 +3443,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     if (table.isActive() != isChecked) {
                         table.setActive(isChecked);
 
-                        if(table.getType() == GeoPackageTableType.FEATURE_OVERLAY){
+                        if (table.getType() == GeoPackageTableType.FEATURE_OVERLAY) {
                             active.removeTable(table);
                             active.addTable(table);
                         } else {

@@ -9,8 +9,9 @@ import android.os.PowerManager;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.db.FeatureIndexer;
 import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.R;
@@ -30,16 +31,19 @@ public class IndexerTask extends AsyncTask<String, Integer, String> implements
      * @param callback
      * @param database
      * @param tableName
+     * @param indexLocation
      */
     public static void indexFeatures(Activity activity, IIndexerTask callback,
-                                     String database, String tableName) {
+                                     String database, String tableName,
+                                     FeatureIndexType indexLocation) {
 
         GeoPackageManager manager = GeoPackageFactory.getManager(activity);
         GeoPackage geoPackage = manager.open(database);
 
         FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
 
-        FeatureIndexer indexer = new FeatureIndexer(activity, featureDao);
+        FeatureIndexManager indexer = new FeatureIndexManager(activity, geoPackage, featureDao);
+        indexer.setIndexLocation(indexLocation);
 
         ProgressDialog progressDialog = new ProgressDialog(activity);
         final IndexerTask indexTask = new IndexerTask(activity,
@@ -73,7 +77,7 @@ public class IndexerTask extends AsyncTask<String, Integer, String> implements
     private Integer max = null;
     private GeoPackage geoPackage;
     private int progress = 0;
-    private FeatureIndexer indexer;
+    private FeatureIndexManager indexer;
     private IIndexerTask callback;
     private ProgressDialog progressDialog;
     private PowerManager.WakeLock wakeLock;
@@ -88,7 +92,7 @@ public class IndexerTask extends AsyncTask<String, Integer, String> implements
      * @param indexer
      */
     public IndexerTask(Activity activity, IIndexerTask callback,
-                       ProgressDialog progressDialog, GeoPackage geoPackage, FeatureIndexer indexer) {
+                       ProgressDialog progressDialog, GeoPackage geoPackage, FeatureIndexManager indexer) {
         this.activity = activity;
         this.callback = callback;
         this.progressDialog = progressDialog;
@@ -177,7 +181,7 @@ public class IndexerTask extends AsyncTask<String, Integer, String> implements
     @Override
     protected String doInBackground(String... params) {
         try {
-            int count = indexer.index();
+            int count = indexer.index(true);
             if (count < max) {
                 return "Fewer features were indexed than expected. Expected: "
                         + max + ", Actual: " + count;

@@ -74,6 +74,7 @@ import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
@@ -873,6 +874,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
@@ -897,7 +902,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput, true);
+                compressFormatInput, compressQualityInput, true, maxFeaturesLabel, maxFeaturesInput, false);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_create_tiles_label),
@@ -1672,6 +1677,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) loadTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) loadTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) loadTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) loadTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) loadTilesView
@@ -1696,7 +1705,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, null, urlInput,
-                compressFormatInput, compressQualityInput, true);
+                compressFormatInput, compressQualityInput, true, maxFeaturesLabel, maxFeaturesInput, false);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_tiles_load_label),
@@ -1966,6 +1975,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
@@ -2051,7 +2064,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, null, nameInput, null,
-                compressFormatInput, compressQualityInput, setZooms);
+                compressFormatInput, compressQualityInput, setZooms, maxFeaturesLabel, maxFeaturesInput, true);
 
         // Check if indexed
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
@@ -2090,6 +2103,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
+
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -2136,6 +2156,10 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             // Load tiles
                             FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+                            featureTiles.setMaxFeaturesPerTile(maxFeatures);
+                            if (maxFeatures != null) {
+                                featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
+                            }
 
                             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
                             if (indexer.isIndexed()) {
@@ -2224,6 +2248,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.edit_feature_overlay_min_zoom_input);
         final EditText maxZoomInput = (EditText) createFeatureOverlayView
                 .findViewById(R.id.edit_feature_overlay_max_zoom_input);
+        final EditText maxFeaturesInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_max_features_input);
         final EditText minLatInput = (EditText) createFeatureOverlayView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) createFeatureOverlayView
@@ -2273,6 +2299,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 R.integer.load_tiles_max_zoom_default);
         minZoomInput.setText(String.valueOf(minZoomLevel));
         maxZoomInput.setText(String.valueOf(maxZoomLevel));
+
+        int maxFeatures = getActivity().getResources().getInteger(
+                R.integer.feature_tiles_overlay_max_features_per_tile_default);
+        maxFeaturesInput.setText(String.valueOf(maxFeatures));
 
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(table.getDatabase());
@@ -2332,6 +2362,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
+
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -2357,6 +2394,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             overlayTable.setMinZoom(minZoom);
                             overlayTable.setMaxZoom(maxZoom);
+                            overlayTable.setMaxFeaturesPerTile(maxFeatures);
                             overlayTable.setMinLat(minLat);
                             overlayTable.setMaxLat(maxLat);
                             overlayTable.setMinLon(minLon);
@@ -2419,6 +2457,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.edit_feature_overlay_min_zoom_input);
         final EditText maxZoomInput = (EditText) editFeatureOverlayView
                 .findViewById(R.id.edit_feature_overlay_max_zoom_input);
+        final EditText maxFeaturesInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_max_features_input);
         final EditText minLatInput = (EditText) editFeatureOverlayView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) editFeatureOverlayView
@@ -2461,6 +2501,9 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         minZoomInput.setText(String.valueOf(table.getMinZoom()));
         maxZoomInput.setText(String.valueOf(table.getMaxZoom()));
+        if (table.getMaxFeaturesPerTile() != null) {
+            maxFeaturesInput.setText(String.valueOf(table.getMaxFeaturesPerTile()));
+        }
         minLonInput.setText(String.valueOf(table.getMinLon()));
         minLatInput.setText(String.valueOf(table.getMinLat()));
         maxLonInput.setText(String.valueOf(table.getMaxLon()));
@@ -2510,6 +2553,11 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -2535,6 +2583,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             table.setMinZoom(minZoom);
                             table.setMaxZoom(maxZoom);
+                            table.setMaxFeaturesPerTile(maxFeatures);
                             table.setMinLat(minLat);
                             table.setMaxLat(maxLat);
                             table.setMinLon(minLon);

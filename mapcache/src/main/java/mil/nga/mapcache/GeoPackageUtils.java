@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
 import mil.nga.mapcache.filter.InputFilterMinMax;
@@ -52,13 +53,19 @@ public class GeoPackageUtils {
      * @param compressFormatInput
      * @param compressQualityInput
      * @param setZooms
+     * @param maxFeaturesLabel
+     * @param maxFeaturesInput
+     * @param supportsMaxFeatures
      */
     public static void prepareTileLoadInputs(final Activity activity,
                                              final EditText minZoomInput, final EditText maxZoomInput,
                                              Button button, final EditText nameInput, final EditText urlInput,
                                              final Spinner compressFormatInput,
                                              final EditText compressQualityInput,
-                                             final boolean setZooms) {
+                                             final boolean setZooms,
+                                             TextView maxFeaturesLabel,
+                                             EditText maxFeaturesInput,
+                                             boolean supportsMaxFeatures) {
 
         int minZoom = activity.getResources().getInteger(
                 R.integer.load_tiles_min_zoom_default);
@@ -162,6 +169,17 @@ public class GeoPackageUtils {
                     alert.show();
                 }
             });
+        }
+
+        if(supportsMaxFeatures){
+            int maxFeatures = activity.getResources().getInteger(
+                    R.integer.feature_tiles_load_max_features_per_tile_default);
+            if(maxFeatures >= 0) {
+                maxFeaturesInput.setText(String.valueOf(maxFeatures));
+            }
+        }else{
+            maxFeaturesLabel.setVisibility(View.GONE);
+            maxFeaturesInput.setVisibility(View.GONE);
         }
     }
 

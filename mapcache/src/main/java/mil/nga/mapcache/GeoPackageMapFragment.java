@@ -103,6 +103,7 @@ import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
 import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
@@ -1519,7 +1520,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     // Display the feature tiles
                     for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
-                        if(featureOverlay.isActive()) {
+                        if (featureOverlay.isActive()) {
                             try {
                                 displayFeatureTiles(featureOverlay);
                             } catch (Exception e) {
@@ -1623,10 +1624,10 @@ public class GeoPackageMapFragment extends Fragment implements
         float paddingPercentage;
         if (bbox == null) {
             bbox = tilesBoundingBox;
-            if(featureOverlayTiles){
+            if (featureOverlayTiles) {
                 paddingPercentage = getActivity().getResources().getInteger(
                         R.integer.map_feature_tiles_zoom_padding_percentage) * .01f;
-            }else {
+            } else {
                 paddingPercentage = getActivity().getResources().getInteger(
                         R.integer.map_tiles_zoom_padding_percentage) * .01f;
             }
@@ -2132,6 +2133,11 @@ public class GeoPackageMapFragment extends Fragment implements
         // Load tiles
         FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
 
+        featureTiles.setMaxFeaturesPerTile(featureOverlayTable.getMaxFeaturesPerTile());
+        if (featureOverlayTable.getMaxFeaturesPerTile() != null) {
+            featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
+        }
+
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
         featureTiles.setIndexManager(indexer);
 
@@ -2204,7 +2210,7 @@ public class GeoPackageMapFragment extends Fragment implements
         BoundingBox boundingBox = transform
                 .transform(webMercatorBoundingBox);
 
-        if(specifiedBoundingBox != null) {
+        if (specifiedBoundingBox != null) {
             boundingBox = TileBoundingBoxUtils.overlap(boundingBox, specifiedBoundingBox);
         }
 
@@ -2596,7 +2602,7 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param projection
      * @param point
-     * @param corner
+     * @param latLng
      * @param allowableScreenPercentage
      * @return
      */
@@ -2871,7 +2877,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * Info feature click
      *
      * @param marker
-     * @param featureId
+     * @param markerFeature
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
         final GeoPackage geoPackage = manager.open(markerFeature.database);
@@ -2897,7 +2903,7 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param featureRow
      * @param title
-     * @param marker
+     * @param geomData
      */
     private void infoExistingFeatureOption(FeatureRow featureRow,
                                            String title,
@@ -3124,6 +3130,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
@@ -3181,7 +3191,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput, setZooms);
+                compressFormatInput, compressQualityInput, setZooms, maxFeaturesLabel, maxFeaturesInput, false);
 
         geopackagesButton.setOnClickListener(new View.OnClickListener() {
 
@@ -3389,6 +3399,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
@@ -3470,7 +3484,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, null, nameInput, null,
-                compressFormatInput, compressQualityInput, setZooms);
+                compressFormatInput, compressQualityInput, setZooms, maxFeaturesLabel, maxFeaturesInput, true);
 
         // Check if indexed
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
@@ -3538,6 +3552,13 @@ public class GeoPackageMapFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
+
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -3584,9 +3605,13 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             // Load tiles
                             FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+                            featureTiles.setMaxFeaturesPerTile(maxFeatures);
+                            if (maxFeatures != null) {
+                                featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
+                            }
 
                             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-                            if(indexer.isIndexed()) {
+                            if (indexer.isIndexed()) {
                                 featureTiles.setIndexManager(indexer);
                             }
 

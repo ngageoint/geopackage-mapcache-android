@@ -902,7 +902,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput, true, maxFeaturesLabel, maxFeaturesInput, false);
+                compressFormatInput, compressQualityInput, true,
+                maxFeaturesLabel, maxFeaturesInput, false, false);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_create_tiles_label),
@@ -1705,7 +1706,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, null, urlInput,
-                compressFormatInput, compressQualityInput, true, maxFeaturesLabel, maxFeaturesInput, false);
+                compressFormatInput, compressQualityInput, true,
+                maxFeaturesLabel, maxFeaturesInput, false, false);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_tiles_load_label),
@@ -2062,19 +2064,21 @@ public class GeoPackageManagerFragment extends Fragment implements
             // don't preset the bounding box
         }
 
-        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, null, nameInput, null,
-                compressFormatInput, compressQualityInput, setZooms, maxFeaturesLabel, maxFeaturesInput, true);
-
         // Check if indexed
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-        if (indexer.isIndexed()) {
+        boolean indexed = indexer.isIndexed();
+        if (indexed) {
             indexWarning.setVisibility(View.GONE);
         }
 
         // Close the GeoPackage
         geoPackage.close();
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, null, nameInput, null,
+                compressFormatInput, compressQualityInput, setZooms,
+                maxFeaturesLabel, maxFeaturesInput, true, indexed);
 
         // Set a default name
         nameInput.setText(table.getName() + getString(R.string.feature_tiles_name_suffix));
@@ -2300,10 +2304,6 @@ public class GeoPackageManagerFragment extends Fragment implements
         minZoomInput.setText(String.valueOf(minZoomLevel));
         maxZoomInput.setText(String.valueOf(maxZoomLevel));
 
-        int maxFeatures = getActivity().getResources().getInteger(
-                R.integer.feature_tiles_overlay_max_features_per_tile_default);
-        maxFeaturesInput.setText(String.valueOf(maxFeatures));
-
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(table.getDatabase());
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
@@ -2329,6 +2329,12 @@ public class GeoPackageManagerFragment extends Fragment implements
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
         if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
+
+            // Only default the max features if indexed, otherwise an unindexed feature table will
+            // not show any tiles with features
+            int maxFeatures = getActivity().getResources().getInteger(
+                    R.integer.feature_tiles_overlay_max_features_per_tile_default);
+            maxFeaturesInput.setText(String.valueOf(maxFeatures));
         }
 
         geoPackage.close();

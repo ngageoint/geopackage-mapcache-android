@@ -56,6 +56,7 @@ public class GeoPackageUtils {
      * @param maxFeaturesLabel
      * @param maxFeaturesInput
      * @param supportsMaxFeatures
+     * @param featuresIndexed
      */
     public static void prepareTileLoadInputs(final Activity activity,
                                              final EditText minZoomInput, final EditText maxZoomInput,
@@ -65,7 +66,8 @@ public class GeoPackageUtils {
                                              final boolean setZooms,
                                              TextView maxFeaturesLabel,
                                              EditText maxFeaturesInput,
-                                             boolean supportsMaxFeatures) {
+                                             boolean supportsMaxFeatures,
+                                             boolean featuresIndexed) {
 
         int minZoom = activity.getResources().getInteger(
                 R.integer.load_tiles_min_zoom_default);
@@ -172,10 +174,12 @@ public class GeoPackageUtils {
         }
 
         if(supportsMaxFeatures){
-            int maxFeatures = activity.getResources().getInteger(
-                    R.integer.feature_tiles_load_max_features_per_tile_default);
-            if(maxFeatures >= 0) {
-                maxFeaturesInput.setText(String.valueOf(maxFeatures));
+            if(featuresIndexed) {
+                int maxFeatures = activity.getResources().getInteger(
+                        R.integer.feature_tiles_load_max_features_per_tile_default);
+                if (maxFeatures >= 0) {
+                    maxFeaturesInput.setText(String.valueOf(maxFeatures));
+                }
             }
         }else{
             maxFeaturesLabel.setVisibility(View.GONE);

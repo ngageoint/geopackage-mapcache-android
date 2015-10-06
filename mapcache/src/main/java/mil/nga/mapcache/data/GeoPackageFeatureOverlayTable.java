@@ -22,6 +22,8 @@ public class GeoPackageFeatureOverlayTable extends GeoPackageFeatureTable implem
 
     private int maxZoom;
 
+    private Integer maxFeaturesPerTile;
+
     private double minLat;
 
     private double maxLat;
@@ -97,6 +99,14 @@ public class GeoPackageFeatureOverlayTable extends GeoPackageFeatureTable implem
 
     public void setMaxZoom(int maxZoom) {
         this.maxZoom = maxZoom;
+    }
+
+    public Integer getMaxFeaturesPerTile() {
+        return maxFeaturesPerTile;
+    }
+
+    public void setMaxFeaturesPerTile(Integer maxFeaturesPerTile) {
+        this.maxFeaturesPerTile = maxFeaturesPerTile;
     }
 
     public double getMinLat() {

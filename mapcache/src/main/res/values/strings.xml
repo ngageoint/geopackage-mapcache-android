@@ -41,6 +41,7 @@
     <string name="generate_tiles_zoom_label">Zoom - </string>
     <string name="generate_tiles_min_zoom_label">Min: </string>
     <string name="generate_tiles_max_zoom_label">Max: </string>
+    <string name="generate_tiles_max_features_label">Max Features Per Tile: </string>
     <string name="generate_tiles_compress_format_label">Compress Format: </string>
     <array name="generate_tiles_compress_formats">
         <item>None</item>
@@ -103,6 +104,7 @@
     <string name="edit_feature_overlay_zoom_label">Zoom - </string>
     <string name="edit_feature_overlay_min_zoom_label">Min: </string>
     <string name="edit_feature_overlay_max_zoom_label">Max: </string>
+    <string name="edit_feature_overlay_max_features_label">Max Features Per Tile: </string>
     <string name="bounding_box_min_latitude_label">Min Lat: </string>
     <string name="bounding_box_max_latitude_label">Max Lat: </string>
     <string name="bounding_box_default_min_latitude">-90.0</string>
@@ -132,10 +134,16 @@
     <string name="geopackage_table_create_feature_tiles_label">Create Tiles</string>
     <string name="geopackage_table_add_feature_overlay_label">Add Tile Overlay</string>
     <string name="geopackage_table_edit_feature_overlay_label">Edit Tile Overlay</string>
-    <string name="geopackage_table_index_features_label">Index Features</string>
+    <string name="geopackage_table_index_features_label">Feature Index</string>
     <string name="geopackage_table_index_features_index_title">Index</string>
-    <string name="geopackage_table_index_features_indexed_message">Table index is up to date</string>
-    <string name="geopackage_table_index_features_index_message">Table index required. Index?</string>
+    <string name="geopackage_table_index_features_index_geopackage_label">GeoPackage Index</string>
+    <string name="geopackage_table_index_features_index_metadata_label">Metadata Index</string>
+    <string name="geopackage_table_index_features_index_create_label">Create</string>
+    <string name="geopackage_table_index_features_index_delete_label">Delete</string>
+    <string name="geopackage_table_index_features_index_create_geopackage_label">into the GeoPackage?</string>
+    <string name="geopackage_table_index_features_index_create_metadata_label">into App Metadata?</string>
+    <string name="geopackage_table_index_features_index_delete_geopackage_label">from the GeoPackage?</string>
+    <string name="geopackage_table_index_features_index_delete_metadata_label">from App Metadata?</string>
     <string name="edit_contents_identifier_label">Identifier: </string>
     <string name="edit_contents_description_label">Description: </string>
     <string name="edit_contents_min_y_label">Min Y: </string>

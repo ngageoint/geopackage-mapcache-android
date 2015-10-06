@@ -59,37 +59,39 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.db.FeatureIndexer;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
+import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.geopackage.projection.Projection;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
-import mil.nga.mapcache.data.GeoPackageDatabases;
-import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
-import mil.nga.mapcache.data.GeoPackageFeatureTable;
-import mil.nga.mapcache.data.GeoPackageTable;
-import mil.nga.mapcache.data.GeoPackageTileTable;
-import mil.nga.mapcache.filter.InputFilterMinMax;
-import mil.nga.mapcache.indexer.IIndexerTask;
-import mil.nga.mapcache.indexer.IndexerTask;
-import mil.nga.mapcache.load.ILoadTilesTask;
-import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.user.UserColumn;
 import mil.nga.geopackage.user.UserTable;
+import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
+import mil.nga.mapcache.data.GeoPackageFeatureTable;
+import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTableType;
+import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.indexer.IndexerTask;
+import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.wkb.geom.GeometryType;
 
 /**
@@ -872,6 +874,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
@@ -896,7 +902,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput, true);
+                compressFormatInput, compressQualityInput, true,
+                maxFeaturesLabel, maxFeaturesInput, false, false);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_create_tiles_label),
@@ -1169,7 +1176,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             switch (table.getType()) {
 
                 case FEATURE_OVERLAY:
-                    tableName = ((GeoPackageFeatureOverlayTable)table).getFeatureTable();
+                    tableName = ((GeoPackageFeatureOverlayTable) table).getFeatureTable();
                 case FEATURE:
                     featureDao = geoPackage.getFeatureDao(tableName);
                     contents = featureDao.getGeometryColumns().getContents();
@@ -1613,7 +1620,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             public void onClick(DialogInterface dialog,
                                                 int which) {
 
-                                switch(table.getType()){
+                                switch (table.getType()) {
                                     case FEATURE:
                                     case TILE:
                                         GeoPackage geoPackage = manager.open(table
@@ -1671,6 +1678,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) loadTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) loadTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) loadTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) loadTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) loadTilesView
@@ -1695,7 +1706,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, null, urlInput,
-                compressFormatInput, compressQualityInput, true);
+                compressFormatInput, compressQualityInput, true,
+                maxFeaturesLabel, maxFeaturesInput, false, false);
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_tiles_load_label),
@@ -1787,41 +1799,162 @@ public class GeoPackageManagerFragment extends Fragment implements
         GeoPackage geoPackage = manager.open(table.getDatabase());
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
 
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        boolean indexed = indexer.isIndexed();
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        final boolean geoPackageIndexed = indexer.isIndexed(FeatureIndexType.GEOPACKAGE);
+        final boolean metadataIndexed = indexer.isIndexed(FeatureIndexType.METADATA);
         geoPackage.close();
 
-        if (indexed) {
-            GeoPackageUtils.showMessage(getActivity(),
-                    getString(R.string.geopackage_table_index_features_index_title),
-                    getString(R.string.geopackage_table_index_features_indexed_message));
-        } else {
-            AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
-                    .setTitle(getString(R.string.geopackage_table_index_features_index_title))
-                    .setMessage(
-                            getString(R.string.geopackage_table_index_features_index_message))
-                    .setPositiveButton(
-                            getString(R.string.button_ok_label),
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.select_dialog_item);
 
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    IndexerTask.indexFeatures(getActivity(), GeoPackageManagerFragment.this, table.getDatabase(), table.getName());
-                                }
-                            })
+        String geoPackageIndexLabel = geoPackageIndexed ?
+                getString(R.string.geopackage_table_index_features_index_delete_label) :
+                getString(R.string.geopackage_table_index_features_index_create_label);
+        geoPackageIndexLabel += " " + getString(R.string.geopackage_table_index_features_index_geopackage_label);
+        adapter.add(geoPackageIndexLabel);
 
-                    .setNegativeButton(getString(R.string.button_cancel_label),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
-                                    dialog.dismiss();
-                                }
-                            }).create();
-            indexDialog.show();
+        String metadataIndexLabel = metadataIndexed ?
+                getString(R.string.geopackage_table_index_features_index_delete_label) :
+                getString(R.string.geopackage_table_index_features_index_create_label);
+        metadataIndexLabel += " " + getString(R.string.geopackage_table_index_features_index_metadata_label);
+        adapter.add(metadataIndexLabel);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(table.getDatabase() + " - " + table.getName() + " "
+                + getString(R.string.geopackage_table_index_features_index_title));
+        builder.setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog,
+                                        int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+
+                if (item >= 0) {
+
+                    switch (item) {
+                        case 0:
+                            if (geoPackageIndexed) {
+                                deleteIndexFeaturesOption(table, FeatureIndexType.GEOPACKAGE);
+                            } else {
+                                indexFeaturesOption(table, FeatureIndexType.GEOPACKAGE);
+                            }
+                            break;
+                        case 1:
+                            if (metadataIndexed) {
+                                deleteIndexFeaturesOption(table, FeatureIndexType.METADATA);
+                            } else {
+                                indexFeaturesOption(table, FeatureIndexType.METADATA);
+                            }
+                            break;
+                        default:
+                    }
+                }
+            }
+        });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    /**
+     * Delete Index features option
+     *
+     * @param table
+     * @param indexLocation
+     */
+    private void deleteIndexFeaturesOption(final GeoPackageTable table, final FeatureIndexType indexLocation) {
+
+        String message = getString(R.string.geopackage_table_index_features_index_delete_label) + " "
+                + table.getDatabase() + " - " + table.getName()
+                + " " + getString(R.string.geopackage_table_index_features_index_title);
+        switch (indexLocation) {
+            case GEOPACKAGE:
+                message += " " + getString(R.string.geopackage_table_index_features_index_delete_geopackage_label);
+                break;
+            case METADATA:
+                message += " " + getString(R.string.geopackage_table_index_features_index_delete_metadata_label);
+                break;
         }
 
+        AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.geopackage_table_index_features_index_delete_label) + " "
+                        + getString(R.string.geopackage_table_index_features_index_title))
+                .setMessage(message)
+                .setPositiveButton(
+                        getString(R.string.button_ok_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                GeoPackage geoPackage = manager.open(table.getDatabase());
+                                FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
+                                FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                                indexer.setIndexLocation(indexLocation);
+                                indexer.deleteIndex();
+                                geoPackage.close();
+                            }
+                        })
+
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+        indexDialog.show();
+    }
+
+    /**
+     * Index features option
+     *
+     * @param table
+     * @param indexLocation
+     */
+    private void indexFeaturesOption(final GeoPackageTable table, final FeatureIndexType indexLocation) {
+
+        String message = getString(R.string.geopackage_table_index_features_index_create_label) + " "
+                + table.getDatabase() + " - " + table.getName()
+                + " " + getString(R.string.geopackage_table_index_features_index_title);
+        switch (indexLocation) {
+            case GEOPACKAGE:
+                message += " " + getString(R.string.geopackage_table_index_features_index_create_geopackage_label);
+                break;
+            case METADATA:
+                message += " " + getString(R.string.geopackage_table_index_features_index_create_metadata_label);
+                break;
+        }
+
+        AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.geopackage_table_index_features_index_create_label) + " "
+                        + getString(R.string.geopackage_table_index_features_index_title))
+                .setMessage(message)
+                .setPositiveButton(
+                        getString(R.string.button_ok_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                IndexerTask.indexFeatures(getActivity(), GeoPackageManagerFragment.this, table.getDatabase(), table.getName(), indexLocation);
+                            }
+                        })
+
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+        indexDialog.show();
     }
 
     /**
@@ -1844,6 +1977,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_min_zoom_input);
         final EditText maxZoomInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
         final Spinner compressFormatInput = (Spinner) createTilesView
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
@@ -1927,20 +2064,21 @@ public class GeoPackageManagerFragment extends Fragment implements
             // don't preset the bounding box
         }
 
-        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, null, nameInput, null,
-                compressFormatInput, compressQualityInput, setZooms);
-
         // Check if indexed
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        boolean indexed = indexer.isIndexed();
         if (indexed) {
             indexWarning.setVisibility(View.GONE);
         }
 
         // Close the GeoPackage
         geoPackage.close();
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, null, nameInput, null,
+                compressFormatInput, compressQualityInput, setZooms,
+                maxFeaturesLabel, maxFeaturesInput, true, indexed);
 
         // Set a default name
         nameInput.setText(table.getName() + getString(R.string.feature_tiles_name_suffix));
@@ -1969,6 +2107,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
+
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -2015,8 +2160,15 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             // Load tiles
                             FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+                            featureTiles.setMaxFeaturesPerTile(maxFeatures);
+                            if (maxFeatures != null) {
+                                featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
+                            }
 
-                            featureTiles.setIndexQuery(indexed);
+                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                            if (indexer.isIndexed()) {
+                                featureTiles.setIndexManager(indexer);
+                            }
 
                             Paint pointPaint = featureTiles.getPointPaint();
                             if (pointColor.getSelectedItemPosition() >= 0) {
@@ -2100,6 +2252,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.edit_feature_overlay_min_zoom_input);
         final EditText maxZoomInput = (EditText) createFeatureOverlayView
                 .findViewById(R.id.edit_feature_overlay_max_zoom_input);
+        final EditText maxFeaturesInput = (EditText) createFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_max_features_input);
         final EditText minLatInput = (EditText) createFeatureOverlayView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) createFeatureOverlayView
@@ -2172,10 +2326,15 @@ public class GeoPackageManagerFragment extends Fragment implements
         maxLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLatitude()));
 
         // Check if indexed
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
-        if (indexed) {
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
+
+            // Only default the max features if indexed, otherwise an unindexed feature table will
+            // not show any tiles with features
+            int maxFeatures = getActivity().getResources().getInteger(
+                    R.integer.feature_tiles_overlay_max_features_per_tile_default);
+            maxFeaturesInput.setText(String.valueOf(maxFeatures));
         }
 
         geoPackage.close();
@@ -2209,6 +2368,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
+
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -2234,6 +2400,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             overlayTable.setMinZoom(minZoom);
                             overlayTable.setMaxZoom(maxZoom);
+                            overlayTable.setMaxFeaturesPerTile(maxFeatures);
                             overlayTable.setMinLat(minLat);
                             overlayTable.setMaxLat(maxLat);
                             overlayTable.setMinLon(minLon);
@@ -2296,6 +2463,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.edit_feature_overlay_min_zoom_input);
         final EditText maxZoomInput = (EditText) editFeatureOverlayView
                 .findViewById(R.id.edit_feature_overlay_max_zoom_input);
+        final EditText maxFeaturesInput = (EditText) editFeatureOverlayView
+                .findViewById(R.id.edit_feature_overlay_max_features_input);
         final EditText minLatInput = (EditText) editFeatureOverlayView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) editFeatureOverlayView
@@ -2338,6 +2507,9 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         minZoomInput.setText(String.valueOf(table.getMinZoom()));
         maxZoomInput.setText(String.valueOf(table.getMaxZoom()));
+        if (table.getMaxFeaturesPerTile() != null) {
+            maxFeaturesInput.setText(String.valueOf(table.getMaxFeaturesPerTile()));
+        }
         minLonInput.setText(String.valueOf(table.getMinLon()));
         minLatInput.setText(String.valueOf(table.getMinLat()));
         maxLonInput.setText(String.valueOf(table.getMaxLon()));
@@ -2347,9 +2519,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(table.getDatabase());
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-        FeatureIndexer indexer = new FeatureIndexer(getActivity(), featureDao);
-        final boolean indexed = indexer.isIndexed();
-        if (indexed) {
+        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+        if (indexer.isIndexed()) {
             indexWarning.setVisibility(View.GONE);
         }
         geoPackage.close();
@@ -2388,6 +2559,11 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
+                            Integer maxFeatures = null;
+                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+                                maxFeatures = Integer.valueOf(maxFeaturesText);
+                            }
                             double minLat = Double.valueOf(minLatInput
                                     .getText().toString());
                             double maxLat = Double.valueOf(maxLatInput
@@ -2413,6 +2589,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             table.setMinZoom(minZoom);
                             table.setMaxZoom(maxZoom);
+                            table.setMaxFeaturesPerTile(maxFeatures);
                             table.setMinLat(minLat);
                             table.setMaxLat(maxLat);
                             table.setMinLon(minLon);
@@ -3321,7 +3498,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     if (table.isActive() != isChecked) {
                         table.setActive(isChecked);
 
-                        if(table.getType() == GeoPackageTableType.FEATURE_OVERLAY){
+                        if (table.getType() == GeoPackageTableType.FEATURE_OVERLAY) {
                             active.removeTable(table);
                             active.addTable(table);
                         } else {

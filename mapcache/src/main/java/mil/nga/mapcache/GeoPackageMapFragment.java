@@ -3191,7 +3191,8 @@ public class GeoPackageMapFragment extends Fragment implements
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
-                compressFormatInput, compressQualityInput, setZooms, maxFeaturesLabel, maxFeaturesInput, false);
+                compressFormatInput, compressQualityInput, setZooms,
+                maxFeaturesLabel, maxFeaturesInput, false, false);
 
         geopackagesButton.setOnClickListener(new View.OnClickListener() {
 
@@ -3482,19 +3483,21 @@ public class GeoPackageMapFragment extends Fragment implements
             setZooms = false;
         }
 
-        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, null, nameInput, null,
-                compressFormatInput, compressQualityInput, setZooms, maxFeaturesLabel, maxFeaturesInput, true);
-
         // Check if indexed
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(database);
         FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-        if (indexer.isIndexed()) {
+        boolean indexed = indexer.isIndexed();
+        if (indexed) {
             indexWarning.setVisibility(View.GONE);
         }
         geoPackage.close();
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, null, nameInput, null,
+                compressFormatInput, compressQualityInput, setZooms,
+                maxFeaturesLabel, maxFeaturesInput, true, indexed);
 
         // Set a default name
         nameInput.setText(featureTable + getString(R.string.feature_tiles_name_suffix));

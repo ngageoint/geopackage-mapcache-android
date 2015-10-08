@@ -106,6 +106,7 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
+import mil.nga.geopackage.tiles.overlay.FeatureOverlayQuery;
 import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
@@ -403,6 +404,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * True when a tile layer is drawn from features
      */
     private boolean featureOverlayTiles = false;
+
+    /**
+     * List of Feature Overlay Queries for querying tile overlay clicks
+     */
+    private List<FeatureOverlayQuery> featureOverlayQueries = new ArrayList<>();
 
     /**
      * Constructor
@@ -1364,6 +1370,7 @@ public class GeoPackageMapFragment extends Fragment implements
         featuresBoundingBox = null;
         tilesBoundingBox = null;
         featureOverlayTiles = false;
+        featureOverlayQueries.clear();
         markerIds.clear();
         updateTask = new MapUpdateTask();
         int maxFeatures = getMaxFeatures();
@@ -2181,6 +2188,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
         featureOverlayTiles = true;
 
+        FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay);
+        featureOverlayQueries.add(featureOverlayQuery);
+
         displayTiles(overlay, contents, -1, boundingBox);
     }
 
@@ -2619,6 +2629,30 @@ public class GeoPackageMapFragment extends Fragment implements
 
     @Override
     public void onMapClick(LatLng point) {
+
+        if(!featureOverlayQueries.isEmpty()) {
+            StringBuilder clickMessage = new StringBuilder();
+            for (FeatureOverlayQuery query : featureOverlayQueries) {
+                String message = query.buildMapClickMessage(point, view, map);
+                if(message != null){
+                    if(clickMessage.length() > 0){
+                        clickMessage.append("\n\n");
+                    }
+                    clickMessage.append(message);
+                }
+            }
+            if(clickMessage.length() > 0){
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(clickMessage.toString())
+                        .setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                }
+                        )
+                        .show();
+            }
+        }
 
     }
 

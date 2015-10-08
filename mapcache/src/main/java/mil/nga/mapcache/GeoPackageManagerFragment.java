@@ -2297,17 +2297,19 @@ public class GeoPackageManagerFragment extends Fragment implements
                         maxLatInput, minLonInput, maxLonInput,
                         preloadedLocationsButton);
 
-        int minZoomLevel = getActivity().getResources().getInteger(
-                R.integer.load_tiles_min_zoom_default);
-        int maxZoomLevel = getActivity().getResources().getInteger(
-                R.integer.load_tiles_max_zoom_default);
-        minZoomInput.setText(String.valueOf(minZoomLevel));
-        maxZoomInput.setText(String.valueOf(maxZoomLevel));
-
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
         GeoPackage geoPackage = manager.open(table.getDatabase());
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
         Contents contents = featureDao.getGeometryColumns().getContents();
+
+        int minZoomLevel = getActivity().getResources().getInteger(
+                R.integer.load_tiles_min_zoom_default);
+        int maxZoomLevel = getActivity().getResources().getInteger(
+                R.integer.load_tiles_max_zoom_default);
+        minZoomLevel = Math.max(minZoomLevel, featureDao.getZoomLevel());
+        minZoomLevel = Math.min(minZoomLevel, maxZoomLevel);
+        minZoomInput.setText(String.valueOf(minZoomLevel));
+        maxZoomInput.setText(String.valueOf(maxZoomLevel));
 
         BoundingBox boundingBox = contents.getBoundingBox();
         Projection projection = ProjectionFactory.getProjection(
@@ -2332,8 +2334,14 @@ public class GeoPackageManagerFragment extends Fragment implements
 
             // Only default the max features if indexed, otherwise an unindexed feature table will
             // not show any tiles with features
-            int maxFeatures = getActivity().getResources().getInteger(
-                    R.integer.feature_tiles_overlay_max_features_per_tile_default);
+            int maxFeatures = 0;
+            if(featureDao.getGeometryType() == GeometryType.POINT){
+                maxFeatures = getActivity().getResources().getInteger(
+                        R.integer.feature_tiles_overlay_max_points_per_tile_default);
+            }else {
+                maxFeatures = getActivity().getResources().getInteger(
+                        R.integer.feature_tiles_overlay_max_features_per_tile_default);
+            }
             maxFeaturesInput.setText(String.valueOf(maxFeatures));
         }
 

@@ -11,7 +11,7 @@ Software source code previously released under an open source license and then m
 
 ### Android App ###
 
-[Download the latest APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/download/1.0/mapcache-1.0.apk)
+[Download the latest APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/latest)
 
 ### About ###
 

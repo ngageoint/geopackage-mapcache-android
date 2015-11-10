@@ -3130,31 +3130,55 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param uri
      * @param path
      */
-    public void importGeoPackageExternalLink(String name, final Uri uri, String path){
-        // Import the GeoPackage by linking
-        // to the file
-        boolean imported = manager
-                .importGeoPackageAsExternalLink(
-                        path, name);
+    public void importGeoPackageExternalLink(final String name, final Uri uri, String path){
 
-        if (imported) {
-            update();
-        } else {
-            try {
-                getActivity().runOnUiThread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                GeoPackageUtils
-                                        .showMessage(
-                                                getActivity(),
-                                                "URL Import",
-                                                "Failed to import Uri: "
-                                                        + uri.getPath());
-                            }
-                        });
-            } catch (Exception e) {
-                // eat
+        // Check if a database already exists with the name
+        if(manager.exists(name)){
+            // If the existing is not an external file, error
+            boolean alreadyExistsError = !manager.isExternal(name);
+            if(!alreadyExistsError){
+                // If the existing external file has a different file path, error
+                File existingFile = manager.getFile(name);
+                alreadyExistsError = !(new File(path)).equals(existingFile);
+            }
+            if(alreadyExistsError){
+                try {
+                    getActivity().runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    GeoPackageUtils.showMessage(getActivity(),
+                                            "GeoPackage Exists",
+                                            "A different GeoPackage already exists with the name '" + name + "'");
+                                }
+                            });
+                } catch (Exception e) {
+                    // eat
+                }
+            }
+        }else {
+            // Import the GeoPackage by linking to the file
+            boolean imported = manager
+                    .importGeoPackageAsExternalLink(
+                            path, name);
+
+            if (imported) {
+                update();
+            } else {
+                try {
+                    getActivity().runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    GeoPackageUtils.showMessage(getActivity(),
+                                            "URL Import",
+                                            "Failed to import Uri: "
+                                                    + uri.getPath());
+                                }
+                            });
+                } catch (Exception e) {
+                    // eat
+                }
             }
         }
     }
@@ -3166,12 +3190,31 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param uri
      * @param path
      */
-    public void importGeoPackage(String name, Uri uri, String path){
-        ImportTask importTask = new ImportTask(name, path, uri);
-        progressDialog = createImportProgressDialog(name,
-                importTask, path, uri, null);
-        progressDialog.setIndeterminate(true);
-        importTask.execute();
+    public void importGeoPackage(final String name, Uri uri, String path){
+
+        // Check if a database already exists with the name
+        if(manager.exists(name)) {
+            try {
+                getActivity().runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                GeoPackageUtils.showMessage(getActivity(),
+                                        "GeoPackage Exists",
+                                        "A GeoPackage already exists with the name '" + name + "'");
+                            }
+                        });
+            } catch (Exception e) {
+                // eat
+            }
+        }else {
+
+            ImportTask importTask = new ImportTask(name, path, uri);
+            progressDialog = createImportProgressDialog(name,
+                    importTask, path, uri, null);
+            progressDialog.setIndeterminate(true);
+            importTask.execute();
+        }
     }
 
     /**

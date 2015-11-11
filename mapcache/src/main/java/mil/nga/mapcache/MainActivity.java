@@ -97,13 +97,31 @@ public class MainActivity extends Activity implements
      *
      * @param uri
      */
-    private void handleIntentUri(Uri uri) {
+    private void handleIntentUri(final Uri uri) {
         String path = FileUtils.getPath(this, uri);
         String name = MapCacheFileUtils.getDisplayName(this, uri, path);
-        if (path != null) {
-            managerFragment.importGeoPackageExternalLink(name, uri, path);
-        } else {
-            managerFragment.importGeoPackage(name, uri, path);
+        try {
+            if (path != null) {
+                managerFragment.importGeoPackageExternalLink(name, uri, path);
+            } else {
+                managerFragment.importGeoPackage(name, uri, path);
+            }
+        } catch (final Exception e) {
+            try {
+                runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                GeoPackageUtils.showMessage(MainActivity.this,
+                                        "Open GeoPackage",
+                                        "Could not open file as a GeoPackage"
+                                                + "\n\n"
+                                                + e.getMessage());
+                            }
+                        });
+            } catch (Exception e2) {
+                // eat
+            }
         }
     }
 

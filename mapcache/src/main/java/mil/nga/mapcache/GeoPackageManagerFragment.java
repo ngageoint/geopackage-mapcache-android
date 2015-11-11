@@ -48,6 +48,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
@@ -222,44 +223,70 @@ public class GeoPackageManagerFragment extends Fragment implements
     public void update() {
         databases = manager.databases();
         databaseTables.clear();
-        for (String database : databases) {
-            GeoPackage geoPackage = manager.open(database);
-            List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
-            ContentsDao contentsDao = geoPackage.getContentsDao();
-            for (String tableName : geoPackage.getFeatureTables()) {
-                FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
-                int count = featureDao.count();
+        Iterator<String> databasesIterator = databases.iterator();
+        while(databasesIterator.hasNext()) {
+            String database = databasesIterator.next();
 
-                GeometryType geometryType = null;
-                try {
-                    Contents contents = contentsDao.queryForId(tableName);
-                    GeometryColumns geometryColumns = contents
-                            .getGeometryColumns();
-                    geometryType = geometryColumns.getGeometryType();
-                } catch (Exception e) {
+            // Delete any databases with invalid headers
+            if(!manager.validateHeader(database)){
+                if(manager.delete(database)){
+                    databasesIterator.remove();
                 }
+            }else {
 
-                GeoPackageTable table = new GeoPackageFeatureTable(database,
-                        tableName, geometryType, count);
-                table.setActive(active.exists(table));
-                tables.add(table);
+                // Read the feature and tile tables from the GeoPackage
+                GeoPackage geoPackage = null;
+                try {
+                    geoPackage = manager.open(database);
+                    List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
+                    ContentsDao contentsDao = geoPackage.getContentsDao();
+                    for (String tableName : geoPackage.getFeatureTables()) {
+                        FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
+                        int count = featureDao.count();
+
+                        GeometryType geometryType = null;
+                        try {
+                            Contents contents = contentsDao.queryForId(tableName);
+                            GeometryColumns geometryColumns = contents
+                                    .getGeometryColumns();
+                            geometryType = geometryColumns.getGeometryType();
+                        } catch (Exception e) {
+                        }
+
+                        GeoPackageTable table = new GeoPackageFeatureTable(database,
+                                tableName, geometryType, count);
+                        table.setActive(active.exists(table));
+                        tables.add(table);
+                    }
+                    for (String tableName : geoPackage.getTileTables()) {
+                        TileDao tileDao = geoPackage.getTileDao(tableName);
+                        int count = tileDao.count();
+                        GeoPackageTable table = new GeoPackageTileTable(database,
+                                tableName, count);
+                        table.setActive(active.exists(table));
+                        tables.add(table);
+                    }
+                    for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
+                        FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
+                        int count = featureDao.count();
+                        table.setCount(count);
+                        tables.add(table);
+                    }
+                    databaseTables.add(tables);
+                    geoPackage.close();
+                } catch (Exception e) {
+                    if(geoPackage != null){
+                        geoPackage.close();
+                    }
+
+                    // On exception, check the integrity of the database and delete if not valid
+                    if (!manager.validateIntegrity(database)) {
+                        if(manager.delete(database)){
+                            databasesIterator.remove();
+                        }
+                    }
+                }
             }
-            for (String tableName : geoPackage.getTileTables()) {
-                TileDao tileDao = geoPackage.getTileDao(tableName);
-                int count = tileDao.count();
-                GeoPackageTable table = new GeoPackageTileTable(database,
-                        tableName, count);
-                table.setActive(active.exists(table));
-                tables.add(table);
-            }
-            for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
-                FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-                int count = featureDao.count();
-                table.setCount(count);
-                tables.add(table);
-            }
-            databaseTables.add(tables);
-            geoPackage.close();
         }
 
         adapter.notifyDataSetChanged();

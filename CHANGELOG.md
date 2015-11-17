@@ -7,7 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 1.2 (TBD)
 
 * geopackage-android version updated to 1.1.1
-* Open .gpkg and .gpkx file extensions from file system and other apps
+* Open .gpkg and .gpkx file extensions from file system and other apps - [Issue #9](https://github.com/ngageoint/geopackage-mapcache-android/issues/9)
 * Recover from corrupt database files
 * TBD
 

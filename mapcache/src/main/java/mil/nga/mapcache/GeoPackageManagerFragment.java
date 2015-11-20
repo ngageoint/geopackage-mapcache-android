@@ -48,6 +48,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
@@ -90,6 +91,7 @@ import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.indexer.IndexerTask;
+import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.wkb.geom.GeometryType;
@@ -221,44 +223,70 @@ public class GeoPackageManagerFragment extends Fragment implements
     public void update() {
         databases = manager.databases();
         databaseTables.clear();
-        for (String database : databases) {
-            GeoPackage geoPackage = manager.open(database);
-            List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
-            ContentsDao contentsDao = geoPackage.getContentsDao();
-            for (String tableName : geoPackage.getFeatureTables()) {
-                FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
-                int count = featureDao.count();
+        Iterator<String> databasesIterator = databases.iterator();
+        while(databasesIterator.hasNext()) {
+            String database = databasesIterator.next();
 
-                GeometryType geometryType = null;
-                try {
-                    Contents contents = contentsDao.queryForId(tableName);
-                    GeometryColumns geometryColumns = contents
-                            .getGeometryColumns();
-                    geometryType = geometryColumns.getGeometryType();
-                } catch (Exception e) {
+            // Delete any databases with invalid headers
+            if(!manager.validateHeader(database)){
+                if(manager.delete(database)){
+                    databasesIterator.remove();
                 }
+            }else {
 
-                GeoPackageTable table = new GeoPackageFeatureTable(database,
-                        tableName, geometryType, count);
-                table.setActive(active.exists(table));
-                tables.add(table);
+                // Read the feature and tile tables from the GeoPackage
+                GeoPackage geoPackage = null;
+                try {
+                    geoPackage = manager.open(database);
+                    List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
+                    ContentsDao contentsDao = geoPackage.getContentsDao();
+                    for (String tableName : geoPackage.getFeatureTables()) {
+                        FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
+                        int count = featureDao.count();
+
+                        GeometryType geometryType = null;
+                        try {
+                            Contents contents = contentsDao.queryForId(tableName);
+                            GeometryColumns geometryColumns = contents
+                                    .getGeometryColumns();
+                            geometryType = geometryColumns.getGeometryType();
+                        } catch (Exception e) {
+                        }
+
+                        GeoPackageTable table = new GeoPackageFeatureTable(database,
+                                tableName, geometryType, count);
+                        table.setActive(active.exists(table));
+                        tables.add(table);
+                    }
+                    for (String tableName : geoPackage.getTileTables()) {
+                        TileDao tileDao = geoPackage.getTileDao(tableName);
+                        int count = tileDao.count();
+                        GeoPackageTable table = new GeoPackageTileTable(database,
+                                tableName, count);
+                        table.setActive(active.exists(table));
+                        tables.add(table);
+                    }
+                    for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
+                        FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
+                        int count = featureDao.count();
+                        table.setCount(count);
+                        tables.add(table);
+                    }
+                    databaseTables.add(tables);
+                    geoPackage.close();
+                } catch (Exception e) {
+                    if(geoPackage != null){
+                        geoPackage.close();
+                    }
+
+                    // On exception, check the integrity of the database and delete if not valid
+                    if (!manager.validateIntegrity(database)) {
+                        if(manager.delete(database)){
+                            databasesIterator.remove();
+                        }
+                    }
+                }
             }
-            for (String tableName : geoPackage.getTileTables()) {
-                TileDao tileDao = geoPackage.getTileDao(tableName);
-                int count = tileDao.count();
-                GeoPackageTable table = new GeoPackageTileTable(database,
-                        tableName, count);
-                table.setActive(active.exists(table));
-                tables.add(table);
-            }
-            for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
-                FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-                int count = featureDao.count();
-                table.setCount(count);
-                tables.add(table);
-            }
-            databaseTables.add(tables);
-            geoPackage.close();
         }
 
         adapter.notifyDataSetChanged();
@@ -3044,26 +3072,9 @@ public class GeoPackageManagerFragment extends Fragment implements
         // Get the Uri
         final Uri uri = data.getData();
 
-        final ContentResolver resolver = getActivity().getContentResolver();
-
-        // Try to get the file path
+        // Try to get the file path and name
         final String path = FileUtils.getPath(getActivity(), uri);
-
-        // Try to get the GeoPackage name
-        String name = null;
-        if (path != null) {
-            name = new File(path).getName();
-        } else {
-            name = getDisplayName(resolver, uri);
-        }
-
-        // Remove the extension
-        if (name != null) {
-            int extensionIndex = name.lastIndexOf(".");
-            if (extensionIndex > -1) {
-                name = name.substring(0, extensionIndex);
-            }
-        }
+        String name = MapCacheFileUtils.getDisplayName(getActivity(), uri, path);
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View importFileView = inflater.inflate(R.layout.import_file, null);
@@ -3099,41 +3110,12 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     boolean copy = copyRadioButton.isChecked();
 
                                     try {
-
-                                        // Import the GeoPackage by copying the file
                                         if (copy) {
-                                            ImportTask importTask = new ImportTask(value, path, uri);
-                                            progressDialog = createImportProgressDialog(value,
-                                                    importTask, path, uri, null);
-                                            progressDialog.setIndeterminate(true);
-                                            importTask.execute();
+                                            // Import the GeoPackage by copying the file
+                                            importGeoPackage(value, uri, path);
                                         } else {
-                                            // Import the GeoPackage by linking
-                                            // to the file
-                                            boolean imported = manager
-                                                    .importGeoPackageAsExternalLink(
-                                                            path, value);
-
-                                            if (imported) {
-                                                update();
-                                            } else {
-                                                try {
-                                                    getActivity().runOnUiThread(
-                                                            new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    GeoPackageUtils
-                                                                            .showMessage(
-                                                                                    getActivity(),
-                                                                                    "URL Import",
-                                                                                    "Failed to import Uri: "
-                                                                                            + uri.getPath());
-                                                                }
-                                                            });
-                                                } catch (Exception e2) {
-                                                    // eat
-                                                }
-                                            }
+                                            // Import the GeoPackage by linking to the file
+                                            importGeoPackageExternalLink(value, uri, path);
                                         }
                                     } catch (final Exception e) {
                                         try {
@@ -3167,6 +3149,99 @@ public class GeoPackageManagerFragment extends Fragment implements
                         });
 
         dialog.show();
+    }
+
+    /**
+     * Import the GeoPackage by linking to the file
+     * @param name
+     * @param uri
+     * @param path
+     */
+    public void importGeoPackageExternalLink(final String name, final Uri uri, String path){
+
+        // Check if a database already exists with the name
+        if(manager.exists(name)){
+            // If the existing is not an external file, error
+            boolean alreadyExistsError = !manager.isExternal(name);
+            if(!alreadyExistsError){
+                // If the existing external file has a different file path, error
+                File existingFile = manager.getFile(name);
+                alreadyExistsError = !(new File(path)).equals(existingFile);
+            }
+            if(alreadyExistsError){
+                try {
+                    getActivity().runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    GeoPackageUtils.showMessage(getActivity(),
+                                            "GeoPackage Exists",
+                                            "A different GeoPackage already exists with the name '" + name + "'");
+                                }
+                            });
+                } catch (Exception e) {
+                    // eat
+                }
+            }
+        }else {
+            // Import the GeoPackage by linking to the file
+            boolean imported = manager
+                    .importGeoPackageAsExternalLink(
+                            path, name);
+
+            if (imported) {
+                update();
+            } else {
+                try {
+                    getActivity().runOnUiThread(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    GeoPackageUtils.showMessage(getActivity(),
+                                            "URL Import",
+                                            "Failed to import Uri: "
+                                                    + uri.getPath());
+                                }
+                            });
+                } catch (Exception e) {
+                    // eat
+                }
+            }
+        }
+    }
+
+    /**
+     * Run the import task to import a GeoPackage by copying it
+     *
+     * @param name
+     * @param uri
+     * @param path
+     */
+    public void importGeoPackage(final String name, Uri uri, String path){
+
+        // Check if a database already exists with the name
+        if(manager.exists(name)) {
+            try {
+                getActivity().runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                GeoPackageUtils.showMessage(getActivity(),
+                                        "GeoPackage Exists",
+                                        "A GeoPackage already exists with the name '" + name + "'");
+                            }
+                        });
+            } catch (Exception e) {
+                // eat
+            }
+        }else {
+
+            ImportTask importTask = new ImportTask(name, path, uri);
+            progressDialog = createImportProgressDialog(name,
+                    importTask, path, uri, null);
+            progressDialog.setIndeterminate(true);
+            importTask.execute();
+        }
     }
 
     /**

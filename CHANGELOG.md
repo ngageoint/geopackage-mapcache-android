@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.3 (TBD)
+## [1.3] (https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.3) (11-24-2015)
 
 * geopackage-android version updated to 1.2.0
 * FeatureTiles (now abstract) creations changed to MapFeatureTiles

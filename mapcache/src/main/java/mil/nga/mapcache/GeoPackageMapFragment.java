@@ -103,6 +103,7 @@ import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.geopackage.tiles.features.MapFeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
@@ -2138,7 +2139,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 featureOverlayTable.getMaxLon(), featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLat());
 
         // Load tiles
-        FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+        FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
 
         featureTiles.setMaxFeaturesPerTile(featureOverlayTable.getMaxFeaturesPerTile());
         if (featureOverlayTable.getMaxFeaturesPerTile() != null) {
@@ -3547,7 +3548,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 0, 255)});
 
         // Set default feature attributes
-        FeatureTiles featureTiles = new FeatureTiles(getActivity(), null);
+        FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), null);
         String defaultColor = "black";
 
         Paint pointPaint = featureTiles.getPointPaint();
@@ -3641,7 +3642,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 
                             // Load tiles
-                            FeatureTiles featureTiles = new FeatureTiles(getActivity(), featureDao);
+                            FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);
                             if (maxFeatures != null) {
                                 featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));

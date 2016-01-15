@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## [1.5](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.5)
+## [1.5](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.5) (01-15-2015)
 
 * geopackage-android version updated to 1.2.3
 

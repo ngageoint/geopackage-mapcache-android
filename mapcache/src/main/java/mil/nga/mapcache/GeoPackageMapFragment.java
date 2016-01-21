@@ -1037,6 +1037,10 @@ public class GeoPackageMapFragment extends Fragment implements
         }
     }
 
+    /**
+     * Set the my location enabled state on the map if permission has been granted
+     * @return true if updated, false if permission is required
+     */
     public boolean setMyLocationEnabled(){
         boolean updated = false;
         if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){

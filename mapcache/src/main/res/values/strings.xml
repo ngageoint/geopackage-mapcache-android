@@ -7,6 +7,8 @@
     <string name="title_manager">Manager</string>
     <string name="location_access_rational_title">Use <font color='#DD000000'>MapCache</font> location services</string>
     <string name="location_access_rational_message">MapCache allows you to view and zoom to your current location</string>
+    <string name="storage_access_rational_title">Use <font color='#DD000000'>MapCache</font> storage services</string>
+    <string name="storage_access_rational_message">MapCache allows you to read from and write to GeoPackages in external storage</string>
     <string name="import_geopackage_url">Import URL</string>
     <string name="import_geopackage_file">Import File</string>
     <string name="create_geopackage">Create</string>

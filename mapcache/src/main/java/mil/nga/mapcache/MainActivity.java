@@ -40,6 +40,11 @@ public class MainActivity extends Activity implements
     public static final int MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
 
     /**
+     * Manager permissions request code for importing a GeoPackage as an external link
+     */
+    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL = 200;
+
+    /**
      * Fragment managing the behaviors, interactions and presentation of the
      * navigation drawer.
      */
@@ -108,7 +113,7 @@ public class MainActivity extends Activity implements
         String name = MapCacheFileUtils.getDisplayName(this, uri, path);
         try {
             if (path != null) {
-                managerFragment.importGeoPackageExternalLink(name, uri, path);
+                managerFragment.importGeoPackageExternalLinkWithPermissions(name, uri, path);
             } else {
                 managerFragment.importGeoPackage(name, uri, path);
             }
@@ -237,15 +242,25 @@ public class MainActivity extends Activity implements
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
+        // Check if permission was granted
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
 
-        switch(MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+        switch(requestCode) {
 
             case MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
                 mapFragment.setMyLocationEnabled();
+                break;
+
+            case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
+                if(granted) {
+                    managerFragment.importGeoPackageExternalLinkAfterPermissionGranted();
+                }
                 break;
         }
     }

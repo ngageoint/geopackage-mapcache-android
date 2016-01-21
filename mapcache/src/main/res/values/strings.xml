@@ -5,6 +5,8 @@
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
+    <string name="location_access_rational_title">Use <font color='#DD000000'>MapCache</font> location services</string>
+    <string name="location_access_rational_message">MapCache allows you to view and zoom to your current location</string>
     <string name="import_geopackage_url">Import URL</string>
     <string name="import_geopackage_file">Import File</string>
     <string name="create_geopackage">Create</string>

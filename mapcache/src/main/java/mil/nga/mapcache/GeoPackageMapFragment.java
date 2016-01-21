@@ -1,12 +1,13 @@
 package mil.nga.mapcache;
 
-import android.app.AlertDialog;
+import android.Manifest;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -16,6 +17,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -448,8 +452,6 @@ public class GeoPackageMapFragment extends Fragment implements
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
-        map.setMyLocationEnabled(true);
-
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         int mapType = settings.getInt(MAP_TYPE_KEY, 1);
@@ -658,7 +660,7 @@ public class GeoPackageMapFragment extends Fragment implements
             clearEditFeaturesAndUpdateType(editTypeClicked);
         } else {
 
-            AlertDialog deleteDialog = new AlertDialog.Builder(getActivity())
+            AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(
                             getString(R.string.edit_features_clear_validation_label))
                     .setMessage(
@@ -1004,15 +1006,44 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
-        map.setMyLocationEnabled(!hidden);
+
         visible = !hidden;
 
-        if (!hidden && active.isModified()) {
+        // If my location did not have permissions to update and the map is becoming visible, ask for permission
+        if(!setMyLocationEnabled() && visible){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(R.string.location_access_rational_title)
+                        .setMessage(R.string.location_access_rational_message)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
+        }
+
+        if (visible && active.isModified()) {
             active.setModified(false);
             resetBoundingBox();
             resetEditFeatures();
             updateInBackground(true);
         }
+    }
+
+    public boolean setMyLocationEnabled(){
+        boolean updated = false;
+        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            map.setMyLocationEnabled(visible);
+            updated = true;
+        }
+        return updated;
     }
 
     /**
@@ -1289,7 +1320,7 @@ public class GeoPackageMapFragment extends Fragment implements
         final String maxFeatures = String.valueOf(getMaxFeatures());
         input.setText(maxFeatures);
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.map_max_features))
                 .setMessage(getString(R.string.map_max_features_message))
                 .setView(input)
@@ -2643,7 +2674,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             }
             if(clickMessage.length() > 0){
-                new AlertDialog.Builder(getActivity())
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setMessage(clickMessage.toString())
                         .setPositiveButton(android.R.string.yes,
                                 new DialogInterface.OnClickListener() {
@@ -2737,7 +2768,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 adapter.add(getString(R.string.edit_features_shape_add_hole_label));
             }
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             DecimalFormat formatter = new DecimalFormat("0.0###");
             LatLng position = marker.getPosition();
             final String title = "(lat=" + formatter.format(position.latitude)
@@ -2785,7 +2816,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (editFeatureType != EditType.POINT) {
             message += " " + EditType.POINT.name();
         }
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setCancelable(false)
                 .setTitle(getString(R.string.edit_features_delete_label))
                 .setMessage(
@@ -2842,7 +2873,7 @@ public class GeoPackageMapFragment extends Fragment implements
             adapter.add(getString(R.string.edit_features_info_label));
             adapter.add(getString(R.string.edit_features_edit_label));
             adapter.add(getString(R.string.edit_features_delete_label));
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             final String title = getTitle(geometryType, marker);
             builder.setTitle(title);
             builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -2964,7 +2995,7 @@ public class GeoPackageMapFragment extends Fragment implements
         message.append(GeometryPrinter.getGeometryString(geomData
                 .getGeometry()));
 
-        AlertDialog viewDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog viewDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(title)
                 .setPositiveButton(getString(R.string.button_ok_label),
 
@@ -2994,7 +3025,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         final LatLng position = marker.getPosition();
 
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setCancelable(false)
                 .setTitle(
                         getString(R.string.edit_features_delete_label) + " "
@@ -3148,7 +3179,7 @@ public class GeoPackageMapFragment extends Fragment implements
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View createTilesView = inflater
                 .inflate(R.layout.map_create_tiles, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(createTilesView);
 
         final EditText geopackageInput = (EditText) createTilesView
@@ -3238,7 +3269,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 final List<String> databases = manager.databases();
                 adapter.addAll(databases);
                 AlertDialog.Builder builder = new AlertDialog.Builder(
-                        getActivity());
+                        getActivity(), R.style.AppCompatAlertDialogStyle);
                 builder.setTitle(getActivity()
                         .getString(
                                 R.string.map_create_tiles_existing_geopackage_dialog_label));
@@ -3424,7 +3455,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View createTilesView = inflater.inflate(R.layout.feature_tiles, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(createTilesView);
 
         final TextView indexWarning = (TextView) createTilesView
@@ -3731,7 +3762,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                           final Spinner geoPackageInput,
                                                           final Spinner featuresInput) {
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(editFeaturesSelectionView);
 
         List<String> databases = manager.databases();

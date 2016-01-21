@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -32,6 +33,11 @@ public class MainActivity extends Activity implements
      * Map drawer position
      */
     private static final int MAP_POSITION = 1;
+
+    /**
+     * Map permissions request code for accessing fine locations
+     */
+    public static final int MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the
@@ -229,6 +235,19 @@ public class MainActivity extends Activity implements
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+        boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+
+        switch(MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+
+            case MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+                mapFragment.setMyLocationEnabled();
+                break;
+        }
     }
 
 }

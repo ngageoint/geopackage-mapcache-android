@@ -177,6 +177,11 @@ public class GeoPackageManagerFragment extends Fragment implements
     private String importExternalPath;
 
     /**
+     * Export GeoPackage database name holder when asking for external write permission
+     */
+    private String exportDatabaseName;
+
+    /**
      * Flag used to track the first time hidden external GeoPackages exist to warn the user
      */
     private boolean hiddenExternalWarning = true;
@@ -394,6 +399,30 @@ public class GeoPackageManagerFragment extends Fragment implements
     }
 
     /**
+     * Show a disabled external export permissions dialog when external GeoPackages can not be exported
+     */
+    private void showDisabledExternalExportPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_export_geopackage_access_title),
+                    getResources().getString(R.string.external_export_geopackage_access_message));
+        }
+    }
+
+    /**
+     * Show a disabled external import permissions dialog when external GeoPackages can not be imported
+     */
+    private void showDisabledExternalImportPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_import_geopackage_access_title),
+                    getResources().getString(R.string.external_import_geopackage_access_message));
+        }
+    }
+
+    /**
      * Show a disabled permissions dialog
      *
      * @param title
@@ -453,7 +482,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             copyDatabaseOption(database);
                             break;
                         case 4:
-                            exportDatabaseOption(database);
+                            exportDatabaseOptionCheckPermissions(database);
                             break;
                         case 5:
                             shareDatabaseOption(database);
@@ -680,6 +709,35 @@ public class GeoPackageManagerFragment extends Fragment implements
                         });
 
         dialog.show();
+    }
+
+    /**
+     * Export database option
+     *
+     * @param database
+     */
+    private void exportDatabaseOptionCheckPermissions(final String database) {
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            exportDatabaseOption(database);
+        } else {
+            exportDatabaseName = database;
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE);
+        }
+
+    }
+
+    /**
+     * Export database option after given permission
+     *
+     * @param granted true if permission was granted
+     */
+    public void exportDatabaseAfterPermission(boolean granted){
+        if(granted) {
+            exportDatabaseOption(exportDatabaseName);
+        }else{
+            showDisabledExternalExportPermissionsDialog();
+        }
     }
 
     /**
@@ -3319,9 +3377,15 @@ public class GeoPackageManagerFragment extends Fragment implements
 
     /**
      * Import the GeoPackage by linking to the file after write external storage permission was granted
+     *
+     * @param granted
      */
-    public void importGeoPackageExternalLinkAfterPermissionGranted() {
-        importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
+    public void importGeoPackageExternalLinkAfterPermissionGranted(boolean granted) {
+        if(granted) {
+            importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
+        }else{
+            showDisabledExternalImportPermissionsDialog();
+        }
     }
 
     /**

@@ -293,8 +293,15 @@ public class GeoPackageManagerFragment extends Fragment implements
         if (includeExternal) {
             databases = manager.databases();
         } else {
+            // We don't have permission to show external databases
+
             showDisabledExternalGeoPackagesPermissionsDialog();
             databases = manager.internalDatabases();
+
+            // Disable any active external databases
+            for(String externalDatabase: manager.externalDatabaseSet()) {
+                active.removeDatabase(externalDatabase, true);
+            }
         }
         updateWithCurrentDatabaseList();
     }

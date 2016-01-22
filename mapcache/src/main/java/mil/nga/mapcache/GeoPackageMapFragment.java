@@ -3270,7 +3270,7 @@ public class GeoPackageMapFragment extends Fragment implements
             public void onClick(View v) {
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                         getActivity(), android.R.layout.select_dialog_item);
-                final List<String> databases = manager.databases();
+                final List<String> databases = getDatabases();
                 adapter.addAll(databases);
                 AlertDialog.Builder builder = new AlertDialog.Builder(
                         getActivity(), R.style.AppCompatAlertDialogStyle);
@@ -3769,7 +3769,7 @@ public class GeoPackageMapFragment extends Fragment implements
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(editFeaturesSelectionView);
 
-        List<String> databases = manager.databases();
+        List<String> databases = getDatabases();
         List<String> featureDatabases = new ArrayList<String>();
         if (databases != null) {
             for (String database : databases) {
@@ -3870,6 +3870,22 @@ public class GeoPackageMapFragment extends Fragment implements
                 boundingBox = map.addPolygon(polygonOptions);
             }
         }
+    }
+
+    /**
+     * Get the GeoPackage databases. If external storage permissions granted get all, if not get only internal
+     * @return
+     */
+    private List<String> getDatabases(){
+        List<String> databases = null;
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            databases = manager.databases();
+        }else{
+            databases = manager.internalDatabases();
+        }
+
+        return databases;
     }
 
 }

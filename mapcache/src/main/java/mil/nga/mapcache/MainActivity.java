@@ -45,6 +45,11 @@ public class MainActivity extends Activity implements
     public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL = 200;
 
     /**
+     * Manager permissions request code for reading / writing to GeoPackages already externally linked
+     */
+    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL = 201;
+
+    /**
      * Fragment managing the behaviors, interactions and presentation of the
      * navigation drawer.
      */
@@ -261,6 +266,10 @@ public class MainActivity extends Activity implements
                 if(granted) {
                     managerFragment.importGeoPackageExternalLinkAfterPermissionGranted();
                 }
+                break;
+
+            case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
+                managerFragment.update(granted);
                 break;
         }
     }

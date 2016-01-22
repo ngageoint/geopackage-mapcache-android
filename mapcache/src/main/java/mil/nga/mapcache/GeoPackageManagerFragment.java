@@ -3,6 +3,7 @@ package mil.nga.mapcache;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -21,6 +22,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.DocumentsContract.Document;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -120,6 +122,11 @@ public class GeoPackageManagerFragment extends Fragment implements
     public static final int ACTIVITY_SHARE_FILE = 3343;
 
     /**
+     * Intent activity request code when opening app settings
+     */
+    public static final int ACTIVITY_APP_SETTINGS = 3344;
+
+    /**
      * Active GeoPackages
      */
     private GeoPackageDatabases active;
@@ -170,6 +177,11 @@ public class GeoPackageManagerFragment extends Fragment implements
     private String importExternalPath;
 
     /**
+     * Flag used to track the first time hidden external GeoPackages exist to warn the user
+     */
+    private boolean hiddenExternalWarning = true;
+
+    /**
      * Constructor
      */
     public GeoPackageManagerFragment() {
@@ -212,6 +224,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         });
         elv.setAdapter(adapter);
 
+        update();
+
         return v;
     }
 
@@ -221,7 +235,6 @@ public class GeoPackageManagerFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        update();
     }
 
     /**
@@ -241,18 +254,66 @@ public class GeoPackageManagerFragment extends Fragment implements
      * Update the listing of databases and tables
      */
     public void update() {
-        databases = manager.databases();
+
+        // If there are no external GeoPackages or if we have external storage permission, update the database list with all GeoPackages
+        if (manager.externalCount() == 0 || ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            databases = manager.databases();
+            updateWithCurrentDatabaseList();
+        } else {
+            // Should we justify why we need permission?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(R.string.storage_access_rational_title)
+                        .setMessage(R.string.storage_access_rational_message)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Request permission
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            } else {
+                // Request permission
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL);
+            }
+        }
+
+    }
+
+    /**
+     * Update the listing of databases and tables, including external GeoPackages only if set to true
+     *
+     * @param includeExternal true to include external GeoPackages
+     */
+    public void update(boolean includeExternal) {
+
+        if (includeExternal) {
+            databases = manager.databases();
+        } else {
+            showDisabledExternalGeoPackagesPermissionsDialog();
+            databases = manager.internalDatabases();
+        }
+        updateWithCurrentDatabaseList();
+    }
+
+    /**
+     * Update the listing of databases and tables
+     */
+    private void updateWithCurrentDatabaseList() {
         databaseTables.clear();
         Iterator<String> databasesIterator = databases.iterator();
-        while(databasesIterator.hasNext()) {
+        while (databasesIterator.hasNext()) {
             String database = databasesIterator.next();
 
             // Delete any databases with invalid headers
-            if(!manager.validateHeader(database)){
-                if(manager.delete(database)){
+            if (!manager.validateHeader(database)) {
+                if (manager.delete(database)) {
                     databasesIterator.remove();
                 }
-            }else {
+            } else {
 
                 // Read the feature and tile tables from the GeoPackage
                 GeoPackage geoPackage = null;
@@ -295,13 +356,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                     databaseTables.add(tables);
                     geoPackage.close();
                 } catch (Exception e) {
-                    if(geoPackage != null){
+                    if (geoPackage != null) {
                         geoPackage.close();
                     }
 
                     // On exception, check the integrity of the database and delete if not valid
                     if (!manager.validateIntegrity(database)) {
-                        if(manager.delete(database)){
+                        if (manager.delete(database)) {
                             databasesIterator.remove();
                         }
                     }
@@ -310,6 +371,41 @@ public class GeoPackageManagerFragment extends Fragment implements
         }
 
         adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Show a disabled external GeoPackages permissions dialog when external GeoPackages exist that can not be accessed
+     */
+    private void showDisabledExternalGeoPackagesPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions and we haven't notified them that there are hidden GeoPackages
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) && hiddenExternalWarning) {
+            hiddenExternalWarning = false;
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_geopackage_access_title),
+                    getResources().getString(R.string.external_geopackage_access_message));
+        }
+    }
+
+    /**
+     * Show a disabled permissions dialog
+     *
+     * @param title
+     * @param message
+     */
+    private void showDisabledPermissionsDialog(String title, String message) {
+        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.settings, new Dialog.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setData(Uri.fromParts("package", getActivity().getPackageName(), null));
+                        startActivityForResult(intent, ACTIVITY_APP_SETTINGS);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     /**
@@ -2383,10 +2479,10 @@ public class GeoPackageManagerFragment extends Fragment implements
             // Only default the max features if indexed, otherwise an unindexed feature table will
             // not show any tiles with features
             int maxFeatures = 0;
-            if(featureDao.getGeometryType() == GeometryType.POINT){
+            if (featureDao.getGeometryType() == GeometryType.POINT) {
                 maxFeatures = getActivity().getResources().getInteger(
                         R.integer.feature_tiles_overlay_max_points_per_tile_default);
-            }else {
+            } else {
                 maxFeatures = getActivity().getResources().getInteger(
                         R.integer.feature_tiles_overlay_max_features_per_tile_default);
             }
@@ -3057,6 +3153,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 deleteCachedDatabaseFiles();
                 break;
 
+            case ACTIVITY_APP_SETTINGS:
+                update();
+                break;
+
             default:
                 handled = false;
         }
@@ -3173,16 +3273,17 @@ public class GeoPackageManagerFragment extends Fragment implements
 
     /**
      * Import the GeoPackage by linking to the file if write external storage permissions are granted, otherwise request permission
+     *
      * @param name
      * @param uri
      * @param path
      */
-    public void importGeoPackageExternalLinkWithPermissions(final String name, final Uri uri, String path){
+    public void importGeoPackageExternalLinkWithPermissions(final String name, final Uri uri, String path) {
 
         // Check for permission
-        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             importGeoPackageExternalLink(name, uri, path);
-        }else{
+        } else {
 
             // Save off the values and ask for permission
             importExternalName = name;
@@ -3212,28 +3313,29 @@ public class GeoPackageManagerFragment extends Fragment implements
     /**
      * Import the GeoPackage by linking to the file after write external storage permission was granted
      */
-    public void importGeoPackageExternalLinkAfterPermissionGranted(){
+    public void importGeoPackageExternalLinkAfterPermissionGranted() {
         importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
     }
 
     /**
      * Import the GeoPackage by linking to the file
+     *
      * @param name
      * @param uri
      * @param path
      */
-    private void importGeoPackageExternalLink(final String name, final Uri uri, String path){
+    private void importGeoPackageExternalLink(final String name, final Uri uri, String path) {
 
         // Check if a database already exists with the name
-        if(manager.exists(name)){
+        if (manager.exists(name)) {
             // If the existing is not an external file, error
             boolean alreadyExistsError = !manager.isExternal(name);
-            if(!alreadyExistsError){
+            if (!alreadyExistsError) {
                 // If the existing external file has a different file path, error
                 File existingFile = manager.getFile(name);
                 alreadyExistsError = !(new File(path)).equals(existingFile);
             }
-            if(alreadyExistsError){
+            if (alreadyExistsError) {
                 try {
                     getActivity().runOnUiThread(
                             new Runnable() {
@@ -3248,7 +3350,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     // eat
                 }
             }
-        }else {
+        } else {
             // Import the GeoPackage by linking to the file
             boolean imported = manager
                     .importGeoPackageAsExternalLink(
@@ -3282,10 +3384,10 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param uri
      * @param path
      */
-    public void importGeoPackage(final String name, Uri uri, String path){
+    public void importGeoPackage(final String name, Uri uri, String path) {
 
         // Check if a database already exists with the name
-        if(manager.exists(name)) {
+        if (manager.exists(name)) {
             try {
                 getActivity().runOnUiThread(
                         new Runnable() {
@@ -3299,7 +3401,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             } catch (Exception e) {
                 // eat
             }
-        }else {
+        } else {
 
             ImportTask importTask = new ImportTask(name, path, uri);
             progressDialog = createImportProgressDialog(name,

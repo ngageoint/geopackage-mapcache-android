@@ -9,6 +9,9 @@
     <string name="location_access_rational_message">MapCache allows you to view and zoom to your current location</string>
     <string name="storage_access_rational_title">Use <font color='#DD000000'>MapCache</font> storage services</string>
     <string name="storage_access_rational_message">MapCache allows you to read from and write to GeoPackages in external storage</string>
+    <string name="external_geopackage_access_title"><font color='#DD000000'>Storage Permission Denied</font></string>
+    <string name="external_geopackage_access_message"><font color='#DD000000'>MapCache</font> has been denied access to external storage. Please enable if you would like access the GeoPackages that reside in external storage.</string>
+    <string name="settings">Settings</string>
     <string name="import_geopackage_url">Import URL</string>
     <string name="import_geopackage_file">Import File</string>
     <string name="create_geopackage">Create</string>

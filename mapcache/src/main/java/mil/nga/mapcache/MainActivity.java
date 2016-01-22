@@ -50,6 +50,11 @@ public class MainActivity extends Activity implements
     public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL = 201;
 
     /**
+     * Manager permissions request code for exporting a GeoPackage to external storage
+     */
+    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE = 202;
+
+    /**
      * Fragment managing the behaviors, interactions and presentation of the
      * navigation drawer.
      */
@@ -263,13 +268,15 @@ public class MainActivity extends Activity implements
                 break;
 
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
-                if(granted) {
-                    managerFragment.importGeoPackageExternalLinkAfterPermissionGranted();
-                }
+                managerFragment.importGeoPackageExternalLinkAfterPermissionGranted(granted);
                 break;
 
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
                 managerFragment.update(granted);
+                break;
+
+            case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                managerFragment.exportDatabaseAfterPermission(granted);
                 break;
         }
     }

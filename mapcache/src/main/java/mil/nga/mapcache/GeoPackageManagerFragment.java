@@ -1,14 +1,16 @@
 package mil.nga.mapcache;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
@@ -20,7 +22,11 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.DocumentsContract.Document;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -116,6 +122,11 @@ public class GeoPackageManagerFragment extends Fragment implements
     public static final int ACTIVITY_SHARE_FILE = 3343;
 
     /**
+     * Intent activity request code when opening app settings
+     */
+    public static final int ACTIVITY_APP_SETTINGS = 3344;
+
+    /**
      * Active GeoPackages
      */
     private GeoPackageDatabases active;
@@ -149,6 +160,31 @@ public class GeoPackageManagerFragment extends Fragment implements
      * Progress dialog for network operations
      */
     private ProgressDialog progressDialog;
+
+    /**
+     * Import external GeoPackage name holder when asking for external write permission
+     */
+    private String importExternalName;
+
+    /**
+     * Import external GeoPackage URI holder when asking for external write permission
+     */
+    private Uri importExternalUri;
+
+    /**
+     * Import external GeoPackage path holder when asking for external write permission
+     */
+    private String importExternalPath;
+
+    /**
+     * Export GeoPackage database name holder when asking for external write permission
+     */
+    private String exportDatabaseName;
+
+    /**
+     * Flag used to track the first time hidden external GeoPackages exist to warn the user
+     */
+    private boolean hiddenExternalWarning = true;
 
     /**
      * Constructor
@@ -193,6 +229,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         });
         elv.setAdapter(adapter);
 
+        update();
+
         return v;
     }
 
@@ -202,7 +240,6 @@ public class GeoPackageManagerFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        update();
     }
 
     /**
@@ -222,18 +259,73 @@ public class GeoPackageManagerFragment extends Fragment implements
      * Update the listing of databases and tables
      */
     public void update() {
-        databases = manager.databases();
+
+        // If there are no external GeoPackages or if we have external storage permission, update the database list with all GeoPackages
+        if (manager.externalCount() == 0 || ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            databases = manager.databases();
+            updateWithCurrentDatabaseList();
+        } else {
+            // Should we justify why we need permission?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(R.string.storage_access_rational_title)
+                        .setMessage(R.string.storage_access_rational_message)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Request permission
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            } else {
+                // Request permission
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL);
+            }
+        }
+
+    }
+
+    /**
+     * Update the listing of databases and tables, including external GeoPackages only if set to true
+     *
+     * @param includeExternal true to include external GeoPackages
+     */
+    public void update(boolean includeExternal) {
+
+        if (includeExternal) {
+            databases = manager.databases();
+        } else {
+            // We don't have permission to show external databases
+
+            showDisabledExternalGeoPackagesPermissionsDialog();
+            databases = manager.internalDatabases();
+
+            // Disable any active external databases
+            for(String externalDatabase: manager.externalDatabaseSet()) {
+                active.removeDatabase(externalDatabase, true);
+            }
+        }
+        updateWithCurrentDatabaseList();
+    }
+
+    /**
+     * Update the listing of databases and tables
+     */
+    private void updateWithCurrentDatabaseList() {
         databaseTables.clear();
         Iterator<String> databasesIterator = databases.iterator();
-        while(databasesIterator.hasNext()) {
+        while (databasesIterator.hasNext()) {
             String database = databasesIterator.next();
 
             // Delete any databases with invalid headers
-            if(!manager.validateHeader(database)){
-                if(manager.delete(database)){
+            if (!manager.validateHeader(database)) {
+                if (manager.delete(database)) {
                     databasesIterator.remove();
                 }
-            }else {
+            } else {
 
                 // Read the feature and tile tables from the GeoPackage
                 GeoPackage geoPackage = null;
@@ -276,13 +368,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                     databaseTables.add(tables);
                     geoPackage.close();
                 } catch (Exception e) {
-                    if(geoPackage != null){
+                    if (geoPackage != null) {
                         geoPackage.close();
                     }
 
                     // On exception, check the integrity of the database and delete if not valid
                     if (!manager.validateIntegrity(database)) {
-                        if(manager.delete(database)){
+                        if (manager.delete(database)) {
                             databasesIterator.remove();
                         }
                     }
@@ -291,6 +383,65 @@ public class GeoPackageManagerFragment extends Fragment implements
         }
 
         adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Show a disabled external GeoPackages permissions dialog when external GeoPackages exist that can not be accessed
+     */
+    private void showDisabledExternalGeoPackagesPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions and we haven't notified them that there are hidden GeoPackages
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) && hiddenExternalWarning) {
+            hiddenExternalWarning = false;
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_geopackage_access_title),
+                    getResources().getString(R.string.external_geopackage_access_message));
+        }
+    }
+
+    /**
+     * Show a disabled external export permissions dialog when external GeoPackages can not be exported
+     */
+    private void showDisabledExternalExportPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_export_geopackage_access_title),
+                    getResources().getString(R.string.external_export_geopackage_access_message));
+        }
+    }
+
+    /**
+     * Show a disabled external import permissions dialog when external GeoPackages can not be imported
+     */
+    private void showDisabledExternalImportPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_import_geopackage_access_title),
+                    getResources().getString(R.string.external_import_geopackage_access_message));
+        }
+    }
+
+    /**
+     * Show a disabled permissions dialog
+     *
+     * @param title
+     * @param message
+     */
+    private void showDisabledPermissionsDialog(String title, String message) {
+        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.settings, new Dialog.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setData(Uri.fromParts("package", getActivity().getPackageName(), null));
+                        startActivityForResult(intent, ACTIVITY_APP_SETTINGS);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     /**
@@ -310,7 +461,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         adapter.add(getString(R.string.geopackage_share_label));
         adapter.add(getString(R.string.geopackage_create_features_label));
         adapter.add(getString(R.string.geopackage_create_tiles_label));
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(database);
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -331,7 +482,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             copyDatabaseOption(database);
                             break;
                         case 4:
-                            exportDatabaseOption(database);
+                            exportDatabaseOptionCheckPermissions(database);
                             break;
                         case 5:
                             shareDatabaseOption(database);
@@ -386,7 +537,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         } finally {
             geoPackage.close();
         }
-        AlertDialog viewDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog viewDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(database)
                 .setPositiveButton(getString(R.string.button_ok_label),
 
@@ -420,7 +571,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param database
      */
     private void deleteDatabaseOption(final String database) {
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_delete_label))
                 .setMessage(
                         getString(R.string.geopackage_delete_label) + " "
@@ -458,7 +609,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         final EditText input = new EditText(getActivity());
         input.setText(database);
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_rename_label))
                 .setView(input)
                 .setPositiveButton(getString(R.string.button_ok_label),
@@ -515,7 +666,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         final EditText input = new EditText(getActivity());
         input.setText(database + getString(R.string.geopackage_copy_suffix));
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_copy_label))
                 .setView(input)
                 .setPositiveButton(getString(R.string.button_ok_label),
@@ -565,13 +716,42 @@ public class GeoPackageManagerFragment extends Fragment implements
      *
      * @param database
      */
+    private void exportDatabaseOptionCheckPermissions(final String database) {
+
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            exportDatabaseOption(database);
+        } else {
+            exportDatabaseName = database;
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE);
+        }
+
+    }
+
+    /**
+     * Export database option after given permission
+     *
+     * @param granted true if permission was granted
+     */
+    public void exportDatabaseAfterPermission(boolean granted){
+        if(granted) {
+            exportDatabaseOption(exportDatabaseName);
+        }else{
+            showDisabledExternalExportPermissionsDialog();
+        }
+    }
+
+    /**
+     * Export database option
+     *
+     * @param database
+     */
     private void exportDatabaseOption(final String database) {
 
         final File directory = Environment.getExternalStorageDirectory();
         final EditText input = new EditText(getActivity());
         input.setText(database);
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_export_label))
                 .setMessage(directory.getPath() + File.separator)
                 .setView(input)
@@ -778,7 +958,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View createFeaturesView = inflater.inflate(R.layout.create_features,
                 null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(createFeaturesView);
 
         final EditText nameInput = (EditText) createFeaturesView
@@ -890,7 +1070,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View createTilesView = inflater.inflate(R.layout.create_tiles, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(createTilesView);
 
         final EditText nameInput = (EditText) createTilesView
@@ -1114,7 +1294,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 throw new IllegalArgumentException("Unsupported table type: " + table.getType());
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(table.getDatabase() + " - " + table.getName());
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -1322,7 +1502,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         } finally {
             geoPackage.close();
         }
-        AlertDialog viewDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog viewDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(table.getDatabase() + " - " + tableName)
                 .setPositiveButton(getString(R.string.button_ok_label),
 
@@ -1360,7 +1540,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         }
 
         View editTableView = inflater.inflate(editTableViewId, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(editTableView);
 
         final EditText identifierInput = (EditText) editTableView
@@ -1635,7 +1815,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param table
      */
     private void deleteTableOption(final GeoPackageTable table) {
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_table_delete_label))
                 .setMessage(
                         getString(R.string.geopackage_table_delete_label) + " "
@@ -1696,7 +1876,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View loadTilesView = inflater.inflate(R.layout.load_tiles, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(loadTilesView);
 
         final EditText urlInput = (EditText) loadTilesView
@@ -1848,7 +2028,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         metadataIndexLabel += " " + getString(R.string.geopackage_table_index_features_index_metadata_label);
         adapter.add(metadataIndexLabel);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         builder.setTitle(table.getDatabase() + " - " + table.getName() + " "
                 + getString(R.string.geopackage_table_index_features_index_title));
         builder.setNegativeButton(getString(R.string.button_cancel_label),
@@ -1909,7 +2089,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 break;
         }
 
-        AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog indexDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_table_index_features_index_delete_label) + " "
                         + getString(R.string.geopackage_table_index_features_index_title))
                 .setMessage(message)
@@ -1960,7 +2140,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 break;
         }
 
-        AlertDialog indexDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog indexDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_table_index_features_index_create_label) + " "
                         + getString(R.string.geopackage_table_index_features_index_title))
                 .setMessage(message)
@@ -1995,7 +2175,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View createTilesView = inflater.inflate(R.layout.feature_tiles, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(createTilesView);
 
         final TextView indexWarning = (TextView) createTilesView
@@ -2270,7 +2450,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View createFeatureOverlayView = inflater.inflate(R.layout.create_feature_overlay, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(createFeatureOverlayView);
 
         final EditText nameInput = (EditText) createFeatureOverlayView
@@ -2364,10 +2544,10 @@ public class GeoPackageManagerFragment extends Fragment implements
             // Only default the max features if indexed, otherwise an unindexed feature table will
             // not show any tiles with features
             int maxFeatures = 0;
-            if(featureDao.getGeometryType() == GeometryType.POINT){
+            if (featureDao.getGeometryType() == GeometryType.POINT) {
                 maxFeatures = getActivity().getResources().getInteger(
                         R.integer.feature_tiles_overlay_max_points_per_tile_default);
-            }else {
+            } else {
                 maxFeatures = getActivity().getResources().getInteger(
                         R.integer.feature_tiles_overlay_max_features_per_tile_default);
             }
@@ -2491,7 +2671,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View editFeatureOverlayView = inflater.inflate(R.layout.edit_feature_overlay, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(editFeatureOverlayView);
 
         final TextView indexWarning = (TextView) editFeatureOverlayView
@@ -2763,7 +2943,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View importUrlView = inflater.inflate(R.layout.import_url, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(importUrlView);
 
         final EditText nameInput = (EditText) importUrlView
@@ -2781,7 +2961,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 adapter.addAll(getResources().getStringArray(
                         R.array.preloaded_geopackage_url_labels));
                 AlertDialog.Builder builder = new AlertDialog.Builder(
-                        getActivity());
+                        getActivity(), R.style.AppCompatAlertDialogStyle);
                 builder.setTitle(getString(R.string.import_url_preloaded_label));
                 builder.setAdapter(adapter,
                         new DialogInterface.OnClickListener() {
@@ -3038,6 +3218,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                 deleteCachedDatabaseFiles();
                 break;
 
+            case ACTIVITY_APP_SETTINGS:
+                update();
+                break;
+
             default:
                 handled = false;
         }
@@ -3079,7 +3263,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View importFileView = inflater.inflate(R.layout.import_file, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(importFileView);
 
         final EditText nameInput = (EditText) importFileView
@@ -3116,7 +3300,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                             importGeoPackage(value, uri, path);
                                         } else {
                                             // Import the GeoPackage by linking to the file
-                                            importGeoPackageExternalLink(value, uri, path);
+                                            importGeoPackageExternalLinkWithPermissions(value, uri, path);
                                         }
                                     } catch (final Exception e) {
                                         try {
@@ -3153,23 +3337,76 @@ public class GeoPackageManagerFragment extends Fragment implements
     }
 
     /**
-     * Import the GeoPackage by linking to the file
+     * Import the GeoPackage by linking to the file if write external storage permissions are granted, otherwise request permission
+     *
      * @param name
      * @param uri
      * @param path
      */
-    public void importGeoPackageExternalLink(final String name, final Uri uri, String path){
+    public void importGeoPackageExternalLinkWithPermissions(final String name, final Uri uri, String path) {
+
+        // Check for permission
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            importGeoPackageExternalLink(name, uri, path);
+        } else {
+
+            // Save off the values and ask for permission
+            importExternalName = name;
+            importExternalUri = uri;
+            importExternalPath = path;
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(R.string.storage_access_rational_title)
+                        .setMessage(R.string.storage_access_rational_message)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+            }
+        }
+
+    }
+
+    /**
+     * Import the GeoPackage by linking to the file after write external storage permission was granted
+     *
+     * @param granted
+     */
+    public void importGeoPackageExternalLinkAfterPermissionGranted(boolean granted) {
+        if(granted) {
+            importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
+        }else{
+            showDisabledExternalImportPermissionsDialog();
+        }
+    }
+
+    /**
+     * Import the GeoPackage by linking to the file
+     *
+     * @param name
+     * @param uri
+     * @param path
+     */
+    private void importGeoPackageExternalLink(final String name, final Uri uri, String path) {
 
         // Check if a database already exists with the name
-        if(manager.exists(name)){
+        if (manager.exists(name)) {
             // If the existing is not an external file, error
             boolean alreadyExistsError = !manager.isExternal(name);
-            if(!alreadyExistsError){
+            if (!alreadyExistsError) {
                 // If the existing external file has a different file path, error
                 File existingFile = manager.getFile(name);
                 alreadyExistsError = !(new File(path)).equals(existingFile);
             }
-            if(alreadyExistsError){
+            if (alreadyExistsError) {
                 try {
                     getActivity().runOnUiThread(
                             new Runnable() {
@@ -3184,7 +3421,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     // eat
                 }
             }
-        }else {
+        } else {
             // Import the GeoPackage by linking to the file
             boolean imported = manager
                     .importGeoPackageAsExternalLink(
@@ -3218,10 +3455,10 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param uri
      * @param path
      */
-    public void importGeoPackage(final String name, Uri uri, String path){
+    public void importGeoPackage(final String name, Uri uri, String path) {
 
         // Check if a database already exists with the name
-        if(manager.exists(name)) {
+        if (manager.exists(name)) {
             try {
                 getActivity().runOnUiThread(
                         new Runnable() {
@@ -3235,7 +3472,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             } catch (Exception e) {
                 // eat
             }
-        }else {
+        } else {
 
             ImportTask importTask = new ImportTask(name, path, uri);
             progressDialog = createImportProgressDialog(name,
@@ -3463,7 +3700,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         final EditText input = new EditText(getActivity());
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setTitle(getString(R.string.geopackage_create_label))
                 .setView(input)
                 .setPositiveButton(getString(R.string.button_ok_label),

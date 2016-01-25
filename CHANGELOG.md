@@ -4,6 +4,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## 1.7 (TBD)
+
+* TBD
+
 ## [1.6](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.6) (01-25-2016)
 
 * Android Marshmallow support (SDK version 23)

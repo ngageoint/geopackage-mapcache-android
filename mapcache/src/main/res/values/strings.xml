@@ -144,6 +144,9 @@
     <string name="geopackage_table_tiles_load_label">Load Tiles</string>
     <string name="geopackage_table_create_feature_tiles_label">Create Tiles</string>
     <string name="geopackage_table_add_feature_overlay_label">Add Tile Overlay</string>
+    <string name="geopackage_table_link_label">Linked Tables</string>
+    <string name="geopackage_table_link_features_list_title">Linked Feature Tables</string>
+    <string name="geopackage_table_link_tiles_list_title">Linked Tile Tables</string>
     <string name="geopackage_table_edit_feature_overlay_label">Edit Tile Overlay</string>
     <string name="geopackage_table_index_features_label">Feature Index</string>
     <string name="geopackage_table_index_features_index_title">Index</string>

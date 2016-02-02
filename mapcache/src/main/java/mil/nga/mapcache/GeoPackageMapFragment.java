@@ -82,6 +82,8 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.extension.link.FeatureTileLink;
+import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -110,6 +112,7 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.MapFeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.overlay.BoundedOverlay;
 import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
 import mil.nga.geopackage.tiles.overlay.FeatureOverlayQuery;
 import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
@@ -1010,7 +1013,7 @@ public class GeoPackageMapFragment extends Fragment implements
         visible = !hidden;
 
         // If my location did not have permissions to update and the map is becoming visible, ask for permission
-        if(!setMyLocationEnabled() && visible){
+        if (!setMyLocationEnabled() && visible) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setTitle(R.string.location_access_rational_title)
@@ -1039,11 +1042,12 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Set the my location enabled state on the map if permission has been granted
+     *
      * @return true if updated, false if permission is required
      */
-    public boolean setMyLocationEnabled(){
+    public boolean setMyLocationEnabled() {
         boolean updated = false;
-        if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.setMyLocationEnabled(visible);
             updated = true;
         }
@@ -2150,13 +2154,45 @@ public class GeoPackageMapFragment extends Fragment implements
 
         TileDao tileDao = geoPackage.getTileDao(tiles.getName());
 
-        TileProvider overlay = GeoPackageOverlayFactory
-                .getTileProvider(tileDao);
+        BoundedOverlay overlay = GeoPackageOverlayFactory
+                .getBoundedOverlay(tileDao);
 
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
         Contents contents = tileMatrixSet.getContents();
 
-        displayTiles(overlay, contents, -2, null);
+        FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
+        List<FeatureTileLink> linkedFeatureTables = linker.queryForTileTable(tileDao.getTableName());
+        for (FeatureTileLink link : linkedFeatureTables) {
+
+            // Get a feature DAO and create the feature tiles
+            FeatureDao featureDao = geoPackage.getFeatureDao(link.getFeatureTableName());
+            FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
+
+            // Create an index manager
+            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+            featureTiles.setIndexManager(indexer);
+
+            // Set the location and zoom bounds
+            overlay.setBoundingBox(tileDao.getBoundingBox(), tileDao.getProjection());
+            overlay.setMinZoom((int) tileDao.getMinZoom());
+            overlay.setMaxZoom((int) tileDao.getMaxZoom());
+
+            featureOverlayTiles = true;
+
+            // Add the feature overlay query
+            FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
+            featureOverlayQueries.add(featureOverlayQuery);
+        }
+
+        // Set the tiles index to be -2 of it is behind features and tiles drawn from features
+        int zIndex = -2;
+
+        // If these tiles are linked to features, set the zIndex to -1 so they are placed before imagery tiles
+        if (!linkedFeatureTables.isEmpty()) {
+            zIndex = -1;
+        }
+
+        displayTiles(overlay, contents, zIndex, null);
     }
 
     /**
@@ -2666,18 +2702,18 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onMapClick(LatLng point) {
 
-        if(!featureOverlayQueries.isEmpty()) {
+        if (!featureOverlayQueries.isEmpty()) {
             StringBuilder clickMessage = new StringBuilder();
             for (FeatureOverlayQuery query : featureOverlayQueries) {
                 String message = query.buildMapClickMessage(point, view, map);
-                if(message != null){
-                    if(clickMessage.length() > 0){
+                if (message != null) {
+                    if (clickMessage.length() > 0) {
                         clickMessage.append("\n\n");
                     }
                     clickMessage.append(message);
                 }
             }
-            if(clickMessage.length() > 0){
+            if (clickMessage.length() > 0) {
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setMessage(clickMessage.toString())
                         .setPositiveButton(android.R.string.yes,
@@ -3874,14 +3910,15 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Get the GeoPackage databases. If external storage permissions granted get all, if not get only internal
+     *
      * @return
      */
-    private List<String> getDatabases(){
+    private List<String> getDatabases() {
         List<String> databases = null;
 
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             databases = manager.databases();
-        }else{
+        } else {
             databases = manager.internalDatabases();
         }
 

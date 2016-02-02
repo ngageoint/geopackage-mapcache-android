@@ -41,6 +41,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -54,8 +55,10 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -66,6 +69,9 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.extension.Extensions;
+import mil.nga.geopackage.extension.link.FeatureTileLink;
+import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -304,7 +310,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             databases = manager.internalDatabases();
 
             // Disable any active external databases
-            for(String externalDatabase: manager.externalDatabaseSet()) {
+            for (String externalDatabase : manager.externalDatabaseSet()) {
                 active.removeDatabase(externalDatabase, true);
             }
         }
@@ -732,10 +738,10 @@ public class GeoPackageManagerFragment extends Fragment implements
      *
      * @param granted true if permission was granted
      */
-    public void exportDatabaseAfterPermission(boolean granted){
-        if(granted) {
+    public void exportDatabaseAfterPermission(boolean granted) {
+        if (granted) {
             exportDatabaseOption(exportDatabaseName);
-        }else{
+        } else {
             showDisabledExternalExportPermissionsDialog();
         }
     }
@@ -1281,10 +1287,12 @@ public class GeoPackageManagerFragment extends Fragment implements
                 adapter.add(getString(R.string.geopackage_table_index_features_label));
                 adapter.add(getString(R.string.geopackage_table_create_feature_tiles_label));
                 adapter.add(getString(R.string.geopackage_table_add_feature_overlay_label));
+                adapter.add(getString(R.string.geopackage_table_link_label));
                 break;
 
             case TILE:
                 adapter.add(getString(R.string.geopackage_table_tiles_load_label));
+                adapter.add(getString(R.string.geopackage_table_link_label));
                 break;
 
             case FEATURE_OVERLAY:
@@ -1347,6 +1355,9 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 case FEATURE:
                                     createFeatureTilesTableOption(table);
                                     break;
+                                case TILE:
+                                    linkTableOption(table);
+                                    break;
                             }
                             break;
                         case 5:
@@ -1356,7 +1367,13 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     break;
                             }
                             break;
-
+                        case 6:
+                            switch (table.getType()) {
+                                case FEATURE:
+                                    linkTableOption(table);
+                                    break;
+                            }
+                            break;
                         default:
                     }
                 }
@@ -2661,6 +2678,137 @@ public class GeoPackageManagerFragment extends Fragment implements
         dialog.show();
     }
 
+    /**
+     * Link table option
+     *
+     * @param table
+     */
+    private void linkTableOption(final GeoPackageTable table) {
+
+        // Get a feature tile table linker
+        GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+        GeoPackage geoPackage = manager.open(table.getDatabase());
+        FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
+
+        // Get the tables that can be linked and the currently linked tables
+        final List<String> tables = new ArrayList<>();
+        List<FeatureTileLink> linkedTables = null;
+        switch (table.getType()) {
+            case FEATURE:
+                tables.addAll(geoPackage.getTileTables());
+                linkedTables = linker.queryForFeatureTable(table.getName());
+                break;
+            case TILE:
+                tables.addAll(geoPackage.getFeatureTables());
+                linkedTables = linker.queryForTileTable(table.getName());
+                break;
+            default:
+                throw new GeoPackageException("Unexpected table type: " + table.getType());
+        }
+
+        // Close the GeoPackage
+        geoPackage.close();
+
+        // Build a set of currently linked tables
+        final Set<String> linkedTableSet = new HashSet<>();
+        for(FeatureTileLink link: linkedTables){
+            switch(table.getType()) {
+                case FEATURE:
+                    linkedTableSet.add(link.getTileTableName());
+                    break;
+                case TILE:
+                    linkedTableSet.add(link.getFeatureTableName());
+                    break;
+            }
+        }
+
+        // Maintain a copy of the linked tables before changes get made
+        final Set<String> originalLinkedTableSet = new HashSet<>();
+        originalLinkedTableSet.addAll(linkedTableSet);
+
+        // Build the list adapter for selecting linked tables
+        TableLinkAdapter linkAdapter = new TableLinkAdapter(getActivity(),
+                R.layout.table_link_row, tables, linkedTableSet);
+        View tableLinkView = inflater.inflate(R.layout.table_link, null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        dialog.setView(tableLinkView);
+        TextView titleTextView = (TextView) tableLinkView.findViewById(R.id.tableLinkTitleTextView);
+        switch (table.getType()) {
+            case FEATURE:
+                titleTextView.setText(getString(R.string.geopackage_table_link_tiles_list_title));
+                break;
+            case TILE:
+                titleTextView.setText(getString(R.string.geopackage_table_link_features_list_title));
+                break;
+        }
+        ListView listView = (ListView) tableLinkView.findViewById(R.id.tableLinkListView);
+        listView.setAdapter(linkAdapter);
+
+        dialog.setPositiveButton(getString(R.string.button_ok_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        // Determine which links exist that were unchecked
+                        Set<String> removedLinks = new HashSet<>();
+                        removedLinks.addAll(originalLinkedTableSet);
+                        removedLinks.removeAll(linkedTableSet);
+
+                        // Determine which links were newly checked
+                        Set<String> newLinks = new HashSet<>();
+                        newLinks.addAll(linkedTableSet);
+                        newLinks.removeAll(originalLinkedTableSet);
+
+                        // Check if we need to unlink or linke tables
+                        if(!removedLinks.isEmpty() || !newLinks.isEmpty()){
+
+                            // Create a linker
+                            GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+                            GeoPackage geoPackage = manager.open(table.getDatabase());
+                            FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
+
+                            // Delete links
+                            for(String removedLink: removedLinks){
+                                switch(table.getType()) {
+                                    case FEATURE:
+                                        linker.deleteLink(table.getName(), removedLink);
+                                        break;
+                                    case TILE:
+                                        linker.deleteLink(removedLink, table.getName());
+                                        break;
+                                }
+                            }
+
+                            // Create links
+                            for(String newLink: newLinks){
+                                switch(table.getType()) {
+                                    case FEATURE:
+                                        linker.link(table.getName(), newLink);
+                                        break;
+                                    case TILE:
+                                        linker.link(newLink, table.getName());
+                                        break;
+                                }
+                            }
+
+                            // Close the GeoPackage and mark as changes made
+                            geoPackage.close();
+                            active.setModified(true);
+                        }
+
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        dialog.show();
+
+    }
 
     /**
      * Add feature overlay table option
@@ -3381,9 +3529,9 @@ public class GeoPackageManagerFragment extends Fragment implements
      * @param granted
      */
     public void importGeoPackageExternalLinkAfterPermissionGranted(boolean granted) {
-        if(granted) {
+        if (granted) {
             importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
-        }else{
+        } else {
             showDisabledExternalImportPermissionsDialog();
         }
     }
@@ -3910,6 +4058,66 @@ public class GeoPackageManagerFragment extends Fragment implements
         @Override
         public boolean isChildSelectable(int i, int j) {
             return true;
+        }
+
+    }
+
+    /**
+     * Table Link Adapter for displaying linkable tables
+     */
+    private class TableLinkAdapter extends ArrayAdapter<String> {
+
+        /**
+         * Set of currently linked tables
+         */
+        private final Set<String> linkedTables;
+
+        /**
+         * Constructor
+         * @param context
+         * @param textViewResourceId
+         * @param tables tables that can be linked
+         * @param linkedTables set of currently linked tables
+         */
+        public TableLinkAdapter(Context context, int resource,
+                                List<String> tables,
+                                Set<String> linkedTables) {
+            super(context, resource, tables);
+            this.linkedTables = linkedTables;
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup parent) {
+
+            if (view == null) {
+                view = inflater.inflate(R.layout.table_link_row, null);
+            }
+
+            final String linkTable = getItem(position);
+
+            CheckBox checkBox = (CheckBox) view
+                    .findViewById(R.id.table_link_row_checkbox);
+            TextView tableName = (TextView) view
+                    .findViewById(R.id.table_link_row_name);
+
+            // Add or remove the table from being clicked on checkbox changes
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView,
+                                             boolean isChecked) {
+                    if(isChecked){
+                        linkedTables.add(linkTable);
+                    }else{
+                        linkedTables.remove(linkTable);
+                    }
+                }
+            });
+
+            // Set the initial values
+            checkBox.setChecked(linkedTables.contains(linkTable));
+            tableName.setText(linkTable);
+
+            return view;
         }
 
     }

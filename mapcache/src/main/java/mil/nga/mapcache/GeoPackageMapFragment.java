@@ -82,7 +82,6 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.extension.link.FeatureTileLink;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -2161,21 +2160,15 @@ public class GeoPackageMapFragment extends Fragment implements
         Contents contents = tileMatrixSet.getContents();
 
         FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
-        List<FeatureTileLink> linkedFeatureTables = linker.queryForTileTable(tileDao.getTableName());
-        for (FeatureTileLink link : linkedFeatureTables) {
+        List<FeatureDao> featureDaos = linker.getFeatureDaosForTileTable(tileDao.getTableName());
+        for (FeatureDao featureDao : featureDaos) {
 
-            // Get a feature DAO and create the feature tiles
-            FeatureDao featureDao = geoPackage.getFeatureDao(link.getFeatureTableName());
+            // Create the feature tiles
             FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
 
             // Create an index manager
             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
             featureTiles.setIndexManager(indexer);
-
-            // Set the location and zoom bounds
-            overlay.setBoundingBox(tileDao.getBoundingBox(), tileDao.getProjection());
-            overlay.setMinZoom((int) tileDao.getMinZoom());
-            overlay.setMaxZoom((int) tileDao.getMaxZoom());
 
             featureOverlayTiles = true;
 
@@ -2188,7 +2181,7 @@ public class GeoPackageMapFragment extends Fragment implements
         int zIndex = -2;
 
         // If these tiles are linked to features, set the zIndex to -1 so they are placed before imagery tiles
-        if (!linkedFeatureTables.isEmpty()) {
+        if (!featureDaos.isEmpty()) {
             zIndex = -1;
         }
 
@@ -2252,6 +2245,10 @@ public class GeoPackageMapFragment extends Fragment implements
         overlay.setBoundingBox(boundingBox, ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
         overlay.setMinZoom(featureOverlayTable.getMinZoom());
         overlay.setMaxZoom(featureOverlayTable.getMaxZoom());
+
+        FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
+        List<TileDao> tileDaos = linker.getTileDaosForFeatureTable(featureDao.getTableName());
+        overlay.ignoreTileDaos(tileDaos);
 
         GeometryColumns geometryColumns = featureDao.getGeometryColumns();
         Contents contents = geometryColumns.getContents();

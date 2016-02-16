@@ -6,7 +6,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.8 (TBD)
 
-* TBD
+* Table linking improvements when displaying a tile table linked to a feature table
+* Ignore drawing Feature Overlay tiles that exist in linked tile tables
+* geopackage-android version updated to 1.2.6
 
 ## [1.7](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.7) (02-02-2016)
 

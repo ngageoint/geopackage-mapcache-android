@@ -69,7 +69,6 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.link.FeatureTileLink;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
@@ -4075,7 +4074,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         /**
          * Constructor
          * @param context
-         * @param textViewResourceId
+         * @param resource
          * @param tables tables that can be linked
          * @param linkedTables set of currently linked tables
          */

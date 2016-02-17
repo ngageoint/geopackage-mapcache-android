@@ -244,6 +244,8 @@ public class FileUtils {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
+        } catch (Exception e) {
+            Log.w(TAG, "Error getting data column", e);
         } finally {
             if (cursor != null)
                 cursor.close();

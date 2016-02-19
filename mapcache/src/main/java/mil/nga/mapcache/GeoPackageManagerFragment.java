@@ -69,7 +69,6 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.Extensions;
 import mil.nga.geopackage.extension.link.FeatureTileLink;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
@@ -322,6 +321,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private void updateWithCurrentDatabaseList() {
         databaseTables.clear();
+        StringBuilder errorMessage = new StringBuilder();
         Iterator<String> databasesIterator = databases.iterator();
         while (databasesIterator.hasNext()) {
             String database = databasesIterator.next();
@@ -334,58 +334,113 @@ public class GeoPackageManagerFragment extends Fragment implements
             } else {
 
                 // Read the feature and tile tables from the GeoPackage
+                List<Exception> exceptions = new ArrayList<>();
                 GeoPackage geoPackage = null;
+                List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
                 try {
                     geoPackage = manager.open(database);
-                    List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
                     ContentsDao contentsDao = geoPackage.getContentsDao();
-                    for (String tableName : geoPackage.getFeatureTables()) {
-                        FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
-                        int count = featureDao.count();
 
-                        GeometryType geometryType = null;
+                    List<String> featureTables = null;
+                    try {
+                        featureTables = geoPackage.getFeatureTables();
+                    }catch(Exception e){
+                        exceptions.add(e);
+                    }
+                    if(featureTables != null) {
                         try {
-                            Contents contents = contentsDao.queryForId(tableName);
-                            GeometryColumns geometryColumns = contents
-                                    .getGeometryColumns();
-                            geometryType = geometryColumns.getGeometryType();
-                        } catch (Exception e) {
-                        }
+                            for (String tableName : featureTables) {
+                                FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
+                                int count = featureDao.count();
 
-                        GeoPackageTable table = new GeoPackageFeatureTable(database,
-                                tableName, geometryType, count);
-                        table.setActive(active.exists(table));
-                        tables.add(table);
+                                GeometryType geometryType = null;
+                                try {
+                                    Contents contents = contentsDao.queryForId(tableName);
+                                    GeometryColumns geometryColumns = contents
+                                            .getGeometryColumns();
+                                    geometryType = geometryColumns.getGeometryType();
+                                } catch (Exception e) {
+                                }
+
+                                GeoPackageTable table = new GeoPackageFeatureTable(database,
+                                        tableName, geometryType, count);
+                                table.setActive(active.exists(table));
+                                tables.add(table);
+                            }
+                        }catch(Exception e){
+                            exceptions.add(e);
+                        }
                     }
-                    for (String tableName : geoPackage.getTileTables()) {
-                        TileDao tileDao = geoPackage.getTileDao(tableName);
-                        int count = tileDao.count();
-                        GeoPackageTable table = new GeoPackageTileTable(database,
-                                tableName, count);
-                        table.setActive(active.exists(table));
-                        tables.add(table);
+
+                    List<String> tileTables = null;
+                    try {
+                        tileTables = geoPackage.getTileTables();
+                    }catch(Exception e){
+                        exceptions.add(e);
                     }
+                    if(tileTables != null) {
+                        try {
+                            for (String tableName : tileTables) {
+                                TileDao tileDao = geoPackage.getTileDao(tableName);
+                                int count = tileDao.count();
+                                GeoPackageTable table = new GeoPackageTileTable(database,
+                                        tableName, count);
+                                table.setActive(active.exists(table));
+                                tables.add(table);
+                            }
+                        }catch(Exception e){
+                            exceptions.add(e);
+                        }
+                    }
+
                     for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
-                        FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-                        int count = featureDao.count();
-                        table.setCount(count);
-                        tables.add(table);
+                        try {
+                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
+                            int count = featureDao.count();
+                            table.setCount(count);
+                            tables.add(table);
+                        }catch(Exception e){
+                            exceptions.add(e);
+                        }
                     }
-                    databaseTables.add(tables);
-                    geoPackage.close();
+
                 } catch (Exception e) {
-                    if (geoPackage != null) {
-                        geoPackage.close();
-                    }
+                    exceptions.add(e);
+                }
+
+                if (geoPackage != null) {
+                    geoPackage.close();
+                }
+
+                if(exceptions.isEmpty()){
+                    databaseTables.add(tables);
+                }else{
 
                     // On exception, check the integrity of the database and delete if not valid
-                    if (!manager.validateIntegrity(database)) {
-                        if (manager.delete(database)) {
-                            databasesIterator.remove();
-                        }
+                    if (!manager.validateIntegrity(database) && manager.delete(database)) {
+                        databasesIterator.remove();
+                    }else{
+                        databaseTables.add(tables);
+                    }
+
+                    if(errorMessage.length() > 0){
+                        errorMessage.append("\n\n\n");
+                    }
+                    errorMessage.append(database).append(" Errors:");
+                    for(Exception exception: exceptions){
+                        errorMessage.append("\n\n");
+                        errorMessage.append(exception.getMessage());
                     }
                 }
             }
+        }
+
+        if(errorMessage.length() > 0){
+            GeoPackageUtils
+                    .showMessage(
+                            getActivity(),
+                            "GeoPackage Errors",
+                            errorMessage.toString());
         }
 
         adapter.notifyDataSetChanged();
@@ -538,7 +593,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 addSrs(databaseInfo, srs);
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             databaseInfo.append(e.getMessage());
         } finally {
             geoPackage.close();
@@ -4075,7 +4130,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         /**
          * Constructor
          * @param context
-         * @param textViewResourceId
+         * @param resource
          * @param tables tables that can be linked
          * @param linkedTables set of currently linked tables
          */

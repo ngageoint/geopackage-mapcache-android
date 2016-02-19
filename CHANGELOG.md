@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.8 (TBD)
+## [1.8](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.8) (02-19-2016)
 
 * Table linking improvements when displaying a tile table linked to a feature table
 * Ignore drawing Feature Overlay tiles that exist in linked tile tables

@@ -5,12 +5,14 @@ def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_K
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "mil.nga.mapcache"
         minSdkVersion 17
         targetSdkVersion 23
+        versionCode 10
+        versionName '1.9'
     }
 
     signingConfigs {
@@ -44,7 +46,7 @@ android {
 }
 
 dependencies {
-    compile "mil.nga.geopackage:geopackage-android:1.2.6" // comment out to build locally
+    compile "mil.nga.geopackage:geopackage-android:1.2.7" // comment out to build locally
     //compile project(':geopackage-sdk') // uncomment me to build locally
     compile 'com.google.android.gms:play-services:8.4.0'
 }

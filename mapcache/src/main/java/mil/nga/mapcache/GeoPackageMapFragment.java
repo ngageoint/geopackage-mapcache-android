@@ -62,6 +62,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -106,6 +107,8 @@ import mil.nga.geopackage.geom.map.ShapeWithChildrenMarkers;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.schema.columns.DataColumns;
+import mil.nga.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.MapFeatureTiles;
@@ -2927,10 +2930,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     if (item >= 0) {
                         switch (item) {
                             case 0:
-                                infoExistingFeatureOption(featureRow, title, geomData);
-                                if (geoPackage != null) {
-                                    geoPackage.close();
-                                }
+                                infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
                                 break;
                             case 1:
                                 tempEditFeatureMarker = marker;
@@ -2995,22 +2995,36 @@ public class GeoPackageMapFragment extends Fragment implements
                     .getGeometryType();
 
             String title = getTitle(geometryType, marker);
-            infoExistingFeatureOption(featureRow, title, geomData);
-
+            infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
+        }else {
+            geoPackage.close();
         }
-        geoPackage.close();
     }
 
     /**
      * Info existing feature option
      *
+     * @param geoPackage
      * @param featureRow
      * @param title
      * @param geomData
      */
-    private void infoExistingFeatureOption(FeatureRow featureRow,
+    private void infoExistingFeatureOption(final GeoPackage geoPackage,
+                                           FeatureRow featureRow,
                                            String title,
                                            GeoPackageGeometryData geomData) {
+
+        DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+        try {
+            if(!dataColumnsDao.isTableExists()){
+                dataColumnsDao = null;
+            }
+        } catch (SQLException e) {
+            dataColumnsDao = null;
+            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                    "Failed to check if Data Columns table exists for GeoPackage: "
+                            + geoPackage.getName(), e);
+        }
 
         StringBuilder message = new StringBuilder();
         int geometryColumn = featureRow.getGeometryColumnIndex();
@@ -3018,11 +3032,28 @@ public class GeoPackageMapFragment extends Fragment implements
             if (i != geometryColumn) {
                 Object value = featureRow.getValue(i);
                 if (value != null) {
-                    message.append(featureRow.getColumn(i).getName()).append(": ");
+                    String columnName = featureRow.getColumn(i).getName();
+                    if(dataColumnsDao != null) {
+                        try {
+                            DataColumns dataColumn = dataColumnsDao.getDataColumn(featureRow.getTable().getTableName(), columnName);
+                            if (dataColumn != null) {
+                                columnName = dataColumn.getName();
+                            }
+                        } catch (SQLException e) {
+                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                    "Failed to search for Data Column name for column: " + columnName
+                                            + ", Feature Table: " + featureRow.getTable().getTableName()
+                                            + ", GeoPackage: " + geoPackage.getName(), e);
+                        }
+                    }
+                    message.append(columnName).append(": ");
                     message.append(value);
                     message.append("\n");
                 }
             }
+        }
+        if (geoPackage != null) {
+            geoPackage.close();
         }
 
         if (message.length() > 0) {

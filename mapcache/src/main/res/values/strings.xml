@@ -207,6 +207,7 @@
     <string name="button_cancel_label">Cancel</string>
 
     <string-array name="preloaded_geopackage_url_labels">
+        <item>Natural Earth Rivers</item>
         <item>GDAL Sample</item>
         <item>Simple Sewers</item>
         <item>Haiti</item>
@@ -214,6 +215,7 @@
         <item>ERDC Whitehorse</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
+        <item>http://ngageoint.github.io/GeoPackage/examples/rivers.gpkg</item>
         <item>http://www.geopackage.org/data/gdal_sample.gpkg</item>
         <item>http://www.geopackage.org/data/simple_sewer_features.gpkg</item>
         <item>http://www.geopackage.org/data/haiti-vectors-split.gpkg</item>
@@ -221,6 +223,7 @@
         <item>https://portal.opengeospatial.org/files/63156</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
+        <item>rivers</item>
         <item>gdal_sample</item>
         <item>simple_sewer_features</item>
         <item>haiti-vectors-split</item>

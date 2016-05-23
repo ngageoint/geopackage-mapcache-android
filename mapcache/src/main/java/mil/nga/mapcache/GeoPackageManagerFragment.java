@@ -1245,7 +1245,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 try {
                                     // Create the web mercator srs if needed
                                     SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
-                                    srsDao.getOrCreate(ProjectionConstants.EPSG_WEB_MERCATOR);
+                                    srsDao.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
                                     // Create the tile table
                                     geoPackage.createTileTableWithMetadata(
                                             tableName, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,

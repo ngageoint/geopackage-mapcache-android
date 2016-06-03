@@ -246,7 +246,7 @@
         <item>nowCOAST</item>
     </string-array>
     <string-array name="preloaded_tile_urls">
-        <item>http://osm.geointapps.org/osm/{z}/{x}/{y}.png</item>
+        <item>http://osm.geointservices.io/osm_tiles/{z}/{x}/{y}.png</item>
         <item>http://a.tile.openstreetmap.org/{z}/{x}/{y}.png</item>
         <item>http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png</item>
         <item>http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png</item>

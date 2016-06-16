@@ -14,13 +14,18 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.mapcache.GeoPackageUtils;
-import mil.nga.mapcache.R;
-import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.geopackage.projection.Projection;
+import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.projection.ProjectionFactory;
+import mil.nga.geopackage.projection.ProjectionTransform;
+import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
+import mil.nga.mapcache.GeoPackageUtils;
+import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabases;
 
 /**
  * Load tiles task
@@ -45,18 +50,22 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      * @param compressQuality
      * @param googleTiles
      * @param boundingBox
+     * @param epsg
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, String database, String tableName,
                                  String tileUrl, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
-                                 boolean googleTiles, BoundingBox boundingBox) {
+                                 boolean googleTiles, BoundingBox boundingBox, long epsg) {
 
         GeoPackageManager manager = GeoPackageFactory.getManager(activity);
         GeoPackage geoPackage = manager.open(database);
 
+        Projection projection = ProjectionFactory.getProjection(epsg);
+        BoundingBox bbox = transform(boundingBox, projection);
+
         TileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
-                tableName, tileUrl, minZoom, maxZoom);
+                tableName, tileUrl, minZoom, maxZoom, bbox, projection);
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, googleTiles, boundingBox);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
@@ -77,20 +86,45 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      * @param compressQuality
      * @param googleTiles
      * @param boundingBox
+     * @param epsg
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, GeoPackage geoPackage, String tableName,
                                  FeatureTiles featureTiles, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
-                                 boolean googleTiles, BoundingBox boundingBox) {
+                                 boolean googleTiles, BoundingBox boundingBox, long epsg) {
 
         GeoPackageUtils.prepareFeatureTiles(featureTiles);
 
+        Projection projection = ProjectionFactory.getProjection(epsg);
+        BoundingBox bbox = transform(boundingBox, projection);
+
         TileGenerator tileGenerator = new FeatureTileGenerator(activity, geoPackage,
-                tableName, featureTiles, minZoom, maxZoom);
+                tableName, featureTiles, minZoom, maxZoom, bbox, projection);
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, googleTiles, boundingBox);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
+    }
+
+    /**
+     * Transform the WGS84 bounding box to the provided projection
+     *
+     * @param boundingBox bounding box in WGS84
+     * @param projection  projection
+     * @return projected bounding box
+     */
+    public static BoundingBox transform(BoundingBox boundingBox, Projection projection) {
+
+        BoundingBox transformedBox = boundingBox;
+
+        if (projection.getEpsg() != ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+            BoundingBox bounded = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+            Projection wgs84 = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            ProjectionTransform transform = wgs84.getTransformation(projection);
+            transformedBox = transform.transform(bounded);
+        }
+
+        return transformedBox;
     }
 
     /**
@@ -119,7 +153,6 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
 
         tileGenerator.setCompressFormat(compressFormat);
         tileGenerator.setCompressQuality(compressQuality);
-        tileGenerator.setTileBoundingBox(boundingBox);
         tileGenerator.setGoogleTiles(googleTiles);
     }
 

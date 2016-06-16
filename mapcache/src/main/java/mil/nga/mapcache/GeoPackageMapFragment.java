@@ -3258,6 +3258,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.create_tiles_name_input);
         final EditText urlInput = (EditText) createTilesView
                 .findViewById(R.id.load_tiles_url_input);
+        final EditText epsgInput = (EditText) createTilesView
+                .findViewById(R.id.load_tiles_epsg_input);
         final Button preloadedUrlsButton = (Button) createTilesView
                 .findViewById(R.id.load_tiles_preloaded);
         final EditText minZoomInput = (EditText) createTilesView
@@ -3324,7 +3326,7 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
+                maxZoomInput, preloadedUrlsButton, nameInput, urlInput, epsgInput,
                 compressFormatInput, compressQualityInput, setZooms,
                 maxFeaturesLabel, maxFeaturesInput, false, false);
 
@@ -3379,6 +3381,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                 + " is required");
                             }
                             String tileUrl = urlInput.getText().toString();
+                            long epsg = Long.valueOf(epsgInput.getText().toString());
                             int minZoom = Integer.valueOf(minZoomInput
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
@@ -3437,7 +3440,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     GeoPackageMapFragment.this, active,
                                     database, tableName, tileUrl, minZoom,
                                     maxZoom, compressFormat, compressQuality,
-                                    googleTiles, boundingBox);
+                                    googleTiles, boundingBox, epsg);
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -3629,7 +3632,7 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackage.close();
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, null, nameInput, null,
+                maxZoomInput, null, nameInput, null, null,
                 compressFormatInput, compressQualityInput, setZooms,
                 maxFeaturesLabel, maxFeaturesInput, true, indexed);
 
@@ -3797,7 +3800,8 @@ public class GeoPackageMapFragment extends Fragment implements
                                     geoPackage, tableName, featureTiles, minZoom,
                                     maxZoom, compressFormat,
                                     compressQuality, googleTiles,
-                                    boundingBox);
+                                    boundingBox,
+                                    ProjectionConstants.EPSG_WEB_MERCATOR);
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(

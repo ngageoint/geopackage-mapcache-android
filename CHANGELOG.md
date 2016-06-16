@@ -7,6 +7,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 1.12 (TBD)
 
 * geopackage-android version updated to 1.3.0
+* EPSG field and default settings for loading tiles from a URL
+* Preloaded tile URL updates
 
 ## [1.11](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.11) (05-10-2016)
 

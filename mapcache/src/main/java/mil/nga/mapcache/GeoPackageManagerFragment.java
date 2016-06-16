@@ -52,7 +52,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -344,10 +343,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                     List<String> featureTables = null;
                     try {
                         featureTables = geoPackage.getFeatureTables();
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         exceptions.add(e);
                     }
-                    if(featureTables != null) {
+                    if (featureTables != null) {
                         try {
                             for (String tableName : featureTables) {
                                 FeatureDao featureDao = geoPackage.getFeatureDao(tableName);
@@ -367,7 +366,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 table.setActive(active.exists(table));
                                 tables.add(table);
                             }
-                        }catch(Exception e){
+                        } catch (Exception e) {
                             exceptions.add(e);
                         }
                     }
@@ -375,10 +374,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                     List<String> tileTables = null;
                     try {
                         tileTables = geoPackage.getTileTables();
-                    }catch(Exception e){
+                    } catch (Exception e) {
                         exceptions.add(e);
                     }
-                    if(tileTables != null) {
+                    if (tileTables != null) {
                         try {
                             for (String tableName : tileTables) {
                                 TileDao tileDao = geoPackage.getTileDao(tableName);
@@ -388,7 +387,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 table.setActive(active.exists(table));
                                 tables.add(table);
                             }
-                        }catch(Exception e){
+                        } catch (Exception e) {
                             exceptions.add(e);
                         }
                     }
@@ -399,7 +398,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             int count = featureDao.count();
                             table.setCount(count);
                             tables.add(table);
-                        }catch(Exception e){
+                        } catch (Exception e) {
                             exceptions.add(e);
                         }
                     }
@@ -412,22 +411,22 @@ public class GeoPackageManagerFragment extends Fragment implements
                     geoPackage.close();
                 }
 
-                if(exceptions.isEmpty()){
+                if (exceptions.isEmpty()) {
                     databaseTables.add(tables);
-                }else{
+                } else {
 
                     // On exception, check the integrity of the database and delete if not valid
                     if (!manager.validateIntegrity(database) && manager.delete(database)) {
                         databasesIterator.remove();
-                    }else{
+                    } else {
                         databaseTables.add(tables);
                     }
 
-                    if(errorMessage.length() > 0){
+                    if (errorMessage.length() > 0) {
                         errorMessage.append("\n\n\n");
                     }
                     errorMessage.append(database).append(" Errors:");
-                    for(Exception exception: exceptions){
+                    for (Exception exception : exceptions) {
                         errorMessage.append("\n\n");
                         errorMessage.append(exception.getMessage());
                     }
@@ -435,7 +434,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             }
         }
 
-        if(errorMessage.length() > 0){
+        if (errorMessage.length() > 0) {
             GeoPackageUtils
                     .showMessage(
                             getActivity(),
@@ -1138,6 +1137,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.create_tiles_name_input);
         final EditText urlInput = (EditText) createTilesView
                 .findViewById(R.id.load_tiles_url_input);
+        final EditText epsgInput = (EditText) createTilesView
+                .findViewById(R.id.load_tiles_epsg_input);
         final Button preloadedUrlsButton = (Button) createTilesView
                 .findViewById(R.id.load_tiles_preloaded);
         final EditText minZoomInput = (EditText) createTilesView
@@ -1171,7 +1172,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         preloadedLocationsButton);
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, preloadedUrlsButton, nameInput, urlInput,
+                maxZoomInput, preloadedUrlsButton, nameInput, urlInput, epsgInput,
                 compressFormatInput, compressQualityInput, true,
                 maxFeaturesLabel, maxFeaturesInput, false, false);
 
@@ -1191,6 +1192,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                                 + " is required");
                             }
                             String tileUrl = urlInput.getText().toString();
+                            long epsg = Long.valueOf(epsgInput.getText().toString());
                             int minZoom = Integer.valueOf(minZoomInput
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
@@ -1237,19 +1239,18 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             // If not importing tiles, just create the table
                             if (tileUrl == null || tileUrl.isEmpty()) {
-                                ProjectionTransform wgs84ToWebMercatorTransform = ProjectionFactory
-                                        .getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
-                                        .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
-                                BoundingBox webMercatorBoundingBox = wgs84ToWebMercatorTransform.transform(boundingBox);
+
                                 GeoPackage geoPackage = manager.open(database);
                                 try {
-                                    // Create the web mercator srs if needed
+                                    // Create the srs if needed
                                     SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
-                                    srsDao.getOrCreateFromEpsg(ProjectionConstants.EPSG_WEB_MERCATOR);
+                                    SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
                                     // Create the tile table
+                                    Projection projection = ProjectionFactory.getProjection(epsg);
+                                    BoundingBox bbox = LoadTilesTask.transform(boundingBox, projection);
                                     geoPackage.createTileTableWithMetadata(
-                                            tableName, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM,
-                                            webMercatorBoundingBox, ProjectionConstants.EPSG_WEB_MERCATOR);
+                                            tableName, bbox, srs.getSrsId(),
+                                            bbox, srs.getSrsId());
                                 } finally {
                                     geoPackage.close();
                                 }
@@ -1261,7 +1262,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                         database, tableName, tileUrl, minZoom,
                                         maxZoom, compressFormat,
                                         compressQuality, googleTiles,
-                                        boundingBox);
+                                        boundingBox, epsg);
                             }
                         } catch (Exception e) {
                             GeoPackageUtils
@@ -1953,6 +1954,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         final EditText urlInput = (EditText) loadTilesView
                 .findViewById(R.id.load_tiles_url_input);
+        final EditText epsgInput = (EditText) loadTilesView
+                .findViewById(R.id.load_tiles_epsg_input);
         final Button preloadedUrlsButton = (Button) loadTilesView
                 .findViewById(R.id.load_tiles_preloaded);
         final EditText minZoomInput = (EditText) loadTilesView
@@ -1986,7 +1989,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         preloadedLocationsButton);
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, preloadedUrlsButton, null, urlInput,
+                maxZoomInput, preloadedUrlsButton, null, urlInput, epsgInput,
                 compressFormatInput, compressQualityInput, true,
                 maxFeaturesLabel, maxFeaturesInput, false, false);
 
@@ -2000,6 +2003,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         try {
 
                             String tileUrl = urlInput.getText().toString();
+                            long epsg = Long.valueOf(epsgInput.getText().toString());
                             int minZoom = Integer.valueOf(minZoomInput
                                     .getText().toString());
                             int maxZoom = Integer.valueOf(maxZoomInput
@@ -2049,7 +2053,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     GeoPackageManagerFragment.this, active,
                                     table.getDatabase(), table.getName(),
                                     tileUrl, minZoom, maxZoom, compressFormat,
-                                    compressQuality, googleTiles, boundingBox);
+                                    compressQuality, googleTiles, boundingBox, epsg);
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -2357,7 +2361,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         geoPackage.close();
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
-                maxZoomInput, null, nameInput, null,
+                maxZoomInput, null, nameInput, null, null,
                 compressFormatInput, compressQualityInput, setZooms,
                 maxFeaturesLabel, maxFeaturesInput, true, indexed);
 
@@ -2492,7 +2496,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     geoPackage, tableName, featureTiles, minZoom,
                                     maxZoom, compressFormat,
                                     compressQuality, googleTiles,
-                                    boundingBox);
+                                    boundingBox, ProjectionConstants.EPSG_WEB_MERCATOR);
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -2766,8 +2770,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Build a set of currently linked tables
         final Set<String> linkedTableSet = new HashSet<>();
-        for(FeatureTileLink link: linkedTables){
-            switch(table.getType()) {
+        for (FeatureTileLink link : linkedTables) {
+            switch (table.getType()) {
                 case FEATURE:
                     linkedTableSet.add(link.getTileTableName());
                     break;
@@ -2816,7 +2820,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         newLinks.removeAll(originalLinkedTableSet);
 
                         // Check if we need to unlink or linke tables
-                        if(!removedLinks.isEmpty() || !newLinks.isEmpty()){
+                        if (!removedLinks.isEmpty() || !newLinks.isEmpty()) {
 
                             // Create a linker
                             GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
@@ -2824,8 +2828,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
 
                             // Delete links
-                            for(String removedLink: removedLinks){
-                                switch(table.getType()) {
+                            for (String removedLink : removedLinks) {
+                                switch (table.getType()) {
                                     case FEATURE:
                                         linker.deleteLink(table.getName(), removedLink);
                                         break;
@@ -2836,8 +2840,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             }
 
                             // Create links
-                            for(String newLink: newLinks){
-                                switch(table.getType()) {
+                            for (String newLink : newLinks) {
+                                switch (table.getType()) {
                                     case FEATURE:
                                         linker.link(table.getName(), newLink);
                                         break;
@@ -4129,9 +4133,10 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         /**
          * Constructor
+         *
          * @param context
          * @param resource
-         * @param tables tables that can be linked
+         * @param tables       tables that can be linked
          * @param linkedTables set of currently linked tables
          */
         public TableLinkAdapter(Context context, int resource,
@@ -4160,9 +4165,9 @@ public class GeoPackageManagerFragment extends Fragment implements
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView,
                                              boolean isChecked) {
-                    if(isChecked){
+                    if (isChecked) {
                         linkedTables.add(linkTable);
-                    }else{
+                    } else {
                         linkedTables.remove(linkTable);
                     }
                 }

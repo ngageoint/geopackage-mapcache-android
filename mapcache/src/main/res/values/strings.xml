@@ -233,13 +233,15 @@
     
     <string-array name="preloaded_tile_url_labels">
         <item>GEOINT OpenStreetMap</item>
+        <item>GEOINT OSM WGS84</item>
         <item>OpenStreetMap</item>
         <item>MapQuest-OSM</item>
         <item>MapQuest Open Aerial</item>
         <item>nowCOAST</item>
     </string-array>
     <string-array name="preloaded_tile_url_names">
-        <item>geoint_openstreetmap</item>
+        <item>geoint_osm</item>
+        <item>geoint_osm_wgs84</item>
         <item>openstreetmap</item>
         <item>mapquest_osm</item>
         <item>mapquest_open_aerial</item>
@@ -247,6 +249,7 @@
     </string-array>
     <string-array name="preloaded_tile_urls">
         <item>http://osm.geointservices.io/osm_tiles/{z}/{x}/{y}.png</item>
+        <item>http://osm.geointservices.io/osm_tiles_pc/{z}/{x}/{y}.png</item>
         <item>http://a.tile.openstreetmap.org/{z}/{x}/{y}.png</item>
         <item>http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png</item>
         <item>http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png</item>
@@ -258,8 +261,10 @@
         <item>0</item>
         <item>0</item>
         <item>0</item>
+        <item>0</item>
     </integer-array>
     <integer-array name="preloaded_tile_url_max_zoom">
+        <item>17</item>
         <item>17</item>
         <item>17</item>
         <item>21</item>
@@ -267,6 +272,7 @@
         <item>21</item>
     </integer-array>
     <integer-array name="preloaded_tile_url_default_min_zoom">
+        <item>1</item>
         <item>1</item>
         <item>1</item>
         <item>0</item>
@@ -279,6 +285,15 @@
         <item>5</item>
         <item>5</item>
         <item>5</item>
+        <item>5</item>
+    </integer-array>
+    <integer-array name="preloaded_tile_url_epsg">
+        <item>3857</item>
+        <item>4326</item>
+        <item>3857</item>
+        <item>3857</item>
+        <item>3857</item>
+        <item>3857</item>
     </integer-array>
 
     <string-array name="preloaded_bounding_box_labels">

@@ -253,7 +253,7 @@
         <item>http://a.tile.openstreetmap.org/{z}/{x}/{y}.png</item>
         <item>http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png</item>
         <item>http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png</item>
-        <item>http://nowcoast.noaa.gov/wms/com.esri.wms.Esrimap/obs?service=wms%26version=1.1.1%26request=GetMap%26format=jpeg%26BBOX={minLon},{minLat},{maxLon},{maxLat}%26SRS=EPSG:4326%26width=256%26height=256%26Layers=world_countries,RAS_GOES,RAS_RIDGE_NEXRAD</item>
+        <item>http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/sat_meteo_imagery_goes_time/MapServer/export?transparent=true%26format=png%26layers%3Dshow%3A11%26bbox={minLon},{minLat},{maxLon},{maxLat}%26bboxSR=3857%26imageSR=3857%26size=256,256%26f=image</item>
     </string-array>
     <integer-array name="preloaded_tile_url_min_zoom">
         <item>0</item>

@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
 import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
@@ -50,6 +51,7 @@ public class GeoPackageUtils {
      * @param button
      * @param nameInput
      * @param urlInput
+     * @param epsgInput
      * @param compressFormatInput
      * @param compressQualityInput
      * @param setZooms
@@ -61,6 +63,7 @@ public class GeoPackageUtils {
     public static void prepareTileLoadInputs(final Activity activity,
                                              final EditText minZoomInput, final EditText maxZoomInput,
                                              Button button, final EditText nameInput, final EditText urlInput,
+                                             final EditText epsgInput,
                                              final Spinner compressFormatInput,
                                              final EditText compressQualityInput,
                                              final boolean setZooms,
@@ -89,6 +92,12 @@ public class GeoPackageUtils {
                 .setFilters(new InputFilter[]{new InputFilterMinMax(0, 100)});
         compressQualityInput.setText(String.valueOf(activity.getResources()
                 .getInteger(R.integer.load_tiles_compress_quality_default)));
+
+        if(epsgInput != null) {
+            epsgInput.setFilters(new InputFilter[]{new InputFilterMinMax(
+                    -1, 99999)});
+            epsgInput.setText(String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
+        }
 
         if (button != null) {
             button.setOnClickListener(new View.OnClickListener() {
@@ -130,6 +139,10 @@ public class GeoPackageUtils {
                                                 .getResources()
                                                 .getIntArray(
                                                         R.array.preloaded_tile_url_default_max_zoom);
+                                        int[] epsgs = activity
+                                                .getResources()
+                                                .getIntArray(
+                                                        R.array.preloaded_tile_url_epsg);
                                         if (nameInput != null) {
                                             nameInput.setText(names[item]);
                                         }
@@ -163,6 +176,11 @@ public class GeoPackageUtils {
                                             maxZoomInput.setText(String
                                                     .valueOf(currentMax));
                                         }
+
+                                        if(epsgInput != null){
+                                            epsgInput.setText(String.valueOf(epsgs[item]));
+                                        }
+
                                     }
                                 }
                             });

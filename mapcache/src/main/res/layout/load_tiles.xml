@@ -27,6 +27,12 @@
                 android:inputType="textUri" />
         </LinearLayout>
 
+        <EditText
+            android:id="@+id/load_tiles_epsg_input"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+
         <Button
             android:id="@+id/load_tiles_preloaded"
             android:layout_width="wrap_content"

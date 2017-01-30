@@ -1062,7 +1062,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public boolean setMyLocationEnabled() {
         boolean updated = false;
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (map != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.setMyLocationEnabled(visible);
             updated = true;
         }

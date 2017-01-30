@@ -1,2 +1,3 @@
 include ':mapcache'
-//include ':geopackage-sdk' // uncomment me to build locally
+include ':geopackage-sdk' // uncomment me to build locally TODO
+include ':geopackage-map' // uncomment me to build locally TODO

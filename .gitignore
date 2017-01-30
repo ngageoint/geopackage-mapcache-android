@@ -27,3 +27,5 @@ local.properties
 # Library
 geopackage-sdk
 geopackage-sdk/
+geopackage-map
+geopackage-map/

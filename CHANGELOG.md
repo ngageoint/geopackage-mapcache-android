@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.13 (TBD)
 
-* TBD
+* Updated Android, Gradle, & Maven build & SDK libraries
+* geopackage-android dependency replaced with geopackage-android-map, version 1.3.1
+* getMap call replaced with getMapAsync
+* MapFeatureTiles creations changed to DefaultFeatureTiles (fixes Geometries drawn over the International Date Line)
 
 ## [1.12](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.12) (06-23-2016)
 

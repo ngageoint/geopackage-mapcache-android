@@ -84,8 +84,8 @@ import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
-import mil.nga.geopackage.tiles.features.MapFeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
@@ -2444,7 +2444,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
 
                             // Load tiles
-                            FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
+                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);
                             if (maxFeatures != null) {
                                 featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
@@ -3088,7 +3088,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 0, 255)});
 
         // Set default feature attributes
-        FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), null);
+        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity());
         String defaultColor = "black";
 
         Paint pointPaint = featureTiles.getPointPaint();

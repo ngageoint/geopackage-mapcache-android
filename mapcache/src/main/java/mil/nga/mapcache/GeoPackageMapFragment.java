@@ -49,6 +49,7 @@ import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -91,33 +92,33 @@ import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
-import mil.nga.geopackage.geom.map.GoogleMapShape;
-import mil.nga.geopackage.geom.map.GoogleMapShapeConverter;
-import mil.nga.geopackage.geom.map.GoogleMapShapeMarkers;
-import mil.nga.geopackage.geom.map.GoogleMapShapeType;
-import mil.nga.geopackage.geom.map.MultiLatLng;
-import mil.nga.geopackage.geom.map.MultiMarker;
-import mil.nga.geopackage.geom.map.MultiPolygon;
-import mil.nga.geopackage.geom.map.MultiPolygonOptions;
-import mil.nga.geopackage.geom.map.MultiPolyline;
-import mil.nga.geopackage.geom.map.MultiPolylineOptions;
-import mil.nga.geopackage.geom.map.PolygonHoleMarkers;
-import mil.nga.geopackage.geom.map.ShapeMarkers;
-import mil.nga.geopackage.geom.map.ShapeWithChildrenMarkers;
+import mil.nga.geopackage.map.geom.GoogleMapShape;
+import mil.nga.geopackage.map.geom.GoogleMapShapeConverter;
+import mil.nga.geopackage.map.geom.GoogleMapShapeMarkers;
+import mil.nga.geopackage.map.geom.GoogleMapShapeType;
+import mil.nga.geopackage.map.geom.MultiLatLng;
+import mil.nga.geopackage.map.geom.MultiMarker;
+import mil.nga.geopackage.map.geom.MultiPolygon;
+import mil.nga.geopackage.map.geom.MultiPolygonOptions;
+import mil.nga.geopackage.map.geom.MultiPolyline;
+import mil.nga.geopackage.map.geom.MultiPolylineOptions;
+import mil.nga.geopackage.map.geom.PolygonHoleMarkers;
+import mil.nga.geopackage.map.geom.ShapeMarkers;
+import mil.nga.geopackage.map.geom.ShapeWithChildrenMarkers;
+import mil.nga.geopackage.map.tiles.overlay.BoundedOverlay;
+import mil.nga.geopackage.map.tiles.overlay.FeatureOverlay;
+import mil.nga.geopackage.map.tiles.overlay.FeatureOverlayQuery;
+import mil.nga.geopackage.map.tiles.overlay.GeoPackageOverlayFactory;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
+import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
-import mil.nga.geopackage.tiles.features.MapFeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
-import mil.nga.geopackage.tiles.overlay.BoundedOverlay;
-import mil.nga.geopackage.tiles.overlay.FeatureOverlay;
-import mil.nga.geopackage.tiles.overlay.FeatureOverlayQuery;
-import mil.nga.geopackage.tiles.overlay.GeoPackageOverlayFactory;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -139,7 +140,7 @@ import mil.nga.wkb.util.GeometryPrinter;
  * @author osbornb
  */
 public class GeoPackageMapFragment extends Fragment implements
-        OnMapLongClickListener, OnMapClickListener, OnMarkerClickListener,
+        OnMapReadyCallback, OnMapLongClickListener, OnMapClickListener, OnMarkerClickListener,
         OnMarkerDragListener, ILoadTilesTask, IIndexerTask {
 
     /**
@@ -449,13 +450,28 @@ public class GeoPackageMapFragment extends Fragment implements
                 Context.VIBRATOR_SERVICE);
 
         view = inflater.inflate(R.layout.fragment_map, container, false);
-        map = getMapFragment().getMap();
-
-        setLoadTilesView();
-        setEditFeaturesView();
+        getMapFragment().getMapAsync(this);
 
         touch = new TouchableMap(getActivity());
         touch.addView(view);
+
+        manager = GeoPackageFactory.getManager(getActivity());
+
+        return touch;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
+        initializeMap();
+    }
+
+
+    private void initializeMap() {
+        if (map == null) return;
+
+        setLoadTilesView();
+        setEditFeaturesView();
 
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
@@ -468,13 +484,10 @@ public class GeoPackageMapFragment extends Fragment implements
         map.setOnMarkerDragListener(this);
         map.getUiSettings().setZoomControlsEnabled(true);
 
-        manager = GeoPackageFactory.getManager(getActivity());
-
         if (visible) {
             updateInBackground(active.isModified());
         }
 
-        return touch;
     }
 
     /**
@@ -1049,7 +1062,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public boolean setMyLocationEnabled() {
         boolean updated = false;
-        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (map != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.setMyLocationEnabled(visible);
             updated = true;
         }
@@ -1650,7 +1663,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (!task.isCancelled() && count.get() < maxFeatures) {
                     try {
                         threadPool.awaitTermination(getActivity().getResources().getInteger(
-                                        R.integer.map_update_thread_pool_finish_wait),
+                                R.integer.map_update_thread_pool_finish_wait),
                                 TimeUnit.MILLISECONDS);
                     } catch (InterruptedException e) {
                         Log.w(GeoPackageMapFragment.class.getSimpleName(), e);
@@ -2167,7 +2180,7 @@ public class GeoPackageMapFragment extends Fragment implements
         for (FeatureDao featureDao : featureDaos) {
 
             // Create the feature tiles
-            FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
+            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
 
             // Create an index manager
             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
@@ -2206,7 +2219,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 featureOverlayTable.getMaxLon(), featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLat());
 
         // Load tiles
-        FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
+        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
 
         featureTiles.setMaxFeaturesPerTile(featureOverlayTable.getMaxFeaturesPerTile());
         if (featureOverlayTable.getMaxFeaturesPerTile() != null) {
@@ -2996,7 +3009,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
             String title = getTitle(geometryType, marker);
             infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
-        }else {
+        } else {
             geoPackage.close();
         }
     }
@@ -3016,7 +3029,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
         try {
-            if(!dataColumnsDao.isTableExists()){
+            if (!dataColumnsDao.isTableExists()) {
                 dataColumnsDao = null;
             }
         } catch (SQLException e) {
@@ -3033,7 +3046,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 Object value = featureRow.getValue(i);
                 if (value != null) {
                     String columnName = featureRow.getColumn(i).getName();
-                    if(dataColumnsDao != null) {
+                    if (dataColumnsDao != null) {
                         try {
                             DataColumns dataColumn = dataColumnsDao.getDataColumn(featureRow.getTable().getTableName(), columnName);
                             if (dataColumn != null) {
@@ -3650,7 +3663,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 0, 255)});
 
         // Set default feature attributes
-        FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), null);
+        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity());
         String defaultColor = "black";
 
         Paint pointPaint = featureTiles.getPointPaint();
@@ -3744,7 +3757,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 
                             // Load tiles
-                            FeatureTiles featureTiles = new MapFeatureTiles(getActivity(), featureDao);
+                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);
                             if (maxFeatures != null) {
                                 featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));

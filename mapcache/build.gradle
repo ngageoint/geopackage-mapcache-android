@@ -37,8 +37,8 @@ android {
 }
 
 dependencies {
-    //compile "mil.nga.geopackage.map:geopackage-android-map:1.3.1" // comment out to build locally
-    compile project(':geopackage-map') // uncomment me to build locally
+    compile "mil.nga.geopackage.map:geopackage-android-map:1.3.1" // comment out to build locally
+    //compile project(':geopackage-map') // uncomment me to build locally
 }
 
 configure extensions.android, {

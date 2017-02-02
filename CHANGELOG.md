@@ -4,10 +4,6 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.14 (TBD)
-
-* TBD
-
 ## [1.13](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.13) (02-02-2017)
 
 * Updated Android, Gradle, & Maven build & SDK libraries

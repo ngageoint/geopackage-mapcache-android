@@ -76,7 +76,7 @@ App Icons are from [Material Design Icons on GitHub](https://github.com/google/m
 
 #### Remote ####
 
-* [GeoPackage Android](https://github.com/ngageoint/geopackage-android) (The MIT License (MIT)) - GeoPackage Library
+* [GeoPackage Android Map](https://github.com/ngageoint/geopackage-android-map) (The MIT License (MIT)) - GeoPackage Library
 
 #### Embedded ####
 

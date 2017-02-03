@@ -42,9 +42,11 @@ android {
 }
 
 task androidAppVersion {
-    com.android.build.gradle.AppExtension appExt = project.extensions.android;
-    println "versionCode: ${appExt.defaultConfig.applicationId}@${appExt.defaultConfig.versionCode}"
-    println "versionName: ${appExt.defaultConfig.applicationId}@${appExt.defaultConfig.versionName}"
+    doLast {
+        com.android.build.gradle.AppExtension appExt = project.extensions.android;
+        println "versionCode: ${appExt.defaultConfig.applicationId}@${appExt.defaultConfig.versionCode}"
+        println "versionName: ${appExt.defaultConfig.applicationId}@${appExt.defaultConfig.versionName}"
+    }
 }
 
 dependencies {

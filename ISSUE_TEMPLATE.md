@@ -6,6 +6,7 @@ Please fill out as much known and relevant information as possible.
   * GeoPackage MapCache Android Source: (e.g. Release APK, Source Code Build)
   * Device or Emulator: 
   * Android Version Number: 
+  * Google Play services Version: 
   * Android Studio Version (if applicable): 
   * Platform & OS: 
   * Other Relevant Libraries: 

@@ -1700,15 +1700,25 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (bbox != null) {
 
+            double minLatitude = Math.max(bbox.getMinLatitude(), ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE);
+            double maxLatitude = Math.min(bbox.getMaxLatitude(), ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
+
+            LatLng lowerLeft = new LatLng(minLatitude, bbox.getMinLongitude());
+            LatLng lowerRight = new LatLng(minLatitude, bbox.getMaxLongitude());
+            LatLng topLeft = new LatLng(maxLatitude, bbox.getMinLongitude());
+            LatLng topRight = new LatLng(maxLatitude, bbox.getMaxLongitude());
+
+            if(lowerLeft.longitude ==  lowerRight.longitude){
+                double adjustLongitude = lowerRight.longitude - .0000000000001;
+                lowerRight= new LatLng(minLatitude, adjustLongitude);
+                topRight = new LatLng(maxLatitude, adjustLongitude);
+            }
+
             final LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-            boundsBuilder.include(new LatLng(bbox.getMinLatitude(), bbox
-                    .getMinLongitude()));
-            boundsBuilder.include(new LatLng(bbox.getMinLatitude(), bbox
-                    .getMaxLongitude()));
-            boundsBuilder.include(new LatLng(bbox.getMaxLatitude(), bbox
-                    .getMinLongitude()));
-            boundsBuilder.include(new LatLng(bbox.getMaxLatitude(), bbox
-                    .getMaxLongitude()));
+            boundsBuilder.include(lowerLeft);
+            boundsBuilder.include(lowerRight);
+            boundsBuilder.include(topLeft);
+            boundsBuilder.include(topRight);
 
             View view = getView();
             int minViewLength = Math.min(view.getWidth(), view.getHeight());

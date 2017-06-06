@@ -9,6 +9,9 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-android-map version updated to 1.3.2
 * min SDK lowered from 17 to 14
 * build tools version updated to 25.0.3
+* gradle plugin updated to 2.3.2
+* GeoPackage sample data updates
+* Zoom fix for GeoPackage bounds larger than native map bounds
 
 ## [1.13](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.13) (02-02-2017)
 

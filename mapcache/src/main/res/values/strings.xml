@@ -206,29 +206,16 @@
     <string name="button_ok_label">OK</string>
     <string name="button_cancel_label">Cancel</string>
 
+    <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>
+    <string name="preloaded_nga_examples"><a href="http://github.com/ngageoint/GeoPackage/tree/master/docs/examples">NGA Sample Data</a></string>
     <string-array name="preloaded_geopackage_url_labels">
-        <item>Natural Earth Rivers</item>
-        <item>GDAL Sample</item>
-        <item>Simple Sewers</item>
-        <item>Haiti</item>
-        <item>Belgium Geonames</item>
-        <item>ERDC Whitehorse</item>
+        <item>Blue Marble</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
-        <item>http://ngageoint.github.io/GeoPackage/examples/rivers.gpkg</item>
-        <item>http://www.geopackage.org/data/gdal_sample.gpkg</item>
-        <item>http://www.geopackage.org/data/simple_sewer_features.gpkg</item>
-        <item>http://www.geopackage.org/data/haiti-vectors-split.gpkg</item>
-        <item>http://www.geopackage.org/data/geonames_belgium.gpkg</item>
-        <item>https://portal.opengeospatial.org/files/63156</item>
+        <item>http://portal.opengeospatial.org/files/?artifact_id=73648</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
-        <item>rivers</item>
-        <item>gdal_sample</item>
-        <item>simple_sewer_features</item>
-        <item>haiti-vectors-split</item>
-        <item>geonames_belgium</item>
-        <item>erdc_whitehorse</item>
+        <item>blue_marble</item>
     </string-array>
     
     <string-array name="preloaded_tile_url_labels">

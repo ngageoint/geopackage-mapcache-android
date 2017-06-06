@@ -6,7 +6,7 @@ def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_K
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "25.0.3"
 
     dexOptions {
         javaMaxHeapSize "4g"
@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         applicationId "mil.nga.mapcache"
-        minSdkVersion 13
+        minSdkVersion 14
         targetSdkVersion 25
         versionCode 15
         versionName '1.14'

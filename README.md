@@ -21,13 +21,10 @@ The MapCache app provides read and write access to GeoPackage files, including f
 
 ### Screen Shots ###
 
-Manager View with GeoPackages linked at Open Geospatial Consortium [GeoPackage] (http://www.geopackage.org/#sampledata)
+Manager View with GeoPackages linked at Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/#sampledata)
  
-* [Technology Test Data Set] (http://www.geopackage.org/data/gdal_sample.gpkg)
-* [Geonames data for Belgium] (http://www.geopackage.org/data/geonames_belgium.gpkg)
-* [Haiti OpenStreetMap tiles and point features] (http://www.geopackage.org/data/haiti-vectors-split.gpkg)
-* [Simple Sewers test data set] (http://www.geopackage.org/data/simple_sewer_features.gpkg)
-* [ERDC Whitehorse Tiles] (https://portal.opengeospatial.org/files/63156)
+* [Technology Test Data Set](http://www.geopackage.org/data/gdal_sample.gpkg)
+* [ERDC Whitehorse Tiles](https://portal.opengeospatial.org/files/63156)
 
 ![Screenshot 1](screenshots/screenshot1.jpg)
 

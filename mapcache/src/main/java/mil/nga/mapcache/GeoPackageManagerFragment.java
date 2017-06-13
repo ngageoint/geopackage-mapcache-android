@@ -28,6 +28,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -3152,6 +3153,9 @@ public class GeoPackageManagerFragment extends Fragment implements
         View importUrlView = inflater.inflate(R.layout.import_url, null);
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(importUrlView);
+
+        ((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
+        ((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
 
         final EditText nameInput = (EditText) importUrlView
                 .findViewById(R.id.import_url_name_input);

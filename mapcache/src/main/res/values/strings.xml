@@ -206,58 +206,40 @@
     <string name="button_ok_label">OK</string>
     <string name="button_cancel_label">Cancel</string>
 
+    <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>
+    <string name="preloaded_nga_examples"><a href="http://github.com/ngageoint/GeoPackage/tree/master/docs/examples">NGA Sample Data</a></string>
     <string-array name="preloaded_geopackage_url_labels">
-        <item>Natural Earth Rivers</item>
-        <item>GDAL Sample</item>
-        <item>Simple Sewers</item>
-        <item>Haiti</item>
-        <item>Belgium Geonames</item>
-        <item>ERDC Whitehorse</item>
+        <item>Blue Marble</item>
+        <item>Whitehorse</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
-        <item>http://ngageoint.github.io/GeoPackage/examples/rivers.gpkg</item>
-        <item>http://www.geopackage.org/data/gdal_sample.gpkg</item>
-        <item>http://www.geopackage.org/data/simple_sewer_features.gpkg</item>
-        <item>http://www.geopackage.org/data/haiti-vectors-split.gpkg</item>
-        <item>http://www.geopackage.org/data/geonames_belgium.gpkg</item>
-        <item>https://portal.opengeospatial.org/files/63156</item>
+        <item>http://portal.opengeospatial.org/files/73648</item>
+        <item>http://portal.opengeospatial.org/files/63156</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
-        <item>rivers</item>
-        <item>gdal_sample</item>
-        <item>simple_sewer_features</item>
-        <item>haiti-vectors-split</item>
-        <item>geonames_belgium</item>
-        <item>erdc_whitehorse</item>
+        <item>blue_marble</item>
+        <item>whitehorse</item>
     </string-array>
     
     <string-array name="preloaded_tile_url_labels">
         <item>GEOINT OpenStreetMap</item>
         <item>GEOINT OSM WGS84</item>
         <item>OpenStreetMap</item>
-        <item>MapQuest-OSM</item>
-        <item>MapQuest Open Aerial</item>
         <item>nowCOAST</item>
     </string-array>
     <string-array name="preloaded_tile_url_names">
         <item>geoint_osm</item>
         <item>geoint_osm_wgs84</item>
         <item>openstreetmap</item>
-        <item>mapquest_osm</item>
-        <item>mapquest_open_aerial</item>
         <item>nowCOAST</item>
     </string-array>
     <string-array name="preloaded_tile_urls">
         <item>http://osm.geointservices.io/osm_tiles/{z}/{x}/{y}.png</item>
         <item>http://osm.geointservices.io/osm_tiles_pc/{z}/{x}/{y}.png</item>
         <item>http://a.tile.openstreetmap.org/{z}/{x}/{y}.png</item>
-        <item>http://otile1.mqcdn.com/tiles/1.0.0/map/{z}/{x}/{y}.png</item>
-        <item>http://otile1.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.png</item>
-        <item>http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/sat_meteo_imagery_goes_time/MapServer/export?transparent=true%26format=png%26layers%3Dshow%3A11%26bbox={minLon},{minLat},{maxLon},{maxLat}%26bboxSR=3857%26imageSR=3857%26size=256,256%26f=image</item>
+        <item>http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/sat_meteo_imagery_time/MapServer/export?transparent=true&amp;format=png&amp;bbox={minLon},{minLat},{maxLon},{maxLat}&amp;bboxSR=3857&amp;imageSR=3857&amp;size=256,256&amp;f=image</item>
     </string-array>
     <integer-array name="preloaded_tile_url_min_zoom">
-        <item>0</item>
-        <item>0</item>
         <item>0</item>
         <item>0</item>
         <item>0</item>
@@ -268,20 +250,14 @@
         <item>17</item>
         <item>17</item>
         <item>21</item>
-        <item>21</item>
-        <item>21</item>
     </integer-array>
     <integer-array name="preloaded_tile_url_default_min_zoom">
         <item>1</item>
         <item>1</item>
         <item>1</item>
         <item>0</item>
-        <item>0</item>
-        <item>0</item>
     </integer-array>
     <integer-array name="preloaded_tile_url_default_max_zoom">
-        <item>5</item>
-        <item>5</item>
         <item>5</item>
         <item>5</item>
         <item>5</item>
@@ -290,8 +266,6 @@
     <integer-array name="preloaded_tile_url_epsg">
         <item>3857</item>
         <item>4326</item>
-        <item>3857</item>
-        <item>3857</item>
         <item>3857</item>
         <item>3857</item>
     </integer-array>

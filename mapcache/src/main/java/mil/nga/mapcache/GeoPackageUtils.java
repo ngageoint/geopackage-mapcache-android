@@ -297,7 +297,7 @@ public class GeoPackageUtils {
 
         // TODO The projection for 27700 returns different values when going to and from web mercator
         // Buffer the pixels around the image when querying the feature index
-        if (featureTiles.getFeatureDao().getProjection().getEpsg() == 27700) {
+        if (featureTiles.getFeatureDao().getProjection().equals(ProjectionConstants.AUTHORITY_EPSG, 27700)) {
             featureTiles.setHeightDrawOverlap(featureTiles.getHeightDrawOverlap() + 100);
         }
 

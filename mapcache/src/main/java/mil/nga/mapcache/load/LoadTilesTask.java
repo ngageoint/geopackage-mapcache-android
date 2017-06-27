@@ -117,7 +117,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
 
         BoundingBox transformedBox = boundingBox;
 
-        if (projection.getEpsg() != ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM) {
+        if (!projection.equals(ProjectionConstants.AUTHORITY_EPSG, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
             BoundingBox bounded = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
             Projection wgs84 = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
             ProjectionTransform transform = wgs84.getTransformation(projection);

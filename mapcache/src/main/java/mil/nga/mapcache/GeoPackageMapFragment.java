@@ -1708,9 +1708,9 @@ public class GeoPackageMapFragment extends Fragment implements
             LatLng topLeft = new LatLng(maxLatitude, bbox.getMinLongitude());
             LatLng topRight = new LatLng(maxLatitude, bbox.getMaxLongitude());
 
-            if(lowerLeft.longitude ==  lowerRight.longitude){
+            if (lowerLeft.longitude == lowerRight.longitude) {
                 double adjustLongitude = lowerRight.longitude - .0000000000001;
-                lowerRight= new LatLng(minLatitude, adjustLongitude);
+                lowerRight = new LatLng(minLatitude, adjustLongitude);
                 topRight = new LatLng(maxLatitude, adjustLongitude);
             }
 
@@ -2303,17 +2303,29 @@ public class GeoPackageMapFragment extends Fragment implements
         overlayOptions.tileProvider(overlay);
         overlayOptions.zIndex(zIndex);
 
-        ProjectionTransform transformToWebMercator = ProjectionFactory.getProjection(
-                contents.getSrs().getOrganizationCoordsysId())
-                .getTransformation(
-                        ProjectionConstants.EPSG_WEB_MERCATOR);
-        BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(contents.getBoundingBox());
-        ProjectionTransform transform = ProjectionFactory.getProjection(
-                ProjectionConstants.EPSG_WEB_MERCATOR)
-                .getTransformation(
-                        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-        BoundingBox boundingBox = transform
-                .transform(webMercatorBoundingBox);
+        BoundingBox boundingBox = contents.getBoundingBox();
+        if (boundingBox != null) {
+            mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
+                    contents.getSrs());
+            if (projection.equals(ProjectionConstants.AUTHORITY_EPSG, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
+                boundingBox = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+            }
+            ProjectionTransform transformToWebMercator = projection
+                    .getTransformation(
+                            ProjectionConstants.EPSG_WEB_MERCATOR);
+            BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(boundingBox);
+            ProjectionTransform transform = ProjectionFactory.getProjection(
+                    ProjectionConstants.EPSG_WEB_MERCATOR)
+                    .getTransformation(
+                            ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            boundingBox = transform
+                    .transform(webMercatorBoundingBox);
+        } else {
+            boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                    ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                    ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
+        }
 
         if (specifiedBoundingBox != null) {
             boundingBox = TileBoundingBoxUtils.overlap(boundingBox, specifiedBoundingBox);

@@ -2323,8 +2323,17 @@ public class GeoPackageManagerFragment extends Fragment implements
             Contents contents = contentsDao.queryForId(table.getName());
             if (contents != null) {
                 BoundingBox boundingBox = contents.getBoundingBox();
-                Projection projection = ProjectionFactory.getProjection(
-                        contents.getSrs().getOrganizationCoordsysId());
+                Projection projection = null;
+                if (boundingBox == null) {
+                    boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                            ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                            ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                            ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
+                    projection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                } else {
+                    projection = ProjectionFactory.getProjection(
+                            contents.getSrs());
+                }
 
                 // Try to find a good zoom starting point
                 ProjectionTransform webMercatorTransform = projection.getTransformation(
@@ -2598,16 +2607,28 @@ public class GeoPackageManagerFragment extends Fragment implements
         maxZoomInput.setText(String.valueOf(maxZoomLevel));
 
         BoundingBox boundingBox = contents.getBoundingBox();
-        Projection projection = ProjectionFactory.getProjection(
-                contents.getSrs().getOrganizationCoordsysId());
+        BoundingBox worldGeodeticBoundingBox = null;
+        if (boundingBox != null) {
+            Projection projection = ProjectionFactory.getProjection(
+                    contents.getSrs());
 
-        ProjectionTransform webMercatorTransform = projection.getTransformation(
-                ProjectionConstants.EPSG_WEB_MERCATOR);
-        BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(boundingBox);
+            ProjectionTransform webMercatorTransform = projection.getTransformation(
+                    ProjectionConstants.EPSG_WEB_MERCATOR);
+            if (projection.equals(ProjectionConstants.AUTHORITY_EPSG, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
+                boundingBox = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+            }
+            BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(boundingBox);
 
-        ProjectionTransform worldGeodeticTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
-                ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-        BoundingBox worldGeodeticBoundingBox = worldGeodeticTransform.transform(webMercatorBoundingBox);
+            ProjectionTransform worldGeodeticTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WEB_MERCATOR).getTransformation(
+                    ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            worldGeodeticBoundingBox = worldGeodeticTransform.transform(webMercatorBoundingBox);
+        } else {
+            worldGeodeticBoundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                    ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                    ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
+        }
+
         minLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLongitude()));
         minLatInput.setText(String.valueOf(worldGeodeticBoundingBox.getMinLatitude()));
         maxLonInput.setText(String.valueOf(worldGeodeticBoundingBox.getMaxLongitude()));

@@ -8,6 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * geopackage-android-map version updated to 1.4.1
 * Manifest MultiDex fix for pre Lollipop Android versions
+* Improved handling of unknown Contents bounding boxes
 * Open GeoPackage from URI creates missing names from last path section
 
 ## [1.15](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.15) (06-27-2017)

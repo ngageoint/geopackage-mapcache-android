@@ -63,6 +63,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
+import org.osgeo.proj4j.units.DegreeUnit;
+
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -2311,8 +2313,8 @@ public class GeoPackageMapFragment extends Fragment implements
         if (boundingBox != null) {
             mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
                     contents.getSrs());
-            if (projection.equals(ProjectionConstants.AUTHORITY_EPSG, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
-                boundingBox = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+            if(projection.getUnit() instanceof DegreeUnit){
+                boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
             }
             ProjectionTransform transformToWebMercator = projection
                     .getTransformation(

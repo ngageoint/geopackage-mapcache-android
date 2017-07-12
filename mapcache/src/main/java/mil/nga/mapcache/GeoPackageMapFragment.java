@@ -1759,16 +1759,20 @@ public class GeoPackageMapFragment extends Fragment implements
         try {
             while (!task.isCancelled() && count.get() < maxFeatures
                     && cursor.moveToNext()) {
-                FeatureRow row = cursor.getRow();
+                try {
+                    FeatureRow row = cursor.getRow();
 
-                if (threadPool != null) {
-                    // Process the feature row in the thread pool
-                    FeatureRowProcessor processor = new FeatureRowProcessor(
-                            task, database, featureDao, row, count, maxFeatures, editable);
-                    threadPool.execute(processor);
-                } else {
-                    processFeatureRow(task, database, featureDao, row, count,
-                            maxFeatures, editable);
+                    if (threadPool != null) {
+                        // Process the feature row in the thread pool
+                        FeatureRowProcessor processor = new FeatureRowProcessor(
+                                task, database, featureDao, row, count, maxFeatures, editable);
+                        threadPool.execute(processor);
+                    } else {
+                        processFeatureRow(task, database, featureDao, row, count,
+                                maxFeatures, editable);
+                    }
+                }catch(Exception e){
+                    Log.w(GeoPackageMapFragment.class.getSimpleName(), e);
                 }
             }
 

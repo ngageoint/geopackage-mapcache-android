@@ -10,6 +10,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Manifest MultiDex fix for pre Lollipop Android versions
 * Improved handling of unknown Contents bounding boxes
 * Open GeoPackage from URI creates missing names from last path section
+* Prevent app crash from invalid or unsupported geometries
 
 ## [1.15](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.15) (06-27-2017)
 

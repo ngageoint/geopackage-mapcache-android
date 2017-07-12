@@ -11,6 +11,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Improved handling of unknown Contents bounding boxes
 * Open GeoPackage from URI creates missing names from last path section
 * Prevent app crash from invalid or unsupported geometries
+* Bounding of degree projected boxes before Web Mercator transformations
 
 ## [1.15](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.15) (06-27-2017)
 

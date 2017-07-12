@@ -49,6 +49,8 @@ import android.widget.TextView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
+import org.osgeo.proj4j.units.DegreeUnit;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -2614,8 +2616,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
             ProjectionTransform webMercatorTransform = projection.getTransformation(
                     ProjectionConstants.EPSG_WEB_MERCATOR);
-            if (projection.equals(ProjectionConstants.AUTHORITY_EPSG, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)) {
-                boundingBox = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
+            if (projection.getUnit() instanceof DegreeUnit) {
+                boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
             }
             BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(boundingBox);
 

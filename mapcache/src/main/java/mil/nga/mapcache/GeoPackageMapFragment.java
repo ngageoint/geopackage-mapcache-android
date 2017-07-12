@@ -1773,8 +1773,11 @@ public class GeoPackageMapFragment extends Fragment implements
                         processFeatureRow(task, database, featureDao, row, count,
                                 maxFeatures, editable);
                     }
-                }catch(Exception e){
-                    Log.w(GeoPackageMapFragment.class.getSimpleName(), e);
+                } catch (Exception e) {
+                    Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                            "Failed to display feature. database: " + database
+                                    + ", feature table: " + features
+                                    + ", row: " + cursor.getPosition(), e);
                 }
             }
 
@@ -2313,7 +2316,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (boundingBox != null) {
             mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
                     contents.getSrs());
-            if(projection.getUnit() instanceof DegreeUnit){
+            if (projection.getUnit() instanceof DegreeUnit) {
                 boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
             }
             ProjectionTransform transformToWebMercator = projection

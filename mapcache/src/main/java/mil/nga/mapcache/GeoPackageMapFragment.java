@@ -63,6 +63,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
+import org.osgeo.proj4j.units.DegreeUnit;
+
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -1708,9 +1710,9 @@ public class GeoPackageMapFragment extends Fragment implements
             LatLng topLeft = new LatLng(maxLatitude, bbox.getMinLongitude());
             LatLng topRight = new LatLng(maxLatitude, bbox.getMaxLongitude());
 
-            if(lowerLeft.longitude ==  lowerRight.longitude){
+            if (lowerLeft.longitude == lowerRight.longitude) {
                 double adjustLongitude = lowerRight.longitude - .0000000000001;
-                lowerRight= new LatLng(minLatitude, adjustLongitude);
+                lowerRight = new LatLng(minLatitude, adjustLongitude);
                 topRight = new LatLng(maxLatitude, adjustLongitude);
             }
 
@@ -1759,16 +1761,23 @@ public class GeoPackageMapFragment extends Fragment implements
         try {
             while (!task.isCancelled() && count.get() < maxFeatures
                     && cursor.moveToNext()) {
-                FeatureRow row = cursor.getRow();
+                try {
+                    FeatureRow row = cursor.getRow();
 
-                if (threadPool != null) {
-                    // Process the feature row in the thread pool
-                    FeatureRowProcessor processor = new FeatureRowProcessor(
-                            task, database, featureDao, row, count, maxFeatures, editable);
-                    threadPool.execute(processor);
-                } else {
-                    processFeatureRow(task, database, featureDao, row, count,
-                            maxFeatures, editable);
+                    if (threadPool != null) {
+                        // Process the feature row in the thread pool
+                        FeatureRowProcessor processor = new FeatureRowProcessor(
+                                task, database, featureDao, row, count, maxFeatures, editable);
+                        threadPool.execute(processor);
+                    } else {
+                        processFeatureRow(task, database, featureDao, row, count,
+                                maxFeatures, editable);
+                    }
+                } catch (Exception e) {
+                    Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                            "Failed to display feature. database: " + database
+                                    + ", feature table: " + features
+                                    + ", row: " + cursor.getPosition(), e);
                 }
             }
 
@@ -2303,17 +2312,29 @@ public class GeoPackageMapFragment extends Fragment implements
         overlayOptions.tileProvider(overlay);
         overlayOptions.zIndex(zIndex);
 
-        ProjectionTransform transformToWebMercator = ProjectionFactory.getProjection(
-                contents.getSrs().getOrganizationCoordsysId())
-                .getTransformation(
-                        ProjectionConstants.EPSG_WEB_MERCATOR);
-        BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(contents.getBoundingBox());
-        ProjectionTransform transform = ProjectionFactory.getProjection(
-                ProjectionConstants.EPSG_WEB_MERCATOR)
-                .getTransformation(
-                        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-        BoundingBox boundingBox = transform
-                .transform(webMercatorBoundingBox);
+        BoundingBox boundingBox = contents.getBoundingBox();
+        if (boundingBox != null) {
+            mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
+                    contents.getSrs());
+            if (projection.getUnit() instanceof DegreeUnit) {
+                boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
+            }
+            ProjectionTransform transformToWebMercator = projection
+                    .getTransformation(
+                            ProjectionConstants.EPSG_WEB_MERCATOR);
+            BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(boundingBox);
+            ProjectionTransform transform = ProjectionFactory.getProjection(
+                    ProjectionConstants.EPSG_WEB_MERCATOR)
+                    .getTransformation(
+                            ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            boundingBox = transform
+                    .transform(webMercatorBoundingBox);
+        } else {
+            boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
+                    ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                    ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
+        }
 
         if (specifiedBoundingBox != null) {
             boundingBox = TileBoundingBoxUtils.overlap(boundingBox, specifiedBoundingBox);

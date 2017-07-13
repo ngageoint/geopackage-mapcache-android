@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.16 (TBD)
+## [1.16](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.16) (07-13-2017)
 
 * geopackage-android-map version updated to 1.4.1
 * Manifest MultiDex fix for pre Lollipop Android versions

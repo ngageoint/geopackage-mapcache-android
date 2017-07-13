@@ -4,9 +4,14 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.16 (TBD)
+## [1.16](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.16) (07-13-2017)
 
-* TBD
+* geopackage-android-map version updated to 1.4.1
+* Manifest MultiDex fix for pre Lollipop Android versions
+* Improved handling of unknown Contents bounding boxes
+* Open GeoPackage from URI creates missing names from last path section
+* Prevent app crash from invalid or unsupported geometries
+* Bounding of degree projected boxes before Web Mercator transformations
 
 ## [1.15](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.15) (06-27-2017)
 

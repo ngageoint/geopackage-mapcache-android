@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <integer name="map_max_features_default">1000</integer>
+    <integer name="map_max_features_default">5000</integer>
     <integer name="map_update_thread_pool_size">0</integer>
     <integer name="map_update_thread_pool_finish_wait">10000</integer>
     <integer name="map_features_zoom_padding_percentage">10</integer>
@@ -16,8 +16,8 @@
     <integer name="map_tiles_long_click_screen_percentage">8</integer>
     <integer name="edit_features_add_long_click_vibrate">50</integer>
     <integer name="edit_features_drag_long_click_vibrate">50</integer>
-    <integer name="feature_tiles_overlay_max_points_per_tile_default">1000</integer>
-    <integer name="feature_tiles_overlay_max_features_per_tile_default">500</integer>
+    <integer name="feature_tiles_overlay_max_points_per_tile_default">5000</integer>
+    <integer name="feature_tiles_overlay_max_features_per_tile_default">2000</integer>
     <integer name="feature_tiles_load_max_features_per_tile_default">-1</integer>
     
 </resources>

@@ -44,6 +44,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
@@ -64,15 +65,20 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
 import org.osgeo.proj4j.units.DegreeUnit;
+import org.osgeo.proj4j.units.Unit;
+import org.osgeo.proj4j.units.Units;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -90,10 +96,13 @@ import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
+import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.map.MapUtils;
+import mil.nga.geopackage.map.geom.FeatureShapes;
 import mil.nga.geopackage.map.geom.GoogleMapShape;
 import mil.nga.geopackage.map.geom.GoogleMapShapeConverter;
 import mil.nga.geopackage.map.geom.GoogleMapShapeMarkers;
@@ -125,6 +134,7 @@ import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
+import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.filter.InputFilterMinMax;
@@ -132,8 +142,10 @@ import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.wkb.geom.Geometry;
+import mil.nga.wkb.geom.GeometryEnvelope;
 import mil.nga.wkb.geom.GeometryType;
 import mil.nga.wkb.geom.LineString;
+import mil.nga.wkb.util.GeometryEnvelopeBuilder;
 import mil.nga.wkb.util.GeometryPrinter;
 
 /**
@@ -143,7 +155,7 @@ import mil.nga.wkb.util.GeometryPrinter;
  */
 public class GeoPackageMapFragment extends Fragment implements
         OnMapReadyCallback, OnMapLongClickListener, OnMapClickListener, OnMarkerClickListener,
-        OnMarkerDragListener, ILoadTilesTask, IIndexerTask {
+        OnMarkerDragListener, ILoadTilesTask, IIndexerTask, OnCameraIdleListener {
 
     /**
      * Max features key for saving to preferences
@@ -203,7 +215,12 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Mapping of open GeoPackages by name
      */
-    private Map<String, GeoPackage> geoPackages = new HashMap<String, GeoPackage>();
+    private Map<String, GeoPackage> geoPackages = new HashMap<>();
+
+    /**
+     * Mapping of open GeoPackage feature DAOs
+     */
+    private Map<String, Map<String, FeatureDao>> featureDaos = new HashMap<>();
 
     /**
      * Vibrator
@@ -269,6 +286,16 @@ public class GeoPackageMapFragment extends Fragment implements
      * Edit features table
      */
     private String editFeaturesTable;
+
+    /**
+     * Feature shapes
+     */
+    private FeatureShapes featureShapes = new FeatureShapes();
+
+    /**
+     * Current zoom level
+     */
+    private int currentZoom = -1;
 
     /**
      * Mapping between marker ids and the feature ids
@@ -468,7 +495,6 @@ public class GeoPackageMapFragment extends Fragment implements
         initializeMap();
     }
 
-
     private void initializeMap() {
         if (map == null) return;
 
@@ -484,9 +510,28 @@ public class GeoPackageMapFragment extends Fragment implements
         map.setOnMapClickListener(this);
         map.setOnMarkerClickListener(this);
         map.setOnMarkerDragListener(this);
+        map.setOnCameraIdleListener(this);
         map.getUiSettings().setZoomControlsEnabled(true);
 
-        if (visible) {
+    }
+
+    @Override
+    public void onCameraIdle(){
+
+        // If visible & not editing a shape, update the feature shapes for the current map view region
+        if(visible && (!editFeaturesMode || editFeatureType == null || (editPoints.isEmpty() && editFeatureMarker == null))){
+
+            int previousZoom = currentZoom;
+            int zoom = (int) MapUtils.getCurrentZoom(map);
+            currentZoom = zoom;
+            if(zoom != previousZoom){
+                // Zoom level changed, remove all feature shapes
+                featureShapes.removeShapes();
+            }else{
+                // Remove shapes no longer visible on the map view
+                featureShapes.removeShapesNotWithinMap(map);
+            }
+
             updateInBackground(active.isModified());
         }
 
@@ -1424,14 +1469,20 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         }
         geoPackages.clear();
+        featureDaos.clear();
         featuresBoundingBox = null;
         tilesBoundingBox = null;
         featureOverlayTiles = false;
         featureOverlayQueries.clear();
+        featureShapes.clear();
         markerIds.clear();
         updateTask = new MapUpdateTask();
         int maxFeatures = getMaxFeatures();
-        updateTask.execute(zoom, maxFeatures);
+
+        BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
+        double toleranceDistance = MapUtils.getToleranceDistance(view, map);
+
+        updateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, true); // TODO when to filter?
 
     }
 
@@ -1456,6 +1507,21 @@ public class GeoPackageMapFragment extends Fragment implements
         private int maxFeatures;
 
         /**
+         * Map view bounding box
+         */
+        private BoundingBox mapViewBoundingBox;
+
+        /**
+         * Tolerance distance for simplification
+         */
+        private double toleranceDistance;
+
+        /**
+         * Filter flag
+         */
+        private boolean filter;
+
+        /**
          * Update start time
          */
         private Date startTime;
@@ -1478,7 +1544,10 @@ public class GeoPackageMapFragment extends Fragment implements
         protected Integer doInBackground(Object... params) {
             zoom = (Boolean) params[0];
             maxFeatures = (Integer) params[1];
-            int count = update(this, maxFeatures);
+            mapViewBoundingBox = (BoundingBox) params[2];
+            toleranceDistance = (Double) params[3];
+            filter = (Boolean) params[4];
+            int count = update(this, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
             return count;
         }
 
@@ -1487,20 +1556,31 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         @Override
         protected void onProgressUpdate(Object... shapeUpdate) {
-            GoogleMapShape shape = (GoogleMapShape) shapeUpdate[3];
-
-            GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
-                    map, shape);
 
             long featureId = (Long) shapeUpdate[0];
             String database = (String) shapeUpdate[1];
             String tableName = (String) shapeUpdate[2];
-            if (editFeaturesMode) {
-                addEditableShape(featureId, mapShape);
-            } else {
-                addMarkerShape(featureId, database, tableName, mapShape);
-            }
+            GoogleMapShape shape = (GoogleMapShape) shapeUpdate[3];
 
+            synchronized (featureShapes) {
+
+                if (!featureShapes.exists(featureId, database, tableName)) {
+
+                    GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
+                            map, shape);
+
+                    if (editFeaturesMode) {
+                        Marker marker = addEditableShape(featureId, mapShape);
+                        if (marker != null) {
+                            GoogleMapShape mapPointShape = new GoogleMapShape(GeometryType.POINT, GoogleMapShapeType.MARKER, marker);
+                            featureShapes.addMapShape(mapPointShape, featureId, database, tableName);
+                        }
+                    } else {
+                        addMarkerShape(featureId, database, tableName, mapShape);
+                    }
+                    featureShapes.addMapShape(mapShape, featureId, database, tableName);
+                }
+            }
         }
 
         /**
@@ -1526,7 +1606,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             }
             if (zoom) {
-                zoomToActive();
+                zoomToActive(true);
             }
         }
 
@@ -1549,41 +1629,78 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param task
      * @param maxFeatures
+     * @param mapViewBoundingBox
+     * @param toleranceDistance
+     * @param filter
      * @return feature count
      */
-    private int update(MapUpdateTask task, final int maxFeatures) {
+    private int update(MapUpdateTask task, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
-        AtomicInteger count = new AtomicInteger();
+        int count = 0;
 
         if (active != null) {
 
-            // Add tile overlays first
-            List<GeoPackageDatabase> activeDatabases = new ArrayList<GeoPackageDatabase>();
+            // Open active GeoPackages and create feature DAOS, display tiles and feature tiles
+            List<GeoPackageDatabase> activeDatabases = new ArrayList<>();
             activeDatabases.addAll(active.getDatabases());
             for (GeoPackageDatabase database : activeDatabases) {
 
-                // Open each GeoPackage
+                if (task.isCancelled()) {
+                    break;
+                }
+
                 GeoPackage geoPackage = manager.open(database.getDatabase());
 
                 if (geoPackage != null) {
 
                     geoPackages.put(database.getDatabase(), geoPackage);
 
+                    Set<String> featureTableDaos = new HashSet<>();
+                    Collection<GeoPackageFeatureTable> features = database.getFeatures();
+                    if (!features.isEmpty()) {
+                        for (GeoPackageFeatureTable featureTable : features) {
+                            featureTableDaos.add(featureTable.getName());
+                        }
+                    }
+
+                    for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
+                        if (featureOverlay.isActive()) {
+                            featureTableDaos.add(featureOverlay.getFeatureTable());
+                        }
+                    }
+
+                    if (!featureTableDaos.isEmpty()) {
+                        Map<String, FeatureDao> databaseFeatureDaos = new HashMap<>();
+                        featureDaos.put(database.getDatabase(), databaseFeatureDaos);
+                        for (String featureTable : featureTableDaos) {
+
+                            if (task.isCancelled()) {
+                                break;
+                            }
+
+                            FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
+                            databaseFeatureDaos.put(featureTable, featureDao);
+                        }
+                    }
+
                     // Display the tiles
                     for (GeoPackageTileTable tiles : database.getTiles()) {
+                        if (task.isCancelled()) {
+                            break;
+                        }
                         try {
                             displayTiles(tiles);
                         } catch (Exception e) {
                             Log.e(GeoPackageMapFragment.class.getSimpleName(),
                                     e.getMessage());
                         }
-                        if (task.isCancelled()) {
-                            break;
-                        }
                     }
 
                     // Display the feature tiles
                     for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
+                        if (task.isCancelled()) {
+                            break;
+                        }
                         if (featureOverlay.isActive()) {
                             try {
                                 displayFeatureTiles(featureOverlay);
@@ -1592,87 +1709,126 @@ public class GeoPackageMapFragment extends Fragment implements
                                         e.getMessage());
                             }
                         }
-                        if (task.isCancelled()) {
-                            break;
-                        }
                     }
+
                 } else {
                     active.removeDatabase(database.getDatabase(), false);
-                }
-
-                if (task.isCancelled()) {
-                    break;
                 }
             }
 
             // Add features
-            Map<String, List<String>> featureTables = new HashMap<String, List<String>>();
-            if (editFeaturesMode) {
-                List<String> databaseFeatures = new ArrayList<String>();
-                databaseFeatures.add(editFeaturesTable);
-                featureTables.put(editFeaturesDatabase, databaseFeatures);
-                GeoPackage geoPackage = geoPackages.get(editFeaturesDatabase);
-                if (geoPackage == null) {
-                    geoPackage = manager.open(editFeaturesDatabase);
-                    geoPackages.put(editFeaturesDatabase, geoPackage);
+            if (!task.isCancelled()) {
+                count = addFeatures(task, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            }
+
+        }
+
+        return count;
+    }
+
+    /**
+     * Add features to the map
+     *
+     * @param task               udpate task
+     * @param maxFeatures        max features
+     * @param mapViewBoundingBox map view bounding box
+     * @param toleranceDistance  tolerance distance
+     * @param filter             filter
+     * @return feature count
+     */
+    private int addFeatures(MapUpdateTask task, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
+
+        AtomicInteger count = new AtomicInteger();
+
+        Map<String, List<String>> featureTables = new HashMap<>();
+        if (editFeaturesMode) {
+            List<String> databaseFeatures = new ArrayList<>();
+            databaseFeatures.add(editFeaturesTable);
+            featureTables.put(editFeaturesDatabase, databaseFeatures);
+            GeoPackage geoPackage = geoPackages.get(editFeaturesDatabase);
+            if (geoPackage == null) {
+                geoPackage = manager.open(editFeaturesDatabase);
+                geoPackages.put(editFeaturesDatabase, geoPackage);
+            }
+            Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(editFeaturesDatabase);
+            if (databaseFeatureDaos == null) {
+                databaseFeatureDaos = new HashMap<>();
+                featureDaos.put(editFeaturesDatabase, databaseFeatureDaos);
+            }
+            FeatureDao featureDao = databaseFeatureDaos.get(editFeaturesTable);
+            if (featureDao == null) {
+                featureDao = geoPackage.getFeatureDao(editFeaturesTable);
+                databaseFeatureDaos.put(editFeaturesTable, featureDao);
+            }
+        } else {
+            for (GeoPackageDatabase database : active.getDatabases()) {
+                if (!database.getFeatures().isEmpty()) {
+                    List<String> databaseFeatures = new ArrayList<>();
+                    featureTables.put(database.getDatabase(),
+                            databaseFeatures);
+                    for (GeoPackageTable features : database.getFeatures()) {
+                        databaseFeatures.add(features.getName());
+                    }
                 }
-            } else {
-                for (GeoPackageDatabase database : active.getDatabases()) {
-                    if (!database.getFeatures().isEmpty()) {
-                        List<String> databaseFeatures = new ArrayList<String>();
-                        featureTables.put(database.getDatabase(),
-                                databaseFeatures);
-                        for (GeoPackageTable features : database.getFeatures()) {
-                            databaseFeatures.add(features.getName());
+            }
+        }
+
+        // Get the thread pool size, or 0 if single threaded
+        int threadPoolSize = getActivity().getResources().getInteger(
+                R.integer.map_update_thread_pool_size);
+
+        // Create a thread pool for processing features
+        ExecutorService threadPool = null;
+        if (threadPoolSize > 0) {
+            threadPool = Executors.newFixedThreadPool(threadPoolSize);
+        }
+
+        for (Map.Entry<String, List<String>> databaseFeaturesEntry : featureTables
+                .entrySet()) {
+
+            if (count.get() >= maxFeatures) {
+                break;
+            }
+
+            String databaseName = databaseFeaturesEntry.getKey();
+
+            if (geoPackages.containsKey(databaseName)) {
+
+                List<String> databaseFeatures = databaseFeaturesEntry.getValue();
+                Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(databaseName);
+
+                if (databaseFeatureDaos != null) {
+                    for (String features : databaseFeatures) {
+
+                        if (databaseFeatureDaos.containsKey(features)) {
+
+                            displayFeatures(task, threadPool,
+                                    databaseName, features, count,
+                                    maxFeatures, editFeaturesMode, mapViewBoundingBox, toleranceDistance, filter);
+                            if (task.isCancelled() || count.get() >= maxFeatures) {
+                                break;
+                            }
                         }
                     }
                 }
             }
 
-            // Get the thread pool size, or 0 if single threaded
-            int threadPoolSize = getActivity().getResources().getInteger(
-                    R.integer.map_update_thread_pool_size);
-
-            // Create a thread pool for processing features
-            ExecutorService threadPool = null;
-            if (threadPoolSize > 0) {
-                threadPool = Executors.newFixedThreadPool(threadPoolSize);
+            if (task.isCancelled()) {
+                break;
             }
+        }
 
-            for (Map.Entry<String, List<String>> databaseFeatures : featureTables
-                    .entrySet()) {
-
-                if (count.get() >= maxFeatures) {
-                    break;
-                }
-
-                for (String features : databaseFeatures.getValue()) {
-                    displayFeatures(task, threadPool,
-                            databaseFeatures.getKey(), features, count,
-                            maxFeatures, editFeaturesMode);
-                    if (task.isCancelled() || count.get() >= maxFeatures) {
-                        break;
-                    }
-                }
-
-                if (task.isCancelled()) {
-                    break;
+        if (threadPool != null) {
+            threadPool.shutdown();
+            if (!task.isCancelled() && count.get() < maxFeatures) {
+                try {
+                    threadPool.awaitTermination(getActivity().getResources().getInteger(
+                            R.integer.map_update_thread_pool_finish_wait),
+                            TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    Log.w(GeoPackageMapFragment.class.getSimpleName(), e);
                 }
             }
-
-            if (threadPool != null) {
-                threadPool.shutdown();
-                if (!task.isCancelled() && count.get() < maxFeatures) {
-                    try {
-                        threadPool.awaitTermination(getActivity().getResources().getInteger(
-                                R.integer.map_update_thread_pool_finish_wait),
-                                TimeUnit.MILLISECONDS);
-                    } catch (InterruptedException e) {
-                        Log.w(GeoPackageMapFragment.class.getSimpleName(), e);
-                    }
-                }
-            }
-
         }
 
         return Math.min(count.get(), maxFeatures);
@@ -1682,6 +1838,15 @@ public class GeoPackageMapFragment extends Fragment implements
      * Zoom to features on the map, or tiles if no features
      */
     private void zoomToActive() {
+        zoomToActive(false);
+    }
+
+    /**
+     * Zoom to features on the map, or tiles if no features
+     *
+     * @param nothingVisible zoom only if nothing is currently visible
+     */
+    private void zoomToActive(boolean nothingVisible) {
 
         BoundingBox bbox = featuresBoundingBox;
 
@@ -1702,37 +1867,45 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (bbox != null) {
 
-            double minLatitude = Math.max(bbox.getMinLatitude(), ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE);
-            double maxLatitude = Math.min(bbox.getMaxLatitude(), ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
-
-            LatLng lowerLeft = new LatLng(minLatitude, bbox.getMinLongitude());
-            LatLng lowerRight = new LatLng(minLatitude, bbox.getMaxLongitude());
-            LatLng topLeft = new LatLng(maxLatitude, bbox.getMinLongitude());
-            LatLng topRight = new LatLng(maxLatitude, bbox.getMaxLongitude());
-
-            if (lowerLeft.longitude == lowerRight.longitude) {
-                double adjustLongitude = lowerRight.longitude - .0000000000001;
-                lowerRight = new LatLng(minLatitude, adjustLongitude);
-                topRight = new LatLng(maxLatitude, adjustLongitude);
+            boolean zoomToActive = true;
+            if (nothingVisible) {
+                BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
+                zoomToActive = TileBoundingBoxUtils.overlap(bbox, mapViewBoundingBox, ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) != null;
             }
 
-            final LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-            boundsBuilder.include(lowerLeft);
-            boundsBuilder.include(lowerRight);
-            boundsBuilder.include(topLeft);
-            boundsBuilder.include(topRight);
+            if (zoomToActive) {
+                double minLatitude = Math.max(bbox.getMinLatitude(), ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE);
+                double maxLatitude = Math.min(bbox.getMaxLatitude(), ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
 
-            View view = getView();
-            int minViewLength = Math.min(view.getWidth(), view.getHeight());
-            final int padding = (int) Math.floor(minViewLength
-                    * paddingPercentage);
+                LatLng lowerLeft = new LatLng(minLatitude, bbox.getMinLongitude());
+                LatLng lowerRight = new LatLng(minLatitude, bbox.getMaxLongitude());
+                LatLng topLeft = new LatLng(maxLatitude, bbox.getMinLongitude());
+                LatLng topRight = new LatLng(maxLatitude, bbox.getMaxLongitude());
 
-            try {
-                map.animateCamera(CameraUpdateFactory.newLatLngBounds(
-                        boundsBuilder.build(), padding));
-            } catch (Exception e) {
-                Log.w(GeoPackageMapFragment.class.getSimpleName(),
-                        "Unable to move camera", e);
+                if (lowerLeft.longitude == lowerRight.longitude) {
+                    double adjustLongitude = lowerRight.longitude - .0000000000001;
+                    lowerRight = new LatLng(minLatitude, adjustLongitude);
+                    topRight = new LatLng(maxLatitude, adjustLongitude);
+                }
+
+                final LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+                boundsBuilder.include(lowerLeft);
+                boundsBuilder.include(lowerRight);
+                boundsBuilder.include(topLeft);
+                boundsBuilder.include(topRight);
+
+                View view = getView();
+                int minViewLength = Math.min(view.getWidth(), view.getHeight());
+                final int padding = (int) Math.floor(minViewLength
+                        * paddingPercentage);
+
+                try {
+                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(
+                            boundsBuilder.build(), padding));
+                } catch (Exception e) {
+                    Log.w(GeoPackageMapFragment.class.getSimpleName(),
+                            "Unable to move camera", e);
+                }
             }
         }
     }
@@ -1747,42 +1920,137 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param count
      * @param maxFeatures
      * @param editable
+     * @param mapViewBoundingBox
+     * @param toleranceDistance
+     * @param filter
      */
     private void displayFeatures(MapUpdateTask task,
                                  ExecutorService threadPool, String database, String features,
-                                 AtomicInteger count, final int maxFeatures, final boolean editable) {
+                                 AtomicInteger count, final int maxFeatures, final boolean editable,
+                                 BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
         // Get the GeoPackage and feature DAO
         GeoPackage geoPackage = geoPackages.get(database);
-        FeatureDao featureDao = geoPackage.getFeatureDao(features);
+        FeatureDao featureDao = featureDaos.get(database).get(features);
+        GoogleMapShapeConverter converter = new GoogleMapShapeConverter(featureDao.getProjection());
 
-        // Query for all rows
-        FeatureCursor cursor = featureDao.queryForAll();
-        try {
-            while (!task.isCancelled() && count.get() < maxFeatures
-                    && cursor.moveToNext()) {
+        converter.setSimplifyTolerance(toleranceDistance);
+
+        count.getAndAdd(featureShapes.getFeatureIdsCount(database, features));
+
+        if (!task.isCancelled() && count.get() < maxFeatures) {
+
+            mil.nga.geopackage.projection.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
+            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+            if (filter && indexer.isIndexed()) {
+
+                FeatureIndexResults indexResults = indexer.query(mapViewBoundingBox, mapViewProjection);
+                processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter,
+                        count, maxFeatures, editable, filter);
+
+                BoundingBox complementary = mapViewBoundingBox.complementaryWgs84();
+                if (complementary != null) {
+                    indexResults = indexer.query(complementary, mapViewProjection);
+                    processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter,
+                            count, maxFeatures, editable, filter);
+                }
+
+            } else {
+
+                mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
+                ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
+                BoundingBox filterBoundingBox = projectionTransform.transform(mapViewBoundingBox);
+                double filterMaxLongitude = 0;
+                Unit unit = featureProjection.getUnit();
+                if (unit instanceof DegreeUnit) {
+                    filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
+                } else if (unit == Units.METRES) {
+                    filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
+                }
+
+                // Query for all rows
+                FeatureCursor cursor = featureDao.queryForAll();
                 try {
-                    FeatureRow row = cursor.getRow();
+                    while (!task.isCancelled() && count.get() < maxFeatures
+                            && cursor.moveToNext()) {
+                        try {
+                            FeatureRow row = cursor.getRow();
+
+                            if (threadPool != null) {
+                                // Process the feature row in the thread pool
+                                FeatureRowProcessor processor = new FeatureRowProcessor(
+                                        task, database, featureDao, row, count, maxFeatures, editable, converter,
+                                        filterBoundingBox, filterMaxLongitude, filter);
+                                threadPool.execute(processor);
+                            } else {
+
+                                processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures, editable,
+                                         filterBoundingBox, filterMaxLongitude, filter);
+                            }
+                        } catch (Exception e) {
+                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                    "Failed to display feature. database: " + database
+                                            + ", feature table: " + features
+                                            + ", row: " + cursor.getPosition(), e);
+                        }
+                    }
+
+                } finally {
+                    cursor.close();
+                }
+            }
+
+        }
+
+    }
+
+    /**
+     *
+     * @param task
+     * @param threadPool
+     * @param indexResults
+     * @param database
+     * @param featureDao
+     * @param converter
+     * @param count
+     * @param maxFeatures
+     * @param editable
+     * @param filter
+     */
+    private void processFeatureIndexResults(MapUpdateTask task, ExecutorService threadPool, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
+                                            GoogleMapShapeConverter converter, AtomicInteger count, final int maxFeatures, final boolean editable,
+                                            boolean filter) {
+
+        try {
+            for (FeatureRow row : indexResults) {
+
+                if (task.isCancelled() || count.get() >= maxFeatures) {
+                    break;
+                }
+
+                try {
 
                     if (threadPool != null) {
                         // Process the feature row in the thread pool
                         FeatureRowProcessor processor = new FeatureRowProcessor(
-                                task, database, featureDao, row, count, maxFeatures, editable);
+                                task, database, featureDao, row, count, maxFeatures, editable, converter,
+                                null, 0, filter);
                         threadPool.execute(processor);
                     } else {
-                        processFeatureRow(task, database, featureDao, row, count,
-                                maxFeatures, editable);
+
+                        processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures, editable, null, 0, filter);
                     }
+
                 } catch (Exception e) {
                     Log.e(GeoPackageMapFragment.class.getSimpleName(),
                             "Failed to display feature. database: " + database
-                                    + ", feature table: " + features
-                                    + ", row: " + cursor.getPosition(), e);
+                                    + ", feature table: " + featureDao.getTableName()
+                                    + ", row id: " + row.getId(), e);
                 }
             }
-
         } finally {
-            cursor.close();
+            indexResults.close();
         }
     }
 
@@ -1828,6 +2096,14 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         private final boolean editable;
 
+        private final GoogleMapShapeConverter converter;
+
+        private final BoundingBox filterBoundingBox;
+
+        private final double maxLongitude;
+
+        private final boolean filter;
+
         /**
          * Constructor
          *
@@ -1838,10 +2114,15 @@ public class GeoPackageMapFragment extends Fragment implements
          * @param count
          * @param maxFeatures
          * @param editable
+         * @param converter
+         * @param filterBoundingBox
+         * @param maxLongitude
+         * @param filter
          */
         public FeatureRowProcessor(MapUpdateTask task, String database, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
-                                   boolean editable) {
+                                   boolean editable, GoogleMapShapeConverter converter,
+                                   BoundingBox filterBoundingBox, double maxLongitude, boolean filter) {
             this.task = task;
             this.database = database;
             this.featureDao = featureDao;
@@ -1849,6 +2130,10 @@ public class GeoPackageMapFragment extends Fragment implements
             this.count = count;
             this.maxFeatures = maxFeatures;
             this.editable = editable;
+            this.converter = converter;
+            this.filterBoundingBox = filterBoundingBox;
+            this.maxLongitude = maxLongitude;
+            this.filter = filter;
         }
 
         /**
@@ -1856,8 +2141,8 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         @Override
         public void run() {
-            processFeatureRow(task, database, featureDao, row, count, maxFeatures,
-                    editable);
+            processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures,
+                    editable, filterBoundingBox, maxLongitude, filter);
         }
 
     }
@@ -1872,27 +2157,54 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param count
      * @param maxFeatures
      * @param editable
+     * @param boundingBox
+     * @param maxLongitude
+     * @param filter
      */
     private void processFeatureRow(MapUpdateTask task, String database, FeatureDao featureDao,
-                                   FeatureRow row, AtomicInteger count, int maxFeatures,
-                                   boolean editable) {
-        mil.nga.geopackage.projection.Projection projection = featureDao
-                .getProjection();
-        final GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
-                projection);
+                                   GoogleMapShapeConverter converter, FeatureRow row, AtomicInteger count,
+                                   int maxFeatures, boolean editable, BoundingBox boundingBox, double maxLongitude,
+                                   boolean filter) {
 
-        final long featureId = row.getId();
-        GeoPackageGeometryData geometryData = row.getGeometry();
-        if (geometryData != null && !geometryData.isEmpty()) {
+        boolean exists = false;
+        synchronized (featureShapes) {
+            exists = featureShapes.exists(row.getId(), database, featureDao.getTableName());
+        }
 
-            final Geometry geometry = geometryData.getGeometry();
+        if (!exists) {
 
-            if (geometry != null) {
-                if (count.getAndIncrement() < maxFeatures) {
-                    final GoogleMapShape shape = converter.toShape(geometry);
-                    updateFeaturesBoundingBox(shape);
-                    prepareShapeOptions(shape, editable, true);
-                    task.addToMap(featureId, database, featureDao.getTableName(), shape);
+            GeoPackageGeometryData geometryData = row.getGeometry();
+            if (geometryData != null && !geometryData.isEmpty()) {
+
+                final Geometry geometry = geometryData.getGeometry();
+
+                if (geometry != null) {
+
+                    boolean passesFilter = true;
+
+                    if (filter && boundingBox != null) {
+                        GeometryEnvelope envelope = geometryData.getEnvelope();
+                        if (envelope == null) {
+                            envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
+                        }
+                        if (envelope != null) {
+                            if (geometry.getGeometryType() == GeometryType.POINT) {
+                                mil.nga.wkb.geom.Point point = (mil.nga.wkb.geom.Point) geometry;
+                                passesFilter = TileBoundingBoxUtils.isPointInBoundingBox(point, boundingBox, maxLongitude);
+                            } else {
+                                BoundingBox geometryBoundingBox = new BoundingBox(envelope);
+                                passesFilter = TileBoundingBoxUtils.overlap(boundingBox, geometryBoundingBox, maxLongitude) != null;
+                            }
+                        }
+                    }
+
+                    if (passesFilter && count.getAndIncrement() < maxFeatures) {
+                        final long featureId = row.getId();
+                        final GoogleMapShape shape = converter.toShape(geometry);
+                        updateFeaturesBoundingBox(shape);
+                        prepareShapeOptions(shape, editable, true);
+                        task.addToMap(featureId, database, featureDao.getTableName(), shape);
+                    }
                 }
             }
         }
@@ -2053,19 +2365,26 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param featureId
      * @param shape
+     * @return marker
      */
-    private void addEditableShape(long featureId, GoogleMapShape shape) {
+    private Marker addEditableShape(long featureId, GoogleMapShape shape) {
+
+        Marker marker = null;
 
         if (shape.getShapeType() == GoogleMapShapeType.MARKER) {
-            Marker marker = (Marker) shape.getShape();
-            editFeatureIds.put(marker.getId(), featureId);
+            marker = (Marker) shape.getShape();
         } else {
-            Marker marker = getMarker(shape);
+            marker = getMarker(shape);
             if (marker != null) {
-                editFeatureIds.put(marker.getId(), featureId);
                 editFeatureObjects.put(marker.getId(), shape);
             }
         }
+
+        if (marker != null) {
+            editFeatureIds.put(marker.getId(), featureId);
+        }
+
+        return marker;
     }
 
     /**
@@ -2231,8 +2550,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void displayFeatureTiles(GeoPackageFeatureOverlayTable featureOverlayTable) {
 
         GeoPackage geoPackage = geoPackages.get(featureOverlayTable.getDatabase());
-
-        FeatureDao featureDao = geoPackage.getFeatureDao(featureOverlayTable.getFeatureTable());
+        FeatureDao featureDao = featureDaos.get(featureOverlayTable.getDatabase()).get(featureOverlayTable.getFeatureTable());
 
         BoundingBox boundingBox = new BoundingBox(featureOverlayTable.getMinLon(),
                 featureOverlayTable.getMaxLon(), featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLat());

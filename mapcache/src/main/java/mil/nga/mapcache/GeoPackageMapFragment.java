@@ -40,7 +40,6 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -211,6 +210,16 @@ public class GeoPackageMapFragment extends Fragment implements
      * Update task
      */
     private MapUpdateTask updateTask;
+
+    /**
+     * Update features task
+     */
+    private MapFeaturesUpdateTask updateFeaturesTask;
+
+    /**
+     * Update lock
+     */
+    private Lock updateLock = new ReentrantLock();
 
     /**
      * Mapping of open GeoPackages by name
@@ -532,7 +541,20 @@ public class GeoPackageMapFragment extends Fragment implements
                 featureShapes.removeShapesNotWithinMap(map);
             }
 
-            updateInBackground(active.isModified());
+            BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
+            double toleranceDistance = MapUtils.getToleranceDistance(view, map);
+            int maxFeatures = getMaxFeatures();
+
+            updateLock.lock();
+            try {
+                if(updateFeaturesTask != null){
+                    updateFeaturesTask.cancel(false);
+                }
+                updateFeaturesTask = new MapFeaturesUpdateTask();
+                updateFeaturesTask.execute(false, maxFeatures, mapViewBoundingBox, toleranceDistance, true);
+            } finally {
+                updateLock.unlock();
+            }
         }
 
     }
@@ -1457,9 +1479,21 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void updateInBackground(boolean zoom) {
 
-        if (updateTask != null) {
-            updateTask.cancel(false);
+        MapUpdateTask localUpdateTask = null;
+        updateLock.lock();
+        try {
+            if (updateTask != null) {
+                updateTask.cancel(false);
+            }
+            if(updateFeaturesTask != null){
+                updateFeaturesTask.cancel(false);
+            }
+            updateTask = new MapUpdateTask();
+            localUpdateTask = updateTask;
+        } finally {
+            updateLock.unlock();
         }
+
         map.clear();
         for (GeoPackage geoPackage : geoPackages.values()) {
             try {
@@ -1476,25 +1510,19 @@ public class GeoPackageMapFragment extends Fragment implements
         featureOverlayQueries.clear();
         featureShapes.clear();
         markerIds.clear();
-        updateTask = new MapUpdateTask();
         int maxFeatures = getMaxFeatures();
 
         BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
         double toleranceDistance = MapUtils.getToleranceDistance(view, map);
 
-        updateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, true); // TODO when to filter?
+        localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, false);
 
     }
 
     /**
      * Update the map in the background
      */
-    private class MapUpdateTask extends AsyncTask<Object, Object, Integer> {
-
-        /**
-         * Updating tiles and features toast
-         */
-        private Toast updateToast;
+    private class MapUpdateTask extends AsyncTask<Object, Void, Void> {
 
         /**
          * Zoom after update flag
@@ -1522,104 +1550,17 @@ public class GeoPackageMapFragment extends Fragment implements
         private boolean filter;
 
         /**
-         * Update start time
-         */
-        private Date startTime;
-
-        /**
          * {@inheritDoc}
          */
         @Override
-        protected void onPreExecute() {
-            updateToast = Toast.makeText(getActivity(),
-                    "Updating Tiles and Features", Toast.LENGTH_LONG);
-            updateToast.show();
-            startTime = new Date();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected Integer doInBackground(Object... params) {
+        protected Void doInBackground(Object... params) {
             zoom = (Boolean) params[0];
             maxFeatures = (Integer) params[1];
             mapViewBoundingBox = (BoundingBox) params[2];
             toleranceDistance = (Double) params[3];
             filter = (Boolean) params[4];
-            int count = update(this, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
-            return count;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected void onProgressUpdate(Object... shapeUpdate) {
-
-            long featureId = (Long) shapeUpdate[0];
-            String database = (String) shapeUpdate[1];
-            String tableName = (String) shapeUpdate[2];
-            GoogleMapShape shape = (GoogleMapShape) shapeUpdate[3];
-
-            synchronized (featureShapes) {
-
-                if (!featureShapes.exists(featureId, database, tableName)) {
-
-                    GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
-                            map, shape);
-
-                    if (editFeaturesMode) {
-                        Marker marker = addEditableShape(featureId, mapShape);
-                        if (marker != null) {
-                            GoogleMapShape mapPointShape = new GoogleMapShape(GeometryType.POINT, GoogleMapShapeType.MARKER, marker);
-                            featureShapes.addMapShape(mapPointShape, featureId, database, tableName);
-                        }
-                    } else {
-                        addMarkerShape(featureId, database, tableName, mapShape);
-                    }
-                    featureShapes.addMapShape(mapShape, featureId, database, tableName);
-                }
-            }
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected void onPostExecute(Integer count) {
-            Date stopTime = new Date();
-            DecimalFormat format = new DecimalFormat("0.##");
-            String time = format.format((stopTime.getTime() - startTime
-                    .getTime()) / 1000.0);
-            updateToast.cancel();
-            if (count > 0) {
-                if (count >= maxFeatures) {
-                    Toast.makeText(
-                            getActivity(),
-                            "Max Features Drawn: " + count + " (" + time
-                                    + " sec)", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(),
-                            "Features Drawn: " + count + " (" + time + " sec)",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-            if (zoom) {
-                zoomToActive(true);
-            }
-        }
-
-        /**
-         * Add a shape to the map
-         *
-         * @param featureId
-         * @param database
-         * @param tableName
-         * @param shape
-         */
-        public void addToMap(long featureId, String database, String tableName, GoogleMapShape shape) {
-            publishProgress(new Object[]{featureId, database, tableName, shape});
+            update(this, zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            return null;
         }
 
     }
@@ -1627,16 +1568,14 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map
      *
+     * @param zoom
      * @param task
      * @param maxFeatures
      * @param mapViewBoundingBox
      * @param toleranceDistance
      * @param filter
-     * @return feature count
      */
-    private int update(MapUpdateTask task, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
-
-        int count = 0;
+    private void update(MapUpdateTask task, boolean zoom, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
         if (active != null) {
 
@@ -1718,25 +1657,134 @@ public class GeoPackageMapFragment extends Fragment implements
 
             // Add features
             if (!task.isCancelled()) {
-                count = addFeatures(task, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+                updateLock.lock();
+                try {
+                    if(updateFeaturesTask != null){
+                        updateFeaturesTask.cancel(false);
+                    }
+                    updateFeaturesTask = new MapFeaturesUpdateTask();
+                    updateFeaturesTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+                } finally {
+                    updateLock.unlock();
+                }
             }
 
         }
 
-        return count;
+    }
+
+    /**
+     * Update the map features in the background
+     */
+    private class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
+
+        /**
+         * Zoom after update flag
+         */
+        private boolean zoom;
+
+        /**
+         * Max features to draw
+         */
+        private int maxFeatures;
+
+        /**
+         * Map view bounding box
+         */
+        private BoundingBox mapViewBoundingBox;
+
+        /**
+         * Tolerance distance for simplification
+         */
+        private double toleranceDistance;
+
+        /**
+         * Filter flag
+         */
+        private boolean filter;
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected Integer doInBackground(Object... params) {
+            zoom = (Boolean) params[0];
+            maxFeatures = (Integer) params[1];
+            mapViewBoundingBox = (BoundingBox) params[2];
+            toleranceDistance = (Double) params[3];
+            filter = (Boolean) params[4];
+            int count = addFeatures(this, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            return count;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void onProgressUpdate(Object... shapeUpdate) {
+
+            long featureId = (Long) shapeUpdate[0];
+            String database = (String) shapeUpdate[1];
+            String tableName = (String) shapeUpdate[2];
+            GoogleMapShape shape = (GoogleMapShape) shapeUpdate[3];
+
+            synchronized (featureShapes) {
+
+                if (!featureShapes.exists(featureId, database, tableName)) {
+
+                    GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
+                            map, shape);
+
+                    if (editFeaturesMode) {
+                        Marker marker = addEditableShape(featureId, mapShape);
+                        if (marker != null) {
+                            GoogleMapShape mapPointShape = new GoogleMapShape(GeometryType.POINT, GoogleMapShapeType.MARKER, marker);
+                            featureShapes.addMapShape(mapPointShape, featureId, database, tableName);
+                        }
+                    } else {
+                        addMarkerShape(featureId, database, tableName, mapShape);
+                    }
+                    featureShapes.addMapShape(mapShape, featureId, database, tableName);
+                }
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void onPostExecute(Integer count) {
+
+            if (zoom) {
+                zoomToActive(true);
+            }
+        }
+
+        /**
+         * Add a shape to the map
+         *
+         * @param featureId
+         * @param database
+         * @param tableName
+         * @param shape
+         */
+        public void addToMap(long featureId, String database, String tableName, GoogleMapShape shape) {
+            publishProgress(new Object[]{featureId, database, tableName, shape});
+        }
+
     }
 
     /**
      * Add features to the map
      *
-     * @param task               udpate task
+     * @param task               udpate features task
      * @param maxFeatures        max features
      * @param mapViewBoundingBox map view bounding box
      * @param toleranceDistance  tolerance distance
      * @param filter             filter
      * @return feature count
      */
-    private int addFeatures(MapUpdateTask task, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
+    private int addFeatures(MapFeaturesUpdateTask task, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
         AtomicInteger count = new AtomicInteger();
 
@@ -1924,7 +1972,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param toleranceDistance
      * @param filter
      */
-    private void displayFeatures(MapUpdateTask task,
+    private void displayFeatures(MapFeaturesUpdateTask task,
                                  ExecutorService threadPool, String database, String features,
                                  AtomicInteger count, final int maxFeatures, final boolean editable,
                                  BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
@@ -2018,7 +2066,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param editable
      * @param filter
      */
-    private void processFeatureIndexResults(MapUpdateTask task, ExecutorService threadPool, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
+    private void processFeatureIndexResults(MapFeaturesUpdateTask task, ExecutorService threadPool, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
                                             GoogleMapShapeConverter converter, AtomicInteger count, final int maxFeatures, final boolean editable,
                                             boolean filter) {
 
@@ -2064,7 +2112,7 @@ public class GeoPackageMapFragment extends Fragment implements
         /**
          * Map update task
          */
-        private final MapUpdateTask task;
+        private final MapFeaturesUpdateTask task;
 
         /**
          * Database
@@ -2119,7 +2167,7 @@ public class GeoPackageMapFragment extends Fragment implements
          * @param maxLongitude
          * @param filter
          */
-        public FeatureRowProcessor(MapUpdateTask task, String database, FeatureDao featureDao,
+        public FeatureRowProcessor(MapFeaturesUpdateTask task, String database, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
                                    boolean editable, GoogleMapShapeConverter converter,
                                    BoundingBox filterBoundingBox, double maxLongitude, boolean filter) {
@@ -2161,7 +2209,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param maxLongitude
      * @param filter
      */
-    private void processFeatureRow(MapUpdateTask task, String database, FeatureDao featureDao,
+    private void processFeatureRow(MapFeaturesUpdateTask task, String database, FeatureDao featureDao,
                                    GoogleMapShapeConverter converter, FeatureRow row, AtomicInteger count,
                                    int maxFeatures, boolean editable, BoundingBox boundingBox, double maxLongitude,
                                    boolean filter) {

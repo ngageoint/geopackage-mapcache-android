@@ -115,6 +115,7 @@ import mil.nga.geopackage.map.geom.MultiPolylineOptions;
 import mil.nga.geopackage.map.geom.PolygonHoleMarkers;
 import mil.nga.geopackage.map.geom.ShapeMarkers;
 import mil.nga.geopackage.map.geom.ShapeWithChildrenMarkers;
+import mil.nga.geopackage.map.tiles.TileBoundingBoxMapUtils;
 import mil.nga.geopackage.map.tiles.overlay.BoundedOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlayQuery;
@@ -124,6 +125,7 @@ import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.tiles.TileBoundingBoxAndroidUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
@@ -217,7 +219,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private MapFeaturesUpdateTask updateFeaturesTask;
 
     /**
-     * Update lock
+     * Update lock for creating and cancelling update tasks
      */
     private Lock updateLock = new ReentrantLock();
 
@@ -305,6 +307,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Current zoom level
      */
     private int currentZoom = -1;
+
+    /**
+     * Flag indicating if the initial zoom is still needed
+     */
+    private boolean needsInitialZoom = true;
 
     /**
      * Mapping between marker ids and the feature ids
@@ -498,12 +505,18 @@ public class GeoPackageMapFragment extends Fragment implements
         return touch;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         initializeMap();
     }
 
+    /**
+     * Initialize the map
+     */
     private void initializeMap() {
         if (map == null) return;
 
@@ -524,19 +537,22 @@ public class GeoPackageMapFragment extends Fragment implements
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void onCameraIdle(){
+    public void onCameraIdle() {
 
         // If visible & not editing a shape, update the feature shapes for the current map view region
-        if(visible && (!editFeaturesMode || editFeatureType == null || (editPoints.isEmpty() && editFeatureMarker == null))){
+        if (visible && (!editFeaturesMode || editFeatureType == null || (editPoints.isEmpty() && editFeatureMarker == null))) {
 
             int previousZoom = currentZoom;
             int zoom = (int) MapUtils.getCurrentZoom(map);
             currentZoom = zoom;
-            if(zoom != previousZoom){
+            if (zoom != previousZoom) {
                 // Zoom level changed, remove all feature shapes
                 featureShapes.removeShapes();
-            }else{
+            } else {
                 // Remove shapes no longer visible on the map view
                 featureShapes.removeShapesNotWithinMap(map);
             }
@@ -547,7 +563,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
             updateLock.lock();
             try {
-                if(updateFeaturesTask != null){
+                if (updateFeaturesTask != null) {
                     updateFeaturesTask.cancel(false);
                 }
                 updateFeaturesTask = new MapFeaturesUpdateTask();
@@ -1485,7 +1501,7 @@ public class GeoPackageMapFragment extends Fragment implements
             if (updateTask != null) {
                 updateTask.cancel(false);
             }
-            if(updateFeaturesTask != null){
+            if (updateFeaturesTask != null) {
                 updateFeaturesTask.cancel(false);
             }
             updateTask = new MapUpdateTask();
@@ -1659,7 +1675,7 @@ public class GeoPackageMapFragment extends Fragment implements
             if (!task.isCancelled()) {
                 updateLock.lock();
                 try {
-                    if(updateFeaturesTask != null){
+                    if (updateFeaturesTask != null) {
                         updateFeaturesTask.cancel(false);
                     }
                     updateFeaturesTask = new MapFeaturesUpdateTask();
@@ -1755,8 +1771,9 @@ public class GeoPackageMapFragment extends Fragment implements
         @Override
         protected void onPostExecute(Integer count) {
 
-            if (zoom) {
+            if (needsInitialZoom || zoom) {
                 zoomToActive(true);
+                needsInitialZoom = false;
             }
         }
 
@@ -1897,10 +1914,12 @@ public class GeoPackageMapFragment extends Fragment implements
     private void zoomToActive(boolean nothingVisible) {
 
         BoundingBox bbox = featuresBoundingBox;
+        boolean tileBox = false;
 
         float paddingPercentage;
         if (bbox == null) {
             bbox = tilesBoundingBox;
+            tileBox = true;
             if (featureOverlayTiles) {
                 paddingPercentage = getActivity().getResources().getInteger(
                         R.integer.map_feature_tiles_zoom_padding_percentage) * .01f;
@@ -1918,7 +1937,32 @@ public class GeoPackageMapFragment extends Fragment implements
             boolean zoomToActive = true;
             if (nothingVisible) {
                 BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
-                zoomToActive = TileBoundingBoxUtils.overlap(bbox, mapViewBoundingBox, ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) != null;
+                if(TileBoundingBoxUtils.overlap(bbox, mapViewBoundingBox, ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) != null){
+
+                    double longitudeDistance = TileBoundingBoxMapUtils.getLongitudeDistance(bbox);
+                    double latitudeDistance = TileBoundingBoxMapUtils.getLatitudeDistance(bbox);
+                    double mapViewLongitudeDistance = TileBoundingBoxMapUtils.getLongitudeDistance(mapViewBoundingBox);
+                    double mapViewLatitudeDistance = TileBoundingBoxMapUtils.getLatitudeDistance(mapViewBoundingBox);
+
+                    if(mapViewLongitudeDistance > longitudeDistance && mapViewLatitudeDistance > latitudeDistance){
+
+                        double longitudeRatio = longitudeDistance / mapViewLongitudeDistance;
+                        double latitudeRatio = latitudeDistance / mapViewLatitudeDistance;
+
+                        double zoomAlreadyVisiblePercentage;
+                        if(tileBox){
+                            zoomAlreadyVisiblePercentage = getActivity().getResources().getInteger(
+                                    R.integer.map_tiles_zoom_already_visible_percentage) * .01f;
+                        }else{
+                            zoomAlreadyVisiblePercentage = getActivity().getResources().getInteger(
+                                    R.integer.map_features_zoom_already_visible_percentage) * .01f;
+                        }
+
+                        if(longitudeRatio >= zoomAlreadyVisiblePercentage && latitudeRatio >= zoomAlreadyVisiblePercentage){
+                            zoomToActive = false;
+                        }
+                    }
+                }
             }
 
             if (zoomToActive) {
@@ -2009,7 +2053,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 BoundingBox filterBoundingBox = null;
                 double filterMaxLongitude = 0;
 
-                if(filter) {
+                if (filter) {
                     mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
                     ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
                     BoundingBox boundedMapViewBoundingBox = mapViewBoundingBox.boundWgs84Coordinates();
@@ -2040,7 +2084,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             } else {
 
                                 processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures, editable,
-                                         filterBoundingBox, filterMaxLongitude, filter);
+                                        filterBoundingBox, filterMaxLongitude, filter);
                             }
                         } catch (Exception e) {
                             Log.e(GeoPackageMapFragment.class.getSimpleName(),
@@ -2060,7 +2104,6 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     *
      * @param task
      * @param threadPool
      * @param indexResults

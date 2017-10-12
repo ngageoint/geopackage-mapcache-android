@@ -5,7 +5,9 @@
     <integer name="map_update_thread_pool_size">0</integer>
     <integer name="map_update_thread_pool_finish_wait">10000</integer>
     <integer name="map_features_zoom_padding_percentage">10</integer>
+    <integer name="map_features_zoom_already_visible_percentage">1</integer>
     <integer name="map_tiles_zoom_padding_percentage">0</integer>
+    <integer name="map_tiles_zoom_already_visible_percentage">65</integer>
     <integer name="map_feature_tiles_zoom_padding_percentage">10</integer>
     <integer name="load_tiles_min_zoom_default">0</integer>
     <integer name="load_tiles_max_zoom_default">21</integer>

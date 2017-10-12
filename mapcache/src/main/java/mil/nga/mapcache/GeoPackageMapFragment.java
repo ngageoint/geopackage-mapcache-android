@@ -2006,15 +2006,21 @@ public class GeoPackageMapFragment extends Fragment implements
 
             } else {
 
-                mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
-                ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
-                BoundingBox filterBoundingBox = projectionTransform.transform(mapViewBoundingBox);
+                BoundingBox filterBoundingBox = null;
                 double filterMaxLongitude = 0;
-                Unit unit = featureProjection.getUnit();
-                if (unit instanceof DegreeUnit) {
-                    filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
-                } else if (unit == Units.METRES) {
-                    filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
+
+                if(filter) {
+                    mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
+                    ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
+                    BoundingBox boundedMapViewBoundingBox = mapViewBoundingBox.boundWgs84Coordinates();
+                    BoundingBox transformedBoundingBox = projectionTransform.transform(boundedMapViewBoundingBox);
+                    Unit unit = featureProjection.getUnit();
+                    if (unit instanceof DegreeUnit) {
+                        filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
+                    } else if (unit == Units.METRES) {
+                        filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
+                    }
+                    filterBoundingBox = transformedBoundingBox.expandCoordinates(filterMaxLongitude);
                 }
 
                 // Query for all rows

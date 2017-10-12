@@ -91,6 +91,7 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -125,12 +126,12 @@ import mil.nga.geopackage.projection.ProjectionFactory;
 import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
-import mil.nga.geopackage.tiles.TileBoundingBoxAndroidUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -177,6 +178,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Google map
      */
     private GoogleMap map;
+
+    /**
+     * Map loaded flag
+     */
+    private boolean mapLoaded = false;
 
     /**
      * View
@@ -535,6 +541,13 @@ public class GeoPackageMapFragment extends Fragment implements
         map.setOnCameraIdleListener(this);
         map.getUiSettings().setZoomControlsEnabled(true);
 
+        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                updateInBackground(true);
+                mapLoaded = true;
+            }
+        });
     }
 
     /**
@@ -1136,7 +1149,29 @@ public class GeoPackageMapFragment extends Fragment implements
             active.setModified(false);
             resetBoundingBox();
             resetEditFeatures();
-            updateInBackground(true);
+            if (mapLoaded) {
+                updateInBackground(true);
+            }
+        } else if (!visible) {
+            updateLock.lock();
+            try {
+                if (updateTask != null) {
+                    if (updateTask.getStatus() != AsyncTask.Status.FINISHED) {
+                        updateTask.cancel(false);
+                        active.setModified(true);
+                    }
+                    updateTask = null;
+                }
+                if (updateFeaturesTask != null) {
+                    if (updateFeaturesTask.getStatus() != AsyncTask.Status.FINISHED) {
+                        updateFeaturesTask.cancel(false);
+                        active.setModified(true);
+                    }
+                    updateFeaturesTask = null;
+                }
+            } finally {
+                updateLock.unlock();
+            }
         }
     }
 
@@ -1520,6 +1555,11 @@ public class GeoPackageMapFragment extends Fragment implements
         }
         geoPackages.clear();
         featureDaos.clear();
+
+        if (zoom) {
+            zoomToActiveBounds();
+        }
+
         featuresBoundingBox = null;
         tilesBoundingBox = null;
         featureOverlayTiles = false;
@@ -1533,6 +1573,118 @@ public class GeoPackageMapFragment extends Fragment implements
 
         localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, false);
 
+    }
+
+    /**
+     * Zoom to the active feature and tile table data bounds
+     */
+    private void zoomToActiveBounds() {
+
+        featuresBoundingBox = null;
+        tilesBoundingBox = null;
+
+        // Pre zoom
+        List<GeoPackageDatabase> activeDatabases = new ArrayList<>();
+        activeDatabases.addAll(active.getDatabases());
+        for (GeoPackageDatabase database : activeDatabases) {
+            GeoPackage geoPackage = manager.open(database.getDatabase());
+            if (geoPackage != null) {
+
+                Set<String> featureTableDaos = new HashSet<>();
+                Collection<GeoPackageFeatureTable> features = database.getFeatures();
+                if (!features.isEmpty()) {
+                    for (GeoPackageFeatureTable featureTable : features) {
+                        featureTableDaos.add(featureTable.getName());
+                    }
+                }
+
+                for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
+                    if (featureOverlay.isActive()) {
+                        featureTableDaos.add(featureOverlay.getFeatureTable());
+                    }
+                }
+
+                if (!featureTableDaos.isEmpty()) {
+
+                    ContentsDao contentsDao = geoPackage.getContentsDao();
+
+                    for (String featureTable : featureTableDaos) {
+
+                        try {
+                            Contents contents = contentsDao.queryForId(featureTable);
+                            BoundingBox contentsBoundingBox = contents.getBoundingBox();
+
+                            contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
+
+                            if (featuresBoundingBox != null) {
+                                featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
+                            } else {
+                                featuresBoundingBox = contentsBoundingBox;
+                            }
+                        } catch (SQLException e) {
+                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                    e.getMessage());
+                        }
+                    }
+                }
+
+                Collection<GeoPackageTileTable> tileTables = database.getTiles();
+                if (!tileTables.isEmpty()) {
+
+                    TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
+
+                    for (GeoPackageTileTable tileTable : database.getTiles()) {
+
+                        try {
+                            TileMatrixSet tileMatrixSet = tileMatrixSetDao.queryForId(tileTable.getName());
+                            BoundingBox tileMatrixSetBoundingBox = tileMatrixSet.getBoundingBox();
+
+                            tileMatrixSetBoundingBox = transformBoundingBoxToWgs84(tileMatrixSetBoundingBox, tileMatrixSet.getSrs());
+
+                            if (tilesBoundingBox != null) {
+                                tilesBoundingBox = TileBoundingBoxUtils.union(tilesBoundingBox, tileMatrixSetBoundingBox);
+                            } else {
+                                tilesBoundingBox = tileMatrixSetBoundingBox;
+                            }
+                        } catch (SQLException e) {
+                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                    e.getMessage());
+                        }
+                    }
+                }
+
+                geoPackage.close();
+            }
+        }
+
+        zoomToActive();
+    }
+
+    /**
+     * Transform the bounding box in the spatial reference to a WGS84 bounding box
+     *
+     * @param boundingBox bounding box
+     * @param srs         spatial reference system
+     * @return bounding box
+     */
+    private BoundingBox transformBoundingBoxToWgs84(BoundingBox boundingBox, SpatialReferenceSystem srs) {
+
+        mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
+                srs);
+        if (projection.getUnit() instanceof DegreeUnit) {
+            boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
+        }
+        ProjectionTransform transformToWebMercator = projection
+                .getTransformation(
+                        ProjectionConstants.EPSG_WEB_MERCATOR);
+        BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(boundingBox);
+        ProjectionTransform transform = ProjectionFactory.getProjection(
+                ProjectionConstants.EPSG_WEB_MERCATOR)
+                .getTransformation(
+                        ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+        boundingBox = transform
+                .transform(webMercatorBoundingBox);
+        return boundingBox;
     }
 
     /**
@@ -1937,28 +2089,28 @@ public class GeoPackageMapFragment extends Fragment implements
             boolean zoomToActive = true;
             if (nothingVisible) {
                 BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
-                if(TileBoundingBoxUtils.overlap(bbox, mapViewBoundingBox, ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) != null){
+                if (TileBoundingBoxUtils.overlap(bbox, mapViewBoundingBox, ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH) != null) {
 
                     double longitudeDistance = TileBoundingBoxMapUtils.getLongitudeDistance(bbox);
                     double latitudeDistance = TileBoundingBoxMapUtils.getLatitudeDistance(bbox);
                     double mapViewLongitudeDistance = TileBoundingBoxMapUtils.getLongitudeDistance(mapViewBoundingBox);
                     double mapViewLatitudeDistance = TileBoundingBoxMapUtils.getLatitudeDistance(mapViewBoundingBox);
 
-                    if(mapViewLongitudeDistance > longitudeDistance && mapViewLatitudeDistance > latitudeDistance){
+                    if (mapViewLongitudeDistance > longitudeDistance && mapViewLatitudeDistance > latitudeDistance) {
 
                         double longitudeRatio = longitudeDistance / mapViewLongitudeDistance;
                         double latitudeRatio = latitudeDistance / mapViewLatitudeDistance;
 
                         double zoomAlreadyVisiblePercentage;
-                        if(tileBox){
+                        if (tileBox) {
                             zoomAlreadyVisiblePercentage = getActivity().getResources().getInteger(
                                     R.integer.map_tiles_zoom_already_visible_percentage) * .01f;
-                        }else{
+                        } else {
                             zoomAlreadyVisiblePercentage = getActivity().getResources().getInteger(
                                     R.integer.map_features_zoom_already_visible_percentage) * .01f;
                         }
 
-                        if(longitudeRatio >= zoomAlreadyVisiblePercentage && latitudeRatio >= zoomAlreadyVisiblePercentage){
+                        if (longitudeRatio >= zoomAlreadyVisiblePercentage && latitudeRatio >= zoomAlreadyVisiblePercentage) {
                             zoomToActive = false;
                         }
                     }
@@ -2608,7 +2760,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getBoundedOverlay(tileDao);
 
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
-        Contents contents = tileMatrixSet.getContents();
 
         FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
         List<FeatureDao> featureDaos = linker.getFeatureDaosForTileTable(tileDao.getTableName());
@@ -2636,7 +2787,7 @@ public class GeoPackageMapFragment extends Fragment implements
             zIndex = -1;
         }
 
-        displayTiles(overlay, contents, zIndex, null);
+        displayTiles(overlay, tileMatrixSet.getBoundingBox(), tileMatrixSet.getSrs(), zIndex, null);
     }
 
     /**
@@ -2710,40 +2861,27 @@ public class GeoPackageMapFragment extends Fragment implements
         FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay);
         featureOverlayQueries.add(featureOverlayQuery);
 
-        displayTiles(overlay, contents, -1, boundingBox);
+        displayTiles(overlay, contents.getBoundingBox(), contents.getSrs(), -1, boundingBox);
     }
 
     /**
      * Display tiles
      *
      * @param overlay
-     * @param contents
+     * @param dataBoundingBox
+     * @param srs
      * @param zIndex
      * @param specifiedBoundingBox
      */
-    private void displayTiles(TileProvider overlay, Contents contents, int zIndex, BoundingBox specifiedBoundingBox) {
+    private void displayTiles(TileProvider overlay, BoundingBox dataBoundingBox, SpatialReferenceSystem srs, int zIndex, BoundingBox specifiedBoundingBox) {
 
         final TileOverlayOptions overlayOptions = new TileOverlayOptions();
         overlayOptions.tileProvider(overlay);
         overlayOptions.zIndex(zIndex);
 
-        BoundingBox boundingBox = contents.getBoundingBox();
+        BoundingBox boundingBox = dataBoundingBox;
         if (boundingBox != null) {
-            mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
-                    contents.getSrs());
-            if (projection.getUnit() instanceof DegreeUnit) {
-                boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
-            }
-            ProjectionTransform transformToWebMercator = projection
-                    .getTransformation(
-                            ProjectionConstants.EPSG_WEB_MERCATOR);
-            BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(boundingBox);
-            ProjectionTransform transform = ProjectionFactory.getProjection(
-                    ProjectionConstants.EPSG_WEB_MERCATOR)
-                    .getTransformation(
-                            ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-            boundingBox = transform
-                    .transform(webMercatorBoundingBox);
+            boundingBox = transformBoundingBoxToWgs84(boundingBox, srs);
         } else {
             boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
@@ -2758,18 +2896,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (tilesBoundingBox == null) {
             tilesBoundingBox = boundingBox;
         } else {
-            tilesBoundingBox.setMinLongitude(Math.min(
-                    tilesBoundingBox.getMinLongitude(),
-                    boundingBox.getMinLongitude()));
-            tilesBoundingBox.setMaxLongitude(Math.max(
-                    tilesBoundingBox.getMaxLongitude(),
-                    boundingBox.getMaxLongitude()));
-            tilesBoundingBox.setMinLatitude(Math.min(
-                    tilesBoundingBox.getMinLatitude(),
-                    boundingBox.getMinLatitude()));
-            tilesBoundingBox.setMaxLatitude(Math.max(
-                    tilesBoundingBox.getMaxLatitude(),
-                    boundingBox.getMaxLatitude()));
+            tilesBoundingBox = TileBoundingBoxUtils.union(tilesBoundingBox, boundingBox);
         }
 
         getActivity().runOnUiThread(new Runnable() {

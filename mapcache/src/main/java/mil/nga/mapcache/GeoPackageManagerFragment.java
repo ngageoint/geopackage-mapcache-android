@@ -867,7 +867,10 @@ public class GeoPackageManagerFragment extends Fragment implements
             // If external database, no permission is needed
             if (manager.isExternal(database)) {
                 // Create the Uri and share
-                Uri databaseUri = Uri.fromFile(databaseFile);
+                Uri databaseUri = FileProvider.getUriForFile(getActivity(),
+                        "mil.nga.mapcache.fileprovider",
+                        databaseFile);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);
             }
             // If internal database, file must be copied to cache for permission

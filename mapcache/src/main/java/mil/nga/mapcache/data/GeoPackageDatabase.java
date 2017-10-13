@@ -51,9 +51,10 @@ public class GeoPackageDatabase {
 
     /**
      * Get the feature count
+     *
      * @return
      */
-    public int getFeatureCount(){
+    public int getFeatureCount() {
         return features.size();
     }
 
@@ -68,20 +69,22 @@ public class GeoPackageDatabase {
 
     /**
      * Get the feature overlay count
+     *
      * @return
      */
-    public int getFeatureOverlayCount(){
+    public int getFeatureOverlayCount() {
         return featureOverlays.size();
     }
 
     /**
      * Get the feature overlay count
+     *
      * @return
      */
-    public int getActiveFeatureOverlayCount(){
+    public int getActiveFeatureOverlayCount() {
         int count = 0;
-        for(GeoPackageTable table : featureOverlays.values()){
-            if(table.isActive()){
+        for (GeoPackageTable table : featureOverlays.values()) {
+            if (table.isActive()) {
                 count++;
             }
         }
@@ -100,23 +103,25 @@ public class GeoPackageDatabase {
     /**
      * Get the tile count
      */
-    public int getTileCount(){
+    public int getTileCount() {
         return tiles.size();
     }
 
     /**
      * Get the table count
+     *
      * @return
      */
-    public int getTableCount(){
+    public int getTableCount() {
         return getFeatureCount() + getTileCount() + getFeatureOverlayCount();
     }
 
     /**
      * Get the active table count
+     *
      * @return
      */
-    public int getActiveTableCount(){
+    public int getActiveTableCount() {
         return getFeatureCount() + getTileCount() + getActiveFeatureOverlayCount();
     }
 
@@ -131,29 +136,40 @@ public class GeoPackageDatabase {
     /**
      * Check if the table exists in this table, is active
      *
-     * @param table
-     * @return
+     * @param table table
+     * @return true if exists
      */
     public boolean exists(GeoPackageTable table) {
+        return exists(table.getName(), table.getType());
+    }
+
+    /**
+     * Check if the table name of type exists, is active
+     *
+     * @param table     table name
+     * @param tableType table type
+     * @return true if exists
+     */
+    public boolean exists(String table, GeoPackageTableType tableType) {
 
         boolean exists = false;
 
-        switch (table.getType()) {
+        switch (tableType) {
 
             case FEATURE:
-                exists = features.containsKey(table.getName());
+                exists = features.containsKey(table);
                 break;
 
             case TILE:
-                exists = tiles.containsKey(table.getName());
+                exists = tiles.containsKey(table);
                 break;
 
             case FEATURE_OVERLAY:
-                exists = featureOverlays.containsKey(table.getName());
+                exists = featureOverlays.containsKey(table);
                 break;
 
             default:
-                throw new IllegalArgumentException("Unsupported table type: " + table.getType());
+                throw new IllegalArgumentException("Unsupported table type: " + tableType);
         }
 
         return exists;

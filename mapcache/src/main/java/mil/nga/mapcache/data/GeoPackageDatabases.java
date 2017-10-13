@@ -127,6 +127,23 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Check if the database, table, and type exists, is active
+     *
+     * @param database  database name
+     * @param table     table name
+     * @param tableType table type
+     * @return true if exists
+     */
+    public boolean exists(String database, String table, GeoPackageTableType tableType) {
+        boolean exists = false;
+        GeoPackageDatabase db = getDatabase(database);
+        if (db != null) {
+            exists = db.exists(table, tableType);
+        }
+        return exists;
+    }
+
+    /**
      * Get feature overlays for the database
      *
      * @param databaseName
@@ -227,14 +244,14 @@ public class GeoPackageDatabases {
                 databases.remove(database.getDatabase());
                 removeDatabaseFromPreferences(database.getDatabase(), preserveOverlays);
             }
-            if(!preserveOverlays && table.getType() == GeoPackageTableType.FEATURE){
+            if (!preserveOverlays && table.getType() == GeoPackageTableType.FEATURE) {
                 List<GeoPackageFeatureOverlayTable> deleteFeatureOverlays = new ArrayList<GeoPackageFeatureOverlayTable>();
-                for(GeoPackageFeatureOverlayTable featureOverlay: database.getFeatureOverlays()){
-                    if(featureOverlay.getFeatureTable().equals(table.getName())){
+                for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
+                    if (featureOverlay.getFeatureTable().equals(table.getName())) {
                         deleteFeatureOverlays.add(featureOverlay);
                     }
                 }
-                for(GeoPackageFeatureOverlayTable featureOverlay: deleteFeatureOverlays){
+                for (GeoPackageFeatureOverlayTable featureOverlay : deleteFeatureOverlays) {
                     removeTable(featureOverlay);
                 }
             }
@@ -242,21 +259,21 @@ public class GeoPackageDatabases {
         }
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return getTableCount() == 0;
     }
 
-    public int getTableCount(){
+    public int getTableCount() {
         int count = 0;
-        for(GeoPackageDatabase database : databases.values()){
+        for (GeoPackageDatabase database : databases.values()) {
             count += database.getTableCount();
         }
         return count;
     }
 
-    public int getActiveTableCount(){
+    public int getActiveTableCount() {
         int count = 0;
-        for(GeoPackageDatabase database : databases.values()){
+        for (GeoPackageDatabase database : databases.values()) {
             count += database.getActiveTableCount();
         }
         return count;
@@ -271,7 +288,7 @@ public class GeoPackageDatabases {
         for (String database : allDatabases) {
             GeoPackageDatabase db = databases.get(database);
             for (GeoPackageTable table : db.getFeatureOverlays()) {
-                if(table.isActive()) {
+                if (table.isActive()) {
                     table.setActive(false);
                     addTable(table, true);
                 }
@@ -374,7 +391,7 @@ public class GeoPackageDatabases {
         }
         editor.remove(getTileTablesPreferenceKey(database));
         editor.remove(getFeatureTablesPreferenceKey(database));
-        if(!preserveOverlays) {
+        if (!preserveOverlays) {
             editor.remove(getFeatureOverlayTablesPreferenceKey(database));
             deleteTableFiles(database);
         }

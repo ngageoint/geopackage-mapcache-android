@@ -97,11 +97,13 @@ import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.index.FeatureIndexResults;
+import mil.nga.geopackage.features.index.MultipleFeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.map.MapUtils;
+import mil.nga.geopackage.map.features.FeatureInfoBuilder;
 import mil.nga.geopackage.map.geom.FeatureShapes;
 import mil.nga.geopackage.map.geom.GoogleMapShape;
 import mil.nga.geopackage.map.geom.GoogleMapShapeConverter;
@@ -1615,7 +1617,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             Contents contents = contentsDao.queryForId(featureTable);
                             BoundingBox contentsBoundingBox = contents.getBoundingBox();
 
-                            if(contentsBoundingBox != null) {
+                            if (contentsBoundingBox != null) {
 
                                 contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
 
@@ -2194,15 +2196,14 @@ public class GeoPackageMapFragment extends Fragment implements
             if (filter && indexer.isIndexed()) {
 
                 FeatureIndexResults indexResults = indexer.query(mapViewBoundingBox, mapViewProjection);
-                processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter,
-                        count, maxFeatures, editable, filter);
-
                 BoundingBox complementary = mapViewBoundingBox.complementaryWgs84();
                 if (complementary != null) {
-                    indexResults = indexer.query(complementary, mapViewProjection);
-                    processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter,
-                            count, maxFeatures, editable, filter);
+                    FeatureIndexResults indexResults2 = indexer.query(complementary, mapViewProjection);
+                    indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
                 }
+
+                processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter,
+                        count, maxFeatures, editable, filter);
 
             } else {
 
@@ -3292,8 +3293,9 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onMapClick(LatLng point) {
 
+        StringBuilder clickMessage = new StringBuilder();
+
         if (!featureOverlayQueries.isEmpty()) {
-            StringBuilder clickMessage = new StringBuilder();
             for (FeatureOverlayQuery query : featureOverlayQueries) {
                 String message = query.buildMapClickMessage(point, view, map);
                 if (message != null) {
@@ -3303,17 +3305,66 @@ public class GeoPackageMapFragment extends Fragment implements
                     clickMessage.append(message);
                 }
             }
-            if (clickMessage.length() > 0) {
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setMessage(clickMessage.toString())
-                        .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
+        }
+
+        for (GeoPackageDatabase database : active.getDatabases()) {
+            if (!database.getFeatures().isEmpty()) {
+
+                BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, .03f);
+                clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
+                mil.nga.geopackage.projection.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+
+                for (GeoPackageTable features : database.getFeatures()) {
+
+                    GeoPackage geoPackage = geoPackages.get(database.getDatabase());
+                    Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(database.getDatabase());
+
+                    if (geoPackage != null && databaseFeatureDaos != null) {
+
+                        FeatureDao featureDao = databaseFeatureDaos.get(features.getName());
+
+                        if (featureDao != null) {
+
+                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                            if (indexer.isIndexed()) {
+
+                                FeatureInfoBuilder featureInfoBuilder = new FeatureInfoBuilder(getActivity(), featureDao);
+
+                                FeatureIndexResults indexResults = indexer.query(clickBoundingBox, clickProjection);
+                                BoundingBox complementary = clickBoundingBox.complementaryWgs84();
+                                if (complementary != null) {
+                                    FeatureIndexResults indexResults2 = indexer.query(complementary, clickProjection);
+                                    indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
+                                }
+
+                                if (indexResults.count() > 0) {
+                                    String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, point);
+                                    if (message != null) {
+                                        if (clickMessage.length() > 0) {
+                                            clickMessage.append("\n\n");
+                                        }
+                                        clickMessage.append(message);
                                     }
                                 }
-                        )
-                        .show();
+
+                            }
+                        }
+
+                    }
+                }
             }
+        }
+
+        if (clickMessage.length() > 0) {
+            new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setMessage(clickMessage.toString())
+                    .setPositiveButton(android.R.string.yes,
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }
+                    )
+                    .show();
         }
 
     }
@@ -4441,11 +4492,11 @@ public class GeoPackageMapFragment extends Fragment implements
                     if (!featureTables.isEmpty()) {
                         featureDatabases.add(database);
 
-                        if(searchForActive) {
-                            for(int i = 0; i < featureTables.size(); i++){
+                        if (searchForActive) {
+                            for (int i = 0; i < featureTables.size(); i++) {
                                 String featureTable = featureTables.get(i);
                                 boolean isActive = active.exists(database, featureTable, GeoPackageTableType.FEATURE);
-                                if(isActive){
+                                if (isActive) {
                                     defaultDatabase = featureDatabases.size() - 1;
                                     defaultTable = i;
                                     searchForActive = false;
@@ -4486,9 +4537,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     public void onItemSelected(AdapterView<?> parentView,
                                                View selectedItemView, int position, long id) {
 
-                        if(firstTime){
+                        if (firstTime) {
                             firstTime = false;
-                        }else {
+                        } else {
                             String geoPackage = geoPackageInput.getSelectedItem()
                                     .toString();
                             updateFeaturesSelection(featuresInput, geoPackage);

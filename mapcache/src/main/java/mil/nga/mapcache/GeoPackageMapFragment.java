@@ -1078,7 +1078,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         .showMessage(
                                 getActivity(),
                                 getString(R.string.edit_features_save_label)
-                                        + " " + editFeatureType.name(),
+                                        + " " + editFeaturesTable,
                                 "GeoPackage was created using a more recent SQLite version unsupported by Android");
             } else {
                 GeoPackageUtils.showMessage(getActivity(),

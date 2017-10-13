@@ -1615,12 +1615,15 @@ public class GeoPackageMapFragment extends Fragment implements
                             Contents contents = contentsDao.queryForId(featureTable);
                             BoundingBox contentsBoundingBox = contents.getBoundingBox();
 
-                            contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
+                            if(contentsBoundingBox != null) {
 
-                            if (featuresBoundingBox != null) {
-                                featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
-                            } else {
-                                featuresBoundingBox = contentsBoundingBox;
+                                contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
+
+                                if (featuresBoundingBox != null) {
+                                    featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
+                                } else {
+                                    featuresBoundingBox = contentsBoundingBox;
+                                }
                             }
                         } catch (SQLException e) {
                             Log.e(GeoPackageMapFragment.class.getSimpleName(),

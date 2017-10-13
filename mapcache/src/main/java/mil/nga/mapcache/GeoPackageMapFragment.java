@@ -138,6 +138,7 @@ import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
@@ -4423,14 +4424,32 @@ public class GeoPackageMapFragment extends Fragment implements
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(editFeaturesSelectionView);
 
+        boolean searchForActive = true;
+        int defaultDatabase = 0;
+        int defaultTable = 0;
+
         List<String> databases = getDatabases();
         List<String> featureDatabases = new ArrayList<String>();
         if (databases != null) {
             for (String database : databases) {
                 GeoPackage geoPackage = manager.open(database);
                 try {
-                    if (!geoPackage.getFeatureTables().isEmpty()) {
+                    List<String> featureTables = geoPackage.getFeatureTables();
+                    if (!featureTables.isEmpty()) {
                         featureDatabases.add(database);
+
+                        if(searchForActive) {
+                            for(int i = 0; i < featureTables.size(); i++){
+                                String featureTable = featureTables.get(i);
+                                boolean isActive = active.exists(database, featureTable, GeoPackageTableType.FEATURE);
+                                if(isActive){
+                                    defaultDatabase = featureDatabases.size() - 1;
+                                    defaultTable = i;
+                                    searchForActive = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 } finally {
                     if (geoPackage != null) {
@@ -4450,16 +4469,27 @@ public class GeoPackageMapFragment extends Fragment implements
                 featureDatabases);
         geoPackageInput.setAdapter(geoPackageAdapter);
 
-        updateFeaturesSelection(featuresInput, featureDatabases.get(0));
+        updateFeaturesSelection(featuresInput, featureDatabases.get(defaultDatabase));
+
+        geoPackageInput.setSelection(defaultDatabase);
+        featuresInput.setSelection(defaultTable);
 
         geoPackageInput
                 .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                    boolean firstTime = true;
+
                     @Override
                     public void onItemSelected(AdapterView<?> parentView,
                                                View selectedItemView, int position, long id) {
-                        String geoPackage = geoPackageInput.getSelectedItem()
-                                .toString();
-                        updateFeaturesSelection(featuresInput, geoPackage);
+
+                        if(firstTime){
+                            firstTime = false;
+                        }else {
+                            String geoPackage = geoPackageInput.getSelectedItem()
+                                    .toString();
+                            updateFeaturesSelection(featuresInput, geoPackage);
+                        }
                     }
 
                     @Override

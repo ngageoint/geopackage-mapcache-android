@@ -3310,7 +3310,11 @@ public class GeoPackageMapFragment extends Fragment implements
         for (GeoPackageDatabase database : active.getDatabases()) {
             if (!database.getFeatures().isEmpty()) {
 
-                BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, .03f);
+                TypedValue screenPercentage = new TypedValue();
+                getResources().getValue(R.dimen.map_feature_click_screen_percentage, screenPercentage, true);
+                float screenClickPercentage = screenPercentage.getFloat();
+
+                BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, screenClickPercentage);
                 clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
                 mil.nga.geopackage.projection.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 

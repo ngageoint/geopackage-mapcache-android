@@ -2585,11 +2585,9 @@ public class GeoPackageMapFragment extends Fragment implements
     private void setPolylineOptions(boolean editable,
                                     PolylineOptions polylineOptions) {
         if (editable) {
-            polylineOptions.color(getResources().getColor(
-                    R.color.polyline_edit_color));
+            polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_edit_color));
         } else {
-            polylineOptions.color(getResources().getColor(
-                    R.color.polyline_color));
+            polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_color));
         }
     }
 
@@ -2602,15 +2600,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private void setPolygonOptions(boolean editable,
                                    PolygonOptions polygonOptions) {
         if (editable) {
-            polygonOptions.strokeColor(getResources().getColor(
-                    R.color.polygon_edit_color));
-            polygonOptions.fillColor(getResources().getColor(
-                    R.color.polygon_edit_fill_color));
+            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_color));
+            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_fill_color));
         } else {
-            polygonOptions.strokeColor(getResources().getColor(
-                    R.color.polygon_color));
-            polygonOptions.fillColor(getResources().getColor(
-                    R.color.polygon_fill_color));
+            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_color));
+            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_fill_color));
         }
     }
 
@@ -2967,10 +2961,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 boundingBoxStartCorner = point;
                 boundingBoxEndCorner = point;
                 PolygonOptions polygonOptions = new PolygonOptions();
-                polygonOptions.strokeColor(getResources().getColor(
-                        R.color.bounding_box_draw_color));
-                polygonOptions.fillColor(getResources().getColor(
-                        R.color.bounding_box_draw_fill_color));
+                polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_color));
+                polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_fill_color));
                 List<LatLng> points = getPolygonPoints(boundingBoxStartCorner,
                         boundingBoxEndCorner);
                 polygonOptions.addAll(points);
@@ -3213,8 +3205,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private PolylineOptions getDrawPolylineOptions() {
         PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(getResources().getColor(
-                R.color.polyline_draw_color));
+        polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_draw_color));
         return polylineOptions;
     }
 
@@ -3225,10 +3216,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private PolygonOptions getDrawPolygonOptions() {
         PolygonOptions polygonOptions = new PolygonOptions();
-        polygonOptions.strokeColor(getResources().getColor(
-                R.color.polygon_draw_color));
-        polygonOptions.fillColor(getResources().getColor(
-                R.color.polygon_draw_fill_color));
+        polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_draw_color));
+        polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_draw_fill_color));
         return polygonOptions;
     }
 
@@ -3239,10 +3228,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private PolygonOptions getHoleDrawPolygonOptions() {
         PolygonOptions polygonOptions = new PolygonOptions();
-        polygonOptions.strokeColor(getResources().getColor(
-                R.color.polygon_hole_draw_color));
-        polygonOptions.fillColor(getResources().getColor(
-                R.color.polygon_hole_draw_fill_color));
+        polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_hole_draw_color));
+        polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_hole_draw_fill_color));
         return polygonOptions;
     }
 
@@ -3318,6 +3305,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
                 mil.nga.geopackage.projection.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
+                double tolerance = MapUtils.getToleranceDistance(point, view, map, screenClickPercentage);
+
                 for (GeoPackageTable features : database.getFeatures()) {
 
                     GeoPackage geoPackage = geoPackages.get(database.getDatabase());
@@ -3342,7 +3331,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 }
 
                                 if (indexResults.count() > 0) {
-                                    String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, point);
+                                    String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, tolerance, point);
                                     if (message != null) {
                                         if (clickMessage.length() > 0) {
                                             clickMessage.append("\n\n");

@@ -4120,18 +4120,15 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 break;
                         }
                     }
-                    imageView.setImageDrawable(getResources().getDrawable(
-                            drawableId));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawableId));
                     break;
 
                 case TILE:
-                    imageView.setImageDrawable(getResources().getDrawable(
-                            R.drawable.ic_tiles));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_tiles));
                     break;
 
                 case FEATURE_OVERLAY:
-                    imageView.setImageDrawable(getResources().getDrawable(
-                            R.drawable.ic_format_paint));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_format_paint));
                     break;
 
                 default:

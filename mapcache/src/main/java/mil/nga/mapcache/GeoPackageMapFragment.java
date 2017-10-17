@@ -98,6 +98,7 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexListResults;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.index.FeatureIndexResults;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.index.MultipleFeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
@@ -1005,6 +1006,8 @@ public class GeoPackageMapFragment extends Fragment implements
         try {
             FeatureDao featureDao = geoPackage.getFeatureDao(editFeaturesTable);
             long srsId = featureDao.getGeometryColumns().getSrsId();
+            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+            List<FeatureIndexType> indexedTypes = indexer.getIndexedTypes();
 
             GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
                     featureDao.getProjection());
@@ -1021,6 +1024,10 @@ public class GeoPackageMapFragment extends Fragment implements
                         pointGeomData.setGeometry(point);
                         newPoint.setGeometry(pointGeomData);
                         featureDao.insert(newPoint);
+                        updateLastChange(geoPackage, featureDao);
+                        if (!indexedTypes.isEmpty()) {
+                            indexer.index(newPoint, indexedTypes);
+                        }
                     }
                     changesMade = true;
                     break;
@@ -1034,6 +1041,10 @@ public class GeoPackageMapFragment extends Fragment implements
                     lineStringGeomData.setGeometry(lineString);
                     newLineString.setGeometry(lineStringGeomData);
                     featureDao.insert(newLineString);
+                    updateLastChange(geoPackage, featureDao);
+                    if (!indexedTypes.isEmpty()) {
+                        indexer.index(newLineString, indexedTypes);
+                    }
                     changesMade = true;
                     break;
 
@@ -1048,6 +1059,10 @@ public class GeoPackageMapFragment extends Fragment implements
                     polygonGeomData.setGeometry(polygon);
                     newPolygon.setGeometry(polygonGeomData);
                     featureDao.insert(newPolygon);
+                    updateLastChange(geoPackage, featureDao);
+                    if (!indexedTypes.isEmpty()) {
+                        indexer.index(newPolygon, indexedTypes);
+                    }
                     changesMade = true;
                     break;
 
@@ -1063,19 +1078,23 @@ public class GeoPackageMapFragment extends Fragment implements
                         GeoPackageGeometryData geomData = featureRow.getGeometry();
                         geomData.setGeometry(geometry);
                         featureDao.update(featureRow);
+                        updateLastChange(geoPackage, featureDao);
+                        if (!indexedTypes.isEmpty()) {
+                            indexer.index(featureRow, indexedTypes);
+                        }
                     } else {
                         featureDao.deleteById(featureId);
                         editFeatureMarker = null;
+                        updateLastChange(geoPackage, featureDao);
+                        if (!indexedTypes.isEmpty()) {
+                            indexer.deleteIndex(featureId, indexedTypes);
+                        }
                     }
-                    updateLastChange(geoPackage, featureDao);
                     active.setModified(true);
 
                     break;
             }
 
-            if (changesMade) {
-                updateLastChange(geoPackage, featureDao);
-            }
         } catch (Exception e) {
             if (GeoPackageUtils.isFutureSQLiteException(e)) {
                 GeoPackageUtils

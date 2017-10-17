@@ -1,5 +1,5 @@
 <resources>
 
-    <item name="map_feature_click_screen_percentage" type="dimen" format="float">.03</item>
+    <item name="map_feature_click_screen_percentage" type="dimen" format="float">.02</item>
 
 </resources>

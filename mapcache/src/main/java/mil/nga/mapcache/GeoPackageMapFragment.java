@@ -1118,7 +1118,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (changesMade) {
             active.setModified(true);
-            updateInBackground(false);
+            updateInBackground(false, true);
         }
 
     }
@@ -1252,7 +1252,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     selectEditFeatures();
                 } else {
                     resetEditFeatures();
-                    updateInBackground(false);
+                    updateInBackground(false, true);
                 }
                 break;
             case R.id.map_bounding_box:
@@ -1261,7 +1261,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     if (editFeaturesMode) {
                         resetEditFeatures();
-                        updateInBackground(false);
+                        updateInBackground(false, true);
                     }
 
                     boundingBoxMode = true;
@@ -1335,7 +1335,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 editFeaturesMenuItem
                                         .setIcon(R.drawable.ic_features_active);
 
-                                updateInBackground(false);
+                                updateInBackground(false, true);
 
                             } catch (Exception e) {
                                 GeoPackageUtils
@@ -1502,7 +1502,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     Editor editor = settings.edit();
                                     editor.putInt(MAX_FEATURES_KEY, maxFeature);
                                     editor.commit();
-                                    updateInBackground(false);
+                                    updateInBackground(false, true);
                                 }
                             }
                         })
@@ -1549,9 +1549,19 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map by kicking off a background task
      *
-     * @param zoom
+     * @param zoom zoom flag
      */
     private void updateInBackground(boolean zoom) {
+        updateInBackground(zoom, false);
+    }
+
+    /**
+     * Update the map by kicking off a background task
+     *
+     * @param zoom zoom flag
+     * @param filter filter features flag
+     */
+    private void updateInBackground(boolean zoom, boolean filter) {
 
         MapUpdateTask localUpdateTask = null;
         updateLock.lock();
@@ -1594,7 +1604,7 @@ public class GeoPackageMapFragment extends Fragment implements
         BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
         double toleranceDistance = MapUtils.getToleranceDistance(view, map);
 
-        localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, false);
+        localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
 
     }
 

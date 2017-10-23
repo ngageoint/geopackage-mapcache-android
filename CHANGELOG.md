@@ -6,7 +6,24 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.17 (TBD)
 
-* TBD
+* geopackage-android-map version updated to 1.5.0
+* GeoPackage share fix for external GeoPackages
+* Geometry simplifications for displayed map features based upon zoom level
+* Only display and maintain features features in the current map views
+* Maintain active feature indices when editing map features
+* Queryable map features (previously only available for feature tiles)
+* Automatically select active feature table when editing features
+* Increase default max map features & max points per tile to 5000, max features per tile to 2000
+* Updated preloaded GeoPackage url example files
+* Updated various now deprecated Android library calls
+* gradle plugin updated to 2.3.3
+* android maven gradle plugin updated to 2.0
+* maven google dependency
+* compile SDK version 26
+* build tools version updated to 26.0.1
+* target SDK version updated to 26
+* appcompat v7:26.0.2
+* multidex version 1.0.2
 
 ## [1.16](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.16) (07-13-2017)
 

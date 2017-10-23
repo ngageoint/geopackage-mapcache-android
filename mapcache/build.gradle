@@ -51,7 +51,7 @@ task androidAppVersion {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:26.0.2'
-    compile "mil.nga.geopackage.map:geopackage-android-map:1.4.2" // comment out to build locally
+    compile "mil.nga.geopackage.map:geopackage-android-map:1.5.0" // comment out to build locally
     //compile project(':geopackage-map') // uncomment me to build locally
     compile 'com.android.support:multidex:1.0.2'
     androidTestCompile 'com.android.support:multidex:1.0.2'

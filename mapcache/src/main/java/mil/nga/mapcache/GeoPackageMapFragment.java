@@ -2291,6 +2291,8 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
+     * Process the feature index results
+     *
      * @param task
      * @param threadPool
      * @param indexResults
@@ -2380,12 +2382,24 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         private final boolean editable;
 
+        /**
+         * Shape converter
+         */
         private final GoogleMapShapeConverter converter;
 
+        /**
+         * Filter bounding box
+         */
         private final BoundingBox filterBoundingBox;
 
+        /**
+         * Max projection longitude
+         */
         private final double maxLongitude;
 
+        /**
+         * Filter flag
+         */
         private final boolean filter;
 
         /**
@@ -2936,6 +2950,9 @@ public class GeoPackageMapFragment extends Fragment implements
         });
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMapLongClick(LatLng point) {
 
@@ -3307,6 +3324,9 @@ public class GeoPackageMapFragment extends Fragment implements
         return withinDistance;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMapClick(LatLng point) {
 
@@ -3453,6 +3473,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean onMarkerClick(Marker marker) {
 
@@ -3498,16 +3521,25 @@ public class GeoPackageMapFragment extends Fragment implements
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMarkerDrag(Marker marker) {
         updateEditState(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMarkerDragEnd(Marker marker) {
         updateEditState(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void onMarkerDragStart(Marker marker) {
         vibrator.vibrate(getActivity().getResources().getInteger(
@@ -3938,6 +3970,9 @@ public class GeoPackageMapFragment extends Fragment implements
             super(context);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public boolean dispatchTouchEvent(MotionEvent ev) {
             switch (ev.getAction()) {

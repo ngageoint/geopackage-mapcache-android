@@ -9,7 +9,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-android-map version updated to 1.5.0
 * GeoPackage share fix for external GeoPackages
 * Geometry simplifications for displayed map features based upon zoom level
-* Only display and maintain features features in the current map views
+* Only display and maintain features in the current map views
 * Maintain active feature indices when editing map features
 * Queryable map features (previously only available for feature tiles)
 * Automatically select active feature table when editing features

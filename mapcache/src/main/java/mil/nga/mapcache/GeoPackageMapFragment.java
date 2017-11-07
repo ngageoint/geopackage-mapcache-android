@@ -1669,7 +1669,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     TileMatrixSetDao tileMatrixSetDao = geoPackage.getTileMatrixSetDao();
 
-                    for (GeoPackageTileTable tileTable : database.getTiles()) {
+                    for (GeoPackageTileTable tileTable : tileTables) {
 
                         try {
                             TileMatrixSet tileMatrixSet = tileMatrixSetDao.queryForId(tileTable.getName());
@@ -3444,6 +3444,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             if (indexResults.count() > 0) {
                                 FeatureInfoBuilder featureInfoBuilder = new FeatureInfoBuilder(getActivity(), featureDao);
+                                featureInfoBuilder.ignoreGeometryType(GeometryType.POINT);
                                 String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, tolerance, point);
                                 if (message != null) {
                                     if (clickMessage.length() > 0) {

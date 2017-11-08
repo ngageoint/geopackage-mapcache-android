@@ -1077,6 +1077,9 @@ public class GeoPackageMapFragment extends Fragment implements
                                 .queryForIdRow(featureId);
                         GeoPackageGeometryData geomData = featureRow.getGeometry();
                         geomData.setGeometry(geometry);
+                        if(geomData.getEnvelope() != null){
+                            geomData.setEnvelope(GeometryEnvelopeBuilder.buildEnvelope(geometry));
+                        }
                         featureDao.update(featureRow);
                         updateLastChange(geoPackage, featureDao);
                         if (!indexedTypes.isEmpty()) {
@@ -3330,146 +3333,149 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onMapClick(LatLng point) {
 
-        StringBuilder clickMessage = new StringBuilder();
+        if(!editFeaturesMode) {
 
-        if (!featureOverlayQueries.isEmpty()) {
-            for (FeatureOverlayQuery query : featureOverlayQueries) {
-                String message = query.buildMapClickMessage(point, view, map);
-                if (message != null) {
-                    if (clickMessage.length() > 0) {
-                        clickMessage.append("\n\n");
+            StringBuilder clickMessage = new StringBuilder();
+
+            if (!featureOverlayQueries.isEmpty()) {
+                for (FeatureOverlayQuery query : featureOverlayQueries) {
+                    String message = query.buildMapClickMessage(point, view, map);
+                    if (message != null) {
+                        if (clickMessage.length() > 0) {
+                            clickMessage.append("\n\n");
+                        }
+                        clickMessage.append(message);
                     }
-                    clickMessage.append(message);
                 }
             }
-        }
 
-        for (GeoPackageDatabase database : active.getDatabases()) {
-            if (!database.getFeatures().isEmpty()) {
+            for (GeoPackageDatabase database : active.getDatabases()) {
+                if (!database.getFeatures().isEmpty()) {
 
-                TypedValue screenPercentage = new TypedValue();
-                getResources().getValue(R.dimen.map_feature_click_screen_percentage, screenPercentage, true);
-                float screenClickPercentage = screenPercentage.getFloat();
+                    TypedValue screenPercentage = new TypedValue();
+                    getResources().getValue(R.dimen.map_feature_click_screen_percentage, screenPercentage, true);
+                    float screenClickPercentage = screenPercentage.getFloat();
 
-                BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, screenClickPercentage);
-                clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
-                mil.nga.geopackage.projection.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                    BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, screenClickPercentage);
+                    clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
+                    mil.nga.geopackage.projection.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
-                double tolerance = MapUtils.getToleranceDistance(point, view, map, screenClickPercentage);
+                    double tolerance = MapUtils.getToleranceDistance(point, view, map, screenClickPercentage);
 
-                for (GeoPackageTable features : database.getFeatures()) {
+                    for (GeoPackageTable features : database.getFeatures()) {
 
-                    GeoPackage geoPackage = geoPackages.get(database.getDatabase());
-                    Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(database.getDatabase());
+                        GeoPackage geoPackage = geoPackages.get(database.getDatabase());
+                        Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(database.getDatabase());
 
-                    if (geoPackage != null && databaseFeatureDaos != null) {
+                        if (geoPackage != null && databaseFeatureDaos != null) {
 
-                        FeatureDao featureDao = databaseFeatureDaos.get(features.getName());
+                            FeatureDao featureDao = databaseFeatureDaos.get(features.getName());
 
-                        if (featureDao != null) {
+                            if (featureDao != null) {
 
-                            FeatureIndexResults indexResults = null;
+                                FeatureIndexResults indexResults = null;
 
-                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-                            if (indexer.isIndexed()) {
+                                FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+                                if (indexer.isIndexed()) {
 
-                                indexResults = indexer.query(clickBoundingBox, clickProjection);
-                                BoundingBox complementary = clickBoundingBox.complementaryWgs84();
-                                if (complementary != null) {
-                                    FeatureIndexResults indexResults2 = indexer.query(complementary, clickProjection);
-                                    indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
-                                }
+                                    indexResults = indexer.query(clickBoundingBox, clickProjection);
+                                    BoundingBox complementary = clickBoundingBox.complementaryWgs84();
+                                    if (complementary != null) {
+                                        FeatureIndexResults indexResults2 = indexer.query(complementary, clickProjection);
+                                        indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
+                                    }
 
-                            } else {
+                                } else {
 
-                                mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
-                                ProjectionTransform projectionTransform = clickProjection.getTransformation(featureProjection);
-                                BoundingBox boundedClickBoundingBox = clickBoundingBox.boundWgs84Coordinates();
-                                BoundingBox transformedBoundingBox = projectionTransform.transform(boundedClickBoundingBox);
-                                Unit unit = featureProjection.getUnit();
-                                double filterMaxLongitude = 0;
-                                if (unit instanceof DegreeUnit) {
-                                    filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
-                                } else if (unit == Units.METRES) {
-                                    filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
-                                }
+                                    mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
+                                    ProjectionTransform projectionTransform = clickProjection.getTransformation(featureProjection);
+                                    BoundingBox boundedClickBoundingBox = clickBoundingBox.boundWgs84Coordinates();
+                                    BoundingBox transformedBoundingBox = projectionTransform.transform(boundedClickBoundingBox);
+                                    Unit unit = featureProjection.getUnit();
+                                    double filterMaxLongitude = 0;
+                                    if (unit instanceof DegreeUnit) {
+                                        filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
+                                    } else if (unit == Units.METRES) {
+                                        filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
+                                    }
 
-                                FeatureIndexListResults listResults = new FeatureIndexListResults();
+                                    FeatureIndexListResults listResults = new FeatureIndexListResults();
 
-                                // Query for all rows
-                                FeatureCursor cursor = featureDao.queryForAll();
-                                try {
+                                    // Query for all rows
+                                    FeatureCursor cursor = featureDao.queryForAll();
+                                    try {
 
-                                    while (cursor.moveToNext()) {
+                                        while (cursor.moveToNext()) {
 
-                                        try {
-                                            FeatureRow row = cursor.getRow();
+                                            try {
+                                                FeatureRow row = cursor.getRow();
 
-                                            GeoPackageGeometryData geometryData = row.getGeometry();
-                                            if (geometryData != null && !geometryData.isEmpty()) {
+                                                GeoPackageGeometryData geometryData = row.getGeometry();
+                                                if (geometryData != null && !geometryData.isEmpty()) {
 
-                                                Geometry geometry = geometryData.getGeometry();
+                                                    Geometry geometry = geometryData.getGeometry();
 
-                                                if (geometry != null) {
+                                                    if (geometry != null) {
 
-                                                    GeometryEnvelope envelope = geometryData.getEnvelope();
-                                                    if (envelope == null) {
-                                                        envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
-                                                    }
-                                                    if (envelope != null) {
-                                                        BoundingBox geometryBoundingBox = new BoundingBox(envelope);
-
-                                                        if (TileBoundingBoxUtils.overlap(transformedBoundingBox, geometryBoundingBox, filterMaxLongitude) != null) {
-                                                            listResults.addRow(row);
+                                                        GeometryEnvelope envelope = geometryData.getEnvelope();
+                                                        if (envelope == null) {
+                                                            envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
                                                         }
+                                                        if (envelope != null) {
+                                                            BoundingBox geometryBoundingBox = new BoundingBox(envelope);
 
+                                                            if (TileBoundingBoxUtils.overlap(transformedBoundingBox, geometryBoundingBox, filterMaxLongitude) != null) {
+                                                                listResults.addRow(row);
+                                                            }
+
+                                                        }
                                                     }
                                                 }
+
+                                            } catch (Exception e) {
+                                                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                                        "Failed to query feature. database: " + database.getDatabase()
+                                                                + ", feature table: " + features.getName()
+                                                                + ", row: " + cursor.getPosition(), e);
                                             }
-
-                                        } catch (Exception e) {
-                                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                                    "Failed to query feature. database: " + database.getDatabase()
-                                                            + ", feature table: " + features.getName()
-                                                            + ", row: " + cursor.getPosition(), e);
                                         }
+
+                                    } finally {
+                                        cursor.close();
                                     }
 
-                                } finally {
-                                    cursor.close();
+                                    indexResults = listResults;
                                 }
 
-                                indexResults = listResults;
-                            }
-
-                            if (indexResults.count() > 0) {
-                                FeatureInfoBuilder featureInfoBuilder = new FeatureInfoBuilder(getActivity(), featureDao);
-                                featureInfoBuilder.ignoreGeometryType(GeometryType.POINT);
-                                String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, tolerance, point);
-                                if (message != null) {
-                                    if (clickMessage.length() > 0) {
-                                        clickMessage.append("\n\n");
+                                if (indexResults.count() > 0) {
+                                    FeatureInfoBuilder featureInfoBuilder = new FeatureInfoBuilder(getActivity(), featureDao);
+                                    featureInfoBuilder.ignoreGeometryType(GeometryType.POINT);
+                                    String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, tolerance, point);
+                                    if (message != null) {
+                                        if (clickMessage.length() > 0) {
+                                            clickMessage.append("\n\n");
+                                        }
+                                        clickMessage.append(message);
                                     }
-                                    clickMessage.append(message);
                                 }
                             }
+
                         }
-
                     }
                 }
             }
-        }
 
-        if (clickMessage.length() > 0) {
-            new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setMessage(clickMessage.toString())
-                    .setPositiveButton(android.R.string.yes,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
+            if (clickMessage.length() > 0) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setMessage(clickMessage.toString())
+                        .setPositiveButton(android.R.string.yes,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
                                 }
-                            }
-                    )
-                    .show();
+                        )
+                        .show();
+            }
         }
 
     }

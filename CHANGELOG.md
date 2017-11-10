@@ -13,6 +13,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * Maintain active feature indices when editing map features
 * Queryable map features (previously only available for feature tiles)
 * Automatically select active feature table when editing features
+* Update geometry envelopes when editing features
 * Increase default max map features & max points per tile to 5000, max features per tile to 2000
 * Updated preloaded GeoPackage url example files
 * Updated various now deprecated Android library calls

@@ -6,7 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.17 (TBD)
 
-* geopackage-android-map version updated to 1.5.0
+* geopackage-android-map version updated to 2.0.0
 * GeoPackage share fix for external GeoPackages
 * Geometry simplifications for displayed map features based upon zoom level
 * Only display and maintain features in the current map views

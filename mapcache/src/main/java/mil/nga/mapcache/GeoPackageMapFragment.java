@@ -2847,7 +2847,7 @@ public class GeoPackageMapFragment extends Fragment implements
         FeatureDao featureDao = featureDaos.get(featureOverlayTable.getDatabase()).get(featureOverlayTable.getFeatureTable());
 
         BoundingBox boundingBox = new BoundingBox(featureOverlayTable.getMinLon(),
-                featureOverlayTable.getMaxLon(), featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLat());
+                featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLon(), featureOverlayTable.getMaxLat());
 
         // Load tiles
         FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
@@ -2930,8 +2930,8 @@ public class GeoPackageMapFragment extends Fragment implements
             boundingBox = transformBoundingBoxToWgs84(boundingBox, srs);
         } else {
             boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
-                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
         }
 
@@ -4080,7 +4080,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Try to find a good zoom starting point
             ProjectionTransform webMercatorTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
                     .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
-            BoundingBox bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+            BoundingBox bbox = new BoundingBox(minLon, minLat, maxLon, maxLat);
             BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(bbox);
             int zoomLevel = TileBoundingBoxUtils.getZoomLevel(webMercatorBoundingBox);
             int maxZoomLevel = getActivity().getResources().getInteger(
@@ -4191,7 +4191,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             // Create the database if it doesn't exist
                             if (!manager.exists(database)) {
@@ -4375,7 +4375,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Try to find a good zoom starting point
             ProjectionTransform webMercatorTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
                     .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
-            BoundingBox bbox = new BoundingBox(minLon, maxLon, minLat, maxLat);
+            BoundingBox bbox = new BoundingBox(minLon, minLat, maxLon, maxLat);
             BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(bbox);
             int zoomLevel = TileBoundingBoxUtils.getZoomLevel(webMercatorBoundingBox);
             int maxZoomLevel = getActivity().getResources().getInteger(
@@ -4504,7 +4504,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
                             GeoPackage geoPackage = manager.open(database);

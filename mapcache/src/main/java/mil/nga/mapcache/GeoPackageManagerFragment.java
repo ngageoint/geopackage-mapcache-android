@@ -1086,7 +1086,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             }
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             GeometryType geometryType = GeometryType
                                     .fromName(geometryTypeSpinner
@@ -1241,7 +1241,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             // If not importing tiles, just create the table
                             if (tileUrl == null || tileUrl.isEmpty()) {
@@ -2052,7 +2052,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             // Load tiles
                             LoadTilesTask.loadTiles(getActivity(),
@@ -2331,8 +2331,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 Projection projection = null;
                 if (boundingBox == null) {
                     boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
-                            ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                             ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                            ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                             ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
                     projection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
                 } else {
@@ -2452,7 +2452,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
                             GeoPackage geoPackage = manager.open(table.getDatabase());
@@ -2629,8 +2629,8 @@ public class GeoPackageManagerFragment extends Fragment implements
             worldGeodeticBoundingBox = worldGeodeticTransform.transform(webMercatorBoundingBox);
         } else {
             worldGeodeticBoundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
-                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
         }
 

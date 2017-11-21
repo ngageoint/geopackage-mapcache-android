@@ -867,7 +867,10 @@ public class GeoPackageManagerFragment extends Fragment implements
             // If external database, no permission is needed
             if (manager.isExternal(database)) {
                 // Create the Uri and share
-                Uri databaseUri = Uri.fromFile(databaseFile);
+                Uri databaseUri = FileProvider.getUriForFile(getActivity(),
+                        "mil.nga.mapcache.fileprovider",
+                        databaseFile);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);
             }
             // If internal database, file must be copied to cache for permission
@@ -1083,7 +1086,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             }
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             GeometryType geometryType = GeometryType
                                     .fromName(geometryTypeSpinner
@@ -1238,7 +1241,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             // If not importing tiles, just create the table
                             if (tileUrl == null || tileUrl.isEmpty()) {
@@ -2049,7 +2052,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             // Load tiles
                             LoadTilesTask.loadTiles(getActivity(),
@@ -2328,8 +2331,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 Projection projection = null;
                 if (boundingBox == null) {
                     boundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
-                            ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                             ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                            ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                             ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
                     projection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
                 } else {
@@ -2449,7 +2452,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
-                                    maxLon, minLat, maxLat);
+                                    minLat, maxLon, maxLat);
 
                             GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
                             GeoPackage geoPackage = manager.open(table.getDatabase());
@@ -2626,8 +2629,8 @@ public class GeoPackageManagerFragment extends Fragment implements
             worldGeodeticBoundingBox = worldGeodeticTransform.transform(webMercatorBoundingBox);
         } else {
             worldGeodeticBoundingBox = new BoundingBox(-ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
-                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WEB_MERCATOR_MIN_LAT_RANGE,
+                    ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH,
                     ProjectionConstants.WEB_MERCATOR_MAX_LAT_RANGE);
         }
 
@@ -4117,18 +4120,15 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 break;
                         }
                     }
-                    imageView.setImageDrawable(getResources().getDrawable(
-                            drawableId));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawableId));
                     break;
 
                 case TILE:
-                    imageView.setImageDrawable(getResources().getDrawable(
-                            R.drawable.ic_tiles));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_tiles));
                     break;
 
                 case FEATURE_OVERLAY:
-                    imageView.setImageDrawable(getResources().getDrawable(
-                            R.drawable.ic_format_paint));
+                    imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.ic_format_paint));
                     break;
 
                 default:

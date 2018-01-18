@@ -1024,6 +1024,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         pointGeomData.setGeometry(point);
                         newPoint.setGeometry(pointGeomData);
                         featureDao.insert(newPoint);
+                        expandBounds(geoPackage, featureDao, point);
                         updateLastChange(geoPackage, featureDao);
                         if (!indexedTypes.isEmpty()) {
                             indexer.index(newPoint, indexedTypes);
@@ -1041,6 +1042,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     lineStringGeomData.setGeometry(lineString);
                     newLineString.setGeometry(lineStringGeomData);
                     featureDao.insert(newLineString);
+                    expandBounds(geoPackage, featureDao, lineString);
                     updateLastChange(geoPackage, featureDao);
                     if (!indexedTypes.isEmpty()) {
                         indexer.index(newLineString, indexedTypes);
@@ -1059,6 +1061,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     polygonGeomData.setGeometry(polygon);
                     newPolygon.setGeometry(polygonGeomData);
                     featureDao.insert(newPolygon);
+                    expandBounds(geoPackage, featureDao, polygon);
                     updateLastChange(geoPackage, featureDao);
                     if (!indexedTypes.isEmpty()) {
                         indexer.index(newPolygon, indexedTypes);
@@ -1081,6 +1084,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             geomData.setEnvelope(GeometryEnvelopeBuilder.buildEnvelope(geometry));
                         }
                         featureDao.update(featureRow);
+                        expandBounds(geoPackage, featureDao, geometry);
                         updateLastChange(geoPackage, featureDao);
                         if (!indexedTypes.isEmpty()) {
                             indexer.index(featureRow, indexedTypes);
@@ -3929,6 +3933,34 @@ public class GeoPackageMapFragment extends Fragment implements
                             }
                         }).create();
         deleteDialog.show();
+    }
+
+    /**
+     * Expand the bounding box of the contents
+     *
+     * @param geoPackage GeoPackage
+     * @param featureDao feature dao
+     * @param geometry geometry
+     */
+    private static void expandBounds(GeoPackage geoPackage, FeatureDao featureDao, Geometry geometry) {
+        if(geometry != null) {
+            try {
+                Contents contents = featureDao.getGeometryColumns().getContents();
+                BoundingBox boundingBox = contents.getBoundingBox();
+                if(boundingBox != null){
+                    GeometryEnvelope envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
+                    BoundingBox geometryBoundingBox = new BoundingBox(envelope);
+                    BoundingBox unionBoundingBox = TileBoundingBoxUtils.union(boundingBox, geometryBoundingBox);
+                    contents.setBoundingBox(unionBoundingBox);
+                    ContentsDao contentsDao = geoPackage.getContentsDao();
+                    contentsDao.update(contents);
+                }
+            } catch (Exception e) {
+                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                        "Failed to update contents bounding box. GeoPackage: "
+                                + geoPackage.getName() + ", Table: " + featureDao.getTableName(), e);
+            }
+        }
     }
 
     /**

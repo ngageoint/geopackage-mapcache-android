@@ -340,7 +340,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 GeoPackage geoPackage = null;
                 List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
                 try {
-                    geoPackage = manager.open(database);
+                    geoPackage = manager.open(database, false);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
 
                     List<String> featureTables = null;
@@ -573,7 +573,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private void viewDatabaseOption(final String database) {
         StringBuilder databaseInfo = new StringBuilder();
-        GeoPackage geoPackage = manager.open(database);
+        GeoPackage geoPackage = manager.open(database, false);
         try {
             SpatialReferenceSystemDao srsDao = geoPackage
                     .getSpatialReferenceSystemDao();
@@ -1453,7 +1453,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private void viewTableOption(final GeoPackageTable table) {
         StringBuilder info = new StringBuilder();
-        GeoPackage geoPackage = manager.open(table.getDatabase());
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         String tableName = table.getName();
         try {
             Contents contents = null;
@@ -1644,7 +1644,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         EditText tempZInput = null;
         EditText tempMInput = null;
 
-        final GeoPackage geoPackage = manager.open(table.getDatabase());
+        final GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         Contents tempContents = null;
         TileMatrixSet tempTileMatrixSet = null;
         GeometryColumns tempGeometryColumns = null;
@@ -2087,7 +2087,7 @@ public class GeoPackageManagerFragment extends Fragment implements
     private void indexFeaturesOption(final GeoPackageTable table) {
 
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-        GeoPackage geoPackage = manager.open(table.getDatabase());
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
 
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
@@ -2322,7 +2322,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Preset the bounding box to the feature contents
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-        GeoPackage geoPackage = manager.open(table.getDatabase());
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         ContentsDao contentsDao = geoPackage.getContentsDao();
         try {
             Contents contents = contentsDao.queryForId(table.getName());
@@ -2598,7 +2598,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         preloadedLocationsButton);
 
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-        GeoPackage geoPackage = manager.open(table.getDatabase());
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
         Contents contents = featureDao.getGeometryColumns().getContents();
 
@@ -2773,7 +2773,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Get a feature tile table linker
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-        GeoPackage geoPackage = manager.open(table.getDatabase());
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
 
         // Get the tables that can be linked and the currently linked tables
@@ -2968,7 +2968,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Check if indexed
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-        GeoPackage geoPackage = manager.open(table.getDatabase());
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
         if (indexer.isIndexed()) {

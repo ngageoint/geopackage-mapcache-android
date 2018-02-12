@@ -869,7 +869,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     tempEditFeatureMarker = null;
                     Long featureId = editFeatureIds.get(editFeatureMarker.getId());
                     final GeoPackage geoPackage = manager
-                            .open(editFeaturesDatabase);
+                            .open(editFeaturesDatabase, false);
                     try {
                         final FeatureDao featureDao = geoPackage
                                 .getFeatureDao(editFeaturesTable);
@@ -912,7 +912,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void addEditableShapeBack() {
 
         Long featureId = editFeatureIds.get(editFeatureMarker.getId());
-        final GeoPackage geoPackage = manager.open(editFeaturesDatabase);
+        final GeoPackage geoPackage = manager.open(editFeaturesDatabase, false);
         try {
             final FeatureDao featureDao = geoPackage
                     .getFeatureDao(editFeaturesTable);
@@ -1373,7 +1373,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void updateFeaturesSelection(Spinner featuresInput, String database) {
 
-        GeoPackage geoPackage = manager.open(database);
+        GeoPackage geoPackage = manager.open(database, false);
         List<String> features = geoPackage.getFeatureTables();
         ArrayAdapter<String> featuresAdapter = new ArrayAdapter<String>(
                 getActivity(), android.R.layout.simple_spinner_item, features);
@@ -1627,7 +1627,7 @@ public class GeoPackageMapFragment extends Fragment implements
         List<GeoPackageDatabase> activeDatabases = new ArrayList<>();
         activeDatabases.addAll(active.getDatabases());
         for (GeoPackageDatabase database : activeDatabases) {
-            GeoPackage geoPackage = manager.open(database.getDatabase());
+            GeoPackage geoPackage = manager.open(database.getDatabase(), false);
             if (geoPackage != null) {
 
                 Set<String> featureTableDaos = new HashSet<>();
@@ -1799,7 +1799,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     break;
                 }
 
-                GeoPackage geoPackage = manager.open(database.getDatabase());
+                GeoPackage geoPackage = manager.open(database.getDatabase(), false);
 
                 if (geoPackage != null) {
 
@@ -2007,7 +2007,7 @@ public class GeoPackageMapFragment extends Fragment implements
             featureTables.put(editFeaturesDatabase, databaseFeatures);
             GeoPackage geoPackage = geoPackages.get(editFeaturesDatabase);
             if (geoPackage == null) {
-                geoPackage = manager.open(editFeaturesDatabase);
+                geoPackage = manager.open(editFeaturesDatabase, false);
                 geoPackages.put(editFeaturesDatabase, geoPackage);
             }
             Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(editFeaturesDatabase);
@@ -3665,7 +3665,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param featureId
      */
     private void editExistingFeatureClick(final Marker marker, long featureId) {
-        final GeoPackage geoPackage = manager.open(editFeaturesDatabase);
+        final GeoPackage geoPackage = manager.open(editFeaturesDatabase, false);
         final FeatureDao featureDao = geoPackage
                 .getFeatureDao(editFeaturesTable);
 
@@ -3708,8 +3708,11 @@ public class GeoPackageMapFragment extends Fragment implements
                                 }
                                 break;
                             case 2:
-                                deleteExistingFeatureOption(title, geoPackage,
-                                        featureDao, featureRow, marker,
+                                if (geoPackage != null) {
+                                    geoPackage.close();
+                                }
+                                deleteExistingFeatureOption(title, editFeaturesDatabase,
+                                        editFeaturesTable, featureRow, marker,
                                         geometryType);
                                 break;
                             default:
@@ -3751,7 +3754,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param markerFeature
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
-        final GeoPackage geoPackage = manager.open(markerFeature.database);
+        final GeoPackage geoPackage = manager.open(markerFeature.database, false);
         final FeatureDao featureDao = geoPackage
                 .getFeatureDao(markerFeature.tableName);
 
@@ -3848,14 +3851,14 @@ public class GeoPackageMapFragment extends Fragment implements
      * Delete existing feature options
      *
      * @param title
-     * @param geoPackage
-     * @param featureDao
+     * @param database
+     * @param table
      * @param featureRow
      * @param marker
      * @param geometryType
      */
     private void deleteExistingFeatureOption(final String title,
-                                             final GeoPackage geoPackage, final FeatureDao featureDao,
+                                             final String database, final String table,
                                              final FeatureRow featureRow, final Marker marker,
                                              final GeometryType geometryType) {
 
@@ -3880,7 +3883,11 @@ public class GeoPackageMapFragment extends Fragment implements
                             @Override
                             public void onClick(DialogInterface dialog,
                                                 int which) {
+                                GeoPackage geoPackage = manager.open(editFeaturesDatabase);
                                 try {
+
+                                    FeatureDao featureDao = geoPackage
+                                            .getFeatureDao(editFeaturesTable);
                                     featureDao.delete(featureRow);
                                     marker.remove();
                                     editFeatureIds.remove(marker.getId());
@@ -3926,9 +3933,6 @@ public class GeoPackageMapFragment extends Fragment implements
                             @Override
                             public void onClick(DialogInterface dialog,
                                                 int which) {
-                                if (geoPackage != null) {
-                                    geoPackage.close();
-                                }
                                 dialog.dismiss();
                             }
                         }).create();
@@ -4421,7 +4425,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Check if indexed
         GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-        GeoPackage geoPackage = manager.open(database);
+        GeoPackage geoPackage = manager.open(database, false);
         FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
         boolean indexed = indexer.isIndexed();
@@ -4644,7 +4648,7 @@ public class GeoPackageMapFragment extends Fragment implements
         List<String> featureDatabases = new ArrayList<String>();
         if (databases != null) {
             for (String database : databases) {
-                GeoPackage geoPackage = manager.open(database);
+                GeoPackage geoPackage = manager.open(database, false);
                 try {
                     List<String> featureTables = geoPackage.getFeatureTables();
                     if (!featureTables.isEmpty()) {

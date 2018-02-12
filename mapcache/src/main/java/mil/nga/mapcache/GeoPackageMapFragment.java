@@ -1103,13 +1103,13 @@ public class GeoPackageMapFragment extends Fragment implements
             }
 
         } catch (Exception e) {
-            if (GeoPackageUtils.isFutureSQLiteException(e)) {
+            if (GeoPackageUtils.isUnsupportedSQLiteException(e)) {
                 GeoPackageUtils
                         .showMessage(
                                 getActivity(),
                                 getString(R.string.edit_features_save_label)
                                         + " " + editFeaturesTable,
-                                "GeoPackage was created using a more recent SQLite version unsupported by Android");
+                                "GeoPackage contains unsupported SQLite function or module: " + e.getMessage());
             } else {
                 GeoPackageUtils.showMessage(getActivity(),
                         getString(R.string.edit_features_save_label) + " "
@@ -3894,7 +3894,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     active.setModified(true);
                                 } catch (Exception e) {
                                     if (GeoPackageUtils
-                                            .isFutureSQLiteException(e)) {
+                                            .isUnsupportedSQLiteException(e)) {
                                         GeoPackageUtils
                                                 .showMessage(
                                                         getActivity(),
@@ -3902,7 +3902,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                                 + " "
                                                                 + geometryType
                                                                 .getName(),
-                                                        "GeoPackage was created using a more recent SQLite version unsupported by Android");
+                                                        "GeoPackage contains unsupported SQLite function or module: " + e.getMessage());
                                     } else {
                                         GeoPackageUtils
                                                 .showMessage(

@@ -1109,7 +1109,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 getActivity(),
                                 getString(R.string.edit_features_save_label)
                                         + " " + editFeaturesTable,
-                                "GeoPackage contains unsupported SQLite function or module: " + e.getMessage());
+                                "GeoPackage contains unsupported SQLite function, module, or trigger for writing: " + e.getMessage());
             } else {
                 GeoPackageUtils.showMessage(getActivity(),
                         getString(R.string.edit_features_save_label) + " "
@@ -3902,7 +3902,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                                 + " "
                                                                 + geometryType
                                                                 .getName(),
-                                                        "GeoPackage contains unsupported SQLite function or module: " + e.getMessage());
+                                                        "GeoPackage contains unsupported SQLite function, module, or trigger for writing: " + e.getMessage());
                                     } else {
                                         GeoPackageUtils
                                                 .showMessage(

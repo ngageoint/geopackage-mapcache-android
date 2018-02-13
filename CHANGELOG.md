@@ -6,7 +6,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.18 (TBD)
 
-* TBD
+* Open GeoPackages in read mode when not performing write operations
+* Expand contents bounding box when creating and editing features
+* Unsupported sqlite function, module, and trigger handling
+* Turn off Android auto backup
 
 ## [1.17](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.17) (11-21-2017)
 

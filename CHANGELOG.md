@@ -6,6 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.18 (TBD)
 
+* geopackage-android-map version updated to 2.0.1
 * Open GeoPackages in read mode when not performing write operations
 * Expand contents bounding box when creating and editing features
 * Unsupported sqlite function, module, and trigger handling

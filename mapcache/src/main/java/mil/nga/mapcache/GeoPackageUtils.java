@@ -12,9 +12,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import mil.nga.geopackage.projection.ProjectionConstants;
+import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
 import mil.nga.mapcache.filter.InputFilterMinMax;
-import mil.nga.geopackage.tiles.features.FeatureTiles;
 
 public class GeoPackageUtils {
 
@@ -93,7 +93,7 @@ public class GeoPackageUtils {
         compressQualityInput.setText(String.valueOf(activity.getResources()
                 .getInteger(R.integer.load_tiles_compress_quality_default)));
 
-        if(epsgInput != null) {
+        if (epsgInput != null) {
             epsgInput.setFilters(new InputFilter[]{new InputFilterMinMax(
                     -1, 99999)});
             epsgInput.setText(String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
@@ -177,7 +177,7 @@ public class GeoPackageUtils {
                                                     .valueOf(currentMax));
                                         }
 
-                                        if(epsgInput != null){
+                                        if (epsgInput != null) {
                                             epsgInput.setText(String.valueOf(epsgs[item]));
                                         }
 
@@ -191,15 +191,15 @@ public class GeoPackageUtils {
             });
         }
 
-        if(supportsMaxFeatures){
-            if(featuresIndexed) {
+        if (supportsMaxFeatures) {
+            if (featuresIndexed) {
                 int maxFeatures = activity.getResources().getInteger(
                         R.integer.feature_tiles_load_max_features_per_tile_default);
                 if (maxFeatures >= 0) {
                     maxFeaturesInput.setText(String.valueOf(maxFeatures));
                 }
             }
-        }else{
+        } else {
             maxFeaturesLabel.setVisibility(View.GONE);
             maxFeaturesInput.setVisibility(View.GONE);
         }
@@ -271,21 +271,19 @@ public class GeoPackageUtils {
     }
 
     /**
-     * Determine if the exception is caused from a missing function or module in
-     * SQLite versions 4.2.0 and later. Lollipop uses version 3.8.4.3 so these
-     * are not supported in Android.
+     * Determine if the exception is caused from a missing function or module
      *
      * @param e
      * @return
      */
-    public static boolean isFutureSQLiteException(Exception e) {
-        boolean isFuture = false;
+    public static boolean isUnsupportedSQLiteException(Exception e) {
+        boolean unsupported = false;
         String message = e.getMessage();
         if (message != null) {
-            isFuture = message.contains("no such function: ST_IsEmpty")
-                    || message.contains("no such module: rtree");
+            unsupported = message.contains("no such function")
+                    || message.contains("no such module");
         }
-        return isFuture;
+        return unsupported;
     }
 
     /**

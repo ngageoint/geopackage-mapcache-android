@@ -136,6 +136,8 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.retriever.TileCreatorOptions;
+import mil.nga.geopackage.tiles.retriever.TileCreatorOptionsType;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -1080,7 +1082,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 .queryForIdRow(featureId);
                         GeoPackageGeometryData geomData = featureRow.getGeometry();
                         geomData.setGeometry(geometry);
-                        if(geomData.getEnvelope() != null){
+                        if (geomData.getEnvelope() != null) {
                             geomData.setEnvelope(GeometryEnvelopeBuilder.buildEnvelope(geometry));
                         }
                         featureDao.update(featureRow);
@@ -1565,7 +1567,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map by kicking off a background task
      *
-     * @param zoom zoom flag
+     * @param zoom   zoom flag
      * @param filter filter features flag
      */
     private void updateInBackground(boolean zoom, boolean filter) {
@@ -2806,8 +2808,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
         TileDao tileDao = geoPackage.getTileDao(tiles.getName());
 
+        TileCreatorOptions options = new TileCreatorOptions(TileCreatorOptionsType.ZOOM_CLOSEST_IN_BEFORE_OUT, 2, 2); // TODO configure
         BoundedOverlay overlay = GeoPackageOverlayFactory
-                .getBoundedOverlay(tileDao);
+                .getBoundedOverlay(tileDao, options);
 
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
 
@@ -2837,7 +2840,19 @@ public class GeoPackageMapFragment extends Fragment implements
             zIndex = -1;
         }
 
-        displayTiles(overlay, tileMatrixSet.getBoundingBox(), tileMatrixSet.getSrs(), zIndex, null);
+        BoundingBox displayBoundingBox = tileMatrixSet.getBoundingBox();
+        Contents contents = tileMatrixSet.getContents();
+        BoundingBox contentsBoundingBox = contents.getBoundingBox();
+        if (contentsBoundingBox != null) {
+            ProjectionTransform transform = ProjectionFactory.getProjection(contents.getSrs()).getTransformation(tileMatrixSet.getSrs());
+            BoundingBox transformedContentsBoundingBox = contentsBoundingBox;
+            if (!transform.isSameProjection()) {
+                transformedContentsBoundingBox = transform.transform(transformedContentsBoundingBox);
+            }
+            displayBoundingBox = TileBoundingBoxUtils.overlap(displayBoundingBox, transformedContentsBoundingBox);
+        }
+
+        displayTiles(overlay, displayBoundingBox, tileMatrixSet.getSrs(), zIndex, null);
     }
 
     /**
@@ -3337,7 +3352,7 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onMapClick(LatLng point) {
 
-        if(!editFeaturesMode) {
+        if (!editFeaturesMode) {
 
             StringBuilder clickMessage = new StringBuilder();
 
@@ -3944,14 +3959,14 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param geoPackage GeoPackage
      * @param featureDao feature dao
-     * @param geometry geometry
+     * @param geometry   geometry
      */
     private static void expandBounds(GeoPackage geoPackage, FeatureDao featureDao, Geometry geometry) {
-        if(geometry != null) {
+        if (geometry != null) {
             try {
                 Contents contents = featureDao.getGeometryColumns().getContents();
                 BoundingBox boundingBox = contents.getBoundingBox();
-                if(boundingBox != null){
+                if (boundingBox != null) {
                     GeometryEnvelope envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
                     BoundingBox geometryBoundingBox = new BoundingBox(envelope);
                     BoundingBox unionBoundingBox = TileBoundingBoxUtils.union(boundingBox, geometryBoundingBox);

@@ -15,12 +15,11 @@ public class GeoPackageTileTable extends GeoPackageTable implements Serializable
     private static final long serialVersionUID = 1;
 
     /**
-     * Create a new feature table
+     * Create a new tile table
      *
-     * @param database
-     * @param name
-     * @param count
-     * @return
+     * @param database database name
+     * @param name     tile table name
+     * @param count    tile count
      */
     public GeoPackageTileTable(String database, String name,
                                int count) {

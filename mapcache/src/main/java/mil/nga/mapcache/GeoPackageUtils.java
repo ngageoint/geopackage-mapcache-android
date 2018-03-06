@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import mil.nga.geopackage.extension.scale.TileScaling;
+import mil.nga.geopackage.extension.scale.TileScalingType;
 import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
@@ -72,6 +74,58 @@ public class GeoPackageUtils {
                                              boolean supportsMaxFeatures,
                                              boolean featuresIndexed) {
 
+        prepareTileLoadInputs(activity,
+                minZoomInput,
+                maxZoomInput,
+                button,
+                nameInput,
+                urlInput,
+                epsgInput,
+                compressFormatInput,
+                compressQualityInput,
+                setZooms,
+                maxFeaturesLabel,
+                maxFeaturesInput,
+                supportsMaxFeatures,
+                featuresIndexed,
+                null,
+                null,
+                null);
+    }
+
+    /**
+     * Prepare tile load inputs
+     *
+     * @param activity
+     * @param minZoomInput
+     * @param maxZoomInput
+     * @param button
+     * @param nameInput
+     * @param urlInput
+     * @param epsgInput
+     * @param compressFormatInput
+     * @param compressQualityInput
+     * @param setZooms
+     * @param maxFeaturesLabel
+     * @param maxFeaturesInput
+     * @param supportsMaxFeatures
+     * @param featuresIndexed
+     */
+    public static void prepareTileLoadInputs(final Activity activity,
+                                             final EditText minZoomInput, final EditText maxZoomInput,
+                                             Button button, final EditText nameInput, final EditText urlInput,
+                                             final EditText epsgInput,
+                                             final Spinner compressFormatInput,
+                                             final EditText compressQualityInput,
+                                             final boolean setZooms,
+                                             TextView maxFeaturesLabel,
+                                             EditText maxFeaturesInput,
+                                             boolean supportsMaxFeatures,
+                                             boolean featuresIndexed,
+                                             Spinner tileScalingInput,
+                                             EditText tileScalingZoomOutInput,
+                                             EditText tileScalingZoomInInput) {
+
         int minZoom = activity.getResources().getInteger(
                 R.integer.load_tiles_min_zoom_default);
         int maxZoom = activity.getResources().getInteger(
@@ -97,6 +151,19 @@ public class GeoPackageUtils {
             epsgInput.setFilters(new InputFilter[]{new InputFilterMinMax(
                     -1, 99999)});
             epsgInput.setText(String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
+        }
+
+        if(tileScalingZoomOutInput != null){
+            tileScalingZoomOutInput.setFilters(new InputFilter[]{new InputFilterMinMax(
+                    0, maxZoom)});
+            tileScalingZoomOutInput.setText(String.valueOf(activity.getResources().getInteger(
+                    R.integer.tile_scaling_zoom_out_default)));
+        }
+        if(tileScalingZoomInInput != null){
+            tileScalingZoomInInput.setFilters(new InputFilter[]{new InputFilterMinMax(
+                    0, maxZoom)});
+            tileScalingZoomInInput.setText(String.valueOf(activity.getResources().getInteger(
+                    R.integer.tile_scaling_zoom_in_default)));
         }
 
         if (button != null) {
@@ -268,6 +335,27 @@ public class GeoPackageUtils {
                 alert.show();
             }
         });
+    }
+
+    public static TileScaling getTileScaling(Spinner tileScalingInput,
+                                             EditText tileScalingZoomOutInput,
+                                             EditText tileScalingZoomInInput){
+        TileScaling scaling = null;
+        if (tileScalingInput.getSelectedItemPosition() > 0) {
+            TileScalingType tileScalingType = TileScalingType.values()[tileScalingInput.getSelectedItemPosition() - 1];
+            Long zoomOut = null;
+            String zoomOutText = tileScalingZoomOutInput.getText().toString();
+            if(!zoomOutText.isEmpty()){
+                zoomOut = Long.valueOf(zoomOutText);
+            }
+            Long zoomIn = null;
+            String zoomInText = tileScalingZoomInInput.getText().toString();
+            if(!zoomInText.isEmpty()){
+                zoomIn = Long.valueOf(zoomInText);
+            }
+            scaling = new TileScaling(tileScalingType, zoomIn, zoomOut);
+        }
+        return scaling;
     }
 
     /**

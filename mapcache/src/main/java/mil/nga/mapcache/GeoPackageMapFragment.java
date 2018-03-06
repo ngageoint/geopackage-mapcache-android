@@ -93,6 +93,9 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
+import mil.nga.geopackage.extension.scale.TileScaling;
+import mil.nga.geopackage.extension.scale.TileScalingType;
+import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexListResults;
@@ -136,8 +139,6 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
-import mil.nga.geopackage.tiles.retriever.TileCreatorOptions;
-import mil.nga.geopackage.tiles.retriever.TileCreatorOptionsType;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -2808,9 +2809,11 @@ public class GeoPackageMapFragment extends Fragment implements
 
         TileDao tileDao = geoPackage.getTileDao(tiles.getName());
 
-        TileCreatorOptions options = new TileCreatorOptions(TileCreatorOptionsType.ZOOM_CLOSEST_IN_BEFORE_OUT, 2, 2); // TODO configure
+        TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tileDao);
+        TileScaling tileScaling = tileTableScaling.get();
+
         BoundedOverlay overlay = GeoPackageOverlayFactory
-                .getBoundedOverlay(tileDao, options);
+                .getBoundedOverlay(tileDao, tileScaling);
 
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
 
@@ -4249,16 +4252,15 @@ public class GeoPackageMapFragment extends Fragment implements
                                 manager.create(database);
                             }
 
-                            GeoPackageTable table = new GeoPackageTileTable(
-                                    database, tableName, 0);
-                            active.addTable(table);
+                            // TODO tile creator options
+                            TileScaling scaling = new TileScaling(TileScalingType.CLOSEST_IN_OUT, 2l, 2l);
 
                             // Load tiles
                             LoadTilesTask.loadTiles(getActivity(),
                                     GeoPackageMapFragment.this, active,
                                     database, tableName, tileUrl, minZoom,
                                     maxZoom, compressFormat, compressQuality,
-                                    googleTiles, boundingBox, epsg);
+                                    googleTiles, boundingBox, scaling, epsg);
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -4609,16 +4611,15 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             featureTiles.calculateDrawOverlap();
 
-                            GeoPackageTable table = new GeoPackageTileTable(
-                                    database, tableName, 0);
-                            active.addTable(table);
+                            // TODO configure
+                            TileScaling scaling = new TileScaling(TileScalingType.CLOSEST_IN_OUT, 2l, 2l);
 
                             LoadTilesTask.loadTiles(getActivity(),
                                     GeoPackageMapFragment.this, active,
                                     geoPackage, tableName, featureTiles, minZoom,
                                     maxZoom, compressFormat,
                                     compressQuality, googleTiles,
-                                    boundingBox,
+                                    boundingBox, scaling,
                                     ProjectionConstants.EPSG_WEB_MERCATOR);
                         } catch (Exception e) {
                             GeoPackageUtils

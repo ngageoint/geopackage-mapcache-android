@@ -4107,6 +4107,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_max_longitude_input);
         final Button preloadedLocationsButton = (Button) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
+        final Spinner tileScalingInput = (Spinner) createTilesView
+                .findViewById(R.id.tile_scaling_type);
+        final EditText tileScalingZoomOutInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_out_input);
+        final EditText tileScalingZoomInInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_in_input);
 
         GeoPackageUtils
                 .prepareBoundingBoxInputs(getActivity(), minLatInput,
@@ -4149,7 +4155,8 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput, epsgInput,
                 compressFormatInput, compressQualityInput, setZooms,
-                maxFeaturesLabel, maxFeaturesInput, false, false);
+                maxFeaturesLabel, maxFeaturesInput, false, false,
+                tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
         geopackagesButton.setOnClickListener(new View.OnClickListener() {
 
@@ -4252,8 +4259,10 @@ public class GeoPackageMapFragment extends Fragment implements
                                 manager.create(database);
                             }
 
-                            // TODO tile creator options
-                            TileScaling scaling = new TileScaling(TileScalingType.CLOSEST_IN_OUT, 2l, 2l);
+                            GeoPackageTable table = new GeoPackageTileTable(database, tableName, 0);
+                            active.addTable(table);
+
+                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
                             // Load tiles
                             LoadTilesTask.loadTiles(getActivity(),
@@ -4401,6 +4410,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
+        final Spinner tileScalingInput = (Spinner) createTilesView
+                .findViewById(R.id.tile_scaling_type);
+        final EditText tileScalingZoomOutInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_out_input);
+        final EditText tileScalingZoomInInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_in_input);
 
         GeoPackageUtils
                 .prepareBoundingBoxInputs(getActivity(), minLatInput,
@@ -4454,7 +4469,8 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, null, nameInput, null, null,
                 compressFormatInput, compressQualityInput, setZooms,
-                maxFeaturesLabel, maxFeaturesInput, true, indexed);
+                maxFeaturesLabel, maxFeaturesInput, true, indexed,
+                tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
         // Set a default name
         nameInput.setText(featureTable + getString(R.string.feature_tiles_name_suffix));
@@ -4611,8 +4627,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             featureTiles.calculateDrawOverlap();
 
-                            // TODO configure
-                            TileScaling scaling = new TileScaling(TileScalingType.CLOSEST_IN_OUT, 2l, 2l);
+                            GeoPackageTable table = new GeoPackageTileTable(database, tableName, 0);
+                            active.addTable(table);
+
+                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
                             LoadTilesTask.loadTiles(getActivity(),
                                     GeoPackageMapFragment.this, active,

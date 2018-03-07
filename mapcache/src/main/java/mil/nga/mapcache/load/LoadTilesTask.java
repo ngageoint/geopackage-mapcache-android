@@ -321,7 +321,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
             if (count > 0) {
                 active.setModified(true);
             }
-            if (count < max) {
+            if (count < max && !(tileGenerator instanceof FeatureTileGenerator)) {
                 return "Fewer tiles were generated than expected. Expected: "
                         + max + ", Actual: " + count;
             }

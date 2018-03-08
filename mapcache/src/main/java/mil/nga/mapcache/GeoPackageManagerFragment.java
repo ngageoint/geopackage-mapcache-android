@@ -74,7 +74,6 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.link.FeatureTileLink;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
-import mil.nga.geopackage.extension.scale.TileScalingType;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -1664,7 +1663,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         EditText tempTileScalingZoomOutInput = null;
         EditText tempTileScalingZoomInInput = null;
 
-        final GeoPackage geoPackage = manager.open(table.getDatabase(), false);
+        GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         Contents tempContents = null;
         TileMatrixSet tempTileMatrixSet = null;
         GeometryColumns tempGeometryColumns = null;
@@ -1760,11 +1759,13 @@ public class GeoPackageManagerFragment extends Fragment implements
             }
 
         } catch (Exception e) {
-            geoPackage.close();
             GeoPackageUtils.showMessage(getActivity(),
                     getString(R.string.geopackage_table_edit_label),
                     e.getMessage());
             return;
+        }finally {
+            geoPackage.close();
+            geoPackage = null;
         }
 
         final Contents contents = tempContents;
@@ -1787,6 +1788,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
 
+                        GeoPackage geoPackage = manager.open(table.getDatabase());
                         try {
 
                             String identifier = identifierInput.getText()
@@ -1889,7 +1891,11 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                                     TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
                                     TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tileMatrixSet);
-                                    tileTableScaling.createOrUpdate(scaling);
+                                    if(scaling != null) {
+                                        tileTableScaling.createOrUpdate(scaling);
+                                    }else{
+                                        tileTableScaling.delete();
+                                    }
 
                                     break;
 
@@ -1926,7 +1932,6 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        geoPackage.close();
                         dialog.cancel();
                     }
                 });

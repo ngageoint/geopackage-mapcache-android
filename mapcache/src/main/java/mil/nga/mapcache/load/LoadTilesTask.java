@@ -52,18 +52,19 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      * @param googleTiles
      * @param boundingBox
      * @param scaling
-     * @param epsg
+     * @param authority
+     * @param code
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, String database, String tableName,
                                  String tileUrl, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
-                                 boolean googleTiles, BoundingBox boundingBox, TileScaling scaling, long epsg) {
+                                 boolean googleTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
 
         GeoPackageManager manager = GeoPackageFactory.getManager(activity);
         GeoPackage geoPackage = manager.open(database);
 
-        Projection projection = ProjectionFactory.getProjection(epsg);
+        Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bbox = transform(boundingBox, projection);
 
         TileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
@@ -89,17 +90,18 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      * @param googleTiles
      * @param boundingBox
      * @param scaling
-     * @param epsg
+     * @param authority
+     * @param code
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, GeoPackage geoPackage, String tableName,
                                  FeatureTiles featureTiles, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
-                                 boolean googleTiles, BoundingBox boundingBox, TileScaling scaling, long epsg) {
+                                 boolean googleTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
 
         GeoPackageUtils.prepareFeatureTiles(featureTiles);
 
-        Projection projection = ProjectionFactory.getProjection(epsg);
+        Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bbox = transform(boundingBox, projection);
 
         TileGenerator tileGenerator = new FeatureTileGenerator(activity, geoPackage,

@@ -4269,7 +4269,8 @@ public class GeoPackageMapFragment extends Fragment implements
                                     GeoPackageMapFragment.this, active,
                                     database, tableName, tileUrl, minZoom,
                                     maxZoom, compressFormat, compressQuality,
-                                    googleTiles, boundingBox, scaling, epsg);
+                                    googleTiles, boundingBox, scaling,
+                                    ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -4638,7 +4639,8 @@ public class GeoPackageMapFragment extends Fragment implements
                                     maxZoom, compressFormat,
                                     compressQuality, googleTiles,
                                     boundingBox, scaling,
-                                    ProjectionConstants.EPSG_WEB_MERCATOR);
+                                    ProjectionConstants.AUTHORITY_EPSG,
+                                    String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(

@@ -1283,7 +1283,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                                         database, tableName, tileUrl, minZoom,
                                         maxZoom, compressFormat,
                                         compressQuality, googleTiles,
-                                        boundingBox, scaling, epsg);
+                                        boundingBox, scaling,
+                                        ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
                             }
                         } catch (Exception e) {
                             GeoPackageUtils
@@ -1731,7 +1732,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                     TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, table.getName());
                     TileScaling tileScaling = tileTableScaling.get();
-                    if(tileScaling != null){
+                    if (tileScaling != null) {
                         tempTileScalingInput.setSelection(tileScaling.getScalingType().ordinal() + 1);
                         tempTileScalingZoomOutInput.setText(tileScaling.getZoomOut() != null ? tileScaling.getZoomOut().toString() : "");
                         tempTileScalingZoomInInput.setText(tileScaling.getZoomIn() != null ? tileScaling.getZoomIn().toString() : "");
@@ -1763,7 +1764,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     getString(R.string.geopackage_table_edit_label),
                     e.getMessage());
             return;
-        }finally {
+        } finally {
             geoPackage.close();
             geoPackage = null;
         }
@@ -1891,9 +1892,9 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                                     TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
                                     TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tileMatrixSet);
-                                    if(scaling != null) {
+                                    if (scaling != null) {
                                         tileTableScaling.createOrUpdate(scaling);
-                                    }else{
+                                    } else {
                                         tileTableScaling.delete();
                                     }
 
@@ -2110,7 +2111,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     GeoPackageManagerFragment.this, active,
                                     table.getDatabase(), table.getName(),
                                     tileUrl, minZoom, maxZoom, compressFormat,
-                                    compressQuality, googleTiles, boundingBox, null, epsg);
+                                    compressQuality, googleTiles, boundingBox, null,
+                                    ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -2571,7 +2573,9 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     geoPackage, tableName, featureTiles, minZoom,
                                     maxZoom, compressFormat,
                                     compressQuality, googleTiles,
-                                    boundingBox, scaling, ProjectionConstants.EPSG_WEB_MERCATOR);
+                                    boundingBox, scaling,
+                                    ProjectionConstants.AUTHORITY_EPSG,
+                                    String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(

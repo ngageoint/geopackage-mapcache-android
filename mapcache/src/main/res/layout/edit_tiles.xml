@@ -91,6 +91,10 @@
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal|numberSigned" />
         </LinearLayout>
+
+        <include
+            android:id="@+id/edit_tiles_scaling"
+            layout="@layout/tile_scaling" />
     </LinearLayout>
 
 </ScrollView>

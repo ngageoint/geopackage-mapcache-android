@@ -30,6 +30,10 @@
         <include
             android:id="@+id/create_tiles_load"
             layout="@layout/load_tiles" />
+
+        <include
+            android:id="@+id/create_tiles_scaling"
+            layout="@layout/tile_scaling" />
     </LinearLayout>
 
 </ScrollView>

@@ -4,6 +4,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## 1.20 (TBD)
+
+* TBD
+
 ## [1.19](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.19) (03-20-2018)
 
 * Tile Scaling support for displaying missing tiles using nearby zoom levels

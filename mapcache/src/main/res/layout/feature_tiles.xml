@@ -44,6 +44,9 @@
             android:id="@+id/feature_tiles_feature_draw"
             layout="@layout/feature_tiles_draw" />
 
+        <include
+            android:id="@+id/feature_tiles_scaling"
+            layout="@layout/tile_scaling" />
     </LinearLayout>
 
 </ScrollView>

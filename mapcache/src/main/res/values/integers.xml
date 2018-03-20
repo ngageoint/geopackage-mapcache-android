@@ -21,5 +21,7 @@
     <integer name="feature_tiles_overlay_max_points_per_tile_default">5000</integer>
     <integer name="feature_tiles_overlay_max_features_per_tile_default">2000</integer>
     <integer name="feature_tiles_load_max_features_per_tile_default">-1</integer>
+    <integer name="tile_scaling_zoom_out_default">2</integer>
+    <integer name="tile_scaling_zoom_in_default">2</integer>
     
 </resources>

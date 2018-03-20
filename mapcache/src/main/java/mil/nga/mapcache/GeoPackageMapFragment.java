@@ -93,6 +93,9 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
+import mil.nga.geopackage.extension.scale.TileScaling;
+import mil.nga.geopackage.extension.scale.TileScalingType;
+import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexListResults;
@@ -1080,7 +1083,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 .queryForIdRow(featureId);
                         GeoPackageGeometryData geomData = featureRow.getGeometry();
                         geomData.setGeometry(geometry);
-                        if(geomData.getEnvelope() != null){
+                        if (geomData.getEnvelope() != null) {
                             geomData.setEnvelope(GeometryEnvelopeBuilder.buildEnvelope(geometry));
                         }
                         featureDao.update(featureRow);
@@ -1565,7 +1568,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map by kicking off a background task
      *
-     * @param zoom zoom flag
+     * @param zoom   zoom flag
      * @param filter filter features flag
      */
     private void updateInBackground(boolean zoom, boolean filter) {
@@ -2806,8 +2809,11 @@ public class GeoPackageMapFragment extends Fragment implements
 
         TileDao tileDao = geoPackage.getTileDao(tiles.getName());
 
+        TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tileDao);
+        TileScaling tileScaling = tileTableScaling.get();
+
         BoundedOverlay overlay = GeoPackageOverlayFactory
-                .getBoundedOverlay(tileDao);
+                .getBoundedOverlay(tileDao, tileScaling);
 
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
 
@@ -2837,7 +2843,19 @@ public class GeoPackageMapFragment extends Fragment implements
             zIndex = -1;
         }
 
-        displayTiles(overlay, tileMatrixSet.getBoundingBox(), tileMatrixSet.getSrs(), zIndex, null);
+        BoundingBox displayBoundingBox = tileMatrixSet.getBoundingBox();
+        Contents contents = tileMatrixSet.getContents();
+        BoundingBox contentsBoundingBox = contents.getBoundingBox();
+        if (contentsBoundingBox != null) {
+            ProjectionTransform transform = ProjectionFactory.getProjection(contents.getSrs()).getTransformation(tileMatrixSet.getSrs());
+            BoundingBox transformedContentsBoundingBox = contentsBoundingBox;
+            if (!transform.isSameProjection()) {
+                transformedContentsBoundingBox = transform.transform(transformedContentsBoundingBox);
+            }
+            displayBoundingBox = TileBoundingBoxUtils.overlap(displayBoundingBox, transformedContentsBoundingBox);
+        }
+
+        displayTiles(overlay, displayBoundingBox, tileMatrixSet.getSrs(), zIndex, null);
     }
 
     /**
@@ -3337,7 +3355,7 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onMapClick(LatLng point) {
 
-        if(!editFeaturesMode) {
+        if (!editFeaturesMode) {
 
             StringBuilder clickMessage = new StringBuilder();
 
@@ -3944,14 +3962,14 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param geoPackage GeoPackage
      * @param featureDao feature dao
-     * @param geometry geometry
+     * @param geometry   geometry
      */
     private static void expandBounds(GeoPackage geoPackage, FeatureDao featureDao, Geometry geometry) {
-        if(geometry != null) {
+        if (geometry != null) {
             try {
                 Contents contents = featureDao.getGeometryColumns().getContents();
                 BoundingBox boundingBox = contents.getBoundingBox();
-                if(boundingBox != null){
+                if (boundingBox != null) {
                     GeometryEnvelope envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
                     BoundingBox geometryBoundingBox = new BoundingBox(envelope);
                     BoundingBox unionBoundingBox = TileBoundingBoxUtils.union(boundingBox, geometryBoundingBox);
@@ -4089,6 +4107,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_max_longitude_input);
         final Button preloadedLocationsButton = (Button) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
+        final Spinner tileScalingInput = (Spinner) createTilesView
+                .findViewById(R.id.tile_scaling_type);
+        final EditText tileScalingZoomOutInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_out_input);
+        final EditText tileScalingZoomInInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_in_input);
 
         GeoPackageUtils
                 .prepareBoundingBoxInputs(getActivity(), minLatInput,
@@ -4131,7 +4155,8 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, preloadedUrlsButton, nameInput, urlInput, epsgInput,
                 compressFormatInput, compressQualityInput, setZooms,
-                maxFeaturesLabel, maxFeaturesInput, false, false);
+                maxFeaturesLabel, maxFeaturesInput, false, false,
+                tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
         geopackagesButton.setOnClickListener(new View.OnClickListener() {
 
@@ -4234,16 +4259,18 @@ public class GeoPackageMapFragment extends Fragment implements
                                 manager.create(database);
                             }
 
-                            GeoPackageTable table = new GeoPackageTileTable(
-                                    database, tableName, 0);
+                            GeoPackageTable table = new GeoPackageTileTable(database, tableName, 0);
                             active.addTable(table);
+
+                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
                             // Load tiles
                             LoadTilesTask.loadTiles(getActivity(),
                                     GeoPackageMapFragment.this, active,
                                     database, tableName, tileUrl, minZoom,
                                     maxZoom, compressFormat, compressQuality,
-                                    googleTiles, boundingBox, epsg);
+                                    googleTiles, boundingBox, scaling,
+                                    ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(
@@ -4384,6 +4411,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
+        final Spinner tileScalingInput = (Spinner) createTilesView
+                .findViewById(R.id.tile_scaling_type);
+        final EditText tileScalingZoomOutInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_out_input);
+        final EditText tileScalingZoomInInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_in_input);
 
         GeoPackageUtils
                 .prepareBoundingBoxInputs(getActivity(), minLatInput,
@@ -4437,7 +4470,8 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, null, nameInput, null, null,
                 compressFormatInput, compressQualityInput, setZooms,
-                maxFeaturesLabel, maxFeaturesInput, true, indexed);
+                maxFeaturesLabel, maxFeaturesInput, true, indexed,
+                tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
         // Set a default name
         nameInput.setText(featureTable + getString(R.string.feature_tiles_name_suffix));
@@ -4594,17 +4628,19 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             featureTiles.calculateDrawOverlap();
 
-                            GeoPackageTable table = new GeoPackageTileTable(
-                                    database, tableName, 0);
+                            GeoPackageTable table = new GeoPackageTileTable(database, tableName, 0);
                             active.addTable(table);
+
+                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
 
                             LoadTilesTask.loadTiles(getActivity(),
                                     GeoPackageMapFragment.this, active,
                                     geoPackage, tableName, featureTiles, minZoom,
                                     maxZoom, compressFormat,
                                     compressQuality, googleTiles,
-                                    boundingBox,
-                                    ProjectionConstants.EPSG_WEB_MERCATOR);
+                                    boundingBox, scaling,
+                                    ProjectionConstants.AUTHORITY_EPSG,
+                                    String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
                         } catch (Exception e) {
                             GeoPackageUtils
                                     .showMessage(

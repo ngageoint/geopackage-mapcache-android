@@ -1,12 +1,14 @@
-#Change Log
+# Change Log
 All notable changes to this project will be documented in this file.
 Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.19 (TBD)
+## [1.19](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.19) (03-20-2018)
 
-* TBD
+* Tile Scaling support for displaying missing tiles using nearby zoom levels
+* Zoom to tiles using the intersection between the Contents and Tile Matrix Set bounds
+* geopackage-android-map version updated to 2.0.2
 
 ## [1.18](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.18) (02-14-2018)
 

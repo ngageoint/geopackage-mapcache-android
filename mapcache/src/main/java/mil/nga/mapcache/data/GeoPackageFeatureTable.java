@@ -2,7 +2,7 @@ package mil.nga.mapcache.data;
 
 import java.io.Serializable;
 
-import mil.nga.wkb.geom.GeometryType;
+import mil.nga.sf.GeometryType;
 
 /**
  * GeoPackage Feature table information

@@ -110,7 +110,8 @@ import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
-import mil.nga.wkb.geom.GeometryType;
+import mil.nga.sf.GeometryType;
+import mil.nga.sf.wkb.GeometryCodes;
 
 /**
  * GeoPackage Manager Fragment
@@ -1692,8 +1693,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             .queryForTableName(table.getName());
                     tempContents = tempGeometryColumns.getContents();
 
-                    tempGeometryTypeSpinner.setSelection(tempGeometryColumns
-                            .getGeometryType().getCode());
+                    tempGeometryTypeSpinner.setSelection(GeometryCodes.getCode(tempGeometryColumns
+                            .getGeometryType()));
                     tempZInput.setText(String.valueOf(tempGeometryColumns.getZ()));
                     tempMInput.setText(String.valueOf(tempGeometryColumns.getM()));
                     break;

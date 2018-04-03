@@ -151,12 +151,12 @@ import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
-import mil.nga.wkb.geom.Geometry;
-import mil.nga.wkb.geom.GeometryEnvelope;
-import mil.nga.wkb.geom.GeometryType;
-import mil.nga.wkb.geom.LineString;
-import mil.nga.wkb.util.GeometryEnvelopeBuilder;
-import mil.nga.wkb.util.GeometryPrinter;
+import mil.nga.sf.Geometry;
+import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.GeometryType;
+import mil.nga.sf.LineString;
+import mil.nga.sf.util.GeometryEnvelopeBuilder;
+import mil.nga.sf.util.GeometryPrinter;
 
 /**
  * GeoPackage Map Fragment
@@ -1019,7 +1019,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 case POINT:
 
                     for (Marker pointMarker : editPoints.values()) {
-                        mil.nga.wkb.geom.Point point = converter
+                        mil.nga.sf.Point point = converter
                                 .toPoint(pointMarker.getPosition());
                         FeatureRow newPoint = featureDao.newRow();
                         GeoPackageGeometryData pointGeomData = new GeoPackageGeometryData(
@@ -1056,7 +1056,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 case POLYGON:
                 case POLYGON_HOLE:
 
-                    mil.nga.wkb.geom.Polygon polygon = converter
+                    mil.nga.sf.Polygon polygon = converter
                             .toPolygon(editPolygon);
                     FeatureRow newPolygon = featureDao.newRow();
                     GeoPackageGeometryData polygonGeomData = new GeoPackageGeometryData(
@@ -2497,7 +2497,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         }
                         if (envelope != null) {
                             if (geometry.getGeometryType() == GeometryType.POINT) {
-                                mil.nga.wkb.geom.Point point = (mil.nga.wkb.geom.Point) geometry;
+                                mil.nga.sf.Point point = (mil.nga.sf.Point) geometry;
                                 passesFilter = TileBoundingBoxUtils.isPointInBoundingBox(point, boundingBox, maxLongitude);
                             } else {
                                 BoundingBox geometryBoundingBox = new BoundingBox(envelope);

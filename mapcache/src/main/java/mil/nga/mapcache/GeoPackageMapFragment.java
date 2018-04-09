@@ -94,7 +94,6 @@ import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
-import mil.nga.geopackage.extension.scale.TileScalingType;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -128,9 +127,6 @@ import mil.nga.geopackage.map.tiles.overlay.BoundedOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlayQuery;
 import mil.nga.geopackage.map.tiles.overlay.GeoPackageOverlayFactory;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.schema.columns.DataColumns;
 import mil.nga.geopackage.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
@@ -155,6 +151,9 @@ import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.util.GeometryPrinter;
 
@@ -1715,21 +1714,19 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private BoundingBox transformBoundingBoxToWgs84(BoundingBox boundingBox, SpatialReferenceSystem srs) {
 
-        mil.nga.geopackage.projection.Projection projection = ProjectionFactory.getProjection(
-                srs);
+        mil.nga.sf.proj.Projection projection = srs.getProjection();
         if (projection.getUnit() instanceof DegreeUnit) {
             boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
         }
         ProjectionTransform transformToWebMercator = projection
                 .getTransformation(
                         ProjectionConstants.EPSG_WEB_MERCATOR);
-        BoundingBox webMercatorBoundingBox = transformToWebMercator.transform(boundingBox);
+        BoundingBox webMercatorBoundingBox = boundingBox.transform(transformToWebMercator);
         ProjectionTransform transform = ProjectionFactory.getProjection(
                 ProjectionConstants.EPSG_WEB_MERCATOR)
                 .getTransformation(
                         ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-        boundingBox = transform
-                .transform(webMercatorBoundingBox);
+        boundingBox = webMercatorBoundingBox.transform(transform);
         return boundingBox;
     }
 
@@ -2230,7 +2227,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (!task.isCancelled() && count.get() < maxFeatures) {
 
-            mil.nga.geopackage.projection.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            mil.nga.sf.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
             if (filter && indexer.isIndexed()) {
@@ -2251,10 +2248,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 double filterMaxLongitude = 0;
 
                 if (filter) {
-                    mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
+                    mil.nga.sf.proj.Projection featureProjection = featureDao.getProjection();
                     ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
                     BoundingBox boundedMapViewBoundingBox = mapViewBoundingBox.boundWgs84Coordinates();
-                    BoundingBox transformedBoundingBox = projectionTransform.transform(boundedMapViewBoundingBox);
+                    BoundingBox transformedBoundingBox = boundedMapViewBoundingBox.transform(projectionTransform);
                     Unit unit = featureProjection.getUnit();
                     if (unit instanceof DegreeUnit) {
                         filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
@@ -2847,10 +2844,10 @@ public class GeoPackageMapFragment extends Fragment implements
         Contents contents = tileMatrixSet.getContents();
         BoundingBox contentsBoundingBox = contents.getBoundingBox();
         if (contentsBoundingBox != null) {
-            ProjectionTransform transform = ProjectionFactory.getProjection(contents.getSrs()).getTransformation(tileMatrixSet.getSrs());
+            ProjectionTransform transform = contents.getSrs().getProjection().getTransformation(tileMatrixSet.getSrs().getProjection());
             BoundingBox transformedContentsBoundingBox = contentsBoundingBox;
             if (!transform.isSameProjection()) {
-                transformedContentsBoundingBox = transform.transform(transformedContentsBoundingBox);
+                transformedContentsBoundingBox = transformedContentsBoundingBox.transform(transform);
             }
             displayBoundingBox = TileBoundingBoxUtils.overlap(displayBoundingBox, transformedContentsBoundingBox);
         }
@@ -3380,7 +3377,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, screenClickPercentage);
                     clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
-                    mil.nga.geopackage.projection.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                    mil.nga.sf.proj.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
                     double tolerance = MapUtils.getToleranceDistance(point, view, map, screenClickPercentage);
 
@@ -3409,10 +3406,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
                                 } else {
 
-                                    mil.nga.geopackage.projection.Projection featureProjection = featureDao.getProjection();
+                                    mil.nga.sf.proj.Projection featureProjection = featureDao.getProjection();
                                     ProjectionTransform projectionTransform = clickProjection.getTransformation(featureProjection);
                                     BoundingBox boundedClickBoundingBox = clickBoundingBox.boundWgs84Coordinates();
-                                    BoundingBox transformedBoundingBox = projectionTransform.transform(boundedClickBoundingBox);
+                                    BoundingBox transformedBoundingBox = boundedClickBoundingBox.transform(projectionTransform);
                                     Unit unit = featureProjection.getUnit();
                                     double filterMaxLongitude = 0;
                                     if (unit instanceof DegreeUnit) {
@@ -4141,7 +4138,7 @@ public class GeoPackageMapFragment extends Fragment implements
             ProjectionTransform webMercatorTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
                     .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
             BoundingBox bbox = new BoundingBox(minLon, minLat, maxLon, maxLat);
-            BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(bbox);
+            BoundingBox webMercatorBoundingBox = bbox.transform(webMercatorTransform);
             int zoomLevel = TileBoundingBoxUtils.getZoomLevel(webMercatorBoundingBox);
             int maxZoomLevel = getActivity().getResources().getInteger(
                     R.integer.load_tiles_max_zoom_default);
@@ -4445,7 +4442,7 @@ public class GeoPackageMapFragment extends Fragment implements
             ProjectionTransform webMercatorTransform = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM)
                     .getTransformation(ProjectionConstants.EPSG_WEB_MERCATOR);
             BoundingBox bbox = new BoundingBox(minLon, minLat, maxLon, maxLat);
-            BoundingBox webMercatorBoundingBox = webMercatorTransform.transform(bbox);
+            BoundingBox webMercatorBoundingBox = bbox.transform(webMercatorTransform);
             int zoomLevel = TileBoundingBoxUtils.getZoomLevel(webMercatorBoundingBox);
             int maxZoomLevel = getActivity().getResources().getInteger(
                     R.integer.load_tiles_max_zoom_default);

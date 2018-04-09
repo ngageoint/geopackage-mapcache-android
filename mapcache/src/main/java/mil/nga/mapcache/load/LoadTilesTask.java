@@ -15,10 +15,6 @@ import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.geopackage.projection.Projection;
-import mil.nga.geopackage.projection.ProjectionConstants;
-import mil.nga.geopackage.projection.ProjectionFactory;
-import mil.nga.geopackage.projection.ProjectionTransform;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
@@ -27,6 +23,10 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.sf.proj.Projection;
+import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
+import mil.nga.sf.proj.ProjectionTransform;
 
 /**
  * Load tiles task
@@ -126,7 +126,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
             BoundingBox bounded = TileBoundingBoxUtils.boundWgs84BoundingBoxWithWebMercatorLimits(boundingBox);
             Projection wgs84 = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
             ProjectionTransform transform = wgs84.getTransformation(projection);
-            transformedBox = transform.transform(bounded);
+            transformedBox = bounded.transform(transform);
         }
 
         return transformedBox;

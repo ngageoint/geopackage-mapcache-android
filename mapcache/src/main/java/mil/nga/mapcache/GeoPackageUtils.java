@@ -13,10 +13,10 @@ import android.widget.TextView;
 
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileScalingType;
-import mil.nga.geopackage.projection.ProjectionConstants;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
 import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.sf.proj.ProjectionConstants;
 
 public class GeoPackageUtils {
 
@@ -153,13 +153,13 @@ public class GeoPackageUtils {
             epsgInput.setText(String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
         }
 
-        if(tileScalingZoomOutInput != null){
+        if (tileScalingZoomOutInput != null) {
             tileScalingZoomOutInput.setFilters(new InputFilter[]{new InputFilterMinMax(
                     0, maxZoom)});
             tileScalingZoomOutInput.setText(String.valueOf(activity.getResources().getInteger(
                     R.integer.tile_scaling_zoom_out_default)));
         }
-        if(tileScalingZoomInInput != null){
+        if (tileScalingZoomInInput != null) {
             tileScalingZoomInInput.setFilters(new InputFilter[]{new InputFilterMinMax(
                     0, maxZoom)});
             tileScalingZoomInInput.setText(String.valueOf(activity.getResources().getInteger(
@@ -339,18 +339,18 @@ public class GeoPackageUtils {
 
     public static TileScaling getTileScaling(Spinner tileScalingInput,
                                              EditText tileScalingZoomOutInput,
-                                             EditText tileScalingZoomInInput){
+                                             EditText tileScalingZoomInInput) {
         TileScaling scaling = null;
         if (tileScalingInput.getSelectedItemPosition() > 0) {
             TileScalingType tileScalingType = TileScalingType.values()[tileScalingInput.getSelectedItemPosition() - 1];
             Long zoomOut = null;
             String zoomOutText = tileScalingZoomOutInput.getText().toString();
-            if(!zoomOutText.isEmpty()){
+            if (!zoomOutText.isEmpty()) {
                 zoomOut = Long.valueOf(zoomOutText);
             }
             Long zoomIn = null;
             String zoomInText = tileScalingZoomInInput.getText().toString();
-            if(!zoomInText.isEmpty()){
+            if (!zoomInText.isEmpty()) {
                 zoomIn = Long.valueOf(zoomInText);
             }
             scaling = new TileScaling(tileScalingType, zoomIn, zoomOut);

@@ -124,7 +124,6 @@ import mil.nga.geopackage.map.geom.ShapeMarkers;
 import mil.nga.geopackage.map.geom.ShapeWithChildrenMarkers;
 import mil.nga.geopackage.map.tiles.TileBoundingBoxMapUtils;
 import mil.nga.geopackage.map.tiles.overlay.BoundedOverlay;
-import mil.nga.geopackage.map.tiles.overlay.CompositeOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlayQuery;
 import mil.nga.geopackage.map.tiles.overlay.GeoPackageOverlayFactory;
@@ -2913,23 +2912,8 @@ public class GeoPackageMapFragment extends Fragment implements
         featureOverlay.setMinZoom(featureOverlayTable.getMinZoom());
         featureOverlay.setMaxZoom(featureOverlayTable.getMaxZoom());
 
-        // Get the linked tile daos
-        FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
-        List<TileDao> tileDaos = linker.getTileDaosForFeatureTable(featureDao.getTableName());
-
-        BoundedOverlay overlay;
-        if(!tileDaos.isEmpty()){
-            // Create a composite overlay to search for existing tiles before drawing from features
-            CompositeOverlay compositeOverlay = new CompositeOverlay();
-            for(TileDao tileDao: tileDaos){
-                BoundedOverlay boundedOverlay = GeoPackageOverlayFactory.getBoundedOverlay(tileDao);
-                compositeOverlay.addOverlay(boundedOverlay);
-            }
-            compositeOverlay.addOverlay(featureOverlay);
-            overlay = compositeOverlay;
-        }else{
-            overlay = featureOverlay;
-        }
+        // Get the tile linked overlay
+        BoundedOverlay overlay = GeoPackageOverlayFactory.getLinkedFeatureOverlay(featureOverlay, geoPackage);
 
         GeometryColumns geometryColumns = featureDao.getGeometryColumns();
         Contents contents = geometryColumns.getContents();

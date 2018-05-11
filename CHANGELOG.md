@@ -6,7 +6,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.20 (TBD)
 
-* TBD
+* geopackage-android-map version updated to 3.0.0
+* Feature Overlays turn on a single composite overlay with linked tiles and features
 
 ## [1.19](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.19) (03-20-2018)
 

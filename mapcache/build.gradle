@@ -16,8 +16,8 @@ android {
         applicationId "mil.nga.mapcache"
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 21
-        versionName '1.20'
+        versionCode 22
+        versionName '1.21'
         multiDexEnabled true
     }
 

@@ -5,8 +5,7 @@ def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? REL
 def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY: ''
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+    compileSdkVersion 27
 
     dexOptions {
         javaMaxHeapSize "4g"
@@ -15,7 +14,7 @@ android {
     defaultConfig {
         applicationId "mil.nga.mapcache"
         minSdkVersion 14
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 22
         versionName '1.21'
         multiDexEnabled true
@@ -50,11 +49,14 @@ task androidAppVersion {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:26.0.2'
-    compile "mil.nga.geopackage.map:geopackage-android-map:3.0.0" // comment out to build locally
-    //compile project(':geopackage-map') // uncomment me to build locally
-    compile 'com.android.support:multidex:1.0.2'
-    androidTestCompile 'com.android.support:multidex:1.0.2'
+    api 'com.android.support:appcompat-v7:27.1.1'
+    api "mil.nga.geopackage.map:geopackage-android-map:3.0.0" // comment out to build locally
+    //api project(':geopackage-map') // uncomment me to build locally
+    api 'com.android.support:multidex:1.0.3'
+    testImplementation 'com.android.support:multidex:1.0.3'
+    configurations.all {
+        exclude group: 'com.android.support', module: 'support-v13'
+    }
 }
 
 configure extensions.android, {

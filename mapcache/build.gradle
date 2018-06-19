@@ -19,7 +19,7 @@ android {
         versionName '1.21'
         multiDexEnabled true
     }
-
+    /Users/joe/geopackage/mapcache-android/bottomNavBar/geopackage-mapcache-android/mapcache/build.gradle
     buildTypes {
         release {
             minifyEnabled false
@@ -53,6 +53,7 @@ dependencies {
     api "mil.nga.geopackage.map:geopackage-android-map:3.0.0" // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'com.android.support:multidex:1.0.3'
+    api 'com.android.support:design:27.1.1'
     testImplementation 'com.android.support:multidex:1.0.3'
     configurations.all {
         exclude group: 'com.android.support', module: 'support-v13'

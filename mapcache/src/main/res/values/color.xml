@@ -24,5 +24,8 @@
     <color name="polygon_draw_fill_color">#50FF0000</color>
     <color name="polygon_hole_draw_color">#FFFF0000</color>
     <color name="polygon_hole_draw_fill_color">#50FFFFFF</color>
-    
+    <color name="nav_selected">#0568da</color>
+    <color name="nav_not_selected">#6d7279</color>
+
+
 </resources>

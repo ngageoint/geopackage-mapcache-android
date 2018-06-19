@@ -243,7 +243,7 @@
         <item>blue_marble</item>
         <item>whitehorse</item>
     </string-array>
-    
+
     <string-array name="preloaded_tile_url_labels">
         <item>GEOINT OpenStreetMap</item>
         <item>GEOINT OSM WGS84</item>
@@ -301,5 +301,10 @@
         <item>-77.202143,38.748123,-77.186146,38.759038</item>
         <item>-104.803478,39.719140,-104.801516,39.720635</item>
     </string-array>
-    
+
+
+    <string name="nav_bar_manage">Manage</string>
+    <string name="nav_bar_map">Map</string>
+
+
 </resources>

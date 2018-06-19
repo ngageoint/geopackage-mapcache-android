@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ManageButton"
+        android:title="@string/nav_bar_manage"
+        android:icon="@drawable/ic_geometry"
+        android:enabled="true"
+        />
+    <item
+        android:id="@+id/MapButton"
+        android:title="@string/nav_bar_map"
+        android:icon="@drawable/ic_tiles"
+        android:enabled="true"
+        />
+
+</menu>

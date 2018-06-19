@@ -1,6 +1,8 @@
 package mil.nga.mapcache;
 
-import android.app.ActionBar;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -9,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,8 +24,10 @@ import mil.nga.mapcache.io.MapCacheFileUtils;
  *
  * @author osbornb
  */
-public class MainActivity extends Activity implements
-        NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends AppCompatActivity implements
+        NavigationBarFragment.OnFragmentInteractionListener{ //,
+        //NavigationDrawerFragment.NavigationDrawerCallbacks
+
 
     /**
      * Manager drawer position
@@ -58,7 +63,7 @@ public class MainActivity extends Activity implements
      * Fragment managing the behaviors, interactions and presentation of the
      * navigation drawer.
      */
-    private NavigationDrawerFragment navigationDrawerFragment;
+//    private NavigationBarFragment navigationBarFragment;
 
     /**
      * Used to store the last screen title. For use in
@@ -93,17 +98,35 @@ public class MainActivity extends Activity implements
                 .findFragmentById(R.id.fragment_manager);
         mapFragment = (GeoPackageMapFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_map);
-        navigationDrawerFragment = (NavigationDrawerFragment) getFragmentManager()
-                .findFragmentById(R.id.navigation_drawer);
+//        navigationBarFragment = (NavigationBarFragment) getFragmentManager()
+//                .findFragmentById(R.id.navigation_bar);
+        BottomNavigationView bottomNav = findViewById(R.id.navigation_bar);
+        bottomNav.setOnNavigationItemSelectedListener(
+                new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch(item.getItemId()){
+                            case R.id.MapButton:
+                                onNavBarClick(MAP_POSITION);
+                                break;
+                            case R.id.ManageButton:
+                                onNavBarClick(MANAGER_POSITION);
+                                break;
+                        }
+                        return true;
+                    }
+                }
+        );
 
         title = getString(R.string.title_manager);
 
-        // Set up the drawer.
-        navigationDrawerFragment.setUp(R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+//        // Set up the drawer.
+//        navigationDrawerFragment.setUp(R.id.navigation_drawer,
+//                (DrawerLayout) findViewById(R.id.drawer_layout));
 
         // Set the first position
-        onNavigationDrawerItemSelected(navigationPosition);
+        //onNavigationDrawerItemSelected(navigationPosition);
+        //onNavBarClick(0);
 
         // Handle opening and importing GeoPackages
         Intent intent = getIntent();
@@ -163,58 +186,58 @@ public class MainActivity extends Activity implements
         super.onSaveInstanceState(outState);
     }
 
-    /**
-     * {@inheritDoc}
-     * <p/>
-     * Set the selected position
-     */
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getFragmentManager();
-
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-        switch (position) {
-
-            case MANAGER_POSITION:
-                if (managerFragment != null) {
-                    transaction.show(managerFragment);
-                    title = getString(R.string.title_manager);
-                }
-                break;
-            case MAP_POSITION:
-                if (mapFragment != null) {
-                    transaction.show(mapFragment);
-                    title = getString(R.string.title_map);
-                }
-                break;
-            default:
-
-        }
-
-        if (position != MANAGER_POSITION) {
-            if (managerFragment != null && managerFragment.isAdded()) {
-                transaction.hide(managerFragment);
-            }
-        }
-        if (position != MAP_POSITION) {
-            if (mapFragment != null && mapFragment.isAdded()) {
-                transaction.hide(mapFragment);
-            }
-        }
-
-        navigationPosition = position;
-
-        transaction.commit();
-    }
+//    /**
+//     * {@inheritDoc}
+//     * <p/>
+//     * Set the selected position
+//     */
+//    @Override
+//    public void onNavigationDrawerItemSelected(int position) {
+//        // update the main content by replacing fragments
+//        FragmentManager fragmentManager = getFragmentManager();
+//
+//        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//
+//        switch (position) {
+//
+//            case MANAGER_POSITION:
+//                if (managerFragment != null) {
+//                    transaction.show(managerFragment);
+//                    title = getString(R.string.title_manager);
+//                }
+//                break;
+//            case MAP_POSITION:
+//                if (mapFragment != null) {
+//                    transaction.show(mapFragment);
+//                    title = getString(R.string.title_map);
+//                }
+//                break;
+//            default:
+//
+//        }
+//
+//        if (position != MANAGER_POSITION) {
+//            if (managerFragment != null && managerFragment.isAdded()) {
+//                transaction.hide(managerFragment);
+//            }
+//        }
+//        if (position != MAP_POSITION) {
+//            if (mapFragment != null && mapFragment.isAdded()) {
+//                transaction.hide(mapFragment);
+//            }
+//        }
+//
+//        navigationPosition = position;
+//
+//        transaction.commit();
+//    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!navigationDrawerFragment.isDrawerOpen()) {
+//        if (!navigationDrawerFragment.isDrawerOpen()) {
             // Only show items in the action bar relevant to this screen
             // if the drawer is not showing. Otherwise, let the drawer
             // decide what to show in the action bar.
@@ -231,15 +254,15 @@ public class MainActivity extends Activity implements
 
             restoreActionBar();
             return true;
-        }
-        return super.onCreateOptionsMenu(menu);
+//        }
+        //return super.onCreateOptionsMenu(menu);
     }
 
     /**
      * Restore the action bar
      */
     public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
+        ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(title);
@@ -290,4 +313,44 @@ public class MainActivity extends Activity implements
         }
     }
 
+    @Override
+    public void onNavBarClick(int position) {
+
+        FragmentManager fragmentManager = getFragmentManager();
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        switch (position) {
+
+            case MANAGER_POSITION:
+                if (managerFragment != null) {
+                    transaction.show(managerFragment);
+                    title = getString(R.string.title_manager);
+                }
+                break;
+            case MAP_POSITION:
+                if (mapFragment != null) {
+                    transaction.show(mapFragment);
+                    title = getString(R.string.title_map);
+                }
+                break;
+            default:
+
+        }
+
+        if (position != MANAGER_POSITION) {
+            if (managerFragment != null && managerFragment.isAdded()) {
+                transaction.hide(managerFragment);
+            }
+        }
+        if (position != MAP_POSITION) {
+            if (mapFragment != null && mapFragment.isAdded()) {
+                transaction.hide(mapFragment);
+            }
+        }
+
+        navigationPosition = position;
+
+        transaction.commit();
+    }
 }

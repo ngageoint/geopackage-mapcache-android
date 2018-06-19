@@ -19,7 +19,7 @@ android {
         versionName '1.21'
         multiDexEnabled true
     }
-    /Users/joe/geopackage/mapcache-android/bottomNavBar/geopackage-mapcache-android/mapcache/build.gradle
+
     buildTypes {
         release {
             minifyEnabled false

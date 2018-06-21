@@ -3242,46 +3242,79 @@ public class GeoPackageManagerFragment extends Fragment implements
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(importUrlView);
 
-        ((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
-        ((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
+        //((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
+        //((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
 
         final EditText nameInput = (EditText) importUrlView
                 .findViewById(R.id.import_url_name_input);
         final EditText urlInput = (EditText) importUrlView
                 .findViewById(R.id.import_url_input);
-        final Button button = (Button) importUrlView
-                .findViewById(R.id.import_url_preloaded);
-        button.setOnClickListener(new View.OnClickListener() {
+//        final Button button = (Button) importUrlView
+//                .findViewById(R.id.import_url_preloaded);
+        ((TextView) importUrlView.findViewById(R.id.import_examples))
+                .setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                        getActivity(), android.R.layout.select_dialog_item);
-                adapter.addAll(getResources().getStringArray(
-                        R.array.preloaded_geopackage_url_labels));
-                AlertDialog.Builder builder = new AlertDialog.Builder(
-                        getActivity(), R.style.AppCompatAlertDialogStyle);
-                builder.setTitle(getString(R.string.import_url_preloaded_label));
-                builder.setAdapter(adapter,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int item) {
-                                if (item >= 0) {
-                                    String[] urls = getResources()
-                                            .getStringArray(
-                                                    R.array.preloaded_geopackage_urls);
-                                    String[] names = getResources()
-                                            .getStringArray(
-                                                    R.array.preloaded_geopackage_url_names);
-                                    nameInput.setText(names[item]);
-                                    urlInput.setText(urls[item]);
-                                }
-                            }
-                        });
+                    @Override
+                    public void onClick(View v) {
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                                getActivity(), android.R.layout.select_dialog_item);
+                        adapter.addAll(getResources().getStringArray(
+                                R.array.preloaded_geopackage_url_labels));
+                        AlertDialog.Builder builder = new AlertDialog.Builder(
+                                getActivity(), R.style.AppCompatAlertDialogStyle);
+                        builder.setTitle(getString(R.string.import_url_preloaded_label));
+                        builder.setAdapter(adapter,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int item) {
+                                        if (item >= 0) {
+                                            String[] urls = getResources()
+                                                    .getStringArray(
+                                                            R.array.preloaded_geopackage_urls);
+                                            String[] names = getResources()
+                                                    .getStringArray(
+                                                            R.array.preloaded_geopackage_url_names);
+                                            nameInput.setText(names[item]);
+                                            urlInput.setText(urls[item]);
+                                        }
+                                    }
+                                });
 
-                AlertDialog alert = builder.create();
-                alert.show();
-            }
-        });
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                        }
+                });
+
+//        button.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+//                        getActivity(), android.R.layout.select_dialog_item);
+//                adapter.addAll(getResources().getStringArray(
+//                        R.array.preloaded_geopackage_url_labels));
+//                AlertDialog.Builder builder = new AlertDialog.Builder(
+//                        getActivity(), R.style.AppCompatAlertDialogStyle);
+//                builder.setTitle(getString(R.string.import_url_preloaded_label));
+//                builder.setAdapter(adapter,
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int item) {
+//                                if (item >= 0) {
+//                                    String[] urls = getResources()
+//                                            .getStringArray(
+//                                                    R.array.preloaded_geopackage_urls);
+//                                    String[] names = getResources()
+//                                            .getStringArray(
+//                                                    R.array.preloaded_geopackage_url_names);
+//                                    nameInput.setText(names[item]);
+//                                    urlInput.setText(urls[item]);
+//                                }
+//                            }
+//                        });
+//
+//                AlertDialog alert = builder.create();
+//                alert.show();
+//            }
+//        });
 
         dialog.setPositiveButton(getString(R.string.geopackage_import_label),
                 new DialogInterface.OnClickListener() {

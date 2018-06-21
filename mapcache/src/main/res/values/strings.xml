@@ -305,6 +305,10 @@
 
     <string name="nav_bar_manage">Manage</string>
     <string name="nav_bar_map">Map</string>
+    <string name="hint_name">Name</string>
+    <string name="hint_url">URL</string>
+    <string name="example_geopackages"><font color='#009688'>Example GeoPackages</font></string>
+
 
 
 </resources>

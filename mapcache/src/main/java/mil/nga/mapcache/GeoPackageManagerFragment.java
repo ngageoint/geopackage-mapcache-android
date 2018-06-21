@@ -23,16 +23,20 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.DocumentsContract.Document;
 import android.provider.Settings;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.InputFilter;
 import android.text.method.LinkMovementMethod;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
@@ -3245,12 +3249,22 @@ public class GeoPackageManagerFragment extends Fragment implements
         //((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
         //((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
 
-        final EditText nameInput = (EditText) importUrlView
-                .findViewById(R.id.import_url_name_input);
-        final EditText urlInput = (EditText) importUrlView
-                .findViewById(R.id.import_url_input);
+//        final EditText nameInput = (EditText) importUrlView
+//                .findViewById(R.id.import_url_name_input);
+//        final EditText urlInput = (EditText) importUrlView
+//                .findViewById(R.id.import_url_input);
 //        final Button button = (Button) importUrlView
 //                .findViewById(R.id.import_url_preloaded);
+
+        // Text validation
+        final TextInputLayout inputLayoutName = (TextInputLayout) importUrlView.findViewById(R.id.import_url_name_layout);
+        final TextInputLayout inputLayoutUrl = (TextInputLayout) importUrlView.findViewById(R.id.import_url_layout);
+        final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
+        final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
+
+
+
+        // Example Geopackages link handler
         ((TextView) importUrlView.findViewById(R.id.import_examples))
                 .setOnClickListener(new View.OnClickListener() {
 
@@ -3273,8 +3287,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                                             String[] names = getResources()
                                                     .getStringArray(
                                                             R.array.preloaded_geopackage_url_names);
-                                            nameInput.setText(names[item]);
-                                            urlInput.setText(urls[item]);
+                                            inputName.setText(names[item]);
+                                            inputUrl.setText(urls[item]);
                                         }
                                     }
                                 });
@@ -3321,18 +3335,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-
-                        String database = nameInput.getText().toString();
-                        String url = urlInput.getText().toString();
-
-                        DownloadTask downloadTask = new DownloadTask(database,
-                                url);
-
-                        progressDialog = createDownloadProgressDialog(database,
-                                url, downloadTask, null);
-                        progressDialog.setIndeterminate(true);
-
-                        downloadTask.execute();
+                        // This will be overridden by click listener after show is called
                     }
                 }).setNegativeButton(getString(R.string.button_cancel_label),
                 new DialogInterface.OnClickListener() {
@@ -3342,9 +3345,75 @@ public class GeoPackageManagerFragment extends Fragment implements
                         dialog.cancel();
                     }
                 });
-        dialog.show();
 
+        final AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+
+        // Override the positive click listener to enable validation
+        Button theButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Validate input on both fields
+                boolean nameValid = validateInput(inputLayoutName, inputName);
+                boolean urlValid = validateInput(inputLayoutUrl, inputUrl);
+
+                if(nameValid && urlValid) {
+                    String database = inputName.getText().toString();
+                    String url = inputUrl.getText().toString();
+
+                    DownloadTask downloadTask = new DownloadTask(database, url);
+                    progressDialog = createDownloadProgressDialog(database,
+                            url, downloadTask, null);
+                    progressDialog.setIndeterminate(true);
+
+                    downloadTask.execute();
+                    alertDialog.dismiss();
+                }
+                else if(!nameValid){
+                    inputName.requestFocus();
+                }
+                else{
+                    inputUrl.requestFocus();
+                }
+
+            }
+        });
+
+        // Reset the error message when the user types
+        inputName.setOnKeyListener(new View.OnKeyListener(){
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                inputLayoutName.setError(null);
+                return validateInput(inputLayoutName, inputName);
+            }
+        });
+
+        // Reset the error message when the user types
+        inputUrl.setOnKeyListener(new View.OnKeyListener(){
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                inputLayoutUrl.setError(null);
+                return validateInput(inputLayoutUrl, inputUrl);
+            }
+        });
     }
+
+    /**
+     * validate input
+     * @param inputLayout
+     * @return true if input is not empty and is valid
+     */
+    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName){
+        if (inputName.getText().toString().trim().isEmpty()) {
+            inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid));
+            return false;
+        }
+        return true;
+    }
+
+
 
     /**
      * Create a download progress dialog

@@ -33,6 +33,7 @@
 
     <!--Name-->
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/import_url_name_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="8dp"
@@ -47,6 +48,7 @@
 
     <!--URL-->
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/import_url_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="8dp"

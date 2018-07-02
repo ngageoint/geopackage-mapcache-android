@@ -21,4 +21,80 @@
         <item name="android:textColorPrimary">#89000000</item>
     </style>
 
+    <!-- Material.io font styles:
+         https://material.io/develop/android/theming/typography/
+         https://material.io/design/typography/the-type-system.html#
+         Letter spacing calculated by letter spacing units section in the above link-->
+    <style name="textAppearanceHeadline1" parent="@android:style/TextAppearance.Material.Headline">
+        <item name="android:fontFamily">@font/roboto_light</item>
+        <item name="android:textSize">96sp</item>
+        <item name="android:letterSpacing">-0.008125</item>
+    </style>
+    <style name="textAppearanceHeadline2" parent="@android:style/TextAppearance.Material.Headline">
+        <item name="android:fontFamily">@font/roboto_light</item>
+        <item name="android:textSize">60sp</item>
+        <item name="android:letterSpacing">-0.0083</item>
+    </style>
+    <style name="textAppearanceHeadline3" parent="@android:style/TextAppearance.Material.Headline">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">48sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    <style name="textAppearanceHeadline4" parent="@android:style/TextAppearance.Material.Headline">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">34sp</item>
+        <item name="android:letterSpacing">0.0073</item>
+    </style>
+    <style name="textAppearanceHeadline5" parent="@android:style/TextAppearance.Material.Headline">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+    <style name="textAppearanceHeadline6" parent="@android:style/TextAppearance.Material.Headline">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:letterSpacing">0.0075</item>
+    </style>
+    <style name="textAppearanceSubtitle1" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.009</item>
+    </style>
+    <style name="textAppearanceSubtitle2" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
+    <style name="textAppearanceBody1" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:letterSpacing">0.03125</item>
+    </style>
+    <style name="textAppearanceBody2" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.017</item>
+    </style>
+    <style name="textAppearanceCaption" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_regular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0.033</item>
+    </style>
+    <style name="textAppearanceButton" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.0535</item>
+    </style>
+    <style name="textAppearanceOverline" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.125</item>
+    </style>
+
+
+
+
+
 </resources>

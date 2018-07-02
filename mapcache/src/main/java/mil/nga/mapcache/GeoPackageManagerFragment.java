@@ -29,14 +29,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
-import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
@@ -45,6 +45,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -60,6 +61,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -95,6 +97,7 @@ import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
+import mil.nga.geopackage.tiles.retriever.GeoPackageTile;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.user.UserColumn;
 import mil.nga.geopackage.user.UserTable;
@@ -201,6 +204,29 @@ public class GeoPackageManagerFragment extends Fragment implements
     private boolean hiddenExternalWarning = true;
 
     /**
+     * View holding the recyler view list of geopackages
+     */
+    private RecyclerView geoPackageRecyclerView;
+
+    /**
+     * Text view to show "no geopackages found" message when the list is empty
+     */
+    private TextView emptyView;
+
+    /**
+     * view adapter for the recycler view
+     */
+    private GeoPackageViewAdapter geoAdapter;
+
+    /**
+     * main view
+     */
+    private View v;
+
+    List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
+
+
+    /**
      * Constructor
      */
     public GeoPackageManagerFragment() {
@@ -216,36 +242,75 @@ public class GeoPackageManagerFragment extends Fragment implements
         active = GeoPackageDatabases.getInstance(getActivity());
         this.inflater = inflater;
         manager = GeoPackageFactory.getManager(getActivity());
-        View v = inflater.inflate(R.layout.fragment_manager, null);
-        ExpandableListView elv = (ExpandableListView) v
-                .findViewById(R.id.fragment_manager_view_ui);
-        elv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view,
-                                           int position, long id) {
-                int itemType = ExpandableListView.getPackedPositionType(id);
-                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                    int childPosition = ExpandableListView
-                            .getPackedPositionChild(id);
-                    int groupPosition = ExpandableListView
-                            .getPackedPositionGroup(id);
-                    tableOptions(databaseTables.get(groupPosition).get(
-                            childPosition));
-                    return true;
-                } else if (itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-                    int groupPosition = ExpandableListView
-                            .getPackedPositionGroup(id);
-                    databaseOptions(databases.get(groupPosition));
-                    return true;
-                }
-                return false;
-            }
-        });
-        elv.setAdapter(adapter);
+        v = inflater.inflate(R.layout.fragment_manager, null);
+//        ExpandableListView elv = (ExpandableListView) v
+//                .findViewById(R.id.fragment_manager_view_ui);
+//        elv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view,
+//                                           int position, long id) {
+//                int itemType = ExpandableListView.getPackedPositionType(id);
+//                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+//                    int childPosition = ExpandableListView
+//                            .getPackedPositionChild(id);
+//                    int groupPosition = ExpandableListView
+//                            .getPackedPositionGroup(id);
+//                    tableOptions(databaseTables.get(groupPosition).get(
+//                            childPosition));
+//                    return( true;
+//                } else if itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+//                    int groupPosition = ExpandableListView
+//                            .getPackedPositionGroup(id);
+//                    databaseOptions(databases.get(groupPosition));
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
+//        elv.setAdapter(adapter);
+
+
+
+//        List<GeoPackageData> data = new ArrayList<>();
+//        List<List<GeoPackageTable>> data = new ArrayList<List<GeoPackageTable>>();
+//        data.add(new GeoPackageData("First" + databases.size()));
+//        data.add(new GeoPackageData("Second"));
+//        data.add(new GeoPackageData("Third"));
+//        data.add(new GeoPackageData("Fourth"));
+//        data.add(new GeoPackageData("Fifth"));
+//        data.add(new GeoPackageData("Third1"));
+//        data.add(new GeoPackageData("Fourth1"));
+//        data.add(new GeoPackageData("Fifth1"));
+//        data.add(new GeoPackageData("Third2"));
+//        data.add(new GeoPackageData("Fourth2"));
+//        data.add(new GeoPackageData("Fifth2"));
+//        for(int i=0; i<databases.size(); i++){
+//            data.add(new GeoPackageData(databases.get(i)));
+//        }
+
+        geoPackageRecyclerView = (RecyclerView) v.findViewById(R.id.listings_view);
+        geoAdapter = new GeoPackageViewAdapter(geoPackageData, v.getContext());
+        geoPackageRecyclerView.setAdapter(geoAdapter);
+        geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
 
         update();
 
         return v;
+    }
+
+    /**
+     * Sets the visibility of the recycler view vs "no geopackages found" message bases on the
+     * recycler view being empty
+     */
+    private void setListVisibility(){
+        emptyView = (TextView) v.findViewById(R.id.empty_view);
+        if(databases.isEmpty()){
+            geoPackageRecyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        } else{
+            geoPackageRecyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -300,6 +365,9 @@ public class GeoPackageManagerFragment extends Fragment implements
             }
         }
 
+        // Set the visibility of the recycler list
+        setListVisibility();
+
     }
 
     /**
@@ -330,6 +398,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private void updateWithCurrentDatabaseList() {
         databaseTables.clear();
+        geoAdapter.clear();
         StringBuilder errorMessage = new StringBuilder();
         Iterator<String> databasesIterator = databases.iterator();
         while (databasesIterator.hasNext()) {
@@ -423,6 +492,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                 if (exceptions.isEmpty()) {
                     databaseTables.add(tables);
+                    geoAdapter.insertToEnd(tables);
                 } else {
 
                     // On exception, check the integrity of the database and delete if not valid
@@ -430,6 +500,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                         databasesIterator.remove();
                     } else {
                         databaseTables.add(tables);
+                        geoAdapter.insertToEnd(tables);
+
                     }
 
                     if (errorMessage.length() > 0) {
@@ -453,6 +525,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         }
 
         adapter.notifyDataSetChanged();
+        geoAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -4138,6 +4211,125 @@ public class GeoPackageManagerFragment extends Fragment implements
                         });
 
         dialog.show();
+    }
+
+//    public class GeoPackageHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+//
+//        private final TextView name;
+//        private Context context;
+//
+//        public GeoPackageHolder(Context context, View itemView) {
+//            super(itemView);
+//            this.context = context;
+//            this.name = (TextView) itemView.findViewById(R.id.manager_group_name);
+//            itemView.setOnClickListener(this);
+//        }
+//
+//        public void bindGeoPackage(){
+//
+//        }
+//
+//        @Override
+//        public void onClick(View v) {
+//
+//        }
+//    }
+
+    public class GeoPackageData {
+        public String title;
+
+        GeoPackageData(String title){
+            this.title = title;
+        }
+    }
+
+    public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHolder>{
+//        List<GeoPackageData> list = Collections.emptyList();
+        List<List<GeoPackageTable>> list = new ArrayList<List<GeoPackageTable>>();
+        Context context;
+
+        public GeoPackageViewAdapter(List<List<GeoPackageTable>> list , Context context){
+            this.list = list;
+            this.context = context;
+        }
+
+        public GeoPackageViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
+            //Inflate the layout, initialize the View Holder
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout, parent, false);
+            GeoPackageViewHolder holder = new GeoPackageViewHolder(v);
+            return holder;
+        }
+
+        public void onBindViewHolder(GeoPackageViewHolder holder, int position) {
+            //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
+            holder.title.setText(list.get(position).get(0).getName());
+
+            // Get the count of tile tables and feature tables associated with each geopackage list to set counts
+            int tileTables = 0;
+            int featureTables = 0;
+            Iterator<GeoPackageTable> tableIterator = list.get(position).iterator();
+            while (tableIterator.hasNext()) {
+                GeoPackageTable current = tableIterator.next();
+                if(current instanceof GeoPackageFeatureTable)
+                    featureTables++;
+                if(current instanceof GeoPackageTileTable)
+                    tileTables++;
+
+            }
+            holder.featureTables.setText("Feature Tables: " + featureTables);
+            holder.tileTables.setText("Tile Tables: " + tileTables);
+            //animate(holder);
+        }
+
+        public int getItemCount() {
+            //returns the number of elements the RecyclerView will display
+            return list.size();
+        }
+
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+        }
+
+        public void insert(int position, List<GeoPackageTable> data) {
+            list.add(position, data);
+            notifyItemInserted(position);
+        }
+
+        public void insertToEnd(List<GeoPackageTable> data) {
+            list.add(getItemCount(), data);
+            notifyItemInserted(getItemCount());
+        }
+
+        public void remove(GeoPackageData data) {
+            int position = list.indexOf(data);
+            list.remove(position);
+            notifyItemRemoved(position);
+        }
+
+        public void clear(){
+            if (!this.list.isEmpty()) {
+                this.list.clear();
+                int test = 0;
+                test = this.getItemCount();
+                int moretest = 1;
+            }
+        }
+    }
+
+    public class GeoPackageViewHolder extends RecyclerView.ViewHolder{
+
+        TextView title;
+        TextView featureTables;
+        TextView tileTables;
+
+        public GeoPackageViewHolder(View itemView) {
+            super(itemView);
+            title = (TextView) itemView.findViewById(R.id.geopackage_title);
+            featureTables = (TextView) itemView
+                    .findViewById(R.id.feature_tables);
+            tileTables = (TextView) itemView
+                    .findViewById(R.id.tile_tables);
+        }
     }
 
     /**

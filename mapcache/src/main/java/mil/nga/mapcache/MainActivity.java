@@ -1,5 +1,6 @@
 package mil.nga.mapcache;
 
+import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
@@ -118,15 +119,13 @@ public class MainActivity extends AppCompatActivity implements
                 }
         );
 
-        title = getString(R.string.title_manager);
+        // Set the initial navigation position
+        onNavBarClick(MANAGER_POSITION);
 
 //        // Set up the drawer.
 //        navigationDrawerFragment.setUp(R.id.navigation_drawer,
 //                (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        // Set the first position
-        //onNavigationDrawerItemSelected(navigationPosition);
-        //onNavBarClick(0);
 
         // Handle opening and importing GeoPackages
         Intent intent = getIntent();

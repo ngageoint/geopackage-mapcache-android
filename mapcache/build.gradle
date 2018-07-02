@@ -6,20 +6,17 @@ def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_K
 
 android {
     compileSdkVersion 27
-
     dexOptions {
         javaMaxHeapSize "4g"
     }
-
     defaultConfig {
         applicationId "mil.nga.mapcache"
-        minSdkVersion 14
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 22
         versionName '1.21'
         multiDexEnabled true
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -31,7 +28,6 @@ android {
             resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", googleMapsApiKeyDebug
         }
     }
-
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
@@ -54,6 +50,7 @@ dependencies {
     //api project(':geopackage-map') // uncomment me to build locally
     api 'com.android.support:multidex:1.0.3'
     api 'com.android.support:design:27.1.1'
+    api 'com.android.support:cardview-v7:27.1.0'
     testImplementation 'com.android.support:multidex:1.0.3'
     configurations.all {
         exclude group: 'com.android.support', module: 'support-v13'

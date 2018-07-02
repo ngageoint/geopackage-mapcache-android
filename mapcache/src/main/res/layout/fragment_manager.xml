@@ -4,9 +4,24 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <ExpandableListView
-        android:id="@+id/fragment_manager_view_ui"
+    <!--<ExpandableListView-->
+        <!--android:id="@+id/fragment_manager_view_ui"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listings_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+    </android.support.v7.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:visibility="gone"
+        android:text="@string/no_packages_text" />
+
 
 </LinearLayout>

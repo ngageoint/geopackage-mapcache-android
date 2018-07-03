@@ -15,7 +15,7 @@
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:orientation="vertical">
@@ -26,17 +26,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"/>
 
-    <fragment
-        android:id="@+id/fragment_manager"
-        android:name="mil.nga.mapcache.GeoPackageManagerFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <fragment
+            android:id="@+id/fragment_manager"
+            android:name="mil.nga.mapcache.GeoPackageManagerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <fragment
-        android:id="@+id/fragment_map"
-        android:name="mil.nga.mapcache.GeoPackageMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <fragment
+            android:id="@+id/fragment_map"
+            android:name="mil.nga.mapcache.GeoPackageMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 

@@ -242,7 +242,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         active = GeoPackageDatabases.getInstance(getActivity());
         this.inflater = inflater;
         manager = GeoPackageFactory.getManager(getActivity());
-        v = inflater.inflate(R.layout.fragment_manager, null);
+        v = inflater.inflate(R.layout.fragment_manager, null, false);
 //        ExpandableListView elv = (ExpandableListView) v
 //                .findViewById(R.id.fragment_manager_view_ui);
 //        elv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -501,7 +501,6 @@ public class GeoPackageManagerFragment extends Fragment implements
                     } else {
                         databaseTables.add(tables);
                         geoAdapter.insertToEnd(tables);
-
                     }
 
                     if (errorMessage.length() > 0) {
@@ -4244,7 +4243,6 @@ public class GeoPackageManagerFragment extends Fragment implements
     }
 
     public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHolder>{
-//        List<GeoPackageData> list = Collections.emptyList();
         List<List<GeoPackageTable>> list = new ArrayList<List<GeoPackageTable>>();
         Context context;
 
@@ -4297,7 +4295,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         public void insertToEnd(List<GeoPackageTable> data) {
             list.add(getItemCount(), data);
-            notifyItemInserted(getItemCount());
+            notifyItemInserted(getItemCount()-1);
         }
 
         public void remove(GeoPackageData data) {
@@ -4309,9 +4307,6 @@ public class GeoPackageManagerFragment extends Fragment implements
         public void clear(){
             if (!this.list.isEmpty()) {
                 this.list.clear();
-                int test = 0;
-                test = this.getItemCount();
-                int moretest = 1;
             }
         }
     }

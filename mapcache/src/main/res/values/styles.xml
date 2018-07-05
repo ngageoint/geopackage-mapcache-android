@@ -15,11 +15,20 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+
+        <!-- Sets the action bar colors by setting all the primaries -->
+        <!--<item name="colorPrimary">@color/nga_primary_primary</item>-->
+        <!--<item name="colorPrimaryDark">@color/nga_primary_primary_dark</item>-->
+        <!--<item name="colorAccent">@color/nga_accent_primary</item>-->
+        <!--<item name="android:textColorPrimary">#FFFFFF</item>-->
+
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:textColorPrimary">#89000000</item>
     </style>
+
+
 
     <!-- Material.io font styles:
          https://material.io/develop/android/theming/typography/

@@ -26,6 +26,16 @@
     <color name="polygon_hole_draw_fill_color">#50FFFFFF</color>
     <color name="nav_selected">#0568da</color>
     <color name="nav_not_selected">#6d7279</color>
+    <!-- NGA specific colors -->
+    <color name="nga_primary_primary_dark">#113856</color>
+    <color name="nga_primary_primary">#194F7B</color>
+    <color name="nga_primary_light">#3B779A</color>
+    <color name="nga_primary_bright">#A1B8CA</color>
+    <color name="nga_accent_primary_dark">#2E8589</color>
+    <color name="nga_accent_primary">#3AA6AC</color>
+    <color name="nga_accent_light">#73C1C5</color>
+    <color name="nga_accent_bright">#AEDBDD</color>
+
 
 
 </resources>

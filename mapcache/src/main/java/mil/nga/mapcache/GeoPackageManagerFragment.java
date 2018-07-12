@@ -32,6 +32,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -257,8 +258,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 //                            .getPackedPositionGroup(id);
 //                    tableOptions(databaseTables.get(groupPosition).get(
 //                            childPosition));
-//                    return( true;
-//                } else if itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+//                    return true;
+//                } else if( itemType == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
 //                    int groupPosition = ExpandableListView
 //                            .getPackedPositionGroup(id);
 //                    databaseOptions(databases.get(groupPosition));
@@ -4261,9 +4262,9 @@ public class GeoPackageManagerFragment extends Fragment implements
         public void onBindViewHolder(GeoPackageViewHolder holder, int position) {
             //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
             if (list.get(position).isEmpty()) {
-                holder.title.setText("No Title Set");
+                holder.title.setText(databases.get(position));
             } else {
-                holder.title.setText(list.get(position).get(0).getName());
+                holder.title.setText(list.get(position).get(0).getDatabase());
             }
             // Get the count of tile tables and feature tables associated with each geopackage list to set counts
             int tileTables = 0;

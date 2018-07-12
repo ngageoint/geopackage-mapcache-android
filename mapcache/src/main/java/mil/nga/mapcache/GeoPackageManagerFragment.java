@@ -23,6 +23,8 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.DocumentsContract.Document;
 import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
@@ -272,22 +274,15 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 
 
-//        List<GeoPackageData> data = new ArrayList<>();
-//        List<List<GeoPackageTable>> data = new ArrayList<List<GeoPackageTable>>();
-//        data.add(new GeoPackageData("First" + databases.size()));
-//        data.add(new GeoPackageData("Second"));
-//        data.add(new GeoPackageData("Third"));
-//        data.add(new GeoPackageData("Fourth"));
-//        data.add(new GeoPackageData("Fifth"));
-//        data.add(new GeoPackageData("Third1"));
-//        data.add(new GeoPackageData("Fourth1"));
-//        data.add(new GeoPackageData("Fifth1"));
-//        data.add(new GeoPackageData("Third2"));
-//        data.add(new GeoPackageData("Fourth2"));
-//        data.add(new GeoPackageData("Fifth2"));
-//        for(int i=0; i<databases.size(); i++){
-//            data.add(new GeoPackageData(databases.get(i)));
-//        }
+        // Floating action button
+        FloatingActionButton fab = v.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createGeoPackage();
+            }
+        });
+
 
         geoPackageRecyclerView = (RecyclerView) v.findViewById(R.id.listings_view);
         geoAdapter = new GeoPackageViewAdapter(geoPackageData, v.getContext());

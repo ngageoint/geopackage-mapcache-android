@@ -4261,10 +4261,10 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         public void onBindViewHolder(GeoPackageViewHolder holder, int position) {
             //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
-            if (list.get(position).isEmpty()) {
+            if (!databases.isEmpty()) {
                 holder.title.setText(databases.get(position));
             } else {
-                holder.title.setText(list.get(position).get(0).getDatabase());
+                holder.title.setText("Not found");
             }
             // Get the count of tile tables and feature tables associated with each geopackage list to set counts
             int tileTables = 0;

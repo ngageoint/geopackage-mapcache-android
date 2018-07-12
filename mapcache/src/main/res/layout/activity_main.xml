@@ -12,7 +12,15 @@
          space available using match_parent in both dimensions.
     -->
 
+    <!--<include-->
+        <!--android:id="@+id/toolbar"-->
+        <!--layout="@layout/main_toolbar" />-->
 
+    <!--<FrameLayout-->
+        <!--android:id="@+id/content_frame"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@+id/toolbar" />-->
 
     <LinearLayout
         android:layout_width="match_parent"

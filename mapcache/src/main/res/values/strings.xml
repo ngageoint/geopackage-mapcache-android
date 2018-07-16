@@ -310,7 +310,7 @@
     <string name="example_geopackages"><font color='#009688'>Example GeoPackages</font></string>
     <string name="err_msg_invalid">is not valid</string>
     <string name="no_packages_text">No GeoPackage files found</string>
-
+    <string name="activity_geo_package_detail">All GeoPackages</string>
 
 
 

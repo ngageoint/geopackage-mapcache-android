@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'maven'
 
-def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? RELEASE_MAPS_MAPCACHE_API_KEY: ''
-def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY: ''
+def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? RELEASE_MAPS_MAPCACHE_API_KEY : ''
+def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY : ''
 
 android {
     compileSdkVersion 27
@@ -51,6 +51,7 @@ dependencies {
     api 'com.android.support:multidex:1.0.3'
     api 'com.android.support:design:27.1.1'
     api 'com.android.support:cardview-v7:27.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'com.android.support:multidex:1.0.3'
     configurations.all {
         exclude group: 'com.android.support', module: 'support-v13'
@@ -58,7 +59,7 @@ dependencies {
 }
 
 configure extensions.android, {
-    if (project.hasProperty('RELEASE_STORE_FILE') && new File((String)project.getProperty('RELEASE_STORE_FILE')).exists()) {
+    if (project.hasProperty('RELEASE_STORE_FILE') && new File((String) project.getProperty('RELEASE_STORE_FILE')).exists()) {
         signingConfigs {
             release {
                 storeFile file(RELEASE_STORE_FILE)
@@ -72,8 +73,7 @@ configure extensions.android, {
                 setSigningConfig(signingConfigs.release)
             }
         }
-    }
-    else {
+    } else {
         println 'no keystore configured'
     }
 }

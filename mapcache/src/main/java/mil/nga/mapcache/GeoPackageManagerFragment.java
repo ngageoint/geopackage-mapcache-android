@@ -54,6 +54,7 @@ import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
@@ -62,6 +63,7 @@ import org.osgeo.proj4j.units.DegreeUnit;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -226,6 +228,12 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private View v;
 
+    /**
+     * GeoPackage name constant
+     */
+    public static final String GEO_PACKAGE_DETAIL = "mil.nga.mapcache.extra.GEOPACKAGEDETAIL";
+
+
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
 
 
@@ -283,9 +291,18 @@ public class GeoPackageManagerFragment extends Fragment implements
             }
         });
 
-
+        // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
+        RecyclerViewClickListener listener = new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Intent detailIntent = new Intent(v.getContext(), GeoPackageDetail.class);
+                String geoPackageName = databases.get(position);
+                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
+                startActivity(detailIntent);
+            }
+        };
         geoPackageRecyclerView = (RecyclerView) v.findViewById(R.id.listings_view);
-        geoAdapter = new GeoPackageViewAdapter(geoPackageData, v.getContext());
+        geoAdapter = new GeoPackageViewAdapter(geoPackageData, v.getContext(), listener);
         geoPackageRecyclerView.setAdapter(geoAdapter);
         geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
 
@@ -4241,16 +4258,19 @@ public class GeoPackageManagerFragment extends Fragment implements
     public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHolder>{
         List<List<GeoPackageTable>> list = new ArrayList<List<GeoPackageTable>>();
         Context context;
+        private RecyclerViewClickListener mListener;
 
-        public GeoPackageViewAdapter(List<List<GeoPackageTable>> list , Context context){
+        public GeoPackageViewAdapter(List<List<GeoPackageTable>> list , Context context, RecyclerViewClickListener listener){
             this.list = list;
             this.context = context;
+            this.mListener = listener;
         }
 
         public GeoPackageViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
             //Inflate the layout, initialize the View Holder
             View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout, parent, false);
-            GeoPackageViewHolder holder = new GeoPackageViewHolder(v);
+            GeoPackageViewHolder holder = new GeoPackageViewHolder(v, mListener);
+
             return holder;
         }
 
@@ -4275,6 +4295,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             }
             holder.featureTables.setText("Feature Tables: " + featureTables);
             holder.tileTables.setText("Tile Tables: " + tileTables);
+
             //animate(holder);
         }
 
@@ -4308,22 +4329,41 @@ public class GeoPackageManagerFragment extends Fragment implements
                 this.list.clear();
             }
         }
+
+        public List<GeoPackageTable> getPosition(int position){
+            return list.get(position);
+        }
+
     }
 
-    public class GeoPackageViewHolder extends RecyclerView.ViewHolder{
+    public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         TextView title;
         TextView featureTables;
         TextView tileTables;
+        private RecyclerViewClickListener mListener;
 
-        public GeoPackageViewHolder(View itemView) {
+        public GeoPackageViewHolder(View itemView, RecyclerViewClickListener listener) {
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.geopackage_title);
             featureTables = (TextView) itemView
                     .findViewById(R.id.feature_tables);
             tileTables = (TextView) itemView
                     .findViewById(R.id.tile_tables);
+            mListener = listener;
+            itemView.setClickable(true);
+            itemView.setOnClickListener(this);
+
         }
+
+        @Override
+        public void onClick(View view) {
+            mListener.onClick(view, getAdapterPosition());
+        }
+    }
+
+    public interface RecyclerViewClickListener {
+        void onClick(View view, int position);
     }
 
     /**

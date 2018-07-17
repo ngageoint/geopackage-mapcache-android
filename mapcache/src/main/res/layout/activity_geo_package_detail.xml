@@ -5,7 +5,6 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:paddingBottom="16dp"
-android:paddingRight="@dimen/activity_horizontal_margin"
 android:paddingTop="16dp"
 tools:context=".GeoPackageDetail">
 
@@ -17,6 +16,7 @@ tools:context=".GeoPackageDetail">
         android:orientation="vertical"
         android:layout_marginBottom="16dp"
         >
+
 
 
         <!--Title and basic information-->
@@ -57,12 +57,15 @@ tools:context=".GeoPackageDetail">
             android:textAppearance="@style/textAppearanceSubtitle2"/>
 
 
+
         <!-- Icon row: info, rename, share, copy, delete -->
         <LinearLayout android:id="@+id/LinearLayout01"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:gravity="center">
 
             <Button
@@ -114,8 +117,32 @@ tools:context=".GeoPackageDetail">
                 android:drawableTop="@drawable/material_delete"
                 android:background="@android:color/transparent"
                 />
-
         </LinearLayout>
 
+
+
+
+        <TextView
+            android:id="@+id/text_layers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:text="@string/layers_label"
+            android:textAppearance="@style/textAppearanceHeadline5"
+            android:textStyle="bold" />
+
+        <View style="@style/Divider"/>
+
+        <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/layer_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"/>
+
+
+
     </LinearLayout>
+
+
 </RelativeLayout>

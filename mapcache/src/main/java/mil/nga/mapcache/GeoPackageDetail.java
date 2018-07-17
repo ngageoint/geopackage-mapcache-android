@@ -58,6 +58,14 @@ public class GeoPackageDetail extends AppCompatActivity {
                 renameDatabaseOption(geoPackageName);
             }
         });
+        Button deleteButton = (Button) findViewById(R.id.detail_delete);
+        deleteButton.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                deleteDatabaseOption(geoPackageName);
+            }
+        });
 
         // Get list of layer names and assign icons, then generate list items
         final ListView listview = (ListView) findViewById(R.id.layer_list);
@@ -210,7 +218,46 @@ public class GeoPackageDetail extends AppCompatActivity {
         });
         AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
+    }
 
+
+
+
+    /**
+     * Delete database alert option
+     *
+     * @param database
+     */
+    private void deleteDatabaseOption(final String database) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle(R.string.geopackage_rename_label);
+        dialogBuilder.setMessage("Delete");
+        dialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    if (manager.delete(database)) {
+                        Toast.makeText(GeoPackageDetail.this, "Deleted " + database, Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                } catch (Exception e){
+                    GeoPackageUtils
+                            .showMessage(
+                                    GeoPackageDetail.this,
+                                    getString(R.string.geopackage_delete_label),
+                                    e.getMessage());
+                }
+            }
+        });
+        dialogBuilder.setNegativeButton(R.string.button_cancel_label, new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
     }
 
 

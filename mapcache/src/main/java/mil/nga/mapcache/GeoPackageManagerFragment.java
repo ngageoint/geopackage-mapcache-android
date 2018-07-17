@@ -298,7 +298,9 @@ public class GeoPackageManagerFragment extends Fragment implements
                 Intent detailIntent = new Intent(v.getContext(), GeoPackageDetail.class);
                 String geoPackageName = databases.get(position);
                 detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
+
                 startActivity(detailIntent);
+                update();
             }
         };
         geoPackageRecyclerView = (RecyclerView) v.findViewById(R.id.listings_view);
@@ -331,6 +333,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     @Override
     public void onResume() {
+        update();
         super.onResume();
     }
 

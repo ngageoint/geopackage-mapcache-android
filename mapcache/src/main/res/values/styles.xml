@@ -10,6 +10,7 @@
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
         -->
+        <item name="colorAccent">@color/nga_primary_light</item>
     </style>
 
     <!-- Application theme. -->

@@ -10,6 +10,7 @@
 
         <!-- set action bar background properties -->
         <!--<item name="actionBarStyle">@style/MyActionBar</item>-->
+        <item name="colorAccent">@color/nga_primary_light</item>
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">

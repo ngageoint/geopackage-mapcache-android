@@ -3,6 +3,11 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content" >
 
+    <!--<Switch-->
+        <!--android:id="@+id/simpleSwitch"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"/>-->
+
     <ImageView
         android:id="@+id/layer_icon"
         android:layout_width="match_parent"
@@ -17,11 +22,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@+id/label"
-        android:textSize="20dp"
-        android:drawablePadding="8dp">
+        android:textAppearance="@style/textAppearanceSubtitle1"
+        android:paddingBottom="16dp"
+        android:paddingTop="16dp">
     </TextView>
 
     <!--alternate way of drawing the icon from the textview properties-->
     <!--android:drawableLeft="@drawable/material_info"-->
+    <!--android:drawablePadding="8dp"-->
 
 </LinearLayout>

@@ -309,17 +309,26 @@ public class GeoPackageDetail extends AppCompatActivity {
      */
     private void copyDatabaseOption(final String database) {
 
-        final EditText input = new EditText(getApplicationContext());
-        input.setText(database + getString(R.string.geopackage_copy_suffix));
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_copy);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Copy GeoPackage");
+        // GeoPackage name
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setHint(database + getString(R.string.geopackage_copy_suffix));
+        inputName.setText(database + getString(R.string.geopackage_copy_suffix));
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle)
-                .setTitle(getString(R.string.geopackage_copy_label))
-                .setView(input)
+                .setView(alertView)
                 .setPositiveButton(getString(R.string.button_ok_label),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
-                                String value = input.getText().toString();
+                                String value = inputName.getText().toString();
                                 if (value != null && !value.isEmpty()
                                         && !value.equals(database)) {
                                     try {
@@ -367,6 +376,7 @@ public class GeoPackageDetail extends AppCompatActivity {
      */
     private void deleteDatabaseOption(final String database) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setIcon(R.drawable.material_delete);
         dialogBuilder.setTitle(R.string.geopackage_delete_label);
         dialogBuilder.setMessage("Delete GeoPackage: " + database + "?");
         dialogBuilder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {

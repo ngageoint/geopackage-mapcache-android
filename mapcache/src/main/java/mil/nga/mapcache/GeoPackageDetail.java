@@ -199,9 +199,9 @@ public class GeoPackageDetail extends AppCompatActivity {
      */
     private void renameDatabaseOption(final String database) {
 
-        final EditText input = new EditText(getApplicationContext());
+        final EditText input = new EditText(this);
         input.setText(database);
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
         dialogBuilder.setTitle(R.string.geopackage_rename_label);
         dialogBuilder.setView(input);
         dialogBuilder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener(){

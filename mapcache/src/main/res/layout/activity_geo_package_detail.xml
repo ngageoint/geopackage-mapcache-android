@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:paddingBottom="16dp"
-android:paddingTop="16dp"
-tools:context=".GeoPackageDetail">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="16dp"
+    android:paddingTop="16dp"
+    android:background="@color/light_grey"
+    tools:context=".GeoPackageDetail">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -64,7 +65,7 @@ tools:context=".GeoPackageDetail">
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_marginTop="32dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="16dp"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:gravity="center">
 
@@ -120,6 +121,9 @@ tools:context=".GeoPackageDetail">
         </LinearLayout>
 
 
+        <View style="@style/Divider"
+            android:layout_marginBottom="16dp"
+            />
 
 
         <TextView
@@ -132,17 +136,27 @@ tools:context=".GeoPackageDetail">
             android:textAppearance="@style/textAppearanceHeadline5"
             android:textStyle="bold" />
 
-        <View style="@style/Divider"/>
 
         <ListView xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/layer_list"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="8dp"/>
+            android:paddingLeft="8dp"
+            android:divider="@null"
+            android:dividerHeight="0dp"/>
 
 
 
     </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/layerActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/add"
+        android:layout_margin="16dp" />
 
 
 </RelativeLayout>

@@ -31,6 +31,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
@@ -3353,7 +3354,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 
         // Example Geopackages link handler
-        ((TextView) importUrlView.findViewById(R.id.import_examples))
+        ((AppCompatTextView) importUrlView.findViewById(R.id.import_examples))
                 .setOnClickListener(new View.OnClickListener() {
 
                     @Override

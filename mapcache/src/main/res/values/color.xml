@@ -26,6 +26,8 @@
     <color name="polygon_hole_draw_fill_color">#50FFFFFF</color>
     <color name="nav_selected">#0568da</color>
     <color name="nav_not_selected">#6d7279</color>
+    <color name="light_grey">#F5F5F5</color>
+
     <!-- NGA specific colors -->
     <color name="nga_primary_primary_dark">#113856</color>
     <color name="nga_primary_primary">#194F7B</color>

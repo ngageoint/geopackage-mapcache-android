@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -199,16 +200,26 @@ public class GeoPackageDetail extends AppCompatActivity {
      */
     private void renameDatabaseOption(final String database) {
 
-        final EditText input = new EditText(this);
-        input.setText(database);
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_edit);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Rename GeoPackage");
+        // GeoPackage name
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setHint(database);
+        inputName.setText(database);
+
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.AppCompatAlertDialogStyle);
-        dialogBuilder.setTitle(R.string.geopackage_rename_label);
-        dialogBuilder.setView(input);
+        dialogBuilder.setView(alertView);
         dialogBuilder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener(){
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String value = input.getText().toString();
+                String value = inputName.getText().toString();
                 if (value != null && !value.isEmpty()
                         && !value.equals(database)) {
                     try{

@@ -12,6 +12,7 @@ android {
     }
     defaultConfig {
         applicationId "mil.nga.mapcache"
+        resValue "string", "applicationId", applicationId
         minSdkVersion 21
         targetSdkVersion 27
         versionCode 23
@@ -25,6 +26,8 @@ android {
             resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", googleMapsApiReleaseKey
         }
         debug {
+            applicationIdSuffix ".test"
+            resValue "string", "applicationId", defaultConfig.applicationId + applicationIdSuffix
             minifyEnabled false
             resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", googleMapsApiKeyDebug
         }

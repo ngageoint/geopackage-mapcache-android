@@ -237,7 +237,6 @@ public class GeoPackageManagerFragment extends Fragment implements
 
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
 
-
     /**
      * Constructor
      */
@@ -280,8 +279,6 @@ public class GeoPackageManagerFragment extends Fragment implements
 //            }
 //        });
 //        elv.setAdapter(adapter);
-
-
 
         // Floating action button
         FloatingActionButton fab = v.findViewById(R.id.fab);

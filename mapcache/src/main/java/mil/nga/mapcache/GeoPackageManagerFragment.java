@@ -4188,11 +4188,23 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private void createGeoPackage() {
 
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_copy);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Create GeoPackage");
+        // GeoPackage name
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setHint(getString(R.string.create_geopackage_hint));
+
+
         final EditText input = new EditText(getActivity());
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(getString(R.string.geopackage_create_label))
-                .setView(input)
+                .setView(alertView)
                 .setPositiveButton(getString(R.string.button_ok_label),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,

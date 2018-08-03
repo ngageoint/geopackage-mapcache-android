@@ -144,6 +144,7 @@
     <string name="geopackage_rename_label">Rename</string>
     <string name="geopackage_copy_label">Copy</string>
     <string name="geopackage_copy_suffix">_copy</string>
+    <string name="create_geopackage_hint">GeoPackage Name</string>
     <string name="geopackage_export_label">Export</string>
     <string name="geopackage_share_label">Share</string>
     <string name="geopackage_share_copy_message">Preparing internal GeoPackage for sharing</string>

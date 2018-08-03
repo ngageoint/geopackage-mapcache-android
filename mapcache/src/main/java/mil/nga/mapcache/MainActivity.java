@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements
         );
 
         // Set the initial navigation position
-        onNavBarClick(MANAGER_POSITION);
+        onNavBarClick(MAP_POSITION);
 
 //        // Set up the drawer.
 //        navigationDrawerFragment.setUp(R.id.navigation_drawer,

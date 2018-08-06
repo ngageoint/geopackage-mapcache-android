@@ -515,6 +515,42 @@ public class GeoPackageMapFragment extends Fragment implements
 
         manager = GeoPackageFactory.getManager(getActivity());
 
+        final Button mapButton = (Button) view.findViewById(R.id.btn_map);
+        final Button satelliteButton = (Button) view.findViewById(R.id.btn_satellite);
+        final Button terrainButton = (Button) view.findViewById(R.id.btn_terrain);
+
+        mapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                mapButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_bright));
+                satelliteButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+                terrainButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+
+            }
+        });
+        satelliteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                mapButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+                satelliteButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_bright));
+                terrainButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+            }
+        });
+        terrainButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                mapButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+                satelliteButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+                terrainButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_bright));
+            }
+        });
+
+        mapButton.performClick();
+
+
         return touch;
     }
 

@@ -120,7 +120,10 @@ public class MainActivity extends AppCompatActivity implements
         );
 
         // Set the initial navigation position
-        onNavBarClick(MAP_POSITION);
+//        bottomNav.setSelectedItemId(R.id.MapButton);
+//        onNavBarClick(MAP_POSITION);
+        bottomNav.setSelectedItemId(R.id.ManageButton);
+        onNavBarClick(MANAGER_POSITION);
 
 //        // Set up the drawer.
 //        navigationDrawerFragment.setUp(R.id.navigation_drawer,

@@ -50,14 +50,15 @@ task androidAppVersion {
 }
 
 dependencies {
-//    api 'com.android.support:appcompat-v7:27.1.1'
+    //    api 'com.android.support:appcompat-v7:27.1.1'
+    //    api 'com.android.support:design:27.1.1'
+    //    api 'com.android.support:cardview-v7:27.1.1'
     api 'com.android.support:appcompat-v7:28.0.0-beta01'
+    api 'com.android.support:design:28.0.0-beta01'
+    api 'com.android.support:cardview-v7:28.0.0-beta01'
     api 'mil.nga.geopackage.map:geopackage-android-map:3.0.2' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'com.android.support:multidex:1.0.3'
-    api 'com.android.support:design:28.0.0-beta01'
-//    api 'com.android.support:cardview-v7:27.1.1'
-    api 'com.android.support:cardview-v7:28.0.0-beta01'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     testImplementation 'com.android.support:multidex:1.0.3'
     configurations.all {

@@ -550,6 +550,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
         mapButton.performClick();
 
+        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
+        enabledDatabase.setText("active: " + active.getDatabases().size());
+
 
         return touch;
     }

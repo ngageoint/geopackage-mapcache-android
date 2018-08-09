@@ -42,6 +42,7 @@ import mil.nga.geopackage.io.GeoPackageIOUtils;
  */
 public class GeoPackageDetail extends AppCompatActivity {
 
+    private static final String AUTHORITY = BuildConfig.APPLICATION_ID+".fileprovider";
     private GeoPackageManager manager;
     private GeoPackage selectedGeo;
     private String geoPackageName;
@@ -192,6 +193,10 @@ public class GeoPackageDetail extends AppCompatActivity {
 
 
 
+//    private void setAllLayersActive(){
+//        manager.
+//    }
+
 
     /**
      * Rename database dialog window
@@ -282,7 +287,7 @@ public class GeoPackageDetail extends AppCompatActivity {
             if (manager.isExternal(database)) {
                 // Create the Uri and share
                 Uri databaseUri = FileProvider.getUriForFile(this,
-                        "mil.nga.mapcache.fileprovider",
+                        AUTHORITY,
                         databaseFile);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);
@@ -522,7 +527,7 @@ public class GeoPackageDetail extends AppCompatActivity {
             } else {
                 // Create the content Uri and add intent permissions
                 Uri databaseUri = FileProvider.getUriForFile(GeoPackageDetail.this,
-                        "mil.nga.mapcache.fileprovider",
+                        AUTHORITY,
                         cacheFile);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);

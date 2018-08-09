@@ -305,6 +305,12 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:background="@color/horizontal_line" />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/enabledDatabase"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
         </LinearLayout>
 
 

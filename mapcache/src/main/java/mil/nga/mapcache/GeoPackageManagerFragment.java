@@ -41,6 +41,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
@@ -236,6 +237,9 @@ public class GeoPackageManagerFragment extends Fragment implements
 
 
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
+
+    private static final String AUTHORITY = BuildConfig.APPLICATION_ID+".fileprovider";
+
 
     /**
      * Constructor
@@ -961,7 +965,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             if (manager.isExternal(database)) {
                 // Create the Uri and share
                 Uri databaseUri = FileProvider.getUriForFile(getActivity(),
-                        "mil.nga.mapcache.fileprovider",
+                        AUTHORITY,
                         databaseFile);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);
@@ -1089,13 +1093,12 @@ public class GeoPackageManagerFragment extends Fragment implements
             } else {
                 // Create the content Uri and add intent permissions
                 Uri databaseUri = FileProvider.getUriForFile(getActivity(),
-                        "mil.nga.mapcache.fileprovider",
+                        AUTHORITY,
                         cacheFile);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);
             }
         }
-
     }
 
     /**
@@ -4196,7 +4199,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         // GeoPackage name
         final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
         inputName.setHint(getString(R.string.create_geopackage_hint));
-
+        inputName.setSingleLine(true);
+        inputName.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         final EditText input = new EditText(getActivity());
 

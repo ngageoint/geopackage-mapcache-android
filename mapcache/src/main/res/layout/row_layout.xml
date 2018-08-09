@@ -45,9 +45,10 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/activity_vertical_margin"
-
-    android:foreground="?android:attr/selectableItemBackground">
+    android:layout_marginBottom="@dimen/small_margin"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardUseCompatPadding="true"
+    app:cardElevation="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"

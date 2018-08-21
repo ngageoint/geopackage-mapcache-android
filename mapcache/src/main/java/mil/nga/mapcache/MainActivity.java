@@ -1,12 +1,14 @@
 package mil.nga.mapcache;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.Typeface;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.app.Activity;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -19,6 +21,7 @@ import android.view.MenuItem;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import mil.nga.mapcache.io.MapCacheFileUtils;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
  * Main Activity
@@ -87,17 +90,23 @@ public class MainActivity extends AppCompatActivity implements
      */
     private GeoPackageManagerFragment managerFragment;
 
+    private GeoPackageViewModel geoPackageViewModel;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
+        geoPackageViewModel.setDbName("created");
 
         // Set the content view
         setContentView(R.layout.activity_main);
 
         // Retrieve the fragments
-        managerFragment = (GeoPackageManagerFragment) getFragmentManager()
+        managerFragment = (GeoPackageManagerFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_manager);
-        mapFragment = (GeoPackageMapFragment) getFragmentManager()
+        mapFragment = (GeoPackageMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_map);
 //        navigationBarFragment = (NavigationBarFragment) getFragmentManager()
 //                .findFragmentById(R.id.navigation_bar);
@@ -318,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onNavBarClick(int position) {
 
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 

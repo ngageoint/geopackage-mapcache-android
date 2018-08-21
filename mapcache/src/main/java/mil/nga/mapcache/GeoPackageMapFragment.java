@@ -1,8 +1,9 @@
 package mil.nga.mapcache;
 
 import android.Manifest;
-import android.app.Fragment;
-import android.app.FragmentManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -51,6 +52,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -147,6 +149,7 @@ import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
@@ -479,6 +482,9 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private List<FeatureOverlayQuery> featureOverlayQueries = new ArrayList<>();
 
+    private GeoPackageViewModel geoPackageViewModel;
+    private String dbName;
+
     /**
      * Constructor
      */
@@ -502,7 +508,10 @@ public class GeoPackageMapFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
+
         active = GeoPackageDatabases.getInstance(getActivity());
+
 
         vibrator = (Vibrator) getActivity().getSystemService(
                 Context.VIBRATOR_SERVICE);
@@ -515,6 +524,23 @@ public class GeoPackageMapFragment extends Fragment implements
 
         manager = GeoPackageFactory.getManager(getActivity());
 
+        setMapViewButtonListeners();
+
+        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
+        geoPackageViewModel.getTheDb().observe(this, newDbName -> {
+            enabledDatabase.setText("live: " + newDbName);
+        });
+
+        return touch;
+    }
+
+
+
+
+    /**
+     * sets the listeners for the map type buttons
+     */
+    public void setMapViewButtonListeners(){
         final Button mapButton = (Button) view.findViewById(R.id.btn_map);
         final Button satelliteButton = (Button) view.findViewById(R.id.btn_satellite);
         final Button terrainButton = (Button) view.findViewById(R.id.btn_terrain);
@@ -523,9 +549,10 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onClick(View view) {
                 setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mapButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_bright));
-                satelliteButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-                terrainButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+                setViewSelected(mapButton);
+                setViewDeselected(satelliteButton);
+                setViewDeselected(terrainButton);
+                geoPackageViewModel.setDbName("map");
 
             }
         });
@@ -533,28 +560,44 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onClick(View view) {
                 setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                mapButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-                satelliteButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_bright));
-                terrainButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+                setViewSelected(satelliteButton);
+                setViewDeselected(mapButton);
+                setViewDeselected(terrainButton);
+                geoPackageViewModel.setDbName("satellite");
+
             }
         });
         terrainButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                mapButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-                satelliteButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-                terrainButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_bright));
+                setViewSelected(terrainButton);
+                setViewDeselected(satelliteButton);
+                setViewDeselected(mapButton);
+                geoPackageViewModel.setDbName("terrain");
+
             }
         });
 
         mapButton.performClick();
+    }
 
-        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
-        enabledDatabase.setText("active: " + active.getDatabases().size());
+    /**
+     * Set the view button style to selected
+     * @param selected
+     */
+    public void setViewSelected(Button selected){
+        selected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
+        selected.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
+    }
 
-
-        return touch;
+    /**
+     * set the view button type to deselected
+     * @param deselected
+     */
+    public void setViewDeselected(Button deselected){
+        deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+        deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
     }
 
     /**
@@ -637,14 +680,14 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * {@inheritDoc}
      */
-    private MapFragment getMapFragment() {
+    private SupportMapFragment getMapFragment() {
         FragmentManager fm = null;
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
             fm = getFragmentManager();
         } else {
             fm = getChildFragmentManager();
         }
-        return (MapFragment) fm.findFragmentById(R.id.fragment_map_view_ui);
+        return (SupportMapFragment) fm.findFragmentById(R.id.fragment_map_view_ui);
     }
 
     /**

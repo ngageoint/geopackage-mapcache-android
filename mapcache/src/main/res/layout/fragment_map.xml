@@ -4,6 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!--<data>-->
+        <!--<variable name="geoPackageViewModel"-->
+            <!--type="mil.nga.mapcache.viewmodel.GeoPackageViewModel" />-->
+    <!--</data>-->
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -14,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:name="com.google.android.gms.maps.MapFragment" />
+        android:name="com.google.android.gms.maps.SupportMapFragment" />
 
     <LinearLayout
         android:id="@+id/mapLoadTilesButtons"
@@ -306,10 +311,12 @@
                 android:layout_marginTop="8dp"
                 android:background="@color/horizontal_line" />
 
+
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/enabledDatabase"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                />
 
         </LinearLayout>
 

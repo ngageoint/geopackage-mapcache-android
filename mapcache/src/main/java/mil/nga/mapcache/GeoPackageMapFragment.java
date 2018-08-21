@@ -1657,7 +1657,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
 
                                 if (featuresBoundingBox != null) {
-                                    featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
+                                    featuresBoundingBox = featuresBoundingBox.union(contentsBoundingBox);
                                 } else {
                                     featuresBoundingBox = contentsBoundingBox;
                                 }
@@ -1683,7 +1683,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             tileMatrixSetBoundingBox = transformBoundingBoxToWgs84(tileMatrixSetBoundingBox, tileMatrixSet.getSrs());
 
                             if (tilesBoundingBox != null) {
-                                tilesBoundingBox = TileBoundingBoxUtils.union(tilesBoundingBox, tileMatrixSetBoundingBox);
+                                tilesBoundingBox = tilesBoundingBox.union(tileMatrixSetBoundingBox);
                             } else {
                                 tilesBoundingBox = tileMatrixSetBoundingBox;
                             }
@@ -2840,7 +2840,7 @@ public class GeoPackageMapFragment extends Fragment implements
             if (!transform.isSameProjection()) {
                 transformedContentsBoundingBox = transformedContentsBoundingBox.transform(transform);
             }
-            displayBoundingBox = TileBoundingBoxUtils.overlap(displayBoundingBox, transformedContentsBoundingBox);
+            displayBoundingBox = displayBoundingBox.overlap(transformedContentsBoundingBox);
         }
 
         displayTiles(overlay, displayBoundingBox, tileMatrixSet.getSrs(), zIndex, null);
@@ -2945,13 +2945,13 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         if (specifiedBoundingBox != null) {
-            boundingBox = TileBoundingBoxUtils.overlap(boundingBox, specifiedBoundingBox);
+            boundingBox = boundingBox.overlap(specifiedBoundingBox);
         }
 
         if (tilesBoundingBox == null) {
             tilesBoundingBox = boundingBox;
         } else {
-            tilesBoundingBox = TileBoundingBoxUtils.union(tilesBoundingBox, boundingBox);
+            tilesBoundingBox = tilesBoundingBox.union(boundingBox);
         }
 
         getActivity().runOnUiThread(new Runnable() {
@@ -3960,7 +3960,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (boundingBox != null) {
                     GeometryEnvelope envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
                     BoundingBox geometryBoundingBox = new BoundingBox(envelope);
-                    BoundingBox unionBoundingBox = TileBoundingBoxUtils.union(boundingBox, geometryBoundingBox);
+                    BoundingBox unionBoundingBox = boundingBox.union(geometryBoundingBox);
                     contents.setBoundingBox(unionBoundingBox);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
                     contentsDao.update(contents);

@@ -18,25 +18,28 @@ import mil.nga.mapcache.data.GeoPackageDatabases;
 
 public class GeoPackageViewModel extends ViewModel {
 
-    private List<String> databases = new ArrayList<String>();
+    private MutableLiveData<List<String>> databases = new MutableLiveData<List<String>>();
     public MutableLiveData<String> dbName = new MutableLiveData<>();
     private GeoPackageDatabases active;
 
 
+
     public void init(List<String> databaseList){
-        databases = databaseList;
+        databases.setValue(new ArrayList<>());
         dbName.setValue("inited");
 //        active = GeoPackageDatabases.getInstance(getActivity());
 
     }
 
-    public List<String> getDatabases(){
-        return databases;
-    }
-
+    public void setDatabases(List<String> dbList){ databases.setValue(dbList);}
     public void setDbName(String newName){
         dbName.setValue(newName);
     }
 
+
+
+    public MutableLiveData<List<String>> getDatabases(){
+        return databases;
+    }
     public LiveData<String> getTheDb() { return dbName; }
 }

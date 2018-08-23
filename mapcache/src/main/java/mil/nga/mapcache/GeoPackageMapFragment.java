@@ -1,7 +1,9 @@
 package mil.nga.mapcache;
 
 import android.Manifest;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -21,6 +23,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
@@ -149,6 +153,8 @@ import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.view.GeoPackageViewAdapter;
+import mil.nga.mapcache.view.RecyclerViewClickListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -482,8 +488,25 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private List<FeatureOverlayQuery> featureOverlayQueries = new ArrayList<>();
 
+    /**
+     * GeoPackage name constant
+     */
+    public static final String GEO_PACKAGE_DETAIL = "mil.nga.mapcache.extra.GEOPACKAGEDETAIL";
+
+    /**
+     * View holding the recyler view list of geopackages
+     */
+    private RecyclerView geoPackageRecyclerView;
+
+    /**
+     * view adapter for the recycler view
+     */
+    private GeoPackageViewAdapter geoAdapter;
+
     private GeoPackageViewModel geoPackageViewModel;
     private String dbName;
+    List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
+
 
     /**
      * Constructor
@@ -508,7 +531,7 @@ public class GeoPackageMapFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
+        geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
 
         active = GeoPackageDatabases.getInstance(getActivity());
 
@@ -526,16 +549,43 @@ public class GeoPackageMapFragment extends Fragment implements
 
         setMapViewButtonListeners();
 
-        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
-        geoPackageViewModel.getTheDb().observe(this, newDbName -> {
-            enabledDatabase.setText("live: " + newDbName);
+        // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
+        RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Intent detailIntent = new Intent(view.getContext(), GeoPackageDetail.class);
+                String geoPackageName = manager.databases().get(position);
+                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
+
+                startActivity(detailIntent);
+            }
+        };
+        geoPackageRecyclerView = (RecyclerView) view.findViewById(R.id.geopackage_list);
+        geoAdapter = new GeoPackageViewAdapter(geoPackageData, view.getContext(), packageListener);
+        geoPackageRecyclerView.setAdapter(geoAdapter);
+        geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        geoPackageViewModel.getGeoPackageTables().observe(this, newGeoTableList ->{
+            geoAdapter.clear();
+            for(int i=0; i < newGeoTableList.size(); i++){
+                List<GeoPackageTable> tablesList = newGeoTableList.get(i);
+                geoAdapter.insertToEnd(tablesList);
+            }
+            geoAdapter.notifyDataSetChanged();
         });
 
-
-        final TextView activeDbTextView = view.findViewById(R.id.activeDatabases);
-        geoPackageViewModel.getDatabases().observe(this, newActiveDbList -> {
-            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
-        });
+        // Live Data examples
+//        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
+//        geoPackageViewModel.getTheDb().observe(this, newDbName -> {
+//            enabledDatabase.setText("live: " + newDbName);
+//        });
+//        final TextView activeDbTextView = view.findViewById(R.id.activeDatabases);
+//        geoPackageViewModel.getDatabases().observe(this, newActiveDbList -> {
+//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
+//        });
+//        geoPackageViewModel.getGeoPackageTables().observe(this, newActiveDbList -> {
+//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
+//        });
 
         List<String> activeDbs = manager.databases();
         geoPackageViewModel.setDatabases(activeDbs);

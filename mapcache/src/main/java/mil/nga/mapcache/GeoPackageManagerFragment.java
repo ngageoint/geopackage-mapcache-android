@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
+import android.arch.lifecycle.ViewModelProviders;
 import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -122,6 +123,7 @@ import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
@@ -242,6 +244,8 @@ public class GeoPackageManagerFragment extends Fragment implements
 
     private static final String AUTHORITY = BuildConfig.APPLICATION_ID+".fileprovider";
 
+    private GeoPackageViewModel geoPackageViewModel;
+
 
     /**
      * Constructor
@@ -312,6 +316,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         geoPackageRecyclerView.setAdapter(geoAdapter);
         geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
 
+        geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
         update();
 
         return v;
@@ -550,6 +555,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             errorMessage.toString());
         }
 
+        geoPackageViewModel.setGeoPackageTables(databaseTables);
         adapter.notifyDataSetChanged();
         geoAdapter.notifyDataSetChanged();
     }

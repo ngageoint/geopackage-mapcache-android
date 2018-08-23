@@ -14,32 +14,37 @@ import java.util.List;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.data.GeoPackageTable;
 
 
 public class GeoPackageViewModel extends ViewModel {
 
     private MutableLiveData<List<String>> databases = new MutableLiveData<List<String>>();
     public MutableLiveData<String> dbName = new MutableLiveData<>();
-    private GeoPackageDatabases active;
+    private MutableLiveData<List<List<GeoPackageTable>>> geoPackageTables = new MutableLiveData<List<List<GeoPackageTable>>>();
+//    private GeoPackageDatabases active;
 
 
-
-    public void init(List<String> databaseList){
+    public void init(List<String> databaseList, List<List<GeoPackageTable>> geoList){
         databases.setValue(new ArrayList<>());
-        dbName.setValue("inited");
+        dbName.setValue("init");
+        geoPackageTables.setValue(geoList);
 //        active = GeoPackageDatabases.getInstance(getActivity());
-
     }
 
     public void setDatabases(List<String> dbList){ databases.setValue(dbList);}
     public void setDbName(String newName){
         dbName.setValue(newName);
     }
-
-
+    public void setGeoPackageTables(List<List<GeoPackageTable>> newGeoPackageTables) {
+        geoPackageTables.setValue(newGeoPackageTables);
+    }
 
     public MutableLiveData<List<String>> getDatabases(){
         return databases;
     }
-    public LiveData<String> getTheDb() { return dbName; }
+    public MutableLiveData<String> getTheDb() { return dbName; }
+    public MutableLiveData<List<List<GeoPackageTable>>> getGeoPackageTables() {
+        return geoPackageTables;
+    }
 }

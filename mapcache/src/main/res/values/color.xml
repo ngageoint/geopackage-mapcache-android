@@ -28,6 +28,7 @@
     <color name="nav_not_selected">#6d7279</color>
     <color name="light_grey">#F5F5F5</color>
     <color name="white">#ffffff</color>
+    <color name="offwhite">#F8F9FA</color>
     <color name="black">#000000</color>
     <color name="slide_menu_bg">#eaffffff</color>
     <color name="btn_light_background">#d3ebfd</color>

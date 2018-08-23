@@ -102,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements
 
         geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
         geoPackageViewModel.setDbName("created");
-//        geoPackageViewModel.setDatabases(new ArrayList<>());
 
         // Set the content view
         setContentView(R.layout.activity_main);
@@ -135,8 +134,8 @@ public class MainActivity extends AppCompatActivity implements
         // Set the initial navigation position
 //        bottomNav.setSelectedItemId(R.id.MapButton);
 //        onNavBarClick(MAP_POSITION);
-        bottomNav.setSelectedItemId(R.id.ManageButton);
-        onNavBarClick(MANAGER_POSITION);
+        bottomNav.setSelectedItemId(R.id.MapButton);
+        onNavBarClick(MAP_POSITION);
 
 //        // Set up the drawer.
 //        navigationDrawerFragment.setUp(R.id.navigation_drawer,

@@ -208,12 +208,12 @@
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="400dp"
-        android:background="@color/white"
+        android:background="@color/offwhite"
         android:paddingTop="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_peekHeight="200dp">
+        app:behavior_peekHeight="400dp">
         <!--app:behavior_hideable="true"-->
 
 
@@ -310,6 +310,12 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
                 android:background="@color/horizontal_line" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/geopackage_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
 
 
             <android.support.v7.widget.AppCompatTextView

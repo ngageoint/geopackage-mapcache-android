@@ -1,5 +1,6 @@
 package mil.nga.mapcache.view;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +18,11 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
  * GeoPackageViewAdapter : Adapter class to hold data to bind to a GeoPackage Recycler View.
- * Maintains a list of GeoPackageTable lists.  Each list is grouped together under the same
+ * Maintains a list of List of GeoPackage tables.  Each list is grouped together under the same
  * database (geopackage) name.  Creates a GeoPackageViewHolder for each row.
  *
  */
@@ -34,6 +36,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
      * Click listener to give to each ViewHolder
      */
     private RecyclerViewClickListener mListener;
+
 
     Context context;
 
@@ -52,7 +55,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
 
     public GeoPackageViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
         //Inflate the layout, initialize the View Holder
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.row_layout, parent, false);
         GeoPackageViewHolder holder = new GeoPackageViewHolder(v, mListener);
 
         return holder;

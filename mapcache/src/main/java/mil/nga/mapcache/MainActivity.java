@@ -20,6 +20,9 @@ import android.view.MenuItem;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements
 
         geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
         geoPackageViewModel.setDbName("created");
+//        geoPackageViewModel.setDatabases(new ArrayList<>());
 
         // Set the content view
         setContentView(R.layout.activity_main);

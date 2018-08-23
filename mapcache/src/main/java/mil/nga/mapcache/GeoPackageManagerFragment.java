@@ -120,6 +120,8 @@ import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.view.GeoPackageViewAdapter;
+import mil.nga.mapcache.view.RecyclerViewClickListener;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.Projection;
 import mil.nga.sf.proj.ProjectionConstants;
@@ -506,6 +508,13 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                 if (geoPackage != null) {
                     geoPackage.close();
+                }
+
+                // If There are no tables under the database, create a blank table so that we can at
+                // least pass the database name up to the recycler view
+                if(tables.isEmpty()){
+                    GeoPackageTable table = new GeoPackageFeatureTable(database, "", GeometryType.GEOMETRY, 0);
+                    tables.add(table);
                 }
 
                 if (exceptions.isEmpty()) {
@@ -4242,146 +4251,6 @@ public class GeoPackageManagerFragment extends Fragment implements
         dialog.show();
     }
 
-//    public class GeoPackageHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-//
-//        private final TextView name;
-//        private Context context;
-//
-//        public GeoPackageHolder(Context context, View itemView) {
-//            super(itemView);
-//            this.context = context;
-//            this.name = (TextView) itemView.findViewById(R.id.manager_group_name);
-//            itemView.setOnClickListener(this);
-//        }
-//
-//        public void bindGeoPackage(){
-//
-//        }
-//
-//        @Override
-//        public void onClick(View v) {
-//
-//        }
-//    }
-
-    public class GeoPackageData {
-        public String title;
-
-        GeoPackageData(String title){
-            this.title = title;
-        }
-    }
-
-    public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHolder>{
-        List<List<GeoPackageTable>> list = new ArrayList<List<GeoPackageTable>>();
-        Context context;
-        private RecyclerViewClickListener mListener;
-
-        public GeoPackageViewAdapter(List<List<GeoPackageTable>> list , Context context, RecyclerViewClickListener listener){
-            this.list = list;
-            this.context = context;
-            this.mListener = listener;
-        }
-
-        public GeoPackageViewHolder onCreateViewHolder(ViewGroup parent, int viewType){
-            //Inflate the layout, initialize the View Holder
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_layout, parent, false);
-            GeoPackageViewHolder holder = new GeoPackageViewHolder(v, mListener);
-
-            return holder;
-        }
-
-        public void onBindViewHolder(GeoPackageViewHolder holder, int position) {
-            //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
-            if (!databases.isEmpty()) {
-                holder.title.setText(databases.get(position));
-            } else {
-                holder.title.setText("Not found");
-            }
-            // Get the count of tile tables and feature tables associated with each geopackage list to set counts
-            int tileTables = 0;
-            int featureTables = 0;
-            Iterator<GeoPackageTable> tableIterator = list.get(position).iterator();
-            while (tableIterator.hasNext()) {
-                GeoPackageTable current = tableIterator.next();
-                if(current instanceof GeoPackageFeatureTable)
-                    featureTables++;
-                if(current instanceof GeoPackageTileTable)
-                    tileTables++;
-
-            }
-            holder.featureTables.setText("Feature Tables: " + featureTables);
-            holder.tileTables.setText("Tile Tables: " + tileTables);
-
-            //animate(holder);
-        }
-
-        public int getItemCount() {
-            //returns the number of elements the RecyclerView will display
-            return list.size();
-        }
-
-        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-            super.onAttachedToRecyclerView(recyclerView);
-        }
-
-        public void insert(int position, List<GeoPackageTable> data) {
-            list.add(position, data);
-            notifyItemInserted(position);
-        }
-
-        public void insertToEnd(List<GeoPackageTable> data) {
-            list.add(getItemCount(), data);
-            notifyItemInserted(getItemCount()-1);
-        }
-
-        public void remove(GeoPackageData data) {
-            int position = list.indexOf(data);
-            list.remove(position);
-            notifyItemRemoved(position);
-        }
-
-        public void clear(){
-            if (!this.list.isEmpty()) {
-                this.list.clear();
-            }
-        }
-
-        public List<GeoPackageTable> getPosition(int position){
-            return list.get(position);
-        }
-
-    }
-
-    public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-
-        TextView title;
-        TextView featureTables;
-        TextView tileTables;
-        private RecyclerViewClickListener mListener;
-
-        public GeoPackageViewHolder(View itemView, RecyclerViewClickListener listener) {
-            super(itemView);
-            title = (TextView) itemView.findViewById(R.id.geopackage_title);
-            featureTables = (TextView) itemView
-                    .findViewById(R.id.feature_tables);
-            tileTables = (TextView) itemView
-                    .findViewById(R.id.tile_tables);
-            mListener = listener;
-            itemView.setClickable(true);
-            itemView.setOnClickListener(this);
-
-        }
-
-        @Override
-        public void onClick(View view) {
-            mListener.onClick(view, getAdapterPosition());
-        }
-    }
-
-    public interface RecyclerViewClickListener {
-        void onClick(View view, int position);
-    }
 
     /**
      * Expandable list adapter

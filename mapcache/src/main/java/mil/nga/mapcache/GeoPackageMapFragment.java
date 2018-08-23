@@ -531,6 +531,15 @@ public class GeoPackageMapFragment extends Fragment implements
             enabledDatabase.setText("live: " + newDbName);
         });
 
+
+        final TextView activeDbTextView = view.findViewById(R.id.activeDatabases);
+        geoPackageViewModel.getDatabases().observe(this, newActiveDbList -> {
+            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
+        });
+
+        List<String> activeDbs = manager.databases();
+        geoPackageViewModel.setDatabases(activeDbs);
+
         return touch;
     }
 
@@ -564,7 +573,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 setViewDeselected(mapButton);
                 setViewDeselected(terrainButton);
                 geoPackageViewModel.setDbName("satellite");
-
             }
         });
         terrainButton.setOnClickListener(new View.OnClickListener() {

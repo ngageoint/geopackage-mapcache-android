@@ -207,13 +207,13 @@
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@color/slide_menu_bg"
+        android:layout_height="400dp"
+        android:background="@color/white"
         android:paddingTop="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_peekHeight="16dp">
+        app:behavior_peekHeight="200dp">
         <!--app:behavior_hideable="true"-->
 
 
@@ -314,6 +314,12 @@
 
             <android.support.v7.widget.AppCompatTextView
                 android:id="@+id/enabledDatabase"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                />
+
+            <android.support.v7.widget.AppCompatTextView
+                android:id="@+id/activeDatabases"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 />

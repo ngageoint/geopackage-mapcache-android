@@ -213,9 +213,8 @@
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_peekHeight="400dp">
+        app:behavior_peekHeight="40dp">
         <!--app:behavior_hideable="true"-->
-
 
         <LinearLayout
             android:id="@+id/mapScrollLayout"
@@ -223,14 +222,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!--<ImageView-->
-                <!--android:id="@+id/slideBarImage"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_alignParentLeft="true"-->
-                <!--android:layout_alignParentTop="true"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:src="@drawable/slide_bar" />-->
 
             <!--View Selector            -->
             <LinearLayout
@@ -239,42 +230,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_gravity="center">
-
-                <!--<android.support.v7.widget.AppCompatTextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_centerInParent="true"-->
-                    <!--android:background="@drawable/shape_chip_drawable"-->
-                    <!--android:textColor="@color/nga_primary_primary_dark"-->
-                    <!--android:text="Map" />-->
-                <!--<android.support.v7.widget.AppCompatTextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_centerInParent="true"-->
-                    <!--android:background="@drawable/shape_chip_drawable_dark"-->
-                    <!--android:textColor="@color/white"-->
-                    <!--android:text="Satellite" />-->
-                <!--<android.support.v7.widget.AppCompatTextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_centerInParent="true"-->
-                    <!--android:background="@drawable/shape_chip_drawable_dark"-->
-                    <!--android:textColor="@color/white"-->
-                    <!--android:text="Terrain"-->
-                    <!--/>-->
-
-                <!--<android.support.v7.widget.AppCompatButton-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:text="Map"/>-->
-                <!--<android.support.v7.widget.AppCompatButton-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:text="Satellite"/>-->
-                <!--<android.support.v7.widget.AppCompatButton-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:text="Terrain"/>-->
 
                 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
@@ -330,10 +285,21 @@
                 android:layout_height="match_parent"
                 />
 
+
+
         </LinearLayout>
 
-
-
     </android.support.v4.widget.NestedScrollView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/bottom_sheet_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/add"
+        app:layout_anchor="@id/bottom_sheet"
+        app:layout_anchorGravity="top|end"/>
+    <!--android:layout_alignParentRight="true"-->
+    <!--android:layout_alignParentBottom="true"-->
 
 </android.support.design.widget.CoordinatorLayout>

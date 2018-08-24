@@ -2,6 +2,7 @@ package mil.nga.mapcache;
 
 import android.Manifest;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -589,6 +590,15 @@ public class GeoPackageMapFragment extends Fragment implements
 
         List<String> activeDbs = manager.databases();
         geoPackageViewModel.setDatabases(activeDbs);
+
+        // Floating action button
+        FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                createGeoPackage();
+            }
+        });
 
         return touch;
     }

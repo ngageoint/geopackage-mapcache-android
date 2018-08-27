@@ -3,6 +3,7 @@ package mil.nga.mapcache;
 import android.Manifest;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -36,6 +37,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -43,6 +45,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -596,7 +599,7 @@ public class GeoPackageMapFragment extends Fragment implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                createGeoPackage();
+                createGeoPackage();
             }
         });
 
@@ -666,6 +669,70 @@ public class GeoPackageMapFragment extends Fragment implements
     public void setViewDeselected(Button deselected){
         deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
         deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
+    }
+
+    /**
+     * Create a new GeoPackage
+     */
+    private void createGeoPackage() {
+
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_add);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Create GeoPackage");
+        // GeoPackage name
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setHint(getString(R.string.create_geopackage_hint));
+        inputName.setSingleLine(true);
+        inputName.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        final EditText input = new EditText(getActivity());
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setPositiveButton(getString(R.string.button_ok_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                String value = inputName.getText().toString();
+                                if (value != null && !value.isEmpty()) {
+                                    try {
+                                        if (manager.create(value)) {
+                                            //update();
+//                                            List<List<GeoPackageTable>> databaseTables = geoPackageViewModel.getGeoPackageTables();
+                                            List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
+                                            GeoPackageTable table = new GeoPackageFeatureTable(value, "", GeometryType.GEOMETRY, 0);
+                                            tables.add(table);
+
+                                        } else {
+                                            GeoPackageUtils
+                                                    .showMessage(
+                                                            getActivity(),
+                                                            getString(R.string.geopackage_create_label),
+                                                            "Failed to create GeoPackage: "
+                                                                    + value);
+                                        }
+                                    } catch (Exception e) {
+                                        GeoPackageUtils.showMessage(
+                                                getActivity(), "Create "
+                                                        + value, e.getMessage());
+                                    }
+                                }
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                dialog.cancel();
+                            }
+                        });
+
+        dialog.show();
     }
 
     /**

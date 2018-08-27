@@ -47,4 +47,9 @@ public class GeoPackageViewModel extends ViewModel {
     public MutableLiveData<List<List<GeoPackageTable>>> getGeoPackageTables() {
         return geoPackageTables;
     }
+
+    public void addGeoPackageTable(List<GeoPackageTable> tables){
+//        geoPackageTables.setValue(geoPackageTables.getValue().add(tables));
+
+    }
 }

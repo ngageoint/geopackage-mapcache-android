@@ -299,7 +299,5 @@
         android:src="@drawable/add"
         app:layout_anchor="@id/bottom_sheet"
         app:layout_anchorGravity="top|end"/>
-    <!--android:layout_alignParentRight="true"-->
-    <!--android:layout_alignParentBottom="true"-->
 
 </android.support.design.widget.CoordinatorLayout>

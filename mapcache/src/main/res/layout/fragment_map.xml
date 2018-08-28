@@ -215,6 +215,12 @@
 
 </RelativeLayout>
 
+    <View
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="16dp"
+        android:background="@drawable/shape_gradient_top_shadow"
+        app:layout_anchor="@id/bottom_sheet" />
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
@@ -224,6 +230,7 @@
         android:paddingTop="8dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
+        android:elevation="4dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
         app:behavior_peekHeight="40dp">
         <!--app:behavior_hideable="true"-->

@@ -47,7 +47,6 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/small_margin"
     android:layout_margin="4dp"
-
     android:background="@color/white"
     android:foreground="?android:attr/selectableItemBackground"
     app:cardUseCompatPadding="false"

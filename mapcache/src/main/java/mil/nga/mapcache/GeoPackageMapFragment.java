@@ -26,6 +26,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -49,6 +50,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -510,6 +512,10 @@ public class GeoPackageMapFragment extends Fragment implements
     private GeoPackageViewModel geoPackageViewModel;
     private String dbName;
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
+    private ImageButton mapSelectButton;
+    private Button mapButton;
+    private Button satelliteButton;
+    private Button terrainButton;
 
 
     /**
@@ -539,7 +545,6 @@ public class GeoPackageMapFragment extends Fragment implements
 
         active = GeoPackageDatabases.getInstance(getActivity());
 
-
         vibrator = (Vibrator) getActivity().getSystemService(
                 Context.VIBRATOR_SERVICE);
 
@@ -549,9 +554,19 @@ public class GeoPackageMapFragment extends Fragment implements
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
+        // Create listeners for map view icon button
+        setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mapSelectButton = (ImageButton) view.findViewById(R.id.mapTypeIcon);
+        mapSelectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMapSelect(v);
+            }
+        });
+
         manager = GeoPackageFactory.getManager(getActivity());
 
-        setMapViewButtonListeners();
+//        setMapViewButtonListeners();
 
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
@@ -609,66 +624,92 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
+//    /**
+//     * sets the listeners for the map type buttons
+//     */
+//    public void setMapViewButtonListeners(){
+//        mapButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//                setViewSelected(mapButton);
+//                setViewDeselected(satelliteButton);
+//                setViewDeselected(terrainButton);
+//                geoPackageViewModel.setDbName("map");
+//
+//            }
+//        });
+//        satelliteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//                setViewSelected(satelliteButton);
+//                setViewDeselected(mapButton);
+//                setViewDeselected(terrainButton);
+//                geoPackageViewModel.setDbName("satellite");
+//            }
+//        });
+//        terrainButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+//                setViewSelected(terrainButton);
+//                setViewDeselected(satelliteButton);
+//                setViewDeselected(mapButton);
+//                geoPackageViewModel.setDbName("terrain");
+//
+//            }
+//        });
+//
+//        mapButton.performClick();
+//    }
+
+//    /**
+//     * Set the view button style to selected
+//     * @param selected
+//     */
+//    public void setViewSelected(Button selected){
+//        selected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
+//        selected.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
+//    }
+//
+//    /**
+//     * set the view button type to deselected
+//     * @param deselected
+//     */
+//    public void setViewDeselected(Button deselected){
+//        deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+//        deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
+//    }
+
     /**
-     * sets the listeners for the map type buttons
+     * Pop up menu for map type icon button - selector for map view type
+     * @param view
      */
-    public void setMapViewButtonListeners(){
-        final Button mapButton = (Button) view.findViewById(R.id.btn_map);
-        final Button satelliteButton = (Button) view.findViewById(R.id.btn_satellite);
-        final Button terrainButton = (Button) view.findViewById(R.id.btn_terrain);
-
-        mapButton.setOnClickListener(new View.OnClickListener() {
+    public void openMapSelect(View view){
+        PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
+        pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
+        pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
-            public void onClick(View view) {
-                setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                setViewSelected(mapButton);
-                setViewDeselected(satelliteButton);
-                setViewDeselected(terrainButton);
-                geoPackageViewModel.setDbName("map");
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.map:
+                        setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        return true;
 
+                    case R.id.satellite:
+                        setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                        return true;
+
+                    case R.id.terrain:
+                        setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                        return true;
+                }
+
+                return true;
             }
         });
-        satelliteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                setViewSelected(satelliteButton);
-                setViewDeselected(mapButton);
-                setViewDeselected(terrainButton);
-                geoPackageViewModel.setDbName("satellite");
-            }
-        });
-        terrainButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                setViewSelected(terrainButton);
-                setViewDeselected(satelliteButton);
-                setViewDeselected(mapButton);
-                geoPackageViewModel.setDbName("terrain");
-
-            }
-        });
-
-        mapButton.performClick();
-    }
-
-    /**
-     * Set the view button style to selected
-     * @param selected
-     */
-    public void setViewSelected(Button selected){
-        selected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
-        selected.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
-    }
-
-    /**
-     * set the view button type to deselected
-     * @param deselected
-     */
-    public void setViewDeselected(Button deselected){
-        deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-        deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
+        pm.show();
     }
 
     /**
@@ -734,6 +775,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         dialog.show();
     }
+
 
     /**
      * {@inheritDoc}

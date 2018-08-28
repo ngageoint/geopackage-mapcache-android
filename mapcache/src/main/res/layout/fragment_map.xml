@@ -21,6 +21,18 @@
         android:layout_alignParentTop="true"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
+    <ImageButton
+        android:id="@+id/mapTypeIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/map_layers_circle"
+        android:onClick="openMapSelect"/>
+
     <LinearLayout
         android:id="@+id/mapLoadTilesButtons"
         android:layout_width="wrap_content"
@@ -222,48 +234,63 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <View
+                android:layout_width="30dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_gravity="center"
+                android:background="@color/horizontal_line" />
 
-            <!--View Selector            -->
-            <LinearLayout
-                android:id="@+id/mapScrollViewSelect"
+            <android.support.v7.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_gravity="center">
+                android:text="GeoPackages"/>
 
-                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal">
 
-                    <Button
-                        android:id="@+id/btn_map"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:text="Default" />
 
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Satellite"
-                        android:id="@+id/btn_satellite"
-                        android:layout_gravity="center_vertical" />
+            <!--View Selector            -->
+            <!--<LinearLayout-->
+                <!--android:id="@+id/mapScrollViewSelect"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:layout_gravity="center">-->
 
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Terrain"
-                        android:id="@+id/btn_terrain"
-                        android:layout_gravity="center_vertical" />
-                </LinearLayout>
+                <!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:gravity="center_horizontal">-->
 
-            </LinearLayout>
+                    <!--<Button-->
+                        <!--android:id="@+id/btn_map"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center_vertical"-->
+                        <!--android:text="Default" />-->
+
+                    <!--<Button-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Satellite"-->
+                        <!--android:id="@+id/btn_satellite"-->
+                        <!--android:layout_gravity="center_vertical" />-->
+
+                    <!--<Button-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Terrain"-->
+                        <!--android:id="@+id/btn_terrain"-->
+                        <!--android:layout_gravity="center_vertical" />-->
+                <!--</LinearLayout>-->
+
+            <!--</LinearLayout>-->
 
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
                 android:background="@color/horizontal_line" />
 
             <android.support.v7.widget.RecyclerView
@@ -284,7 +311,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 />
-
 
 
         </LinearLayout>

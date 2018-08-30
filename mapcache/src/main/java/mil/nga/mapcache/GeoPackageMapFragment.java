@@ -2,6 +2,8 @@ package mil.nga.mapcache;
 
 import android.Manifest;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
@@ -24,6 +26,7 @@ import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -32,6 +35,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -513,9 +517,12 @@ public class GeoPackageMapFragment extends Fragment implements
     private String dbName;
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
     private ImageButton mapSelectButton;
+    private ImageButton zoomInButton;
+    private ImageButton zoomOutButton;
     private Button mapButton;
     private Button satelliteButton;
     private Button terrainButton;
+    private View bottomSheetView;
 
 
     /**
@@ -551,9 +558,58 @@ public class GeoPackageMapFragment extends Fragment implements
         view = inflater.inflate(R.layout.fragment_map, container, false);
         getMapFragment().getMapAsync(this);
 
+        bottomSheetView = view.findViewById(R.id.bottom_sheet);
+
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
+        manager = GeoPackageFactory.getManager(getActivity());
+
+        // Set listeners for icons on map
+        setIconListeners();
+
+        // Create the GeoPackage recycler view
+        createRecyclerView();
+
+
+        List<String> activeDbs = manager.databases();
+        geoPackageViewModel.setDatabases(activeDbs);
+
+        // Floating action button
+        FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createGeoPackage();
+            }
+        });
+
+        // Create bottom sheet listeners for on click and on slide
+        //createBottomSheetListeners();
+
+
+
+        // Live Data examples
+//        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
+//        geoPackageViewModel.getTheDb().observe(this, newDbName -> {
+//            enabledDatabase.setText("live: " + newDbName);
+//        });
+//        final TextView activeDbTextView = view.findViewById(R.id.activeDatabases);
+//        geoPackageViewModel.getDatabases().observe(this, newActiveDbList -> {
+//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
+//        });
+//        geoPackageViewModel.getGeoPackageTables().observe(this, newActiveDbList -> {
+//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
+//        });
+
+        return touch;
+    }
+
+
+    /**
+     *  Creates listeners for map icon buttons
+     */
+    public void setIconListeners(){
         // Create listeners for map view icon button
         setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mapSelectButton = (ImageButton) view.findViewById(R.id.mapTypeIcon);
@@ -564,10 +620,27 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        manager = GeoPackageFactory.getManager(getActivity());
+        zoomInButton = (ImageButton) view.findViewById(R.id.zoomInIcon);
+        zoomInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zoomIn();
+            }
+        });
 
-//        setMapViewButtonListeners();
+        zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
+        zoomOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zoomOut();
+            }
+        });
+    }
 
+    /**
+     *  Creates the recyclerview and assigns listeners
+     */
+    public void createRecyclerView(){
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
             @Override
@@ -584,6 +657,7 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackageRecyclerView.setAdapter(geoAdapter);
         geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
+        // Observe geopackages as livedata
         geoPackageViewModel.getGeoPackageTables().observe(this, newGeoTableList ->{
             geoAdapter.clear();
             for(int i=0; i < newGeoTableList.size(); i++){
@@ -592,98 +666,49 @@ public class GeoPackageMapFragment extends Fragment implements
             }
             geoAdapter.notifyDataSetChanged();
         });
+    }
 
-        // Live Data examples
-//        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
-//        geoPackageViewModel.getTheDb().observe(this, newDbName -> {
-//            enabledDatabase.setText("live: " + newDbName);
-//        });
-//        final TextView activeDbTextView = view.findViewById(R.id.activeDatabases);
-//        geoPackageViewModel.getDatabases().observe(this, newActiveDbList -> {
-//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
-//        });
-//        geoPackageViewModel.getGeoPackageTables().observe(this, newActiveDbList -> {
-//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
-//        });
 
-        List<String> activeDbs = manager.databases();
-        geoPackageViewModel.setDatabases(activeDbs);
+    /**
+     *  Create click and slide listeners for the bottom sheet
+     */
+    public void createBottomSheetListeners(){
 
-        // Floating action button
-        FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        // Listener for sliding the bottom sheet
+        BottomSheetBehavior bottomSheet = BottomSheetBehavior.from(view.findViewById(R.id.bottom_sheet));
+        bottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
-            public void onClick(View view) {
-                createGeoPackage();
+            public void onStateChanged(@NonNull View view, int i) {
+
+            }
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+                setMapIconPosition(map, Math.round(bottomSheetView.getHeight() * v) + 16);
+//                Toast toast = Toast.makeText(getActivity(), "moved: " + bottomSheetView.getHeight() * v, Toast.LENGTH_SHORT);
+//                toast.show();
+
             }
         });
 
-        return touch;
+        // On click listener to auto expand or collapse full menu
+//        bottomSheetView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                if(bottomSheet.getState()==BottomSheetBehavior.STATE_COLLAPSED) {
+//                    bottomSheet.setState(BottomSheetBehavior.STATE_EXPANDED);
+//                } else if(bottomSheet.getState()==BottomSheetBehavior.STATE_EXPANDED){
+//                    bottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                }
+//                return false;
+//            }
+//        });
     }
 
 
 
 
-//    /**
-//     * sets the listeners for the map type buttons
-//     */
-//    public void setMapViewButtonListeners(){
-//        mapButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setMapType(GoogleMap.MAP_TYPE_NORMAL);
-//                setViewSelected(mapButton);
-//                setViewDeselected(satelliteButton);
-//                setViewDeselected(terrainButton);
-//                geoPackageViewModel.setDbName("map");
-//
-//            }
-//        });
-//        satelliteButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//                setViewSelected(satelliteButton);
-//                setViewDeselected(mapButton);
-//                setViewDeselected(terrainButton);
-//                geoPackageViewModel.setDbName("satellite");
-//            }
-//        });
-//        terrainButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//                setViewSelected(terrainButton);
-//                setViewDeselected(satelliteButton);
-//                setViewDeselected(mapButton);
-//                geoPackageViewModel.setDbName("terrain");
-//
-//            }
-//        });
-//
-//        mapButton.performClick();
-//    }
-
-//    /**
-//     * Set the view button style to selected
-//     * @param selected
-//     */
-//    public void setViewSelected(Button selected){
-//        selected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
-//        selected.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
-//    }
-//
-//    /**
-//     * set the view button type to deselected
-//     * @param deselected
-//     */
-//    public void setViewDeselected(Button deselected){
-//        deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-//        deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
-//    }
-
     /**
-     * Pop up menu for map type icon button - selector for map view type
+     * Pop up menu for map view type icon button - selector for map, satellite, terrain
      * @param view
      */
     public void openMapSelect(View view){
@@ -711,6 +736,25 @@ public class GeoPackageMapFragment extends Fragment implements
         });
         pm.show();
     }
+
+
+    /**
+     *  Zoom in on map
+     */
+    public void zoomIn(){
+        if (map == null) return;
+        map.animateCamera(CameraUpdateFactory.zoomIn());
+    }
+
+
+    /**
+     *  Zoom out on map
+     */
+    public void zoomOut(){
+        if (map == null) return;
+        map.animateCamera(CameraUpdateFactory.zoomOut());
+    }
+
 
     /**
      * Create a new GeoPackage
@@ -805,7 +849,7 @@ public class GeoPackageMapFragment extends Fragment implements
         map.setOnMarkerClickListener(this);
         map.setOnMarkerDragListener(this);
         map.setOnCameraIdleListener(this);
-        map.getUiSettings().setZoomControlsEnabled(true);
+        //map.getUiSettings().setZoomControlsEnabled(true);
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
@@ -815,6 +859,82 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
     }
+
+
+
+    /**
+     * sets the position of the zoom icons on the google map.  Do this to account for actions like
+     * repositioning the bottom sheet
+     * @param googleMap
+     */
+    public void setMapIconPosition(GoogleMap googleMap, int height){
+        if(googleMap == null) return;
+
+        // Set map icon positions (left, top, right, bottom)
+        map.setPadding(16, 16, 16, bottomSheetView.getHeight());
+    }
+
+
+
+//    /**
+//     * sets the listeners for the map type buttons
+//     * (this is for the old 3 button select style of map view type)
+//     */
+//    public void setMapViewButtonListeners(){
+//        mapButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//                setViewSelected(mapButton);
+//                setViewDeselected(satelliteButton);
+//                setViewDeselected(terrainButton);
+//                geoPackageViewModel.setDbName("map");
+//
+//            }
+//        });
+//        satelliteButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//                setViewSelected(satelliteButton);
+//                setViewDeselected(mapButton);
+//                setViewDeselected(terrainButton);
+//                geoPackageViewModel.setDbName("satellite");
+//            }
+//        });
+//        terrainButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+//                setViewSelected(terrainButton);
+//                setViewDeselected(satelliteButton);
+//                setViewDeselected(mapButton);
+//                geoPackageViewModel.setDbName("terrain");
+//
+//            }
+//        });
+//
+//        mapButton.performClick();
+//    }
+//    /**
+//     * Set the view button style to selected
+//     * @param selected
+//     */
+//    public void setViewSelected(Button selected){
+//        selected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
+//        selected.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
+//    }
+//
+//    /**
+//     * set the view button type to deselected
+//     * @param deselected
+//     */
+//    public void setViewDeselected(Button deselected){
+//        deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
+//        deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
+//    }
+
+
 
     /**
      * {@inheritDoc}

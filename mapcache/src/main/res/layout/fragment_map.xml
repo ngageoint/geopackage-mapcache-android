@@ -33,6 +33,28 @@
         android:src="@drawable/map_layers_circle"
         android:onClick="openMapSelect"/>
 
+    <ImageButton
+        android:id="@+id/zoomInIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="60dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/plus_icon" />
+
+    <ImageButton
+        android:id="@+id/zoomOutIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="104dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/minus_icon" />
+
     <LinearLayout
         android:id="@+id/mapLoadTilesButtons"
         android:layout_width="wrap_content"
@@ -234,6 +256,7 @@
         app:layout_behavior="@string/bottom_sheet_behavior"
         app:behavior_peekHeight="40dp">
         <!--app:behavior_hideable="true"-->
+        <!--To add gradient: android:background="@drawable/gradient_vertical-->
 
         <LinearLayout
             android:id="@+id/mapScrollLayout"

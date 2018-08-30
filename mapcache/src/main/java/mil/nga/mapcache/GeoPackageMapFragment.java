@@ -513,6 +513,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private GeoPackageViewAdapter geoAdapter;
 
+    /**
+     * Text view to show "no geopackages found" message when the list is empty
+     */
+    private TextView emptyView;
+
     private GeoPackageViewModel geoPackageViewModel;
     private String dbName;
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
@@ -607,6 +612,22 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
+     * Sets the visibility of the recycler view vs "no geopackages found" message bases on the
+     * recycler view being empty
+     */
+    private void setListVisibility(boolean empty){
+        emptyView = (TextView) view.findViewById(R.id.empty_view);
+        if(empty){
+            geoPackageRecyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        } else{
+            geoPackageRecyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
      *  Creates listeners for map icon buttons
      */
     public void setIconListeners(){
@@ -660,10 +681,11 @@ public class GeoPackageMapFragment extends Fragment implements
         // Observe geopackages as livedata
         geoPackageViewModel.getGeoPackageTables().observe(this, newGeoTableList ->{
             geoAdapter.clear();
-            for(int i=0; i < newGeoTableList.size(); i++){
+            for(int i=0; i < newGeoTableList.size(); i++) {
                 List<GeoPackageTable> tablesList = newGeoTableList.get(i);
                 geoAdapter.insertToEnd(tablesList);
             }
+            setListVisibility(newGeoTableList.isEmpty());
             geoAdapter.notifyDataSetChanged();
         });
     }

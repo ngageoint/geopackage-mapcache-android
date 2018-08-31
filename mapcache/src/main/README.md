@@ -7,8 +7,8 @@
 
 ### Segmented Control
 
-'''
-fragment.xml:
+```xml
+fragment.xml
 
 <LinearLayout
     android:id="@+id/mapScrollViewSelect"
@@ -41,9 +41,9 @@ fragment.xml:
     </LinearLayout>
 </LinearLayout>
 
-'''
+```
 
-'''
+```java
 controler.java
 
 /**
@@ -104,7 +104,7 @@ public void setViewDeselected(Button deselected){
     deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
 }
 
-'''
+```
 
 
 

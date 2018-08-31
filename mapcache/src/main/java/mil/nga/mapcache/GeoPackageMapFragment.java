@@ -1,13 +1,11 @@
 package mil.nga.mapcache;
 
 import android.Manifest;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -25,8 +23,8 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
@@ -35,7 +33,6 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,7 +51,6 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -63,7 +59,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -518,6 +513,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private TextView emptyView;
 
+    private GeoPackageDetailDrawer geoDetailFragment;
+
     private GeoPackageViewModel geoPackageViewModel;
     private String dbName;
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
@@ -528,7 +525,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private Button satelliteButton;
     private Button terrainButton;
     private View bottomSheetView;
-
 
     /**
      * Constructor
@@ -633,10 +629,19 @@ public class GeoPackageMapFragment extends Fragment implements
     public void setIconListeners(){
         // Create listeners for map view icon button
         setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mapSelectButton = (ImageButton) view.findViewById(R.id.mapTypeIcon);
+        mapSelectButton = (ImageButton) view.findViewById(R .id.mapTypeIcon);
         mapSelectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction transaction = fragmentManager.beginTransaction();
+//                GeoPackageDetailDrawer drawer = new GeoPackageDetailDrawer();
+//                transaction.replace(R.id.fragmentContainer, drawer);
+//                transaction.addToBackStack(null);  // if written, this transaction will be added to backstack
+//                transaction.commit();
+//                transaction.addToBackStack(null);  // if written, this transaction will be added to backstack
+//                transaction.commit();
+//                  fragmentManager.popBackStack();
                 openMapSelect(v);
             }
         });
@@ -666,11 +671,18 @@ public class GeoPackageMapFragment extends Fragment implements
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Intent detailIntent = new Intent(view.getContext(), GeoPackageDetail.class);
-                String geoPackageName = manager.databases().get(position);
-                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
-
-                startActivity(detailIntent);
+//                Intent detailIntent = new Intent(view.getContext(), GeoPackageDetail.class);
+//                String geoPackageName = manager.databases().get(position);
+//                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
+//
+//                startActivity(detailIntent);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
+                GeoPackageDetailDrawer drawer = new GeoPackageDetailDrawer();
+                transaction.replace(R.id.fragmentContainer, drawer, "geoPackageDetail");
+                transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
+                transaction.commit();
             }
         };
         geoPackageRecyclerView = (RecyclerView) view.findViewById(R.id.geopackage_list);

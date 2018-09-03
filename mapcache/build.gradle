@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "mil.nga.mapcache"
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 23
         versionName '1.22'
@@ -49,7 +49,7 @@ task androidAppVersion {
 }
 
 dependencies {
-    api 'com.android.support:appcompat-v7:28.0.0-rc01'
+    api 'com.android.support:appcompat-v7:28.0.0-rc02'
     api 'mil.nga.geopackage.map:geopackage-android-map:3.0.3' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'com.android.support:multidex:1.0.3'

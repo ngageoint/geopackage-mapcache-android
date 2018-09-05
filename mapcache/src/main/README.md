@@ -3,7 +3,8 @@
 ## Code samples from components I built and may have chosen to not use
 
 
-======
+
+
 
 ### Segmented Control
 
@@ -108,4 +109,27 @@ public void setViewDeselected(Button deselected){
 
 
 
-======
+---
+
+
+
+### Auto Expand Bottom navigation sheet view on onClick
+
+// On click listener to auto expand or collapse full menu
+//        bottomSheetView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                if(bottomSheet.getState()==BottomSheetBehavior.STATE_COLLAPSED) {
+//                    bottomSheet.setState(BottomSheetBehavior.STATE_EXPANDED);
+//                } else if(bottomSheet.getState()==BottomSheetBehavior.STATE_EXPANDED){
+//                    bottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                }
+//                return false;
+//            }
+//        });
+
+
+
+
+
+---

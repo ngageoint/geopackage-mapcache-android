@@ -521,9 +521,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private ImageButton mapSelectButton;
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
-    private Button mapButton;
-    private Button satelliteButton;
-    private Button terrainButton;
     private View bottomSheetView;
 
     /**
@@ -672,14 +669,15 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onClick(View view, int position) {
 //                Intent detailIntent = new Intent(view.getContext(), GeoPackageDetail.class);
-//                String geoPackageName = manager.databases().get(position);
+                String geoPackageName = manager.databases().get(position);
+                GeoPackage selectedGeo = manager.open(geoPackageName, false);
 //                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
 //
 //                startActivity(detailIntent);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-                GeoPackageDetailDrawer drawer = new GeoPackageDetailDrawer();
+                GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(geoPackageName);
                 transaction.replace(R.id.fragmentContainer, drawer, "geoPackageDetail");
                 transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();
@@ -724,18 +722,6 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        // On click listener to auto expand or collapse full menu
-//        bottomSheetView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                if(bottomSheet.getState()==BottomSheetBehavior.STATE_COLLAPSED) {
-//                    bottomSheet.setState(BottomSheetBehavior.STATE_EXPANDED);
-//                } else if(bottomSheet.getState()==BottomSheetBehavior.STATE_EXPANDED){
-//                    bottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
-//                }
-//                return false;
-//            }
-//        });
     }
 
 
@@ -909,64 +895,6 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
-
-//    /**
-//     * sets the listeners for the map type buttons
-//     * (this is for the old 3 button select style of map view type)
-//     */
-//    public void setMapViewButtonListeners(){
-//        mapButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setMapType(GoogleMap.MAP_TYPE_NORMAL);
-//                setViewSelected(mapButton);
-//                setViewDeselected(satelliteButton);
-//                setViewDeselected(terrainButton);
-//                geoPackageViewModel.setDbName("map");
-//
-//            }
-//        });
-//        satelliteButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//                setViewSelected(satelliteButton);
-//                setViewDeselected(mapButton);
-//                setViewDeselected(terrainButton);
-//                geoPackageViewModel.setDbName("satellite");
-//            }
-//        });
-//        terrainButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//                setViewSelected(terrainButton);
-//                setViewDeselected(satelliteButton);
-//                setViewDeselected(mapButton);
-//                geoPackageViewModel.setDbName("terrain");
-//
-//            }
-//        });
-//
-//        mapButton.performClick();
-//    }
-//    /**
-//     * Set the view button style to selected
-//     * @param selected
-//     */
-//    public void setViewSelected(Button selected){
-//        selected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
-//        selected.setTextColor(ContextCompat.getColor(getActivity(), R.color.white));
-//    }
-//
-//    /**
-//     * set the view button type to deselected
-//     * @param deselected
-//     */
-//    public void setViewDeselected(Button deselected){
-//        deselected.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.btn_light_background));
-//        deselected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black));
-//    }
 
 
 

@@ -101,16 +101,21 @@ public class GeoPackageDetail extends AppCompatActivity {
         final ListView listview = (ListView) findViewById(R.id.layer_list);
         List<String> layers = new ArrayList<>();
         List<Integer> icons = new ArrayList<>();
-        Iterator<String> featureIterator = selectedGeo.getFeatureTables().iterator();
-        while(featureIterator.hasNext()){
-            layers.add(featureIterator.next());
-            icons.add(R.drawable.material_feature);
+        if(selectedGeo.getFeatureTables() != null) {
+            Iterator<String> featureIterator = selectedGeo.getFeatureTables().iterator();
+            while (featureIterator.hasNext()) {
+                layers.add(featureIterator.next());
+                icons.add(R.drawable.material_feature);
+            }
         }
-        Iterator<String> tileIterator = selectedGeo.getTileTables().iterator();
-        while(tileIterator.hasNext()){
-            layers.add(tileIterator.next());
-            icons.add(R.drawable.material_tile);
+        if(selectedGeo.getTileTables() != null) {
+            Iterator<String> tileIterator = selectedGeo.getTileTables().iterator();
+            while (tileIterator.hasNext()) {
+                layers.add(tileIterator.next());
+                icons.add(R.drawable.material_tile);
+            }
         }
+
         LayerRowAdapter layerRowAdapter = new LayerRowAdapter(this, layers, icons);
         listview.setAdapter(layerRowAdapter);
 

@@ -2,20 +2,152 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="mil.nga.mapcache.GeoPackageDetailDrawer">
+    tools:context="mil.nga.mapcache.GeoPackageDetailDrawer"
+    android:background="@color/offwhite">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"
-        android:background="@color/nga_primary_primary"/>
+        android:orientation="vertical">
 
-    <Button
-    android:id="@+id/btn_close"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical"
-    android:text="Close" />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/detailPageBackButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:paddingRight="16dp"
+                android:src="@drawable/arrow_back" />
+
+            <TextView
+                android:id="@+id/geoPackageName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/geopackage_detail_page"
+                android:textAppearance="@style/textAppearanceHeadline5" />
+
+        </LinearLayout>
+
+        <View
+            style="@style/Divider"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/text_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:text="Size"
+            android:textAppearance="@style/textAppearanceSubtitle2" />
+
+        <TextView
+            android:id="@+id/text_tiles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:text="Tiles"
+            android:textAppearance="@style/textAppearanceSubtitle2" />
+
+        <TextView
+            android:id="@+id/text_features"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:text="Features"
+            android:textAppearance="@style/textAppearanceSubtitle2" />
+
+        <!-- Icon row: info, rename, share, copy, delete -->
+        <LinearLayout
+            android:id="@+id/LinearLayout01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="32dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingRight="@dimen/activity_horizontal_margin">
+
+            <Button
+                android:id="@+id/detail_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/material_info"
+                android:text="info" />
+
+            <Button
+                android:id="@+id/detail_rename"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/material_edit"
+                android:text="Rename" />
+
+            <Button
+                android:id="@+id/detail_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/material_share"
+                android:text="Share" />
+
+            <Button
+                android:id="@+id/detail_copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/material_copy"
+                android:text="Copy" />
+
+            <Button
+                android:id="@+id/detail_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:drawableTop="@drawable/material_delete"
+                android:text="Delete" />
+        </LinearLayout>
+
+
+        <View
+            style="@style/Divider"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:id="@+id/text_layers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:text="@string/layers_label"
+            android:textAppearance="@style/textAppearanceHeadline5"
+            android:textStyle="bold" />
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/layer_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </android.support.v7.widget.RecyclerView>
+
+
+    </LinearLayout>
+
 
 </FrameLayout>

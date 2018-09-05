@@ -7,6 +7,7 @@
 
 
 ### Segmented Control
+![segmented control](https://github.com/ngageoint/geopackage-mapcache-android/blob/design-rework/mapcache/src/main/exampleImages/segmentedControl.png)
 
 ```xml
 fragment.xml

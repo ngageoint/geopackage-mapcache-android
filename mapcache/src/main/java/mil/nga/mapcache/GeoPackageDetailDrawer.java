@@ -318,5 +318,5 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
 
 
-    
+
 }

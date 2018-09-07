@@ -17,15 +17,23 @@ import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
 
 
-public class GeoPackageViewModel extends ViewModel {
+public class GeoPackageViewModel extends AndroidViewModel {
 
     private MutableLiveData<List<String>> databases = new MutableLiveData<List<String>>();
     public MutableLiveData<String> dbName = new MutableLiveData<>();
     private MutableLiveData<List<List<GeoPackageTable>>> geoPackageTables = new MutableLiveData<List<List<GeoPackageTable>>>();
+
+    private GeoPackageManager manager;
+
 //    private GeoPackageDatabases active;
 
+    public GeoPackageViewModel(@NonNull Application application) {
+        super(application);
+    }
 
     public void init(List<String> databaseList, List<List<GeoPackageTable>> geoList){
+        manager = GeoPackageFactory.getManager(getApplication());
+
         databases.setValue(new ArrayList<>());
         dbName.setValue("init");
         geoPackageTables.setValue(geoList);

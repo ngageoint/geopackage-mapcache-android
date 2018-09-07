@@ -78,6 +78,7 @@ import org.osgeo.proj4j.units.DegreeUnit;
 import org.osgeo.proj4j.units.Unit;
 import org.osgeo.proj4j.units.Units;
 
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -716,9 +717,6 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onSlide(@NonNull View view, float v) {
                 setMapIconPosition(map, Math.round(bottomSheetView.getHeight() * v) + 16);
-//                Toast toast = Toast.makeText(getActivity(), "moved: " + bottomSheetView.getHeight() * v, Toast.LENGTH_SHORT);
-//                toast.show();
-
             }
         });
 
@@ -733,6 +731,15 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void openMapSelect(View view){
         PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
+        // Needed to make the icons visible
+        try {
+            Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            method.setAccessible(true);
+            method.invoke(pm.getMenu(), true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
         pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override

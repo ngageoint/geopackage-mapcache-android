@@ -163,6 +163,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
      * Update the currently loaded geopackage data for page display
      */
     private void update(){
+        selectedGeo = manager.open(geoPackageName, false);
         TextView nameText = (TextView) view.findViewById(R.id.geoPackageName);
         TextView sizeText = (TextView) view.findViewById(R.id.text_size);
         TextView tileText = (TextView) view.findViewById(R.id.text_tiles);

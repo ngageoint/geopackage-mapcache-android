@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".GeoPackageMapFragment">
+
     <item
         android:id="@+id/map"
-        android:title="Map"/>
+        android:icon="@drawable/map_type_default"
+        android:title="Map"
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/satellite"
-        android:title="Satellite"/>
+        android:icon="@drawable/map_type_satellite"
+        android:title="Satellite"
+        app:showAsAction="never"
+        />
 
     <item
         android:id="@+id/terrain"
-        android:title="Terrain"/>
+        android:icon="@drawable/map_type_terrain"
+        android:title="Terrain"
+        app:showAsAction="never"/>
 </menu>

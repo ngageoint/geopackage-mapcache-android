@@ -133,6 +133,13 @@ public class GeoPackageDetailDrawer extends Fragment implements
                 renameDatabaseOption(geoPackageName);
             }
         });
+        Button deleteButton = (Button) view.findViewById(R.id.detail_delete);
+        deleteButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                deleteDatabaseOption(geoPackageName);
+            }
+        });
 
         // Create the layer recycle view adapter
         createLayerListView();
@@ -265,6 +272,50 @@ public class GeoPackageDetailDrawer extends Fragment implements
         AlertDialog alertDialog = dialogBuilder.create();
         alertDialog.show();
     }
+
+
+
+
+
+    /**
+     * Alert window to confirm then call to delete a GeoPackage
+     *
+     * @param database
+     */
+    private void deleteDatabaseOption(final String database) {
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.geopackage_delete_label))
+                .setMessage(
+                        getString(R.string.geopackage_delete_label) + " "
+                                + database + "?")
+                .setPositiveButton(getString(R.string.geopackage_delete_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(geoPackageViewModel.deleteGeoPackage(database)){
+                                    // Leave this detail fragment once deleted
+                                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                    fragmentManager.popBackStack();
+                                }
+//                                manager.delete(database);
+//                                active.removeDatabase(database, false);
+//                                update();
+                            }
+                        })
+
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+        deleteDialog.show();
+    }
+
+
 
 
     // TODO: Rename method, update argument and hook method into UI event

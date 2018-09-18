@@ -42,8 +42,8 @@ public class GeoPackageRepository {
         return geo;
     }
 
-    public void setGeoPackageName(String oldName, String newName){
-        manager.rename(oldName, newName);
+    public boolean setGeoPackageName(String oldName, String newName){
+        return manager.rename(oldName, newName);
     }
 
     public List<GeoPackage> getGeoPackages() {
@@ -189,6 +189,20 @@ public class GeoPackageRepository {
      */
     public String getGeoPackageSize(String geoPackageName){
         return manager.readableSize(geoPackageName);
+    }
+
+    /**
+     * Delete a geoPackage by name
+     */
+    public boolean deleteGeoPackage(String geoPackageName){
+        return manager.delete(geoPackageName);
+    }
+
+    /**
+     * Create a geoPackage by name
+     */
+    public boolean createGeoPackage(String geoPackageName){
+        return manager.create(geoPackageName);
     }
 
 }

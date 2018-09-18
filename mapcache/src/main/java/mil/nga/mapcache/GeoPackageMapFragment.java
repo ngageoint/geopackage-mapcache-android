@@ -619,10 +619,8 @@ public class GeoPackageMapFragment extends Fragment implements
 //                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
 //                startActivity(detailIntent);
 
-//                geoPackageViewModel.generateGeoPackageList();
-                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
-
-                toast.show();
+//                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
+//                toast.show();
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -652,8 +650,13 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Observe GeoPackage list as livedata
         geoPackageViewModel.getGeoPackages().observe(this, newGeoPackages ->{
-            geoAdapter.clearGeoPackages();
-            geoAdapter.setGeoPackageList(newGeoPackages);
+            List<GeoPackage> newGeos = new ArrayList<>();
+            for(GeoPackage geo : newGeoPackages){
+                GeoPackage newGeo = geoPackageViewModel.getGeoPackageByName(geo.getName());
+                newGeos.add(newGeo);
+            }
+//            geoAdapter.clearGeoPackages();
+            geoAdapter.setGeoPackageList(newGeos);
             geoAdapter.notifyDataSetChanged();
         });
     }
@@ -814,14 +817,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 String value = inputName.getText().toString();
                                 if (value != null && !value.isEmpty()) {
                                     try {
-                                        if (manager.create(value)) {
-                                            //update();
-//                                            List<List<GeoPackageTable>> databaseTables = geoPackageViewModel.getGeoPackageTables();
-                                            List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
-                                            GeoPackageTable table = new GeoPackageFeatureTable(value, "", GeometryType.GEOMETRY, 0);
-                                            tables.add(table);
-
-                                        } else {
+                                        if (!geoPackageViewModel.createGeoPackage(value)) {
                                             GeoPackageUtils
                                                     .showMessage(
                                                             getActivity(),

@@ -96,11 +96,11 @@ public class GeoPackageViewModel extends AndroidViewModel {
         if(repository == null){
             repository = new GeoPackageRepository(getApplication());
         }
-        if(repository.getGeoPackageByName(oldName) != null){
-            repository.setGeoPackageName(oldName, newName);
+        if(repository.setGeoPackageName(oldName, newName)) {
             regenerateGeoPackageTableList();
-            return true;
+               return true;
         }
+//        }
         return false;
 
     }
@@ -119,6 +119,30 @@ public class GeoPackageViewModel extends AndroidViewModel {
      */
     public String getGeoPackageSize(String geoPackageName){
         return repository.getGeoPackageSize(geoPackageName);
+    }
+
+    /**
+     * Delete GeoPackage and regenerate the list of GeoPackages
+     */
+    public boolean deleteGeoPackage(String geoPackageName){
+        if(repository.deleteGeoPackage(geoPackageName)){
+            generateGeoPackageList();
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Create GeoPackage and regenerate the list of GeoPackages
+     */
+    public boolean createGeoPackage(String geoPackageName){
+        if(repository.createGeoPackage(geoPackageName)){
+            generateGeoPackageList();
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
     }
 
 }

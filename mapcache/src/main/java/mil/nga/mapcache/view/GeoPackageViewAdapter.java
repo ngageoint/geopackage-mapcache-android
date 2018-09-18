@@ -15,6 +15,7 @@ import java.util.List;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.mapcache.GeoPackageManagerFragment;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
@@ -79,6 +80,23 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
         // Get the count of tile tables and feature tables associated with each geopackage list to set counts
         int tileTables = 0;
         int featureTables = 0;
+
+        // A couple different attempts at using GeoPackage objects instead, however, when getting tables,
+        // it has to reopen the file.  I don't want to do that here.
+//        GeoPackage geo = geoPackageList.get(position);
+//        holder.title.setText(geo.getName());
+//        holder.featureTables.setText("Feature Tables: " + geo.getFeatureTables().size());
+//        holder.tileTables.setText("Tile Tables: " + geo.getTileTables().size());
+
+//        Iterator<GeoPackage> packageIterator = geoPackageList.iterator();
+//        while (packageIterator.hasNext()){
+//            GeoPackage geo = packageIterator.next();
+//            holder.title.setText(geo.getName());
+////            holder.featureTables.setText("Feature Tables: " + geo.getFeatureTables().size());
+////            holder.tileTables.setText("Tile Tables: " + geo.getTileTables().size());
+//        }
+
+
         Iterator<GeoPackageTable> tableIterator = list.get(position).iterator();
         while (tableIterator.hasNext()) {
             GeoPackageTable current = tableIterator.next();

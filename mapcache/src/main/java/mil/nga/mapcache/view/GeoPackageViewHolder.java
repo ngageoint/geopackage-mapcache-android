@@ -31,6 +31,6 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
 
     @Override
     public void onClick(View view) {
-        mListener.onClick(view, getAdapterPosition());
+        mListener.onClick(view, getAdapterPosition(), title.getText().toString());
     }
 }

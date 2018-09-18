@@ -116,18 +116,46 @@ public void setViewDeselected(Button deselected){
 
 ### Auto Expand Bottom navigation sheet view on onClick
 
+```
 // On click listener to auto expand or collapse full menu
-//        bottomSheetView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent motionEvent) {
-//                if(bottomSheet.getState()==BottomSheetBehavior.STATE_COLLAPSED) {
-//                    bottomSheet.setState(BottomSheetBehavior.STATE_EXPANDED);
-//                } else if(bottomSheet.getState()==BottomSheetBehavior.STATE_EXPANDED){
-//                    bottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
-//                }
-//                return false;
-//            }
-//        });
+        bottomSheetView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(bottomSheet.getState()==BottomSheetBehavior.STATE_COLLAPSED) {
+                    bottomSheet.setState(BottomSheetBehavior.STATE_EXPANDED);
+                } else if(bottomSheet.getState()==BottomSheetBehavior.STATE_EXPANDED){
+                    bottomSheet.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+                return false;
+            }
+        });
+```
+
+
+
+
+---
+
+
+
+### Reposition google map icons when sliding the bottom sheet up and down
+
+```
+public void createBottomSheetListeners(){
+        // Listener for sliding the bottom sheet
+        BottomSheetBehavior bottomSheet = BottomSheetBehavior.from(view.findViewById(R.id.bottom_sheet));
+        bottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View view, int i) {
+            }
+            @Override
+            public void onSlide(@NonNull View view, float v) {
+                setMapIconPosition(map, Math.round(bottomSheetView.getHeight() * v) + 16);
+            }
+        });
+    }
+```
+
 
 
 

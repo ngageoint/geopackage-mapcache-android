@@ -27,10 +27,17 @@ import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
  *
  */
 public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHolder>{
+
+
     /**
      * Lists of tables grouped together.  Each list has the same parent database name (geopackage)
      */
     List<List<GeoPackageTable>> list = new ArrayList<List<GeoPackageTable>>();
+
+    /**
+     *  List of GeoPackage objects
+     */
+    List<GeoPackage> geoPackageList = new ArrayList<>();
 
     /**
      * Click listener to give to each ViewHolder
@@ -42,12 +49,10 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
 
     /**
      * Create the adapter
-     * @param list
      * @param context
      * @param listener
      */
-    public GeoPackageViewAdapter(List<List<GeoPackageTable>> list , Context context, RecyclerViewClickListener listener){
-        this.list = list;
+    public GeoPackageViewAdapter(Context context, RecyclerViewClickListener listener){
         this.context = context;
         this.mListener = listener;
     }
@@ -96,6 +101,10 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
         return list.size();
     }
 
+    public int getGeoPackageListSize(){
+        return geoPackageList.size();
+    }
+
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
     }
@@ -115,6 +124,23 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
         if (!this.list.isEmpty()) {
             this.list.clear();
         }
+    }
+
+    /**
+     *  Clear out the list of GeoPackges.  Usually in prep for an update
+     */
+    public void clearGeoPackages(){
+        if(!this.geoPackageList.isEmpty()){
+            this.geoPackageList.clear();
+        }
+    }
+
+    /**
+     * Set a new list of GeoPackages
+     * @param newGeos
+     */
+    public void setGeoPackageList(List<GeoPackage> newGeos){
+        this.geoPackageList = newGeos;
     }
 
     public List<GeoPackageTable> getPosition(int position){

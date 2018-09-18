@@ -31,6 +31,6 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
     @Override
     public void onClick(View view) {
-        mListener.onClick(view, getAdapterPosition());
+        mListener.onClick(view, getAdapterPosition(), title.getText().toString());
     }
 }

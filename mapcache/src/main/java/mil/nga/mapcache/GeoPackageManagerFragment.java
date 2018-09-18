@@ -302,7 +302,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
         RecyclerViewClickListener listener = new RecyclerViewClickListener() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(View view, int position, String name) {
                 Intent detailIntent = new Intent(v.getContext(), GeoPackageDetail.class);
                 String geoPackageName = databases.get(position);
                 detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
@@ -312,7 +312,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             }
         };
         geoPackageRecyclerView = (RecyclerView) v.findViewById(R.id.listings_view);
-        geoAdapter = new GeoPackageViewAdapter(geoPackageData, v.getContext(), listener);
+        geoAdapter = new GeoPackageViewAdapter(v.getContext(), listener);
         geoPackageRecyclerView.setAdapter(geoAdapter);
         geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
 
@@ -555,7 +555,11 @@ public class GeoPackageManagerFragment extends Fragment implements
                             errorMessage.toString());
         }
 
-        geoPackageViewModel.setGeoPackageTables(databaseTables);
+//        geoPackageViewModel.setGeoPackageTables(databaseTables);
+//        List<GeoPackage> geoPackages = new ArrayList<>();
+//        geoPackageViewModel.setGeoPackages(geoPackages);
+//        geoPackageViewModel.generateGeoPackageList();
+//        geoPackageViewModel.init();
         adapter.notifyDataSetChanged();
         geoAdapter.notifyDataSetChanged();
     }

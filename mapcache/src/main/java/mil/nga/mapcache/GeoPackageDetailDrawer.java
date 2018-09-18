@@ -1,5 +1,6 @@
 package mil.nga.mapcache;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
@@ -35,9 +36,12 @@ import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.view.LayerViewAdapter;
 import mil.nga.mapcache.view.LayerViewObject;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
- * A simple {@link Fragment} subclass.
+ *
+ * Fragment to hold a GeoPackage's details.  Shown when a GeoPackage is clicked on in the list.
+ *
  * Activities that contain this fragment must implement the
  * {@link GeoPackageDetailDrawer.OnFragmentInteractionListener} interface
  * to handle interaction events.
@@ -47,38 +51,34 @@ import mil.nga.mapcache.view.RecyclerViewClickListener;
 public class GeoPackageDetailDrawer extends Fragment implements
         ILoadTilesTask, IIndexerTask {
 
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String GEO_NAME = "geoPackageName";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private GeoPackage mParam2;
-
     private OnFragmentInteractionListener mListener;
-
     private static View view;
-
     private GeoPackage selectedGeo;
-    private GeoPackageManager manager;
     private String geoPackageName;
     private List<LayerViewObject> layers = new ArrayList<>();
     private RecyclerView layerRecyclerView;
     private LayerViewAdapter layerAdapter;
+    private GeoPackageViewModel geoPackageViewModel;
 
+    /**
+     *  With the new geoPackageViewModel, we won't have to reference the manager from this class anymore
+     */
+    //    private GeoPackageManager manager;
 
 
     public GeoPackageDetailDrawer() {
         // Required empty public constructor
     }
 
+
     /**
      * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * this fragment using the provided GeoPackage name
      *
-     * @param geoName Parameter 2.
-     * @return A new instance of fragment GeoPackageDetailDrawer.
+     * @param geoName The name of the GeoPackage that was clicked on
+     * @return A new instance of fragment GeoPackageDetailDrawer for the given GeoPackage name
      */
-    // TODO: Rename and change types and number of parameters
     public static GeoPackageDetailDrawer newInstance(String geoName) {
         GeoPackageDetailDrawer fragment = new GeoPackageDetailDrawer();
         Bundle args = new Bundle();
@@ -87,15 +87,23 @@ public class GeoPackageDetailDrawer extends Fragment implements
         return fragment;
     }
 
+
+    /**
+     * Get the GeoPackage object from the viewmodel
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
         super.onCreate(savedInstanceState);
-        manager = GeoPackageFactory.getManager(getActivity());
+//        manager = GeoPackageFactory.getManager(getActivity());
         if (getArguments() != null) {
             geoPackageName = getArguments().getString(GEO_NAME);
-            selectedGeo = manager.open(geoPackageName, false);
+             selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
+//            selectedGeo = manager.open(geoPackageName, false);
         }
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -104,6 +112,8 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
         // Inflate the layout for this fragment
         ImageButton backArrow = view.findViewById(R.id.detailPageBackButton);
+
+        // Click listener to destroy this fragment when the back arrow is pressed by popping it off the stack
         backArrow.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -118,7 +128,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
         // Set listeners for geopackage action buttons
         Button renameButton = (Button) view.findViewById(R.id.detail_rename);
         renameButton.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View v) {
                 renameDatabaseOption(geoPackageName);
@@ -133,12 +142,12 @@ public class GeoPackageDetailDrawer extends Fragment implements
     }
 
     /**
-     * Get the GeoPackage's layer data and create the list view
+     * Get the GeoPackage's layers and create the list view
      */
     private void createLayerListView(){
         RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(View view, int position, String name) {
 
             }
         };
@@ -160,17 +169,20 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
 
     /**
-     * Update the currently loaded geopackage data for page display
+     * Update the currently loaded geopackage object and refresh page display
      */
     private void update(){
-        selectedGeo = manager.open(geoPackageName, false);
+//        selectedGeo = manager.open(geoPackageName, false);
+        selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
         TextView nameText = (TextView) view.findViewById(R.id.geoPackageName);
         TextView sizeText = (TextView) view.findViewById(R.id.text_size);
         TextView tileText = (TextView) view.findViewById(R.id.text_tiles);
         TextView featureText = (TextView) view.findViewById(R.id.text_features);
 
         nameText.setText(selectedGeo.getName());
-        sizeText.setText(manager.readableSize(geoPackageName));
+//        sizeText.setText(manager.readableSize(geoPackageName));
+        sizeText.setText(geoPackageViewModel.getGeoPackageSize(geoPackageName));
+
         int tileCount = selectedGeo.getTileTables().size();
         int featureCount = selectedGeo.getFeatureTables().size();
         tileText.setText(tileCount + " " + pluralize(tileCount, "Tile layer"));
@@ -217,7 +229,8 @@ public class GeoPackageDetailDrawer extends Fragment implements
                 if (value != null && !value.isEmpty()
                         && !value.equals(database)) {
                     try{
-                        if(manager.rename(database, value)) {
+//                        if(manager.rename(database, value)) {
+                        if(geoPackageViewModel.setGeoPackageName(database, value)){
                             geoPackageName = value;
                             update();
 //                            Toast.makeText(GeoPackageDetail.this,"Renamed " + database, Toast.LENGTH_SHORT).show();
@@ -259,6 +272,10 @@ public class GeoPackageDetailDrawer extends Fragment implements
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    public boolean testString(){
+        return true;
     }
 
     @Override

@@ -101,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
-        geoPackageViewModel.setDbName("created");
 
         // Set the content view
         setContentView(R.layout.activity_main);

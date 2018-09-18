@@ -51,6 +51,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -523,6 +524,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
     private View bottomSheetView;
+    private List<GeoPackage> geoPackageList = new ArrayList<GeoPackage>();
 
     /**
      * Constructor
@@ -548,6 +550,8 @@ public class GeoPackageMapFragment extends Fragment implements
                              Bundle savedInstanceState) {
 
         geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
+        geoPackageViewModel.init();
+
 
         active = GeoPackageDatabases.getInstance(getActivity());
 
@@ -570,23 +574,15 @@ public class GeoPackageMapFragment extends Fragment implements
         // Create the GeoPackage recycler view
         createRecyclerView();
 
-
-        List<String> activeDbs = manager.databases();
-        geoPackageViewModel.setDatabases(activeDbs);
-
         // Floating action button
-        FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createGeoPackage();
-            }
-        });
+        setFLoatingActionButton();
+
+//        List<String> activeDbs = manager.databases();
+//        geoPackageViewModel.setDatabases(activeDbs);
+
 
         // Create bottom sheet listeners for on click and on slide
         //createBottomSheetListeners();
-
-
 
         // Live Data examples
 //        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
@@ -605,87 +601,41 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
-    /**
-     * Sets the visibility of the recycler view vs "no geopackages found" message bases on the
-     * recycler view being empty
-     */
-    private void setListVisibility(boolean empty){
-        emptyView = (TextView) view.findViewById(R.id.empty_view);
-        if(empty){
-            geoPackageRecyclerView.setVisibility(View.GONE);
-            emptyView.setVisibility(View.VISIBLE);
-        } else{
-            geoPackageRecyclerView.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.GONE);
-        }
-    }
 
 
     /**
-     *  Creates listeners for map icon buttons
-     */
-    public void setIconListeners(){
-        // Create listeners for map view icon button
-        setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mapSelectButton = (ImageButton) view.findViewById(R .id.mapTypeIcon);
-        mapSelectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction transaction = fragmentManager.beginTransaction();
-//                GeoPackageDetailDrawer drawer = new GeoPackageDetailDrawer();
-//                transaction.replace(R.id.fragmentContainer, drawer);
-//                transaction.addToBackStack(null);  // if written, this transaction will be added to backstack
-//                transaction.commit();
-//                transaction.addToBackStack(null);  // if written, this transaction will be added to backstack
-//                transaction.commit();
-//                  fragmentManager.popBackStack();
-                openMapSelect(v);
-            }
-        });
-
-        zoomInButton = (ImageButton) view.findViewById(R.id.zoomInIcon);
-        zoomInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                zoomIn();
-            }
-        });
-
-        zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
-        zoomOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                zoomOut();
-            }
-        });
-    }
-
-    /**
-     *  Creates the recyclerview and assigns listeners
+     *  Creates the GeoPackage recyclerview and assigns listeners
      */
     public void createRecyclerView(){
+
+
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
             @Override
-            public void onClick(View view, int position) {
+            public void onClick(View view, int position, String name) {
 //                Intent detailIntent = new Intent(view.getContext(), GeoPackageDetail.class);
-                String geoPackageName = manager.databases().get(position);
-                GeoPackage selectedGeo = manager.open(geoPackageName, false);
+//                String geoPackageName = manager.databases().get(position);
+//                GeoPackage selectedGeo = manager.open(geoPackageName, false);
 //                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
-//
 //                startActivity(detailIntent);
+
+//                geoPackageViewModel.generateGeoPackageList();
+                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
+
+                toast.show();
+
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-                GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(geoPackageName);
+                GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(name);
                 transaction.replace(R.id.fragmentContainer, drawer, "geoPackageDetail");
                 transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();
             }
         };
+
         geoPackageRecyclerView = (RecyclerView) view.findViewById(R.id.geopackage_list);
-        geoAdapter = new GeoPackageViewAdapter(geoPackageData, view.getContext(), packageListener);
+        geoAdapter = new GeoPackageViewAdapter(view.getContext(), packageListener);
         geoPackageRecyclerView.setAdapter(geoAdapter);
         geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
@@ -699,28 +649,15 @@ public class GeoPackageMapFragment extends Fragment implements
             setListVisibility(newGeoTableList.isEmpty());
             geoAdapter.notifyDataSetChanged();
         });
-    }
 
-
-    /**
-     *  Create click and slide listeners for the bottom sheet
-     */
-    public void createBottomSheetListeners(){
-
-        // Listener for sliding the bottom sheet
-        BottomSheetBehavior bottomSheet = BottomSheetBehavior.from(view.findViewById(R.id.bottom_sheet));
-        bottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View view, int i) {
-
-            }
-            @Override
-            public void onSlide(@NonNull View view, float v) {
-                setMapIconPosition(map, Math.round(bottomSheetView.getHeight() * v) + 16);
-            }
+        // Observe GeoPackage list as livedata
+        geoPackageViewModel.getGeoPackages().observe(this, newGeoPackages ->{
+            geoAdapter.clearGeoPackages();
+            geoAdapter.setGeoPackageList(newGeoPackages);
+            geoAdapter.notifyDataSetChanged();
         });
-
     }
+
 
 
 
@@ -780,6 +717,70 @@ public class GeoPackageMapFragment extends Fragment implements
     public void zoomOut(){
         if (map == null) return;
         map.animateCamera(CameraUpdateFactory.zoomOut());
+    }
+
+
+
+    /**
+     * Set Floating action button to create new geopackage
+     */
+    private void setFLoatingActionButton(){
+        FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createGeoPackage();
+            }
+        });
+
+    }
+
+
+    /**
+     * Sets the visibility of the recycler view vs "no geopackages found" message bases on the
+     * recycler view being empty
+     */
+    private void setListVisibility(boolean empty){
+        emptyView = (TextView) view.findViewById(R.id.empty_view);
+        if(empty){
+            geoPackageRecyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+        } else{
+            geoPackageRecyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+        }
+    }
+
+
+    /**
+     *  Creates listeners for map icon buttons
+     */
+    public void setIconListeners(){
+        // Create listeners for map view icon button
+        setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mapSelectButton = (ImageButton) view.findViewById(R .id.mapTypeIcon);
+        mapSelectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openMapSelect(v);
+            }
+        });
+
+        zoomInButton = (ImageButton) view.findViewById(R.id.zoomInIcon);
+        zoomInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zoomIn();
+            }
+        });
+
+        zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
+        zoomOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zoomOut();
+            }
+        });
     }
 
 
@@ -900,6 +901,26 @@ public class GeoPackageMapFragment extends Fragment implements
         // Set map icon positions (left, top, right, bottom)
         map.setPadding(16, 16, 16, bottomSheetView.getHeight());
     }
+
+
+
+
+//    /**
+//     *  Create click and slide listeners for the bottom sheet
+//     */
+//    public void createBottomSheetListeners(){
+//        // Listener for sliding the bottom sheet
+//        BottomSheetBehavior bottomSheet = BottomSheetBehavior.from(view.findViewById(R.id.bottom_sheet));
+//        bottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+//            @Override
+//            public void onStateChanged(@NonNull View view, int i) {
+//            }
+//            @Override
+//            public void onSlide(@NonNull View view, float v) {
+//                setMapIconPosition(map, Math.round(bottomSheetView.getHeight() * v) + 16);
+//            }
+//        });
+//    }
 
 
 

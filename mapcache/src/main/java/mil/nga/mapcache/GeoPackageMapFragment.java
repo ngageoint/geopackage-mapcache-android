@@ -84,6 +84,8 @@ import org.osgeo.proj4j.units.Unit;
 import org.osgeo.proj4j.units.Units;
 
 import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -742,8 +744,8 @@ public class GeoPackageMapFragment extends Fragment implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createGeoPackage();
-//                importGeopackageFromUrl();
+//                createGeoPackage();
+                importGeopackageFromUrl();
             }
         });
 
@@ -869,23 +871,11 @@ public class GeoPackageMapFragment extends Fragment implements
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
         dialog.setView(importUrlView);
 
-        //((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
-        //((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
-
-//        final EditText nameInput = (EditText) importUrlView
-//                .findViewById(R.id.import_url_name_input);
-//        final EditText urlInput = (EditText) importUrlView
-//                .findViewById(R.id.import_url_input);
-//        final Button button = (Button) importUrlView
-//                .findViewById(R.id.import_url_preloaded);
-
         // Text validation
         final TextInputLayout inputLayoutName = (TextInputLayout) importUrlView.findViewById(R.id.import_url_name_layout);
         final TextInputLayout inputLayoutUrl = (TextInputLayout) importUrlView.findViewById(R.id.import_url_layout);
         final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
         final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
-
-
 
         // Example Geopackages link handler
         ((AppCompatTextView) importUrlView.findViewById(R.id.import_examples))
@@ -921,38 +911,6 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                 });
 
-//        button.setOnClickListener(new View.OnClickListener() {
-//
-//            @Override
-//            public void onClick(View v) {
-//                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-//                        getActivity(), android.R.layout.select_dialog_item);
-//                adapter.addAll(getResources().getStringArray(
-//                        R.array.preloaded_geopackage_url_labels));
-//                AlertDialog.Builder builder = new AlertDialog.Builder(
-//                        getActivity(), R.style.AppCompatAlertDialogStyle);
-//                builder.setTitle(getString(R.string.import_url_preloaded_label));
-//                builder.setAdapter(adapter,
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int item) {
-//                                if (item >= 0) {
-//                                    String[] urls = getResources()
-//                                            .getStringArray(
-//                                                    R.array.preloaded_geopackage_urls);
-//                                    String[] names = getResources()
-//                                            .getStringArray(
-//                                                    R.array.preloaded_geopackage_url_names);
-//                                    nameInput.setText(names[item]);
-//                                    urlInput.setText(urls[item]);
-//                                }
-//                            }
-//                        });
-//
-//                AlertDialog alert = builder.create();
-//                alert.show();
-//            }
-//        });
-
         dialog.setPositiveButton(getString(R.string.geopackage_import_label),
                 new DialogInterface.OnClickListener() {
 
@@ -985,11 +943,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 if(nameValid && urlValid) {
                     String database = inputName.getText().toString();
                     String url = inputUrl.getText().toString();
-
-                    DownloadTask downloadTask = new DownloadTask(database, url, getActivity(), getString(R.string.geopackage_import_label));
-                    progressDialog = downloadTask.createDownloadProgressDialog(database,
-                            url, downloadTask, null);
-                    progressDialog.setIndeterminate(true);
+                    DownloadTask downloadTask = new DownloadTask(database, url, getActivity());
 
                     downloadTask.execute();
                     alertDialog.dismiss();
@@ -1022,7 +976,6 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
     }
-
 
 
 

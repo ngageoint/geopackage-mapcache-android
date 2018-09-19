@@ -156,7 +156,11 @@ public class GeoPackageViewModel extends AndroidViewModel {
      * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
      */
     public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
-        return repository.importGeoPackage(name, source, progress);
+        if(repository.importGeoPackage(name, source, progress)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
     }
 
 }

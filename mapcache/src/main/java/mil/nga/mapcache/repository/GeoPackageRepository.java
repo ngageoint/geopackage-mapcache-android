@@ -73,7 +73,6 @@ public class GeoPackageRepository {
                 List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
                 try {
                     geoPackage = manager.open(database, false);
-                    geoPackages.add(geoPackage);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
 
                     List<String> featureTables = null;
@@ -145,7 +144,10 @@ public class GeoPackageRepository {
 
                 if (geoPackage != null) {
                     geoPackage.close();
+                    geoPackages.add(geoPackage);
+
                 }
+
 
                 // If There are no tables under the database, create a blank table so that we can at
                 // least pass the database name up to the recycler view

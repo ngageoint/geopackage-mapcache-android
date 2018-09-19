@@ -8,6 +8,7 @@ import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.repository.GeoPackageRepository;
@@ -138,11 +140,18 @@ public class GeoPackageViewModel extends AndroidViewModel {
      */
     public boolean createGeoPackage(String geoPackageName){
         if(repository.createGeoPackage(geoPackageName)){
-            generateGeoPackageList();
-            regenerateGeoPackageTableList();
+            //generateGeoPackageList();
+            //regenerateGeoPackageTableList();
             return true;
         }
         return false;
+    }
+
+    /**
+     * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
+     */
+    public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
+        return repository.importGeoPackage(name, source, progress);
     }
 
 }

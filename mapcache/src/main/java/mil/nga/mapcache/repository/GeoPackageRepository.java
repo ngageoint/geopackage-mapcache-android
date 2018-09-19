@@ -4,6 +4,7 @@ import android.app.Application;
 import android.support.annotation.NonNull;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import mil.nga.geopackage.db.metadata.GeoPackageMetadata;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
@@ -203,6 +205,13 @@ public class GeoPackageRepository {
      */
     public boolean createGeoPackage(String geoPackageName){
         return manager.create(geoPackageName);
+    }
+
+    /**
+     * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
+     */
+    public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
+        return manager.importGeoPackage(name, source, progress);
     }
 
 }

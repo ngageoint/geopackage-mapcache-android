@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -60,6 +61,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
     private RecyclerView layerRecyclerView;
     private LayerViewAdapter layerAdapter;
     private GeoPackageViewModel geoPackageViewModel;
+    private ImageButton backArrow;
 
     /**
      *  With the new geoPackageViewModel, we won't have to reference the manager from this class anymore
@@ -110,21 +112,28 @@ public class GeoPackageDetailDrawer extends Fragment implements
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_geo_package_detail_drawer, container, false);
 
-        // Inflate the layout for this fragment
-        ImageButton backArrow = view.findViewById(R.id.detailPageBackButton);
-
-        // Click listener to destroy this fragment when the back arrow is pressed by popping it off the stack
-        backArrow.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                fragmentManager.popBackStack();
-            }
-        });
+        // Set listener for leaving this view
+        backArrow = view.findViewById(R.id.detailPageBackButton);
+        setBackArrowListener();
 
         // update for the first time to load initial data
         update();
 
+        // Create listeners for the row of action buttons
+        createButtonListeners();
+
+        // Create the layer recycle view adapter
+        createLayerListView();
+
+        return view;
+
+    }
+
+
+    /**
+     *  Create listeners for the row of buttons (Rename, Share, Copy, Delete)
+     */
+    private void createButtonListeners(){
         // Set listeners for geopackage action buttons
         Button renameButton = (Button) view.findViewById(R.id.detail_rename);
         renameButton.setOnClickListener(new View.OnClickListener(){
@@ -140,13 +149,16 @@ public class GeoPackageDetailDrawer extends Fragment implements
                 deleteDatabaseOption(geoPackageName);
             }
         });
-
-        // Create the layer recycle view adapter
-        createLayerListView();
-
-        return view;
-
+        Button copyButton = (Button) view.findViewById(R.id.detail_copy);
+        copyButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                copyDatabaseOption(geoPackageName);
+            }
+        });
     }
+
+
 
     /**
      * Get the GeoPackage's layers and create the list view
@@ -196,13 +208,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
         featureText.setText(featureCount + " " + pluralize(featureCount, "Feature layer"));
     }
 
-    /**
-     * Set the currently selected GeoPackage for this page
-     * @param newGeo
-     */
-    public void setSelectedGeo(GeoPackage newGeo){
-        selectedGeo = newGeo;
-    }
 
 
 
@@ -278,6 +283,74 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
 
     /**
+     * Copy database option
+     *
+     * @param database
+     */
+    private void copyDatabaseOption(final String database) {
+
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_edit);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Copy GeoPackage");
+
+        final TextInputEditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        input.setText(database + getString(R.string.geopackage_copy_suffix));
+        input.setHint("GeoPackage Name");
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setPositiveButton(getString(R.string.button_ok_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                String value = input.getText().toString();
+                                if (value != null && !value.isEmpty()
+                                        && !value.equals(database)) {
+                                    try {
+                                        if (geoPackageViewModel.copyGeoPackage(database, value)) {
+                                            backArrow.callOnClick();
+                                        } else {
+                                            GeoPackageUtils
+                                                    .showMessage(
+                                                            getActivity(),
+                                                            getString(R.string.geopackage_copy_label),
+                                                            "Copy from "
+                                                                    + database
+                                                                    + " to "
+                                                                    + value
+                                                                    + " was not successful");
+                                        }
+                                    } catch (Exception e) {
+                                        GeoPackageUtils
+                                                .showMessage(
+                                                        getActivity(),
+                                                        getString(R.string.geopackage_copy_label),
+                                                        e.getMessage());
+                                    }
+                                }
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                dialog.cancel();
+                            }
+                        });
+
+        dialog.show();
+    }
+
+
+
+
+
+    /**
      * Alert window to confirm then call to delete a GeoPackage
      *
      * @param database
@@ -313,6 +386,21 @@ public class GeoPackageDetailDrawer extends Fragment implements
                             }
                         }).create();
         deleteDialog.show();
+    }
+
+
+
+    /**
+     * Click listener to destroy this fragment when the back arrow is pressed by popping it off the stack
+     */
+    private void setBackArrowListener(){
+        backArrow.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();
+            }
+        });
     }
 
 

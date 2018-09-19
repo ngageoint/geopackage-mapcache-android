@@ -207,6 +207,13 @@ public class GeoPackageRepository {
     }
 
     /**
+     * Copy a geoPackage by name
+     */
+    public boolean copyGeoPackage(String geoPackageName, String newName){
+        return manager.copy(geoPackageName, newName);
+    }
+
+    /**
      * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
      */
     public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){

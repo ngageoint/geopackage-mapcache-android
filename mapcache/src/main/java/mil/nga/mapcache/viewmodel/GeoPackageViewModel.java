@@ -95,7 +95,6 @@ public class GeoPackageViewModel extends AndroidViewModel {
             regenerateGeoPackageTableList();
                return true;
         }
-//        }
         return false;
 
     }
@@ -121,12 +120,7 @@ public class GeoPackageViewModel extends AndroidViewModel {
 
     }
 
-    /**
-     *  Returns the GeoPackage's size
-     */
-    public String getGeoPackageSize(String geoPackageName){
-        return repository.getGeoPackageSize(geoPackageName);
-    }
+
 
     /**
      * Delete GeoPackage and regenerate the list of GeoPackages
@@ -161,6 +155,26 @@ public class GeoPackageViewModel extends AndroidViewModel {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * Copy GeoPackage and regenerate the list of GeoPackages
+     */
+    public boolean copyGeoPackage(String geoPackageName, String newName){
+        if(repository.copyGeoPackage(geoPackageName, newName)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     *  Returns the GeoPackage's size
+     */
+    public String getGeoPackageSize(String geoPackageName){
+        return repository.getGeoPackageSize(geoPackageName);
     }
 
 }

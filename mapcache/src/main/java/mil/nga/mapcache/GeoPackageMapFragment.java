@@ -818,6 +818,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Initial dialog asking for create or import
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(alertView);
+        // Leave the cancel button out for now
 //                .setNegativeButton(getString(R.string.button_cancel_label),
 //                        new DialogInterface.OnClickListener() {
 //                            public void onClick(DialogInterface dialog,

@@ -68,13 +68,6 @@ public class GeoPackageViewModel extends AndroidViewModel {
         this.geoPackages.setValue(geoPackages);
     }
 
-    public void generateGeoPackageList(){
-        if(repository == null){
-            repository = new GeoPackageRepository(getApplication());
-        }
-        geoPackages.postValue(repository.getGeoPackages());
-
-    }
 
     /**
      * Get a single GeoPackage by name
@@ -112,8 +105,20 @@ public class GeoPackageViewModel extends AndroidViewModel {
      */
     public void regenerateGeoPackageTableList(){
         List<List<GeoPackageTable>> databaseTables = repository.regenerateTableList();
-        // Post new value
          geoPackageTables.postValue(databaseTables);
+//         generateGeoPackageList();
+        geoPackages.postValue(repository.getGeoPackages());
+    }
+
+    /**
+     * Generate the list of geopackage objects
+     */
+    public void generateGeoPackageList(){
+        if(repository == null){
+            repository = new GeoPackageRepository(getApplication());
+        }
+        geoPackages.postValue(repository.getGeoPackages());
+
     }
 
     /**
@@ -141,7 +146,7 @@ public class GeoPackageViewModel extends AndroidViewModel {
     public boolean createGeoPackage(String geoPackageName){
         if(repository.createGeoPackage(geoPackageName)){
             //generateGeoPackageList();
-            //regenerateGeoPackageTableList();
+            regenerateGeoPackageTableList();
             return true;
         }
         return false;

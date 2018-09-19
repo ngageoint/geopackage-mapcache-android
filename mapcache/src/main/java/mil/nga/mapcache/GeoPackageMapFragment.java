@@ -742,8 +742,8 @@ public class GeoPackageMapFragment extends Fragment implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                createGeoPackage();
-                importGeopackageFromUrl();
+                createGeoPackage();
+//                importGeopackageFromUrl();
             }
         });
 

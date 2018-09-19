@@ -49,9 +49,6 @@ public class GeoPackageRepository {
     }
 
     public List<GeoPackage> getGeoPackages() {
-        geoPackages.clear();
-        List<List<GeoPackageTable>> tables = regenerateTableList();
-
         return geoPackages;
     }
 

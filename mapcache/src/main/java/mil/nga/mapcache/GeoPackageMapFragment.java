@@ -1,10 +1,12 @@
 package mil.nga.mapcache;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.arch.lifecycle.ViewModelProviders;
@@ -26,6 +28,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -33,6 +36,7 @@ import android.text.InputFilter;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -158,6 +162,7 @@ import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
@@ -515,6 +520,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private TextView emptyView;
 
+    /**
+     * Progress dialog for network operations
+     */
+    private ProgressDialog progressDialog;
+
     private GeoPackageDetailDrawer geoDetailFragment;
 
     private GeoPackageViewModel geoPackageViewModel;
@@ -732,7 +742,8 @@ public class GeoPackageMapFragment extends Fragment implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createGeoPackage();
+//                createGeoPackage();
+                importGeopackageFromUrl();
             }
         });
 
@@ -843,6 +854,196 @@ public class GeoPackageMapFragment extends Fragment implements
 
         dialog.show();
     }
+
+
+
+
+
+    /**
+     * Import a GeoPackage from a URL
+     */
+    private void importGeopackageFromUrl() {
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View importUrlView = inflater.inflate(R.layout.import_url, null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        dialog.setView(importUrlView);
+
+        //((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
+        //((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
+
+//        final EditText nameInput = (EditText) importUrlView
+//                .findViewById(R.id.import_url_name_input);
+//        final EditText urlInput = (EditText) importUrlView
+//                .findViewById(R.id.import_url_input);
+//        final Button button = (Button) importUrlView
+//                .findViewById(R.id.import_url_preloaded);
+
+        // Text validation
+        final TextInputLayout inputLayoutName = (TextInputLayout) importUrlView.findViewById(R.id.import_url_name_layout);
+        final TextInputLayout inputLayoutUrl = (TextInputLayout) importUrlView.findViewById(R.id.import_url_layout);
+        final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
+        final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
+
+
+
+        // Example Geopackages link handler
+        ((AppCompatTextView) importUrlView.findViewById(R.id.import_examples))
+                .setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                                getActivity(), android.R.layout.select_dialog_item);
+                        adapter.addAll(getResources().getStringArray(
+                                R.array.preloaded_geopackage_url_labels));
+                        AlertDialog.Builder builder = new AlertDialog.Builder(
+                                getActivity(), R.style.AppCompatAlertDialogStyle);
+                        builder.setTitle(getString(R.string.import_url_preloaded_label));
+                        builder.setAdapter(adapter,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int item) {
+                                        if (item >= 0) {
+                                            String[] urls = getResources()
+                                                    .getStringArray(
+                                                            R.array.preloaded_geopackage_urls);
+                                            String[] names = getResources()
+                                                    .getStringArray(
+                                                            R.array.preloaded_geopackage_url_names);
+                                            inputName.setText(names[item]);
+                                            inputUrl.setText(urls[item]);
+                                        }
+                                    }
+                                });
+
+                        AlertDialog alert = builder.create();
+                        alert.show();
+                    }
+                });
+
+//        button.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+//                        getActivity(), android.R.layout.select_dialog_item);
+//                adapter.addAll(getResources().getStringArray(
+//                        R.array.preloaded_geopackage_url_labels));
+//                AlertDialog.Builder builder = new AlertDialog.Builder(
+//                        getActivity(), R.style.AppCompatAlertDialogStyle);
+//                builder.setTitle(getString(R.string.import_url_preloaded_label));
+//                builder.setAdapter(adapter,
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog, int item) {
+//                                if (item >= 0) {
+//                                    String[] urls = getResources()
+//                                            .getStringArray(
+//                                                    R.array.preloaded_geopackage_urls);
+//                                    String[] names = getResources()
+//                                            .getStringArray(
+//                                                    R.array.preloaded_geopackage_url_names);
+//                                    nameInput.setText(names[item]);
+//                                    urlInput.setText(urls[item]);
+//                                }
+//                            }
+//                        });
+//
+//                AlertDialog alert = builder.create();
+//                alert.show();
+//            }
+//        });
+
+        dialog.setPositiveButton(getString(R.string.geopackage_import_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        // This will be overridden by click listener after show is called
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        final AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+
+        // Override the positive click listener to enable validation
+        Button theButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        theButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Validate input on both fields
+                boolean nameValid = validateInput(inputLayoutName, inputName);
+                boolean urlValid = validateInput(inputLayoutUrl, inputUrl);
+
+                if(nameValid && urlValid) {
+                    String database = inputName.getText().toString();
+                    String url = inputUrl.getText().toString();
+
+                    DownloadTask downloadTask = new DownloadTask(database, url, getActivity(), getString(R.string.geopackage_import_label));
+                    progressDialog = downloadTask.createDownloadProgressDialog(database,
+                            url, downloadTask, null);
+                    progressDialog.setIndeterminate(true);
+
+                    downloadTask.execute();
+                    alertDialog.dismiss();
+                }
+                else if(!nameValid){
+                    inputName.requestFocus();
+                }
+                else{
+                    inputUrl.requestFocus();
+                }
+
+            }
+        });
+
+        // Reset the error message when the user types
+        inputName.setOnKeyListener(new View.OnKeyListener(){
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                inputLayoutName.setError(null);
+                return validateInput(inputLayoutName, inputName);
+            }
+        });
+
+        // Reset the error message when the user types
+        inputUrl.setOnKeyListener(new View.OnKeyListener(){
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                inputLayoutUrl.setError(null);
+                return validateInput(inputLayoutUrl, inputUrl);
+            }
+        });
+    }
+
+
+
+
+
+
+
+    /**
+     * validate input
+     * @param inputLayout
+     * @return true if input is not empty and is valid
+     */
+    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName){
+        if (inputName.getText().toString().trim().isEmpty()) {
+            inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid));
+            return false;
+        }
+        return true;
+    }
+
+
+
 
 
     /**

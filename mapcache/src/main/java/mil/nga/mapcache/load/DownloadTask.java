@@ -5,17 +5,14 @@ import android.app.ProgressDialog;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.support.v4.app.FragmentActivity;
 
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.mapcache.GeoPackageManagerFragment;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -57,10 +54,6 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
         progressDialog = createDownloadProgressDialog(database, url, this, null);
     }
 
-    public void setProgressDialog(ProgressDialog progress){
-         this.progressDialog = progress;
-
-    }
 
     /**
      * {@inheritDoc}

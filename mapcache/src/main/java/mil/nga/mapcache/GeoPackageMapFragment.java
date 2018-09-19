@@ -744,8 +744,9 @@ public class GeoPackageMapFragment extends Fragment implements
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                createNewWizard();
 //                createGeoPackage();
-                importGeopackageFromUrl();
+//                importGeopackageFromUrl();
             }
         });
 
@@ -798,6 +799,69 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
     }
+
+
+    /**
+     *  Create wizard for Import or Create GeoPackage
+     */
+    private void createNewWizard(){
+
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
+        // Logo and title
+        ImageView closeLogo = (ImageView) alertView.findViewById(R.id.close_logo);
+        closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("New GeoPackage");
+
+        // Initial dialog asking for create or import
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView);
+//                .setNegativeButton(getString(R.string.button_cancel_label),
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialog,
+//                                                int whichButton) {
+//                                dialog.cancel();
+//                            }
+//                        });
+        final AlertDialog alertDialog = dialog.create();
+
+        // Click listener for "Create New"
+        ((AppCompatTextView) alertView.findViewById(R.id.wizard_create))
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        createGeoPackage();
+                        alertDialog.dismiss();
+                    }
+                });
+
+        // Click listener for "Import URL"
+        ((AppCompatTextView) alertView.findViewById(R.id.wizard_import))
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        importGeopackageFromUrl();
+                        alertDialog.dismiss();
+                    }
+                });
+
+        // Click listener for close button
+        closeLogo.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+
+
+        alertDialog.show();
+    }
+
+
+
 
 
     /**

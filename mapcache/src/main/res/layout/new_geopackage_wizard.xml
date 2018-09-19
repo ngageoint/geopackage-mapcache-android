@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <!-- logo and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/close_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/ic_clear_grey_800_24dp" />
+
+        <TextView
+            android:id="@+id/alert_title"
+            style="@style/Base.TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/alert_logo"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@+id/alert_logo"
+            android:text="New GeoPackage" />
+    </LinearLayout>
+
+        <!--<View style="@style/Divider"-->
+            <!--android:layout_marginBottom="16dp"-->
+            <!--/>-->
+
+        <!--Two clickable text fields-->
+        <TextView
+            android:id="@+id/wizard_create"
+            android:textAppearance="@style/textAppearanceSubtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:text="Create New"
+            android:textColor="@color/nga_primary_primary"/>
+
+        <TextView
+            android:id="@+id/wizard_import"
+            android:textAppearance="@style/textAppearanceSubtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="Import from URL"
+            android:textColor="@color/nga_primary_primary"/>
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

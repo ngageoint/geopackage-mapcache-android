@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.support.v4.app.FragmentActivity;
 
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import mil.nga.geopackage.io.GeoPackageIOUtils;
@@ -31,8 +32,9 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
     private final String url;
     private PowerManager.WakeLock wakeLock;
     private Activity activity;
-    private String label;
     private GeoPackageViewModel geoPackageViewModel;
+    private String cancel;
+    private String importLabel;
 
     /**
      * Progress dialog for network operations
@@ -45,12 +47,18 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
      * @param database
      * @param url
      */
-    public DownloadTask(String database, String url, FragmentActivity activity, String label) {
+    public DownloadTask(String database, String url, FragmentActivity activity) {
         this.activity = activity;
         this.database = database;
         this.url = url;
-        this.label = label;
         geoPackageViewModel = ViewModelProviders.of(activity).get(GeoPackageViewModel.class);
+        cancel = activity.getApplicationContext().getResources().getString(R.string.button_cancel_label);
+        importLabel = activity.getApplicationContext().getResources().getString(R.string.geopackage_import_label);
+        progressDialog = createDownloadProgressDialog(database, url, this, null);
+    }
+
+    public void setProgressDialog(ProgressDialog progress){
+         this.progressDialog = progress;
 
     }
 
@@ -151,7 +159,7 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
         wakeLock.release();
         progressDialog.dismiss();
         if (result != null) {
-            GeoPackageUtils.showMessage(activity, label, result);
+            GeoPackageUtils.showMessage(activity, importLabel, result);
         }
     }
 
@@ -184,17 +192,19 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
     public ProgressDialog createDownloadProgressDialog(String database,
                                                         String url, final DownloadTask downloadTask, String suffix) {
         ProgressDialog dialog = new ProgressDialog(activity);
-        dialog.setMessage(label + " "
+        dialog.setMessage(importLabel + " "
                 + database + "\n\n" + url + (suffix != null ? suffix : ""));
         dialog.setCancelable(false);
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE,
-                Resources.getSystem().getString(R.string.button_cancel_label),
+                cancel,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         downloadTask.cancel(true);
                     }
                 });
+        dialog.setIndeterminate(true);
+
         return dialog;
     }
 

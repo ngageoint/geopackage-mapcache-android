@@ -8,6 +8,7 @@ import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -175,6 +176,20 @@ public class GeoPackageViewModel extends AndroidViewModel {
      */
     public String getGeoPackageSize(String geoPackageName){
         return repository.getGeoPackageSize(geoPackageName);
+    }
+
+    /**
+     *  Returns a database file
+     */
+    public File getDatabaseFile(String database){
+        return repository.getDatabaseFile(database);
+    }
+
+    /**
+     *  Returns true if it's an external db
+     */
+    public boolean isExternal(String database){
+        return repository.isExternal(database);
     }
 
 }

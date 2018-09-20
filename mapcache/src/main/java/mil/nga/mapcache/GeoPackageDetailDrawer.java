@@ -3,6 +3,7 @@ package mil.nga.mapcache;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
@@ -10,6 +11,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +28,7 @@ import android.widget.TextView;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +38,7 @@ import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.view.LayerViewAdapter;
 import mil.nga.mapcache.view.LayerViewObject;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
@@ -155,6 +159,14 @@ public class GeoPackageDetailDrawer extends Fragment implements
             @Override
             public void onClick(View v) {
                 copyDatabaseOption(geoPackageName);
+            }
+        });
+        Button shareButton = (Button) view.findViewById(R.id.detail_share);
+        shareButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                ShareTask shareTask = new ShareTask(getActivity());
+                shareTask.shareDatabaseOption(geoPackageName);
             }
         });
     }

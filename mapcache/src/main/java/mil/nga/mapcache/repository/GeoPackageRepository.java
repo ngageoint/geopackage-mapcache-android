@@ -220,4 +220,18 @@ public class GeoPackageRepository {
         return manager.importGeoPackage(name, source, progress);
     }
 
+    /**
+     *  Returns a database file
+     */
+    public File getDatabaseFile(String database){
+        return manager.getFile(database);
+    }
+
+    /**
+     *  Returns true if it's an external db
+     */
+    public boolean isExternal(String database){
+        return manager.isExternal(database);
+    }
+
 }

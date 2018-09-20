@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -294,7 +295,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
         View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
         // Logo and title
         ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_edit);
+        alertLogo.setBackgroundResource(R.drawable.material_copy);
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText("Copy GeoPackage");
 
@@ -356,11 +357,21 @@ public class GeoPackageDetailDrawer extends Fragment implements
      * @param database
      */
     private void deleteDatabaseOption(final String database) {
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_label_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Delete this GeoPackage?");
+        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        actionLabel.setText(database);
+        actionLabel.setVisibility(View.INVISIBLE);
+
         AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(getString(R.string.geopackage_delete_label))
-                .setMessage(
-                        getString(R.string.geopackage_delete_label) + " "
-                                + database + "?")
+                .setView(alertView)
+                .setIcon(getResources().getDrawable(R.drawable.material_delete))
                 .setPositiveButton(getString(R.string.geopackage_delete_label),
 
                         new DialogInterface.OnClickListener() {
@@ -371,9 +382,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
                                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                                     fragmentManager.popBackStack();
                                 }
-//                                manager.delete(database);
-//                                active.removeDatabase(database, false);
-//                                update();
                             }
                         })
 
@@ -385,6 +393,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
                                 dialog.dismiss();
                             }
                         }).create();
+
         deleteDialog.show();
     }
 

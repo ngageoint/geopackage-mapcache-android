@@ -67,6 +67,9 @@ public class GeoPackageDetailDrawer extends Fragment implements
     private LayerViewAdapter layerAdapter;
     private GeoPackageViewModel geoPackageViewModel;
     private ImageButton backArrow;
+    private List<String> tileTables = new ArrayList<>();
+    private List<String> featureTables = new ArrayList<>();
+
 
     /**
      *  With the new geoPackageViewModel, we won't have to reference the manager from this class anymore
@@ -103,11 +106,9 @@ public class GeoPackageDetailDrawer extends Fragment implements
     public void onCreate(Bundle savedInstanceState) {
         geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
         super.onCreate(savedInstanceState);
-//        manager = GeoPackageFactory.getManager(getActivity());
         if (getArguments() != null) {
             geoPackageName = getArguments().getString(GEO_NAME);
              selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
-//            selectedGeo = manager.open(geoPackageName, false);
         }
     }
 
@@ -183,12 +184,12 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
             }
         };
-        Iterator<String> featureIterator = selectedGeo.getFeatureTables().iterator();
+        Iterator<String> featureIterator = featureTables.iterator();
         while(featureIterator.hasNext()){
             LayerViewObject layerObject = new LayerViewObject(R.drawable.material_feature, featureIterator.next());
             layers.add(layerObject);
         }
-        Iterator<String> tileIterator = selectedGeo.getTileTables().iterator();
+        Iterator<String> tileIterator = tileTables.iterator();
         while(tileIterator.hasNext()){
             LayerViewObject layerObject = new LayerViewObject(R.drawable.material_tile, tileIterator.next());
             layers.add(layerObject);
@@ -204,7 +205,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
      * Update the currently loaded geopackage object and refresh page display
      */
     private void update(){
-//        selectedGeo = manager.open(geoPackageName, false);
         selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
         TextView nameText = (TextView) view.findViewById(R.id.geoPackageName);
         TextView sizeText = (TextView) view.findViewById(R.id.text_size);
@@ -212,11 +212,12 @@ public class GeoPackageDetailDrawer extends Fragment implements
         TextView featureText = (TextView) view.findViewById(R.id.text_features);
 
         nameText.setText(selectedGeo.getName());
-//        sizeText.setText(manager.readableSize(geoPackageName));
         sizeText.setText(geoPackageViewModel.getGeoPackageSize(geoPackageName));
+        tileTables = geoPackageViewModel.getTileTables(selectedGeo.getName());
+        featureTables = geoPackageViewModel.getFeatureTables(selectedGeo.getName());
 
-        int tileCount = selectedGeo.getTileTables().size();
-        int featureCount = selectedGeo.getFeatureTables().size();
+        int tileCount = tileTables.size();
+        int featureCount = featureTables.size();
         tileText.setText(tileCount + " " + pluralize(tileCount, "Tile layer"));
         featureText.setText(featureCount + " " + pluralize(featureCount, "Feature layer"));
     }

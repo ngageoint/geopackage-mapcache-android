@@ -4,6 +4,7 @@ import android.app.Application;
 import android.support.annotation.NonNull;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,6 +42,7 @@ public class GeoPackageRepository {
 
     public GeoPackage getGeoPackageByName(String name){
         GeoPackage geo = manager.open(name);
+        geo.close();
         return geo;
     }
 
@@ -232,6 +234,57 @@ public class GeoPackageRepository {
      */
     public boolean isExternal(String database){
         return manager.isExternal(database);
+    }
+
+    /**
+     *  Returns true if exists
+     */
+    public boolean exists(String database){
+        return manager.exists(database);
+    }
+
+    /**
+     * Import an GeoPackage as an external file link without copying locally
+     *
+     * @param path     full file path
+     * @param database name to reference the database
+     * @return true if imported successfully
+     */
+    public boolean importGeoPackageAsExternalLink(String path, String database){
+        return manager.importGeoPackageAsExternalLink(path, database);
+    }
+
+    /**
+     * Import a GeoPackage stream
+     *
+     * @param database database name to save as
+     * @param stream   GeoPackage stream to import
+     * @param progress progress tracker
+     * @return true if loaded
+     */
+    public boolean importGeoPackage(String database, InputStream stream,
+                                    GeoPackageProgress progress){
+        return manager.importGeoPackage(database, stream, progress);
+    }
+
+    /**
+     *  Returns the list of tile tables for a geopackage
+     */
+    public List<String> getTileTables(String database){
+        GeoPackage geo = manager.open(database);
+        List<String> tiles = geo.getTileTables();
+        geo.close();
+        return tiles;
+    }
+
+    /**
+     *  Returns the list of feature tables for a geopackage
+     */
+    public List<String> getFeatureTables(String database){
+        GeoPackage geo = manager.open(database);
+        List<String> features = geo.getFeatureTables();
+        geo.close();
+        return features;
     }
 
 }

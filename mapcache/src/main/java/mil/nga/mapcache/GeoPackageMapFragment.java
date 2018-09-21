@@ -1,7 +1,9 @@
 package mil.nga.mapcache;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
@@ -166,6 +168,7 @@ import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
@@ -527,6 +530,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private ProgressDialog progressDialog;
 
+    /**
+     * Intent activity request code when choosing a file
+     */
+    public static final int ACTIVITY_CHOOSE_FILE = 3342;
+
     private GeoPackageDetailDrawer geoDetailFragment;
 
     private GeoPackageViewModel geoPackageViewModel;
@@ -737,7 +745,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * Set Floating action button to create new geopackage
+     * Set Floating action button to open the create new geopackage wizard
      */
     private void setFLoatingActionButton(){
         FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
@@ -745,8 +753,6 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onClick(View view) {
                 createNewWizard();
-//                createGeoPackage();
-//                importGeopackageFromUrl();
             }
         });
 
@@ -848,6 +854,16 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                 });
 
+        // Click listener for "Import from file"
+        ((AppCompatTextView) alertView.findViewById(R.id.wizard_import_file))
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        importGeopackageFromFile();
+                        alertDialog.dismiss();
+                    }
+                });
+
         // Click listener for close button
         closeLogo.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -920,6 +936,27 @@ public class GeoPackageMapFragment extends Fragment implements
                         });
 
         dialog.show();
+    }
+
+
+
+
+
+    /**
+     * Import a GeoPackage from a file
+     */
+    private void importGeopackageFromFile() {
+
+        try {
+            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+            chooseFile.setType("*/*");
+            Intent intent = Intent.createChooser(chooseFile,
+                    "Choose a GeoPackage file");
+            startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+        } catch (Exception e) {
+            // eat
+        }
+
     }
 
 
@@ -1059,6 +1096,36 @@ public class GeoPackageMapFragment extends Fragment implements
         }
         return true;
     }
+
+
+
+
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        boolean handled = true;
+
+        switch (requestCode) {
+            case ACTIVITY_CHOOSE_FILE:
+                if (resultCode == Activity.RESULT_OK) {
+                    // Import geopackage from file
+                    ImportTask task = new ImportTask(getActivity(), data);
+                    task.importFile();
+                }
+                break;
+
+            default:
+                handled = false;
+        }
+
+        if (!handled) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+
 
 
 

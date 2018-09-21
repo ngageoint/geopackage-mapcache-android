@@ -40,7 +40,7 @@
             <!--android:layout_marginBottom="16dp"-->
             <!--/>-->
 
-        <!--Two clickable text fields-->
+        <!--Create new-->
         <TextView
             android:id="@+id/wizard_create"
             android:textAppearance="@style/textAppearanceSubtitle2"
@@ -50,6 +50,7 @@
             android:text="Create New"
             android:textColor="@color/nga_primary_primary"/>
 
+        <!--import from url-->
         <TextView
             android:id="@+id/wizard_import"
             android:textAppearance="@style/textAppearanceSubtitle2"
@@ -57,8 +58,19 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
             android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
             android:text="Import from URL"
+            android:textColor="@color/nga_primary_primary"/>
+
+        <!--import from file-->
+        <TextView
+            android:id="@+id/wizard_import_file"
+            android:textAppearance="@style/textAppearanceSubtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="Import from file"
             android:textColor="@color/nga_primary_primary"/>
 
     </LinearLayout>

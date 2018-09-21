@@ -9,6 +9,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class GeoPackageViewModel extends AndroidViewModel {
     public void init() {
         repository = new GeoPackageRepository(getApplication());
 
-        generateGeoPackageList();
+//        generateGeoPackageList();
         regenerateGeoPackageTableList();
 //        geoPackageTables.setValue(geoList);
 //        geoPackages.setValue(geoPackageList);
@@ -190,6 +191,59 @@ public class GeoPackageViewModel extends AndroidViewModel {
      */
     public boolean isExternal(String database){
         return repository.isExternal(database);
+    }
+
+    /**
+     *  Returns true if the db exists
+     */
+    public boolean exists(String database){
+        return repository.exists(database);
+    }
+
+    /**
+     * Import an GeoPackage as an external file link without copying locally
+     *
+     * @param path     full file path
+     * @param database name to reference the database
+     * @return true if imported successfully
+     */
+    public boolean importGeoPackageAsExternalLink(String path, String database){
+        if(repository.importGeoPackageAsExternalLink(path, database)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Import a GeoPackage stream
+     *
+     * @param database database name to save as
+     * @param stream   GeoPackage stream to import
+     * @param progress progress tracker
+     * @return true if loaded
+     */
+    public boolean importGeoPackage(String database, InputStream stream,
+                                    GeoPackageProgress progress){
+        if(repository.importGeoPackage(database, stream, progress)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *  Returns the list of tile tables for a geopackage
+     */
+    public List<String> getTileTables(String database){
+        return repository.getTileTables(database);
+    }
+
+    /**
+     *  Returns the list of feature tables for a geopackage
+     */
+    public List<String> getFeatureTables(String database){
+        return repository.getFeatureTables(database);
     }
 
 }

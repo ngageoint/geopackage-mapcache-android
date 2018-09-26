@@ -6,7 +6,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.22 (TBD)
 
-* geopackage-android-map version 3.0.3
+* geopackage-android-map version 3.1.0
 * min SDK version updated to 16
 * compile SDK version 28
 * appcompat v7:28.0.0-rc02

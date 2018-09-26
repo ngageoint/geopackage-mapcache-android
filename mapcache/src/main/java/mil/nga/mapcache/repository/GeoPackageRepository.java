@@ -21,6 +21,7 @@ import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
@@ -35,9 +36,11 @@ public class GeoPackageRepository {
 
     private GeoPackageManager manager;
     private List<GeoPackage> geoPackages = new ArrayList<>();
+    private GeoPackageDatabases active;
 
     public GeoPackageRepository(@NonNull Application application){
         manager = GeoPackageFactory.getManager(application);
+        active = GeoPackageDatabases.getInstance(application);
     }
 
     public GeoPackage getGeoPackageByName(String name){
@@ -55,6 +58,7 @@ public class GeoPackageRepository {
     }
 
     public List<List<GeoPackageTable>> regenerateTableList(){
+        active.clearActive();
         geoPackages.clear();
         List<List<GeoPackageTable>> databaseTables = new ArrayList<List<GeoPackageTable>>();
         StringBuilder errorMessage = new StringBuilder();
@@ -101,6 +105,8 @@ public class GeoPackageRepository {
                                 GeoPackageTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
                                 //table.setActive(active.exists(table));
+//                                table.setActive(true);
+//                                active.addTable(table);
                                 tables.add(table);
                             }
                         } catch (Exception e) {
@@ -122,6 +128,8 @@ public class GeoPackageRepository {
                                 GeoPackageTable table = new GeoPackageTileTable(database,
                                         tableName, count);
                                 //table.setActive(active.exists(table));
+//                                table.setActive(true);
+
                                 tables.add(table);
                             }
                         } catch (Exception e) {

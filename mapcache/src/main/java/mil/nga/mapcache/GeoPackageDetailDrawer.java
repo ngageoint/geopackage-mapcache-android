@@ -20,11 +20,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -39,6 +41,7 @@ import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
+import mil.nga.mapcache.view.LayerSwitchListener;
 import mil.nga.mapcache.view.LayerViewAdapter;
 import mil.nga.mapcache.view.LayerViewObject;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
@@ -181,9 +184,28 @@ public class GeoPackageDetailDrawer extends Fragment implements
         RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position, String name) {
-
+//                Toast toast = Toast.makeText(getActivity(), "GeoPackage layer: " + name, Toast.LENGTH_LONG);
+//                toast.show();
+//                boolean added = geoPackageViewModel.addTableByName(name, selectedGeo.getName());
             }
         };
+
+        // Listener to show or hide layers when the layer switch is changed.  Map fragment is subscribed
+        // to the view model's active table list.
+        LayerSwitchListener switchListener = new LayerSwitchListener() {
+            @Override
+            public void setChecked(String name, boolean checked) {
+                if(checked) {
+                    // Enable the selected layer
+                    boolean added = geoPackageViewModel.addTableByName(name, selectedGeo.getName());
+                }else{
+                    // Disable selected layer
+                    boolean removed = geoPackageViewModel.removeTableByName(name, selectedGeo.getName());
+                }
+            }
+        };
+
+
         Iterator<String> featureIterator = featureTables.iterator();
         while(featureIterator.hasNext()){
             LayerViewObject layerObject = new LayerViewObject(R.drawable.material_feature, featureIterator.next());
@@ -195,7 +217,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
             layers.add(layerObject);
         }
         layerRecyclerView = (RecyclerView) view.findViewById(R.id.layer_recycler_view);
-        layerAdapter = new LayerViewAdapter(layers, view.getContext(), layerListener);
+        layerAdapter = new LayerViewAdapter(layers, view.getContext(), layerListener, switchListener);
         layerRecyclerView.setAdapter(layerAdapter);
         layerRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
     }

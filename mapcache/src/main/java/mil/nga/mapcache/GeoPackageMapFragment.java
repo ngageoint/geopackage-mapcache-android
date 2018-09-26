@@ -597,6 +597,8 @@ public class GeoPackageMapFragment extends Fragment implements
         // Floating action button
         setFLoatingActionButton();
 
+
+
 //        List<String> activeDbs = manager.databases();
 //        geoPackageViewModel.setDatabases(activeDbs);
 
@@ -675,9 +677,24 @@ public class GeoPackageMapFragment extends Fragment implements
                 GeoPackage newGeo = geoPackageViewModel.getGeoPackageByName(geo.getName());
                 newGeos.add(newGeo);
             }
-//            geoAdapter.clearGeoPackages();
             geoAdapter.setGeoPackageList(newGeos);
             geoAdapter.notifyDataSetChanged();
+        });
+
+        // Observe Active Tables - used to determine which layers are enabled
+        geoPackageViewModel.getActiveTables().observe(this, newTables ->{
+            active.clearActive();
+            for(int i=0; i < newTables.size(); i++) {
+                GeoPackageTable table = newTables.get(i);
+                active.addTable(table);
+                updateInBackground(true, false);
+            }
+            geoAdapter.notifyDataSetChanged();
+            if(newTables.isEmpty()){
+                if(map != null){
+                    map.clear();
+                }
+            }
         });
     }
 
@@ -2278,7 +2295,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Pre zoom
         List<GeoPackageDatabase> activeDatabases = new ArrayList<>();
-        activeDatabases.addAll(active.getDatabases());
+//        activeDatabases.addAll(active.getDatabases());
         for (GeoPackageDatabase database : activeDatabases) {
             GeoPackage geoPackage = manager.open(database.getDatabase(), false);
             if (geoPackage != null) {
@@ -2303,23 +2320,25 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     for (String featureTable : featureTableDaos) {
 
-                        try {
-                            Contents contents = contentsDao.queryForId(featureTable);
-                            BoundingBox contentsBoundingBox = contents.getBoundingBox();
+                        if(featureTable != null && featureTable != "") {
+                            try {
+                                Contents contents = contentsDao.queryForId(featureTable);
+                                BoundingBox contentsBoundingBox = contents.getBoundingBox();
 
-                            if (contentsBoundingBox != null) {
+                                if (contentsBoundingBox != null) {
 
-                                contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
+                                    contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
 
-                                if (featuresBoundingBox != null) {
-                                    featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
-                                } else {
-                                    featuresBoundingBox = contentsBoundingBox;
+                                    if (featuresBoundingBox != null) {
+                                        featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
+                                    } else {
+                                        featuresBoundingBox = contentsBoundingBox;
+                                    }
                                 }
+                            } catch (SQLException e) {
+                                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                        e.getMessage());
                             }
-                        } catch (SQLException e) {
-                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                    e.getMessage());
                         }
                     }
                 }

@@ -7,8 +7,9 @@ package mil.nga.mapcache.view;
 public class LayerViewObject {
 
 
-    int iconType;
-    String name;
+    private int iconType;
+    private String name;
+    private boolean checked;
 
     public LayerViewObject(int icon, String givenName){
         iconType = icon;
@@ -29,5 +30,13 @@ public class LayerViewObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }

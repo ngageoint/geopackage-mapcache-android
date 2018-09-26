@@ -3,6 +3,7 @@ package mil.nga.mapcache.view;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import mil.nga.mapcache.GeoPackageDetail;
@@ -16,6 +17,7 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
     TextView title;
     ImageView icon;
+    Switch layerOn;
     private RecyclerViewClickListener mListener;
 
     public LayerViewHolder(View itemView, RecyclerViewClickListener listener){
@@ -23,6 +25,8 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
         title = (TextView) itemView.findViewById(R.id.layer_label);
         icon = (ImageView) itemView.findViewById(R.id.layer_icon);
+        layerOn = (Switch) itemView.findViewById(R.id.simpleSwitch);
+
 
         mListener = listener;
         itemView.setClickable(true);

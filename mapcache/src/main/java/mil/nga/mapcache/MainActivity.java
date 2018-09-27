@@ -113,28 +113,28 @@ public class MainActivity extends AppCompatActivity implements
                 .findFragmentById(R.id.fragment_map);
 //        navigationBarFragment = (NavigationBarFragment) getFragmentManager()
 //                .findFragmentById(R.id.navigation_bar);
-        BottomNavigationView bottomNav = findViewById(R.id.navigation_bar);
-        bottomNav.setOnNavigationItemSelectedListener(
-                new BottomNavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        switch(item.getItemId()){
-                            case R.id.MapButton:
-                                onNavBarClick(MAP_POSITION);
-                                break;
-                            case R.id.ManageButton:
-                                onNavBarClick(MANAGER_POSITION);
-                                break;
-                        }
-                        return true;
-                    }
-                }
-        );
+//        BottomNavigationView bottomNav = findViewById(R.id.navigation_bar);
+//        bottomNav.setOnNavigationItemSelectedListener(
+//                new BottomNavigationView.OnNavigationItemSelectedListener() {
+//                    @Override
+//                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                        switch(item.getItemId()){
+//                            case R.id.MapButton:
+//                                onNavBarClick(MAP_POSITION);
+//                                break;
+//                            case R.id.ManageButton:
+//                                onNavBarClick(MANAGER_POSITION);
+//                                break;
+//                        }
+//                        return true;
+//                    }
+//                }
+//        );
 
         // Set the initial navigation position
 //        bottomNav.setSelectedItemId(R.id.MapButton);
 //        onNavBarClick(MAP_POSITION);
-        bottomNav.setSelectedItemId(R.id.MapButton);
+//        bottomNav.setSelectedItemId(R.id.MapButton);
         onNavBarClick(MAP_POSITION);
 
 //        // Set up the drawer.

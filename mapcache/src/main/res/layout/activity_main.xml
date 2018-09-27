@@ -48,18 +48,18 @@
     </LinearLayout>
 
 
-    <android.support.design.widget.BottomNavigationView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/navigation_bar"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_gravity="start"
-        android:background="@android:color/white"
-        app:itemIconTint="@drawable/nav_item_color_state"
-        app:itemTextColor="@drawable/nav_item_color_state"
-        app:elevation="16dp"
-        app:menu="@menu/navigation_bar_items" />
+    <!--<android.support.design.widget.BottomNavigationView-->
+        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/navigation_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="56dp"-->
+        <!--android:layout_gravity="start"-->
+        <!--android:background="@android:color/white"-->
+        <!--app:itemIconTint="@drawable/nav_item_color_state"-->
+        <!--app:itemTextColor="@drawable/nav_item_color_state"-->
+        <!--app:elevation="16dp"-->
+        <!--app:menu="@menu/navigation_bar_items" />-->
     <!--<fragment-->
         <!--android:id="@+id/navigation_bar"-->
         <!--android:name="mil.nga.mapcache.NavigationBarFragment"-->

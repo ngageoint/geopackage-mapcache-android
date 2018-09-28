@@ -263,22 +263,14 @@
             android:id="@+id/fragmentOutterContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="8dp"
             >
 
-        <View
-            android:layout_width="30dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
-            android:layout_gravity="center"
-            android:background="@color/horizontal_line" />
+
 
         <FrameLayout
             android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="8dp"
             >
 
 
@@ -288,20 +280,22 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!--<View-->
-                <!--android:layout_width="30dp"-->
-                <!--android:layout_height="1dp"-->
-                <!--android:layout_marginTop="4dp"-->
-                <!--android:layout_marginBottom="4dp"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:background="@color/horizontal_line" />-->
+            <!--Small tab to indicate drag window    -->
+            <View
+                android:layout_width="30dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_gravity="center"
+                android:background="@color/horizontal_line" />
 
+            <!--Title-->
             <android.support.v7.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="GeoPackages"/>
 
-
+            <!--horizontal line-->
             <View
                 android:layout_width="fill_parent"
                 android:layout_height="1dp"

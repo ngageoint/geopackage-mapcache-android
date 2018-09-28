@@ -73,7 +73,7 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
         holder.title.setText("Layer");
         holder.icon.setImageResource(R.drawable.material_feature);
 
-//        holder.layerOn.setChecked(true);
+        holder.layerOn.setChecked(layers.get(position).isChecked());
         holder.title.setText(layers.get(position).getName());
         holder.icon.setImageResource(layers.get(position).getIconType());
     }

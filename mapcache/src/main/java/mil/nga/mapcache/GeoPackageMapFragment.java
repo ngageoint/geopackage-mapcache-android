@@ -635,14 +635,10 @@ public class GeoPackageMapFragment extends Fragment implements
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position, String name) {
-//                Intent detailIntent = new Intent(view.getContext(), GeoPackageDetail.class);
-//                String geoPackageName = manager.databases().get(position);
-//                GeoPackage selectedGeo = manager.open(geoPackageName, false);
-//                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
-//                startActivity(detailIntent);
-
 //                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
 //                toast.show();
+
+                // Create list of active layer names
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -687,13 +683,17 @@ public class GeoPackageMapFragment extends Fragment implements
             for(int i=0; i < newTables.size(); i++) {
                 GeoPackageTable table = newTables.get(i);
                 active.addTable(table);
-                updateInBackground(true, false);
+//                updateInBackground(true, false);
             }
+
             geoAdapter.notifyDataSetChanged();
             if(newTables.isEmpty()){
                 if(map != null){
                     map.clear();
                 }
+            } else{
+                updateInBackground(true, false);
+
             }
         });
     }

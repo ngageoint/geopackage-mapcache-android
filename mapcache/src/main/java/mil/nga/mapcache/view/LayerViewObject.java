@@ -11,9 +11,10 @@ public class LayerViewObject {
     private String name;
     private boolean checked;
 
-    public LayerViewObject(int icon, String givenName){
+    public LayerViewObject(int icon, String givenName, boolean active){
         iconType = icon;
         name = givenName;
+        checked = active;
     }
 
     public int getIconType() {

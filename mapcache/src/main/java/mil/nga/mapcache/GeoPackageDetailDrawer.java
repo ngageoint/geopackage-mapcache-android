@@ -38,6 +38,8 @@ import java.util.List;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
@@ -206,20 +208,50 @@ public class GeoPackageDetailDrawer extends Fragment implements
         };
 
 
+        // If the layer is active, make sure the LayerViewObject is created with that layer switch set to checked
+        List<String> activeTables = generateBasicActiveList();
         Iterator<String> featureIterator = featureTables.iterator();
         while(featureIterator.hasNext()){
-            LayerViewObject layerObject = new LayerViewObject(R.drawable.material_feature, featureIterator.next());
+            String table = featureIterator.next();
+            boolean isActive = false;
+            if(activeTables.contains(table)){
+                isActive = true;
+            }
+            LayerViewObject layerObject = new LayerViewObject(R.drawable.material_feature, table, isActive);
             layers.add(layerObject);
         }
         Iterator<String> tileIterator = tileTables.iterator();
         while(tileIterator.hasNext()){
-            LayerViewObject layerObject = new LayerViewObject(R.drawable.material_tile, tileIterator.next());
+            String table = tileIterator.next();
+            boolean isActive = false;
+            if(activeTables.contains(table)){
+                isActive = true;
+            }
+            LayerViewObject layerObject = new LayerViewObject(R.drawable.material_tile, table, isActive);
             layers.add(layerObject);
         }
         layerRecyclerView = (RecyclerView) view.findViewById(R.id.layer_recycler_view);
         layerAdapter = new LayerViewAdapter(layers, view.getContext(), layerListener, switchListener);
         layerRecyclerView.setAdapter(layerAdapter);
         layerRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+    }
+
+
+    /**
+     *  Get list of active layer names belonging to the currently selected geopackage
+     * @return
+     */
+    public List<String> generateBasicActiveList(){
+        List<String> activeTables = new ArrayList<>();
+        if(geoPackageViewModel.getActiveTables().getValue() != null)
+        {
+            for(GeoPackageTable table : geoPackageViewModel.getActiveTables().getValue()){
+                if(table.getDatabase() == selectedGeo.getName()){
+                    activeTables.add(table.getName());
+                }
+            }
+        }
+        return activeTables;
     }
 
 

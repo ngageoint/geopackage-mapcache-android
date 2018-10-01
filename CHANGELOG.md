@@ -9,7 +9,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-android-map version 3.1.0
 * min SDK version updated to 16
 * compile SDK version 28
-* appcompat v7:28.0.0-rc02
+* appcompat v7:28.0.0
 * File Utils fix for raw file path download document URIs
 * Feature Index Manager connection closures
 * GeoPackage Cache utilization

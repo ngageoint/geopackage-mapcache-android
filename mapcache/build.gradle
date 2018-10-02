@@ -1,11 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'maven'
 
-//def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? RELEASE_MAPS_MAPCACHE_API_KEY : ''
-//def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY : ''
-
-def googleMapsApiReleaseKey = 'AIzaSyA6b7nLjVsnOJzen65TZQPdSSTNgzCq9hA'
-def googleMapsApiKeyDebug = 'AIzaSyA6b7nLjVsnOJzen65TZQPdSSTNgzCq9hA'
+def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? RELEASE_MAPS_MAPCACHE_API_KEY : ''
+def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY : ''
 
 android {
     compileSdkVersion 28

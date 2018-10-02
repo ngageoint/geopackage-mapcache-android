@@ -136,8 +136,11 @@ public class GeoPackageViewModel extends AndroidViewModel {
         if(currentTables != null && currentTables.size() > 0) {
             Iterator<GeoPackageTable> tableIterator = currentTables.iterator();
             while(tableIterator.hasNext()){
-                GeoPackageTable layer = tableIterator.next();
-                tableIterator.remove();
+                // Only delete if the geopackage name matches
+                GeoPackageTable table = tableIterator.next();
+                if(table.getDatabase().equalsIgnoreCase(geoPackageName)) {
+                    tableIterator.remove();
+                }
             }
         }
         activeTables.postValue(currentTables);

@@ -130,15 +130,52 @@
             style="@style/Divider"
             android:layout_marginBottom="16dp" />
 
-        <TextView
-            android:id="@+id/text_layers"
-            android:layout_width="wrap_content"
+        <!--<TextView-->
+            <!--android:id="@+id/text_layers"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="8dp"-->
+            <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
+            <!--android:text="@string/layers_label"-->
+            <!--android:textAppearance="@style/textAppearanceHeadline5"-->
+            <!--android:textStyle="bold" />-->
+
+        <LinearLayout android:id="@+id/LayersLabelLayout"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
             android:layout_marginBottom="8dp"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:text="@string/layers_label"
-            android:textAppearance="@style/textAppearanceHeadline5"
-            android:textStyle="bold" />
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            >
+            <TextView
+                android:id="@+id/text_layers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:text="@string/layers_label"
+                android:textAppearance="@style/textAppearanceHeadline5"
+                android:textStyle="bold"
+                android:layout_gravity="left"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/allLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:text="Enable All"
+                android:textAppearance="@style/textAppearanceSubtitle1" />
+
+            <Switch
+                android:id="@+id/allSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:paddingLeft="8dp"/>
+
+        </LinearLayout>
 
 
         <android.support.v7.widget.RecyclerView

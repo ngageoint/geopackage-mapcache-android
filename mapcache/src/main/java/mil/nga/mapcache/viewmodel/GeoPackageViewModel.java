@@ -147,6 +147,40 @@ public class GeoPackageViewModel extends AndroidViewModel {
         return true;
     }
 
+    /**
+     * Enable all layers of the given geopackage name
+     */
+    public boolean enableAllLayers(String geoPackageName){
+        List<GeoPackageTable> currentTables = activeTables.getValue();
+        if(currentTables != null && currentTables.size() > 0) {
+            Iterator<GeoPackageTable> tableIterator = currentTables.iterator();
+            // First remove all layers from the list that match the given name
+            while(tableIterator.hasNext()){
+                // Only delete if the geopackage name matches
+                GeoPackageTable table = tableIterator.next();
+                if(table.getDatabase().equalsIgnoreCase(geoPackageName)) {
+                    tableIterator.remove();
+                }
+            }
+
+            // Then just add all layers to the active list
+            for(List<GeoPackageTable> geoTableList : getGeoPackageTables().getValue()){
+                if(geoTableList.size() > 0) {
+                    if(geoTableList.get(0).getDatabase().equalsIgnoreCase(geoPackageName)) {
+                        for (GeoPackageTable table : geoTableList) {
+                                currentTables.add(table);
+                        }
+                    }
+                }
+            }
+
+        }
+        activeTables.postValue(currentTables);
+        return true;
+    }
+
+
+
 
 
     /**

@@ -444,6 +444,9 @@ public class GeoPackageDetailDrawer extends Fragment implements
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+                                // remove any active layers drawn on map
+                                geoPackageViewModel.removeActiveTableLayers(database);
+                                // Delete the geopackage
                                 if(geoPackageViewModel.deleteGeoPackage(database)){
                                     // Leave this detail fragment once deleted
                                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

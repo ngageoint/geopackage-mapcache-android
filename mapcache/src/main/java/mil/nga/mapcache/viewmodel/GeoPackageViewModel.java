@@ -128,6 +128,22 @@ public class GeoPackageViewModel extends AndroidViewModel {
         return false;
     }
 
+    /**
+     * Remove all active layers for the given database
+     */
+    public boolean removeActiveTableLayers(String geoPackageName){
+        List<GeoPackageTable> currentTables = activeTables.getValue();
+        if(currentTables != null && currentTables.size() > 0) {
+            Iterator<GeoPackageTable> tableIterator = currentTables.iterator();
+            while(tableIterator.hasNext()){
+                GeoPackageTable layer = tableIterator.next();
+                tableIterator.remove();
+            }
+        }
+        activeTables.postValue(currentTables);
+        return true;
+    }
+
 
 
     /**

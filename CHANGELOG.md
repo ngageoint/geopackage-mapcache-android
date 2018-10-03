@@ -13,6 +13,8 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * File Utils fix for raw file path download document URIs
 * Feature Index Manager connection closures
 * GeoPackage Cache utilization
+* gradle plugin updated to 3.2.0
+* gradle version 4.6
 
 ## [1.21](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.21) (07-16-2018)
 

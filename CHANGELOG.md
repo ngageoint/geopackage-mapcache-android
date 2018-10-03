@@ -10,6 +10,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * min SDK version updated to 16
 * compile SDK version 28
 * appcompat v7:28.0.0
+* Android 9 "Pie" compatibility changes
 * File Utils fix for raw file path download document URIs
 * Feature Index Manager connection closures
 * GeoPackage Cache utilization

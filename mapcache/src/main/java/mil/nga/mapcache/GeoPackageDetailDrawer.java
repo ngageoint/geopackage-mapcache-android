@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -136,8 +137,35 @@ public class GeoPackageDetailDrawer extends Fragment implements
         // Create the layer recycle view adapter
         createLayerListView();
 
+        // Create all switch listener
+        createAllSwitchListener();
+
         return view;
 
+    }
+
+
+    /**
+     * Listener for the enable/disable all layers button
+     */
+    public void createAllSwitchListener(){
+        Switch onOffSwitch = (Switch)  view.findViewById(R.id.allSwitch);
+        onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                // Update adapter so the recycleview can update the list for the gui
+                layerAdapter.checkAllLayers(checked);
+                layerAdapter.notifyDataSetChanged();
+                // Update the viewmodel to show those active layers
+                if(checked) {
+                    // Enable all
+                    boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
+                }else{
+                    // Disable all
+                    boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
+                }
+            }
+        });
     }
 
 

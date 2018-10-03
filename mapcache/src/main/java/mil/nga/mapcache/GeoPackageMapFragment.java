@@ -1380,6 +1380,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         GeoPackage geoPackage = manager.open(database, false);
         List<String> features = geoPackage.getFeatureTables();
+        geoPackage.close();
         ArrayAdapter<String> featuresAdapter = new ArrayAdapter<String>(
                 getActivity(), android.R.layout.simple_spinner_item, features);
         featuresInput.setAdapter(featuresAdapter);

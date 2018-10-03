@@ -11,6 +11,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.mapcache.R;
@@ -99,4 +100,18 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
     }
 
     public LayerViewObject getPosition(int position){ return layers.get(position);}
+
+    /**
+     * Set all layer switches to the given checked boolean value
+     * @param checked
+     * @return
+     */
+    public boolean checkAllLayers(boolean checked){
+        Iterator<LayerViewObject> layerIterator = layers.iterator();
+        while(layerIterator.hasNext()){
+            LayerViewObject layer = layerIterator.next();
+            layer.setChecked(checked);
+        }
+        return true;
+    }
 }

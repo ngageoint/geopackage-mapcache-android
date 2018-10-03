@@ -165,7 +165,7 @@
                 android:layout_gravity="bottom|right"
                 android:gravity="right"
                 android:layout_weight="1"
-                android:text="Enable All"
+                android:text="All layers"
                 android:textAppearance="@style/textAppearanceSubtitle1" />
 
             <Switch

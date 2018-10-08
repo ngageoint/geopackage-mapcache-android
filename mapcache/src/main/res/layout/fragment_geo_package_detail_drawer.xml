@@ -13,13 +13,23 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <!--Small tab to indicate drag window    -->
+        <View
+            android:layout_width="30dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="0dp"
+            android:layout_gravity="center"
+            android:background="@color/horizontal_line" />
+
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
-            android:orientation="horizontal">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp">
 
             <ImageButton
                 android:id="@+id/detailPageBackButton"
@@ -34,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/geopackage_detail_page"
-                android:textAppearance="@style/textAppearanceHeadline5" />
+                android:textAppearance="@style/textAppearanceSubtitle1" />
 
         </LinearLayout>
 
@@ -153,7 +163,7 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:text="@string/layers_label"
-                android:textAppearance="@style/textAppearanceHeadline5"
+                android:textAppearance="@style/textAppearanceSubtitle1"
                 android:textStyle="bold"
                 android:layout_gravity="left"
                 android:layout_weight="1"/>

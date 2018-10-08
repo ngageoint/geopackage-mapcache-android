@@ -342,6 +342,12 @@ public class FileUtils {
             else if (isDownloadsDocument(uri)) {
 
                 final String id = getDocumentId(uri);
+
+                String rawPrefix = "raw:";
+                if(id.startsWith(rawPrefix)){
+                    return id.substring(rawPrefix.length());
+                }
+
                 final Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 

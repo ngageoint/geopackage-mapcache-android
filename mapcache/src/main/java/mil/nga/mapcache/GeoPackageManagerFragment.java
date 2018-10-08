@@ -2259,6 +2259,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
         final boolean geoPackageIndexed = indexer.isIndexed(FeatureIndexType.GEOPACKAGE);
         final boolean metadataIndexed = indexer.isIndexed(FeatureIndexType.METADATA);
+        indexer.close();
         geoPackage.close();
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
@@ -2351,8 +2352,12 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 GeoPackage geoPackage = manager.open(table.getDatabase());
                                 FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
                                 FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-                                indexer.setIndexLocation(indexLocation);
-                                indexer.deleteIndex();
+                                try {
+                                    indexer.setIndexLocation(indexLocation);
+                                    indexer.deleteIndex();
+                                }finally{
+                                    indexer.close();
+                                }
                                 geoPackage.close();
                             }
                         })
@@ -2542,6 +2547,7 @@ public class GeoPackageManagerFragment extends Fragment implements
         if (indexed) {
             indexWarning.setVisibility(View.GONE);
         }
+        indexer.close();
 
         // Close the GeoPackage
         geoPackage.close();
@@ -2640,6 +2646,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
                             if (indexer.isIndexed()) {
                                 featureTiles.setIndexManager(indexer);
+                            }else{
+                                indexer.close();
                             }
 
                             Paint pointPaint = featureTiles.getPointPaint();
@@ -2816,20 +2824,24 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Check if indexed
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-        if (indexer.isIndexed()) {
-            indexWarning.setVisibility(View.GONE);
+        try{
+            if (indexer.isIndexed()) {
+                indexWarning.setVisibility(View.GONE);
 
-            // Only default the max features if indexed, otherwise an unindexed feature table will
-            // not show any tiles with features
-            int maxFeatures = 0;
-            if (featureDao.getGeometryType() == GeometryType.POINT) {
-                maxFeatures = getActivity().getResources().getInteger(
-                        R.integer.feature_tiles_overlay_max_points_per_tile_default);
-            } else {
-                maxFeatures = getActivity().getResources().getInteger(
-                        R.integer.feature_tiles_overlay_max_features_per_tile_default);
+                // Only default the max features if indexed, otherwise an unindexed feature table will
+                // not show any tiles with features
+                int maxFeatures = 0;
+                if (featureDao.getGeometryType() == GeometryType.POINT) {
+                    maxFeatures = getActivity().getResources().getInteger(
+                            R.integer.feature_tiles_overlay_max_points_per_tile_default);
+                } else {
+                    maxFeatures = getActivity().getResources().getInteger(
+                            R.integer.feature_tiles_overlay_max_features_per_tile_default);
+                }
+                maxFeaturesInput.setText(String.valueOf(maxFeatures));
             }
-            maxFeaturesInput.setText(String.valueOf(maxFeatures));
+        }finally{
+            indexer.close();
         }
 
         geoPackage.close();
@@ -3145,8 +3157,12 @@ public class GeoPackageManagerFragment extends Fragment implements
         GeoPackage geoPackage = manager.open(table.getDatabase(), false);
         FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-        if (indexer.isIndexed()) {
-            indexWarning.setVisibility(View.GONE);
+        try {
+            if (indexer.isIndexed()) {
+                indexWarning.setVisibility(View.GONE);
+            }
+        }finally{
+            indexer.close();
         }
         geoPackage.close();
 

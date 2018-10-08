@@ -172,6 +172,7 @@ public class IndexerTask extends AsyncTask<String, Integer, String> implements
      */
     @Override
     protected void onPostExecute(String result) {
+        indexer.close();
         geoPackage.close();
         wakeLock.release();
         progressDialog.dismiss();

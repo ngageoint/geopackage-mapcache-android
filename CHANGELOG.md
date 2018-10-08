@@ -4,9 +4,22 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.22 (TBD)
+## 1.23 (TBD)
 
-* geopackage-android-map version 3.0.2
+* TBD
+
+## [1.22](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.22) (10-04-2018)
+
+* geopackage-android-map version 3.1.0
+* min SDK version updated to 16
+* compile SDK version 28
+* appcompat v7:28.0.0
+* Android 9 "Pie" compatibility changes
+* File Utils fix for raw file path download document URIs
+* Feature Index Manager connection closures
+* GeoPackage Cache utilization
+* gradle plugin updated to 3.2.0
+* gradle version 4.6
 
 ## [1.21](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.21) (07-16-2018)
 

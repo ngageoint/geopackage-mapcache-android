@@ -22,7 +22,7 @@ The MapCache app provides read and write access to GeoPackage files, including f
 ### Screen Shots ###
 
 Manager View with GeoPackages linked at Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/#sampledata)
- 
+
 * [Technology Test Data Set](http://www.geopackage.org/data/gdal_sample.gpkg)
 * [ERDC Whitehorse Tiles](https://portal.opengeospatial.org/files/63156)
 

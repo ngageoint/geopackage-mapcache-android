@@ -57,14 +57,14 @@ Build this repository using Android Studio and/or Gradle. Run the "assembleRelea
 When building this project locally, a Google API key is required to see map tiles:
  * Maps SDK for Android: [Get API Key](https://developers.google.com/maps/documentation/android-sdk/signup)
 
-On the [Google Cloud Platform Console](https://cloud.google.com/console/google/maps-apis/overview), configure "Maps SDK for Android" credentials.
+On the [Google Cloud Platform Console](https://cloud.google.com/console/google/maps-apis/overview), configure "Maps SDK for Android" credentials (replacing the example fingerprints).
 
 | Package name           | SHA-1 certificate fingerprint                               |
 | ---------------------- | ----------------------------------------------------------- |
 | mil.nga.mapcache       | 12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:AA:BB:CC:DD |
 | mil.nga.mapcache.test  | 12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:AA:BB:CC:DD |
 
-In your `gradle.properties`, add your API Key
+In your `gradle.properties`, add your API Key (replacing the example keys)
 
 ```
 RELEASE_MAPS_MAPCACHE_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0

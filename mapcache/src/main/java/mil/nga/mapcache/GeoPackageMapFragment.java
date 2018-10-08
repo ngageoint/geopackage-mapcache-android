@@ -108,6 +108,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageCache;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
@@ -265,7 +266,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Mapping of open GeoPackages by name
      */
-    private Map<String, GeoPackage> geoPackages = new HashMap<>();
+    private GeoPackageCache geoPackages;
 
     /**
      * Mapping of open GeoPackage feature DAOs
@@ -587,6 +588,7 @@ public class GeoPackageMapFragment extends Fragment implements
         touch.addView(view);
 
         manager = GeoPackageFactory.getManager(getActivity());
+        geoPackages = new GeoPackageCache(manager);
 
         // Set listeners for icons on map
         setIconListeners();
@@ -1771,6 +1773,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     break;
             }
+            indexer.close();
 
         } catch (Exception e) {
             if (GeoPackageUtils.isUnsupportedSQLiteException(e)) {
@@ -2045,6 +2048,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         GeoPackage geoPackage = manager.open(database, false);
         List<String> features = geoPackage.getFeatureTables();
+        geoPackage.close();
         ArrayAdapter<String> featuresAdapter = new ArrayAdapter<String>(
                 getActivity(), android.R.layout.simple_spinner_item, features);
         featuresInput.setAdapter(featuresAdapter);
@@ -2256,14 +2260,7 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         map.clear();
-        for (GeoPackage geoPackage : geoPackages.values()) {
-            try {
-                geoPackage.close();
-            } catch (Exception e) {
-
-            }
-        }
-        geoPackages.clear();
+        geoPackages.closeAll();
         featureDaos.clear();
 
         if (zoom) {
@@ -2330,7 +2327,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     contentsBoundingBox = transformBoundingBoxToWgs84(contentsBoundingBox, contents.getSrs());
 
                                     if (featuresBoundingBox != null) {
-                                        featuresBoundingBox = TileBoundingBoxUtils.union(featuresBoundingBox, contentsBoundingBox);
+                                        featuresBoundingBox = featuresBoundingBox.union(contentsBoundingBox);
                                     } else {
                                         featuresBoundingBox = contentsBoundingBox;
                                     }
@@ -2357,7 +2354,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             tileMatrixSetBoundingBox = transformBoundingBoxToWgs84(tileMatrixSetBoundingBox, tileMatrixSet.getSrs());
 
                             if (tilesBoundingBox != null) {
-                                tilesBoundingBox = TileBoundingBoxUtils.union(tilesBoundingBox, tileMatrixSetBoundingBox);
+                                tilesBoundingBox = tilesBoundingBox.union(tileMatrixSetBoundingBox);
                             } else {
                                 tilesBoundingBox = tileMatrixSetBoundingBox;
                             }
@@ -2469,11 +2466,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     break;
                 }
 
-                GeoPackage geoPackage = manager.open(database.getDatabase(), false);
+                GeoPackage geoPackage = geoPackages.getOrOpen(database.getDatabase(), false);
 
                 if (geoPackage != null) {
-
-                    geoPackages.put(database.getDatabase(), geoPackage);
 
                     Set<String> featureTableDaos = new HashSet<>();
                     Collection<GeoPackageFeatureTable> features = database.getFeatures();
@@ -2675,11 +2670,7 @@ public class GeoPackageMapFragment extends Fragment implements
             List<String> databaseFeatures = new ArrayList<>();
             databaseFeatures.add(editFeaturesTable);
             featureTables.put(editFeaturesDatabase, databaseFeatures);
-            GeoPackage geoPackage = geoPackages.get(editFeaturesDatabase);
-            if (geoPackage == null) {
-                geoPackage = manager.open(editFeaturesDatabase, false);
-                geoPackages.put(editFeaturesDatabase, geoPackage);
-            }
+            GeoPackage geoPackage = geoPackages.getOrOpen(editFeaturesDatabase, false);
             Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(editFeaturesDatabase);
             if (databaseFeatureDaos == null) {
                 databaseFeatureDaos = new HashMap<>();
@@ -2722,7 +2713,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
             String databaseName = databaseFeaturesEntry.getKey();
 
-            if (geoPackages.containsKey(databaseName)) {
+            if (geoPackages.has(databaseName)) {
 
                 List<String> databaseFeatures = databaseFeaturesEntry.getValue();
                 Map<String, FeatureDao> databaseFeatureDaos = featureDaos.get(databaseName);
@@ -2962,6 +2953,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     cursor.close();
                 }
             }
+            indexer.close();
 
         }
 
@@ -3519,7 +3511,7 @@ public class GeoPackageMapFragment extends Fragment implements
             if (!transform.isSameProjection()) {
                 transformedContentsBoundingBox = transformedContentsBoundingBox.transform(transform);
             }
-            displayBoundingBox = TileBoundingBoxUtils.overlap(displayBoundingBox, transformedContentsBoundingBox);
+            displayBoundingBox = displayBoundingBox.overlap(transformedContentsBoundingBox);
         }
 
         displayTiles(overlay, displayBoundingBox, tileMatrixSet.getSrs(), zIndex, null);
@@ -3624,13 +3616,13 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         if (specifiedBoundingBox != null) {
-            boundingBox = TileBoundingBoxUtils.overlap(boundingBox, specifiedBoundingBox);
+            boundingBox = boundingBox.overlap(specifiedBoundingBox);
         }
 
         if (tilesBoundingBox == null) {
             tilesBoundingBox = boundingBox;
         } else {
-            tilesBoundingBox = TileBoundingBoxUtils.union(tilesBoundingBox, boundingBox);
+            tilesBoundingBox = tilesBoundingBox.union(boundingBox);
         }
 
         getActivity().runOnUiThread(new Runnable() {
@@ -4134,6 +4126,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                                     indexResults = listResults;
                                 }
+                                indexer.close();
 
                                 if (indexResults.count() > 0) {
                                     FeatureInfoBuilder featureInfoBuilder = new FeatureInfoBuilder(getActivity(), featureDao);
@@ -4638,7 +4631,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (boundingBox != null) {
                     GeometryEnvelope envelope = GeometryEnvelopeBuilder.buildEnvelope(geometry);
                     BoundingBox geometryBoundingBox = new BoundingBox(envelope);
-                    BoundingBox unionBoundingBox = TileBoundingBoxUtils.union(boundingBox, geometryBoundingBox);
+                    BoundingBox unionBoundingBox = boundingBox.union(geometryBoundingBox);
                     contents.setBoundingBox(unionBoundingBox);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
                     contentsDao.update(contents);
@@ -5131,6 +5124,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (indexed) {
             indexWarning.setVisibility(View.GONE);
         }
+        indexer.close();
         geoPackage.close();
 
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
@@ -5256,6 +5250,8 @@ public class GeoPackageMapFragment extends Fragment implements
                             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
                             if (indexer.isIndexed()) {
                                 featureTiles.setIndexManager(indexer);
+                            }else {
+                                indexer.close();
                             }
 
                             Paint pointPaint = featureTiles.getPointPaint();

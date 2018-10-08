@@ -56,6 +56,7 @@ Build this repository using Android Studio and/or Gradle. Run the "assembleRelea
 To run this app in the dev environment:
 * add your google maps api keys to ~/.gradle/gradle.properties in the following format:
 RELEASE_MAPS_MAPCACHE_API_KEY=yourKey
+
 DEBUG_MAPS_API_KEY=yourKey
 * Make sure you have 'mil.nga.mapcache.test' added to your app registration for your google maps keys
 

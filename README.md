@@ -22,7 +22,7 @@ The MapCache app provides read and write access to GeoPackage files, including f
 ### Screen Shots ###
 
 Manager View with GeoPackages linked at Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/#sampledata)
- 
+
 * [Technology Test Data Set](http://www.geopackage.org/data/gdal_sample.gpkg)
 * [ERDC Whitehorse Tiles](https://portal.opengeospatial.org/files/63156)
 
@@ -51,6 +51,25 @@ Editing Haiti Features with [OpenStreetMap](http://www.openstreetmap.org) tiles
 ### Build ###
 
 Build this repository using Android Studio and/or Gradle. Run the "assembleRelease" task on the geopackage-mapcache-android Gradle script.
+
+#### Map Key ####
+
+When building this project locally, a Google API key is required to see map tiles:
+ * Maps SDK for Android: [Get API Key](https://developers.google.com/maps/documentation/android-sdk/signup)
+
+On the [Google Cloud Platform Console](https://cloud.google.com/console/google/maps-apis/overview), configure "Maps SDK for Android" credentials.
+
+| Package name           | SHA-1 certificate fingerprint                               |
+| ---------------------- | ----------------------------------------------------------- |
+| mil.nga.mapcache       | 12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:AA:BB:CC:DD |
+| mil.nga.mapcache.test  | 12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:AA:BB:CC:DD |
+
+In your `gradle.properties`, add your API Key
+
+```
+RELEASE_MAPS_MAPCACHE_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
+DEBUG_MAPS_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
+```
 
 ### Icons ###
 

@@ -52,13 +52,24 @@ Editing Haiti Features with [OpenStreetMap](http://www.openstreetmap.org) tiles
 
 Build this repository using Android Studio and/or Gradle. Run the "assembleRelease" task on the geopackage-mapcache-android Gradle script.
 
-### Run ###
-To run this app in the dev environment:
-* add your google maps api keys to ~/.gradle/gradle.properties in the following format:
-RELEASE_MAPS_MAPCACHE_API_KEY=yourKey
+#### Map Key ####
 
-DEBUG_MAPS_API_KEY=yourKey
-* Make sure you have 'mil.nga.mapcache.test' added to your app registration for your google maps keys
+When building this project locally, a Google API key is required to see map tiles:
+ * Maps SDK for Android: [Get API Key](https://developers.google.com/maps/documentation/android-sdk/signup)
+
+On the [Google Cloud Platform Console](https://cloud.google.com/console/google/maps-apis/overview), configure "Maps SDK for Android" credentials (replacing the example fingerprints).
+
+| Package name           | SHA-1 certificate fingerprint                               |
+| ---------------------- | ----------------------------------------------------------- |
+| mil.nga.mapcache       | 12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:AA:BB:CC:DD |
+| mil.nga.mapcache.test  | 12:34:56:78:90:AB:CD:EF:12:34:56:78:90:AB:CD:EF:AA:BB:CC:DD |
+
+In your `gradle.properties`, add your API Key (replacing the example keys)
+
+```
+RELEASE_MAPS_MAPCACHE_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
+DEBUG_MAPS_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
+```
 
 ### Icons ###
 

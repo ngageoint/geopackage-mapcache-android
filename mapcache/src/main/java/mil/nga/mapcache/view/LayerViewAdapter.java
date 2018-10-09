@@ -107,6 +107,9 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
      * @return
      */
     public boolean checkAllLayers(boolean checked){
+        if(layers.isEmpty()){
+            return false;
+        }
         Iterator<LayerViewObject> layerIterator = layers.iterator();
         while(layerIterator.hasNext()){
             LayerViewObject layer = layerIterator.next();

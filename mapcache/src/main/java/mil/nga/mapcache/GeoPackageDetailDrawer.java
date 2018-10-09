@@ -160,15 +160,17 @@ public class GeoPackageDetailDrawer extends Fragment implements
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 // Update adapter so the recycleview can update the list for the gui
-                layerAdapter.checkAllLayers(checked);
-                layerAdapter.notifyDataSetChanged();
-                // Update the viewmodel to show those active layers
-                if(checked) {
-                    // Enable all
-                    boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
-                }else{
-                    // Disable all
-                    boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
+                boolean layersActivated = layerAdapter.checkAllLayers(checked);
+                if(layersActivated) {
+                    layerAdapter.notifyDataSetChanged();
+                    // Update the viewmodel to show those active layers
+                    if (checked) {
+                        // Enable all
+                        boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
+                    } else {
+                        // Disable all
+                        boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
+                    }
                 }
             }
         });

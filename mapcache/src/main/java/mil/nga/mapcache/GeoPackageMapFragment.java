@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -546,6 +547,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private ImageButton zoomOutButton;
     private View bottomSheetView;
     private List<GeoPackage> geoPackageList = new ArrayList<GeoPackage>();
+    private FloatingActionButton fab;
 
     /**
      * Constructor
@@ -640,6 +642,16 @@ public class GeoPackageMapFragment extends Fragment implements
 //                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
 //                toast.show();
 
+                // Hide the floating action button when going to the geopackage detail page
+//                CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
+//                p.setAnchorId(View.NO_ID);
+//                p.height = 0;
+//                p.width = 0;
+//                fab.setLayoutParams(p);
+//                fab.hide();
+
+
+
                 // Create list of active layer names
 
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -649,6 +661,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 transaction.replace(R.id.fragmentContainer, drawer, "geoPackageDetail");
                 transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();
+
             }
         };
 
@@ -767,7 +780,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * Set Floating action button to open the create new geopackage wizard
      */
     private void setFLoatingActionButton(){
-        FloatingActionButton fab = view.findViewById(R.id.bottom_sheet_fab);
+        fab = view.findViewById(R.id.bottom_sheet_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -915,7 +928,6 @@ public class GeoPackageMapFragment extends Fragment implements
         titleText.setText("Create GeoPackage");
         // GeoPackage name
         final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
-        inputName.setHint(getString(R.string.create_geopackage_hint));
         inputName.setSingleLine(true);
         inputName.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
@@ -1954,18 +1966,18 @@ public class GeoPackageMapFragment extends Fragment implements
             case R.id.max_features:
                 setMaxFeatures();
                 break;
-            case R.id.normal_map:
-                setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                break;
-            case R.id.satellite_map:
-                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                break;
-            case R.id.terrain_map:
-                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                break;
-            case R.id.hybrid_map:
-                setMapType(GoogleMap.MAP_TYPE_HYBRID);
-                break;
+//            case R.id.normal_map:
+//                setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//                break;
+//            case R.id.satellite_map:
+//                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//                break;
+//            case R.id.terrain_map:
+//                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+//                break;
+//            case R.id.hybrid_map:
+//                setMapType(GoogleMap.MAP_TYPE_HYBRID);
+//                break;
             default:
                 handled = false;
                 break;

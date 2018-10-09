@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- logo and title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/new_layer_close_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/ic_clear_grey_800_24dp" />
+
+            <TextView
+                android:id="@+id/new_layer_title"
+                style="@style/Base.TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/alert_logo"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@+id/alert_logo"
+                android:text="New Layer" />
+        </LinearLayout>
+
+        <!--<View style="@style/Divider"-->
+        <!--android:layout_marginBottom="16dp"-->
+        <!--/>-->
+
+        <!--Create new-->
+        <TextView
+            android:id="@+id/create_feature"
+            android:textAppearance="@style/textAppearanceSubtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:text="Create Feature Layer"
+            android:textColor="@color/nga_primary_primary"/>
+
+        <!--import from url-->
+        <TextView
+            android:id="@+id/create_tile"
+            android:textAppearance="@style/textAppearanceSubtitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="24dp"
+            android:text="Create Tile Layer"
+            android:textColor="@color/nga_primary_primary"/>
+
+
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

@@ -273,6 +273,16 @@
             android:layout_height="match_parent"
             >
 
+            <!--use the floating action button here if you want it inside the drawer-->
+            <!--<android.support.design.widget.FloatingActionButton-->
+            <!--android:id="@+id/bottom_sheet_fab"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_margin="4dp"-->
+            <!--android:src="@drawable/add"-->
+            <!--app:layout_anchor="@id/fragmentContainer"-->
+            <!--android:layout_gravity="right" />-->
+
 
         <LinearLayout
             android:id="@+id/mapScrollLayout"
@@ -294,6 +304,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/textAppearanceSubtitle1"
+                android:textStyle="bold"
                 android:text="GeoPackages"/>
 
             <!--horizontal line-->
@@ -358,6 +369,7 @@
 
     </android.support.v4.widget.NestedScrollView>
 
+    <!--Use the floating action button here if you want it pinned to the top of the entire drawer-->
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/bottom_sheet_fab"
         android:layout_width="wrap_content"
@@ -365,7 +377,9 @@
         android:layout_margin="16dp"
         android:src="@drawable/add"
         app:layout_anchor="@id/bottom_sheet"
-        app:layout_anchorGravity="top|end"/>
+        app:layout_anchorGravity="top|right"/>
+    <!--for bottom right corner: layout_anchorGravity="bottom|right|end"-->
+
 
 
 

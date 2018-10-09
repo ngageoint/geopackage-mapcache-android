@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -75,6 +76,8 @@ public class GeoPackageDetailDrawer extends Fragment implements
     private ImageButton backArrow;
     private List<String> tileTables = new ArrayList<>();
     private List<String> featureTables = new ArrayList<>();
+    private FloatingActionButton newLayer;
+
 
 
     /**
@@ -140,6 +143,9 @@ public class GeoPackageDetailDrawer extends Fragment implements
         // Create all switch listener
         createAllSwitchListener();
 
+        // Create floating action button
+//        setFLoatingActionButton();
+
         return view;
 
     }
@@ -166,6 +172,48 @@ public class GeoPackageDetailDrawer extends Fragment implements
                 }
             }
         });
+    }
+
+
+//    /**
+//     * Set Floating action button to open the create new geopackage wizard
+//     */
+//    private void setFLoatingActionButton(){
+//        newLayer = view.findViewById(R.id.new_layer_fab);
+//        newLayer.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//              createNewLayer();
+//            }
+//        });
+//    }
+
+
+    public void createNewLayer(){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.new_layer_wizard, null);
+        // Logo and title
+        ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
+        closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+        TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
+        titleText.setText("New GeoPackage Layer");
+
+        // Initial dialog asking for create or import
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView);
+        final AlertDialog alertDialog = dialog.create();
+
+        // Click listener for close button
+        closeLogo.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+
     }
 
 

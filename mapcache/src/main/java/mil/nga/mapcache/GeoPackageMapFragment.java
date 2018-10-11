@@ -658,7 +658,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
                 GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(name);
-                transaction.replace(R.id.fragmentContainer, drawer, "geoPackageDetail");
+                transaction.replace(R.id.fragmentOutterContainer, drawer, "geoPackageDetail");
                 transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();
 

@@ -144,7 +144,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
         createAllSwitchListener();
 
         // Create floating action button
-//        setFLoatingActionButton();
+        setFLoatingActionButton();
 
         return view;
 
@@ -177,18 +177,18 @@ public class GeoPackageDetailDrawer extends Fragment implements
     }
 
 
-//    /**
-//     * Set Floating action button to open the create new geopackage wizard
-//     */
-//    private void setFLoatingActionButton(){
-//        newLayer = view.findViewById(R.id.new_layer_fab);
-//        newLayer.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//              createNewLayer();
-//            }
-//        });
-//    }
+    /**
+     * Set Floating action button to open the create new geopackage wizard
+     */
+    private void setFLoatingActionButton(){
+        newLayer = view.findViewById(R.id.new_layer_fab);
+        newLayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+              createNewLayer();
+            }
+        });
+    }
 
 
     public void createNewLayer(){

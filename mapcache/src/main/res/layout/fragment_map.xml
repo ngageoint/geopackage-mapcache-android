@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    android:id="@+id/mapParentLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -273,15 +275,15 @@
             android:layout_height="match_parent"
             >
 
-            <!--use the floating action button here if you want it inside the drawer-->
-            <!--<android.support.design.widget.FloatingActionButton-->
-            <!--android:id="@+id/bottom_sheet_fab"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_margin="4dp"-->
-            <!--android:src="@drawable/add"-->
-            <!--app:layout_anchor="@id/fragmentContainer"-->
-            <!--android:layout_gravity="right" />-->
+            <!--use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page-->
+            <android.support.design.widget.FloatingActionButton
+            android:id="@+id/bottom_sheet_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:src="@drawable/add"
+            app:layout_anchor="@id/fragmentContainer"
+            android:layout_gravity="right" />
 
 
         <LinearLayout
@@ -370,14 +372,14 @@
     </android.support.v4.widget.NestedScrollView>
 
     <!--Use the floating action button here if you want it pinned to the top of the entire drawer-->
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/bottom_sheet_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:src="@drawable/add"
-        app:layout_anchor="@id/bottom_sheet"
-        app:layout_anchorGravity="top|right"/>
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/bottom_sheet_fab"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_margin="16dp"-->
+        <!--android:src="@drawable/add"-->
+        <!--app:layout_anchor="@id/fragment_map_view_ui"-->
+        <!--app:layout_anchorGravity="bottom|right"/>-->
     <!--for bottom right corner: layout_anchorGravity="bottom|right|end"-->
 
 

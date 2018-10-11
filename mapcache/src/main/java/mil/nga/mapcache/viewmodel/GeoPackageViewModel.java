@@ -1,5 +1,6 @@
 package mil.nga.mapcache.viewmodel;
 
+import android.app.Activity;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
@@ -18,13 +19,17 @@ import java.util.List;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.mapcache.GeoPackageManagerFragment;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.repository.GeoPackageRepository;
 
 
-public class GeoPackageViewModel extends AndroidViewModel {
+public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTask {
 
     private GeoPackageRepository repository;
 
@@ -340,6 +345,14 @@ public class GeoPackageViewModel extends AndroidViewModel {
     public boolean importGeoPackage(String database, InputStream stream,
                                     GeoPackageProgress progress){
         if(repository.importGeoPackage(database, stream, progress)){
+//            // Then index any feature tables
+//            List<String> newFeatures = repository.getFeatureTables(database);
+//            if(!newFeatures.isEmpty()){
+//                for(String tableName : newFeatures){
+//                    indexFeatures(activity, database, tableName);
+//
+//                }
+//            }
             regenerateGeoPackageTableList();
             return true;
         }
@@ -360,4 +373,23 @@ public class GeoPackageViewModel extends AndroidViewModel {
         return repository.getFeatureTables(database);
     }
 
+
+    /**
+     * Index the given features table
+     */
+    public boolean indexFeatures(Activity activity, String database, String tableName){
+        IndexerTask.indexFeatures(activity, GeoPackageViewModel.this, database, tableName, FeatureIndexType.GEOPACKAGE);
+        return true;
+    }
+
+
+    // Indexing functions
+    @Override
+    public void onIndexerCancelled(String result) {
+
+    }
+    @Override
+    public void onIndexerPostExecute(String result) {
+
+    }
 }

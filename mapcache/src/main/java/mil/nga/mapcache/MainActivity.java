@@ -280,6 +280,7 @@ public class MainActivity extends AppCompatActivity implements
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(title);
+        actionBar.hide();
     }
 
     /**

@@ -44,9 +44,14 @@ public class GeoPackageRepository {
     }
 
     public GeoPackage getGeoPackageByName(String name){
-        GeoPackage geo = manager.open(name);
-        geo.close();
-        return geo;
+        try{
+            GeoPackage geo = manager.open(name);
+            geo.close();
+            return geo;
+        }catch(Exception e){
+
+        }
+        return null;
     }
 
     public boolean setGeoPackageName(String oldName, String newName){
@@ -64,6 +69,7 @@ public class GeoPackageRepository {
         StringBuilder errorMessage = new StringBuilder();
         Iterator<String> databasesIterator = manager.databases().iterator();
         while (databasesIterator.hasNext()) {
+            boolean invalidGP = false;
             String database = databasesIterator.next();
 
             // Delete any databases with invalid headers
@@ -149,6 +155,8 @@ public class GeoPackageRepository {
 //                    }
 
                 } catch (Exception e) {
+                    // If the error message contains "invalid geopackage", this GP will be labeled as invalid
+                    invalidGP = e.toString().indexOf("Invalid GeoPackage") !=-1? true: false;
                     exceptions.add(e);
                 }
 
@@ -161,7 +169,7 @@ public class GeoPackageRepository {
 
                 // If There are no tables under the database, create a blank table so that we can at
                 // least pass the database name up to the recycler view
-                if (tables.isEmpty()) {
+                if (tables.isEmpty() && exceptions.isEmpty()) {
                     GeoPackageTable table = new GeoPackageFeatureTable(database, "", GeometryType.GEOMETRY, 0);
                     tables.add(table);
                 }
@@ -170,13 +178,19 @@ public class GeoPackageRepository {
                     databaseTables.add(tables);
 //                    geoAdapter.insertToEnd(tables);
                 } else {
-
                     // On exception, check the integrity of the database and delete if not valid
                     if (!manager.validateIntegrity(database) && manager.delete(database)) {
                         databasesIterator.remove();
                     } else {
-                        databaseTables.add(tables);
+                        // If a geopackage is missing tables, it's invalid, don't add to the list.
+                        // make sure it's deleteed
+                        if(!invalidGP){
+                            databaseTables.add(tables);
 //                        geoAdapter.insertToEnd(tables);
+                        }else{
+                            manager.delete(database);
+                        }
+
                     }
 
                     if (errorMessage.length() > 0) {

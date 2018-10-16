@@ -34,6 +34,8 @@
     <color name="btn_light_background">#d3ebfd</color>
     <color name="horizontal_line">#d4d4d4</color>
     <color name="light_blue_background">#E7EAF1</color>
+    <color name="transparent">#00ffffff</color>
+
 
 
 

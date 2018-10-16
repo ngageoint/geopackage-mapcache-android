@@ -751,44 +751,68 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
-//    /**
-//     * Pop up menu for editing geoapackage - drawing features, bounding box, etc
-//     * @param view
-//     */
-//    public void openEditMenu(View view){
-//        PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
-//        // Needed to make the icons visible
-//        try {
-//            Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
-//            method.setAccessible(true);
-//            method.invoke(pm.getMenu(), true);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
-//        pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-//            @Override
-//            public boolean onMenuItemClick(MenuItem item) {
-//                switch (item.getItemId()){
-//                    case R.id.map:
-//                        setMapType(GoogleMap.MAP_TYPE_NORMAL);
-//                        return true;
-//
-//                    case R.id.satellite:
-//                        setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//                        return true;
-//
-//                    case R.id.terrain:
-//                        setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//                        return true;
-//                }
-//
-//                return true;
-//            }
-//        });
-//        pm.show();
-//    }
+    /**
+     * Pop up menu for editing geoapackage - drawing features, bounding box, etc
+     * @param view
+     */
+    public void openEditMenu(View view){
+        PopupMenu pm = new PopupMenu(getActivity(), editFeaturesButton);
+        // Needed to make the icons visible
+        try {
+            Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            method.setAccessible(true);
+            method.invoke(pm.getMenu(), true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
+        pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.zoomToActive:
+                        zoomToActive();
+                        return true;
+
+                    case R.id.features:
+                        editFeaturesMenuItem = item;
+                        if (!editFeaturesMode) {
+                            selectEditFeatures();
+                        } else {
+                            resetEditFeatures();
+                            updateInBackground(false, true);
+                        }
+                        return true;
+
+                    case R.id.boundingBox:
+                        boundingBoxMenuItem = item;
+                        if (!boundingBoxMode) {
+
+                            if (editFeaturesMode) {
+                                resetEditFeatures();
+                                updateInBackground(false, true);
+                            }
+
+                            boundingBoxMode = true;
+                            loadTilesView.setVisibility(View.VISIBLE);
+                            boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box_active);
+                        } else {
+                            resetBoundingBox();
+                        }
+                        return true;
+
+                    case R.id.maxFeatures:
+                        setMaxFeatures();
+                        return true;
+
+                }
+
+                return true;
+            }
+        });
+        pm.show();
+    }
 
 
 
@@ -849,11 +873,20 @@ public class GeoPackageMapFragment extends Fragment implements
     public void setIconListeners(){
         // Create listeners for map view icon button
         setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mapSelectButton = (ImageButton) view.findViewById(R .id.mapTypeIcon);
+        mapSelectButton = (ImageButton) view.findViewById(R.id.mapTypeIcon);
         mapSelectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openMapSelect(v);
+            }
+        });
+
+        // Edit icon for editing features
+        editFeaturesButton = (ImageButton) view.findViewById(R.id.editFeaturesIcon);
+        editFeaturesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openEditMenu(v);
             }
         });
 

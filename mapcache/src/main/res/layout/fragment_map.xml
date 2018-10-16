@@ -249,14 +249,14 @@
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:background="@color/offwhite"
-        android:paddingTop="8dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_vertical"
+        android:elevation="4dp"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:elevation="4dp"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_peekHeight="40dp">
+        android:paddingTop="8dp"
+        app:behavior_peekHeight="70dp"
+        app:layout_behavior="@string/bottom_sheet_behavior">
         <!--app:behavior_hideable="true"-->
         <!--To add gradient: android:background="@drawable/gradient_vertical-->
 
@@ -264,108 +264,103 @@
         <FrameLayout
             android:id="@+id/fragmentOutterContainer"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+            android:layout_height="match_parent">
 
 
-
-        <FrameLayout
-            android:id="@+id/fragmentContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-
-            <!--use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page-->
-            <android.support.design.widget.FloatingActionButton
-            android:id="@+id/bottom_sheet_fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:src="@drawable/add"
-            app:layout_anchor="@id/fragmentContainer"
-            android:layout_gravity="right" />
-
-
-        <LinearLayout
-            android:id="@+id/mapScrollLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!--Small tab to indicate drag window    -->
-            <View
-                android:layout_width="30dp"
-                android:layout_height="1dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="4dp"
-                android:layout_gravity="center"
-                android:background="@color/horizontal_line" />
-
-            <!--Title-->
-            <android.support.v7.widget.AppCompatTextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="@style/textAppearanceSubtitle1"
-                android:textStyle="bold"
-                android:text="GeoPackages"/>
-
-            <!--horizontal line-->
-            <View
-                android:layout_width="fill_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="@color/horizontal_line" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/geopackage_list"
+            <FrameLayout
+                android:id="@+id/fragmentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-            </android.support.v7.widget.RecyclerView>
 
-            <TextView
-                android:id="@+id/empty_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/no_packages_text" />
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/enabledDatabase"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                />
-
-            <android.support.v7.widget.AppCompatTextView
-                android:id="@+id/activeDatabases"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                />
+                <!--use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page-->
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/bottom_sheet_fab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_margin="4dp"
+                    android:src="@drawable/add"
+                    app:layout_anchor="@id/fragmentContainer" />
 
 
-            <!--GeoPackage detail fragment-->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <FrameLayout
-                    android:id="@+id/detail_container"
+                <LinearLayout
+                    android:id="@+id/mapScrollLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0"/>
+                    android:orientation="vertical">
 
-                <!--<fragment-->
-                    <!--android:id="@+id/fragment_geo_detail"-->
-                    <!--android:name="mil.nga.mapcache.GeoPackageDetailDrawer"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="match_parent" />-->
-            </LinearLayout>
+                    <!--Small tab to indicate drag window    -->
+                    <View
+                        android:layout_width="30dp"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginTop="4dp"
+                        android:background="@color/horizontal_line" />
+
+                    <!--Title-->
+                    <android.support.v7.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GeoPackages"
+                        android:layout_marginBottom="8dp"
+                        android:textAppearance="@style/textAppearanceSubtitle1"
+                        android:textStyle="bold" />
+
+                    <!--horizontal line-->
+                    <!--<View-->
+                        <!--android:layout_width="fill_parent"-->
+                        <!--android:layout_height="1dp"-->
+                        <!--android:layout_marginBottom="8dp"-->
+                        <!--android:layout_marginTop="8dp"-->
+                        <!--android:background="@color/horizontal_line" />-->
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/geopackage_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+
+                    <TextView
+                        android:id="@+id/empty_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="@string/no_packages_text" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/enabledDatabase"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent" />
+
+                    <android.support.v7.widget.AppCompatTextView
+                        android:id="@+id/activeDatabases"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent" />
 
 
-        </LinearLayout>
-        </FrameLayout>
+                    <!--GeoPackage detail fragment-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <FrameLayout
+                            android:id="@+id/detail_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0" />
+
+                        <!--<fragment-->
+                        <!--android:id="@+id/fragment_geo_detail"-->
+                        <!--android:name="mil.nga.mapcache.GeoPackageDetailDrawer"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="match_parent" />-->
+                    </LinearLayout>
+
+
+                </LinearLayout>
+            </FrameLayout>
         </FrameLayout>
 
 

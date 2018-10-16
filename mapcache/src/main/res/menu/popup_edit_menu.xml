@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".GeoPackageMapFragment">
+
+    <item
+        android:id="@+id/zoomToArchive"
+        android:title="Zoom to Active"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/features"
+        android:title="Features"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/boundingBox"
+        android:title="Bounding Box"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/maxFeatures"
+        android:title="Max Features"
+        app:showAsAction="never"/>
+</menu>

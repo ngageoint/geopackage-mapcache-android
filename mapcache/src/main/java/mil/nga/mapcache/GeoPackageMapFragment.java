@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -543,6 +544,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private String dbName;
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
     private ImageButton mapSelectButton;
+    private ImageButton editFeaturesButton;
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
     private View bottomSheetView;
@@ -641,16 +643,6 @@ public class GeoPackageMapFragment extends Fragment implements
             public void onClick(View view, int position, String name) {
 //                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
 //                toast.show();
-
-                // Hide the floating action button when going to the geopackage detail page
-//                CoordinatorLayout.LayoutParams p = (CoordinatorLayout.LayoutParams) fab.getLayoutParams();
-//                p.setAnchorId(View.NO_ID);
-//                p.height = 0;
-//                p.width = 0;
-//                fab.setLayoutParams(p);
-//                fab.hide();
-
-
 
                 // Create list of active layer names
 
@@ -755,6 +747,50 @@ public class GeoPackageMapFragment extends Fragment implements
         });
         pm.show();
     }
+
+
+
+
+//    /**
+//     * Pop up menu for editing geoapackage - drawing features, bounding box, etc
+//     * @param view
+//     */
+//    public void openEditMenu(View view){
+//        PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
+//        // Needed to make the icons visible
+//        try {
+//            Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+//            method.setAccessible(true);
+//            method.invoke(pm.getMenu(), true);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
+//        pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//            @Override
+//            public boolean onMenuItemClick(MenuItem item) {
+//                switch (item.getItemId()){
+//                    case R.id.map:
+//                        setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//                        return true;
+//
+//                    case R.id.satellite:
+//                        setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+//                        return true;
+//
+//                    case R.id.terrain:
+//                        setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+//                        return true;
+//                }
+//
+//                return true;
+//            }
+//        });
+//        pm.show();
+//    }
+
+
 
 
     /**

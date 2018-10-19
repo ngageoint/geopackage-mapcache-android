@@ -373,6 +373,13 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return repository.getFeatureTables(database);
     }
 
+    /**
+     * Get a GeoPackageTable object
+     */
+    public GeoPackageTable getTableObject(String gpName, String layerName){
+        return repository.getTableObject(gpName, layerName);
+    }
+
 
     /**
      * Index the given features table

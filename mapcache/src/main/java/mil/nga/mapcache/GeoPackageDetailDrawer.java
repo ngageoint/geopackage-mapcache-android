@@ -261,12 +261,17 @@ public class GeoPackageDetailDrawer extends Fragment implements
      * Get the GeoPackage's layers and create the list view
      */
     private void createLayerListView(){
+        layers.clear();
         RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position, String name) {
-//                Toast toast = Toast.makeText(getActivity(), "GeoPackage layer: " + name, Toast.LENGTH_LONG);
-//                toast.show();
-//                boolean added = geoPackageViewModel.addTableByName(name, selectedGeo.getName());
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
+                LayerDetailFragment layerDetailView = LayerDetailFragment.newInstance(geoPackageName, name);
+                transaction.replace(R.id.layout_gp_detail, layerDetailView, "layerDetail");
+                transaction.addToBackStack("layerDetail");  // if written, this transaction will be added to backstack
+                transaction.commit();
             }
         };
 

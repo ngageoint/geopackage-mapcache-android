@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:paddingBottom="16dp"
     android:paddingTop="16dp"
-    android:background="@color/light_grey"
+    android:background="@color/offwhite"
     tools:context=".GeoPackageDetail">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

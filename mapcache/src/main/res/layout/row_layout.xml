@@ -57,13 +57,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="8dp">
 
             <TextView
                 android:id="@+id/geopackage_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
+                android:layout_marginLeft="8dp"
                 android:text="Title"
                 android:textAppearance="@style/textAppearanceHeadline6" />
 
@@ -71,16 +72,16 @@
                 android:id="@+id/feature_tables"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="test"
+                android:layout_marginLeft="16dp"
+                android:text="features"
                 android:textAppearance="@style/textAppearanceCaption" />
 
             <TextView
                 android:id="@+id/tile_tables"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="test"
+                android:layout_marginLeft="16dp"
+                android:text="tiles"
                 android:textAppearance="@style/textAppearanceCaption" />
 
         </LinearLayout>

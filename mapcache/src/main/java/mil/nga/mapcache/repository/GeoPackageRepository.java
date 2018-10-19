@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -308,5 +309,54 @@ public class GeoPackageRepository {
         geo.close();
         return features;
     }
+
+    /**
+     * Get the given layer name
+     */
+    public GeoPackageTable getTableObject(String gpName, String tableName){
+        GeoPackage geo = manager.open(gpName);
+        ContentsDao contentsDao = geo.getContentsDao();
+        List<String> features = geo.getFeatureTables();
+        if(features.contains(tableName)){
+            FeatureDao featureDao = geo.getFeatureDao(tableName);
+            int count = featureDao.count();
+
+            GeometryType geometryType = null;
+            try {
+                Contents contents = contentsDao.queryForId(tableName);
+                GeometryColumns geometryColumns = contents
+                        .getGeometryColumns();
+                geometryType = geometryColumns.getGeometryType();
+            } catch (Exception e) {
+            }
+
+            GeoPackageTable table = new GeoPackageFeatureTable(gpName,
+                    tableName, geometryType, count);
+            return table;
+        }
+        List<String> tiles = geo.getTileTables();
+        if(tiles.contains(tableName)){
+            List<String> tileTables = null;
+            try {
+                tileTables = geo.getTileTables();
+            } catch (Exception e) {
+            }
+            if (tileTables != null) {
+                try {
+                    for (String tileTableName : tileTables) {
+                        TileDao tileDao = geo.getTileDao(tileTableName);
+                        int count = tileDao.count();
+                        GeoPackageTable table = new GeoPackageTileTable(gpName,
+                                tileTableName, count);
+                        return table;
+                    }
+                } catch(Exception e){
+
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

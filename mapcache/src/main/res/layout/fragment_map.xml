@@ -271,6 +271,9 @@
         app:layout_behavior="@string/bottom_sheet_behavior">
         <!--app:behavior_hideable="true"-->
         <!--To add gradient: android:background="@drawable/gradient_vertical-->
+        <!--Different layout idea: only expand to show current content and no further:-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:fillViewport="true"-->
 
 
         <FrameLayout

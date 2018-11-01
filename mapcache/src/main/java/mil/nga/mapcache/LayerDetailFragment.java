@@ -1,15 +1,18 @@
 package mil.nga.mapcache;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import mil.nga.geopackage.GeoPackage;
@@ -91,6 +94,9 @@ public class LayerDetailFragment extends Fragment {
         backArrow = view.findViewById(R.id.layerPageBackButton);
         setBackArrowListener();
 
+        // Create listeners for the row of action buttons
+        createButtonListeners();
+
         update();
 
         return view;
@@ -103,6 +109,95 @@ public class LayerDetailFragment extends Fragment {
     public void update(){
         TextView nameText = (TextView) view.findViewById(R.id.layerName);
         nameText.setText(selectedLayer.getName());
+    }
+
+    /**
+     *  Create listeners for the row of buttons (Rename, Share, Copy, Delete)
+     */
+    private void createButtonListeners(){
+//        // Set listeners for geopackage action buttons
+//        Button renameButton = (Button) view.findViewById(R.id.layer_rename);
+//        renameButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                renameDatabaseOption(geoPackageName);
+//            }
+//        });
+        Button deleteButton = (Button) view.findViewById(R.id.layer_delete);
+        deleteButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                deleteLayerOption();
+            }
+        });
+//        Button copyButton = (Button) view.findViewById(R.id.layer_copy);
+//        copyButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                copyDatabaseOption(geoPackageName);
+//            }
+//        });
+//        Button shareButton = (Button) view.findViewById(R.id.layer_share);
+//        shareButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                ShareTask shareTask = new ShareTask(getActivity());
+//                shareTask.shareDatabaseOption(geoPackageName);
+//            }
+//        });
+    }
+
+    /**
+     * Alert window to confirm then call to delete a layer from a geopackage
+     *
+     * @param database
+     */
+    private void deleteLayerOption() {
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_label_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Delete this Layer?");
+        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        actionLabel.setText(selectedLayer.getName());
+        actionLabel.setVisibility(View.INVISIBLE);
+
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setIcon(getResources().getDrawable(R.drawable.material_delete))
+                .setPositiveButton(getString(R.string.layer_delete_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // remove this layer from active layers drawn on map
+                                geoPackageViewModel.removeActiveTableByName(selectedGeo.getName(), selectedLayer.getName());
+
+                                // Delete the layer from the geopacket
+                                try{
+                                    geoPackageViewModel.removeLayerFromGeo(selectedGeo.getName(), selectedLayer.getName());
+                                } catch(Exception e){
+                                    GeoPackageUtils.showMessage(getActivity(),
+                                            "Delete " + selectedLayer.getName()
+                                                    + " Table", e.getMessage());
+                                }
+
+                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                fragmentManager.popBackStack();
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+        deleteDialog.show();
     }
 
     // TODO: Rename method, update argument and hook method into UI event

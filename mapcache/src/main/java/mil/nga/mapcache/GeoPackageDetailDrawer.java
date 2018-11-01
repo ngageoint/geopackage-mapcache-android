@@ -1,46 +1,32 @@
 package mil.nga.mapcache;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.factory.GeoPackageFactory;
-import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
@@ -145,6 +131,14 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
         // Create floating action button
         setFLoatingActionButton();
+
+        // Subscribe to the geopackage list to detect when a layer is deleted
+        geoPackageViewModel.getGeoPackages().observe(this, newGeoPackages ->{
+            layerAdapter.clear();
+            layers.clear();
+            update();
+            createLayerListView();
+        });
 
         return view;
 
@@ -285,7 +279,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
                     boolean added = geoPackageViewModel.addTableByName(name, selectedGeo.getName());
                 }else{
                     // Disable selected layer
-                    boolean removed = geoPackageViewModel.removeTableByName(name, selectedGeo.getName());
+                    boolean removed = geoPackageViewModel.removeActiveTableByName(name, selectedGeo.getName());
                 }
             }
         };
@@ -343,20 +337,22 @@ public class GeoPackageDetailDrawer extends Fragment implements
      */
     private void update(){
         selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
-        TextView nameText = (TextView) view.findViewById(R.id.geoPackageName);
-        TextView sizeText = (TextView) view.findViewById(R.id.text_size);
-        TextView tileText = (TextView) view.findViewById(R.id.text_tiles);
-        TextView featureText = (TextView) view.findViewById(R.id.text_features);
+        if(selectedGeo != null) {
+            TextView nameText = (TextView) view.findViewById(R.id.geoPackageName);
+            TextView sizeText = (TextView) view.findViewById(R.id.text_size);
+            TextView tileText = (TextView) view.findViewById(R.id.text_tiles);
+            TextView featureText = (TextView) view.findViewById(R.id.text_features);
 
-        nameText.setText(selectedGeo.getName());
-        sizeText.setText(geoPackageViewModel.getGeoPackageSize(geoPackageName));
-        tileTables = geoPackageViewModel.getTileTables(selectedGeo.getName());
-        featureTables = geoPackageViewModel.getFeatureTables(selectedGeo.getName());
+            nameText.setText(selectedGeo.getName());
+            sizeText.setText(geoPackageViewModel.getGeoPackageSize(geoPackageName));
+            tileTables = geoPackageViewModel.getTileTables(selectedGeo.getName());
+            featureTables = geoPackageViewModel.getFeatureTables(selectedGeo.getName());
 
-        int tileCount = tileTables.size();
-        int featureCount = featureTables.size();
-        tileText.setText(tileCount + " " + pluralize(tileCount, "Tile layer"));
-        featureText.setText(featureCount + " " + pluralize(featureCount, "Feature layer"));
+            int tileCount = tileTables.size();
+            int featureCount = featureTables.size();
+            tileText.setText(tileCount + " " + pluralize(tileCount, "Tile layer"));
+            featureText.setText(featureCount + " " + pluralize(featureCount, "Feature layer"));
+        }
     }
 
 

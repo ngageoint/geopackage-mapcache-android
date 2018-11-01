@@ -119,7 +119,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * @param geoPackageName
      * @return true if the table was removed
      */
-    public boolean removeTableByName(String tableName, String geoPackageName){
+    public boolean removeActiveTableByName(String tableName, String geoPackageName){
         List<GeoPackageTable> currentTables = activeTables.getValue();
         if(currentTables != null && currentTables.size() > 0) {
             for (GeoPackageTable table : currentTables) {
@@ -150,6 +150,17 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         }
         activeTables.postValue(currentTables);
         return true;
+    }
+
+    /**
+     * Remove the given layer from a geopackage
+     */
+    public boolean removeLayerFromGeo(String geoPackageName, String layerName){
+        if(repository.removeLayerFromGeo(geoPackageName, layerName)) {
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
     }
 
     /**

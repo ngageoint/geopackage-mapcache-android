@@ -225,6 +225,24 @@ public class GeoPackageRepository {
     }
 
     /**
+     * Delete a layer from a geopackage
+     */
+    public boolean removeLayerFromGeo(String geoPackageName, String layerName){
+        try {
+            GeoPackage geo = manager.open(geoPackageName);
+            if(geo != null) {
+                geo.deleteTable(layerName);
+                geo.close();
+                return true;
+            }
+            // Return false if the geopackage didn't exist
+            return false;
+        } catch(Exception e){
+            return false;
+        }
+    }
+
+    /**
      * Create a geoPackage by name
      */
     public boolean createGeoPackage(String geoPackageName){
@@ -295,9 +313,12 @@ public class GeoPackageRepository {
      */
     public List<String> getTileTables(String database){
         GeoPackage geo = manager.open(database);
-        List<String> tiles = geo.getTileTables();
-        geo.close();
-        return tiles;
+        if(geo != null) {
+            List<String> tiles = geo.getTileTables();
+            geo.close();
+            return tiles;
+        }
+        return null;
     }
 
     /**
@@ -305,9 +326,12 @@ public class GeoPackageRepository {
      */
     public List<String> getFeatureTables(String database){
         GeoPackage geo = manager.open(database);
-        List<String> features = geo.getFeatureTables();
-        geo.close();
-        return features;
+        if(geo != null) {
+            List<String> features = geo.getFeatureTables();
+            geo.close();
+            return features;
+        }
+        return null;
     }
 
     /**

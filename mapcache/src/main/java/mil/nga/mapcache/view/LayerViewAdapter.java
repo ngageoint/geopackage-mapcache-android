@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
@@ -91,6 +92,11 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
     public void insert(int position, LayerViewObject data) {
         layers.add(position, data);
         notifyItemInserted(position);
+    }
+
+    public void insertToEnd(LayerViewObject data) {
+        layers.add(getItemCount(), data);
+        notifyItemInserted(getItemCount()-1);
     }
 
     public void clear(){

@@ -235,7 +235,6 @@ public class GeoPackageRepository {
                 geo.close();
                 return true;
             }
-            // Return false if the geopackage didn't exist
             return false;
         } catch(Exception e){
             return false;

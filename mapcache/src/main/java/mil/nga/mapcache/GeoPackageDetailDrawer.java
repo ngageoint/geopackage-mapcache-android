@@ -134,10 +134,12 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
         // Subscribe to the geopackage list to detect when a layer is deleted
         geoPackageViewModel.getGeoPackages().observe(this, newGeoPackages ->{
-            layerAdapter.clear();
-            layers.clear();
-            update();
-            createLayerListView();
+            if(selectedGeo != null) {
+               layerAdapter.clear();
+               layers.clear();
+               update();
+               createLayerListView();
+             }
         });
 
         return view;
@@ -320,10 +322,10 @@ public class GeoPackageDetailDrawer extends Fragment implements
      */
     public List<String> generateBasicActiveList(){
         List<String> activeTables = new ArrayList<>();
-        if(geoPackageViewModel.getActiveTables().getValue() != null)
+        if(geoPackageViewModel.getActiveTables().getValue() != null && selectedGeo != null)
         {
             for(GeoPackageTable table : geoPackageViewModel.getActiveTables().getValue()){
-                if(table.getDatabase() == selectedGeo.getName()){
+                if(table.getDatabase().equalsIgnoreCase(selectedGeo.getName())){
                     activeTables.add(table.getName());
                 }
             }

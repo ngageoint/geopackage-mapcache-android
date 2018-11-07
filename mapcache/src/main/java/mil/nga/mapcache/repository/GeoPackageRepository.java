@@ -64,7 +64,6 @@ public class GeoPackageRepository {
     }
 
     public List<List<GeoPackageTable>> regenerateTableList(){
-        active.clearActive();
         geoPackages.clear();
         List<List<GeoPackageTable>> databaseTables = new ArrayList<List<GeoPackageTable>>();
         StringBuilder errorMessage = new StringBuilder();
@@ -111,9 +110,7 @@ public class GeoPackageRepository {
 
                                 GeoPackageTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
-                                //table.setActive(active.exists(table));
-//                                table.setActive(true);
-//                                active.addTable(table);
+                                table.setActive(active.exists(table));
                                 tables.add(table);
                             }
                         } catch (Exception e) {
@@ -134,9 +131,7 @@ public class GeoPackageRepository {
                                 int count = tileDao.count();
                                 GeoPackageTable table = new GeoPackageTileTable(database,
                                         tableName, count);
-                                //table.setActive(active.exists(table));
-//                                table.setActive(true);
-
+                                table.setActive(active.exists(table));
                                 tables.add(table);
                             }
                         } catch (Exception e) {
@@ -336,47 +331,60 @@ public class GeoPackageRepository {
     /**
      * Get the given layer name
      */
-    public GeoPackageTable getTableObject(String gpName, String tableName){
+    public GeoPackageTable getTableObject(String gpName, String tableName, Boolean saveTable){
         GeoPackage geo = manager.open(gpName);
-        ContentsDao contentsDao = geo.getContentsDao();
-        List<String> features = geo.getFeatureTables();
-        if(features.contains(tableName)){
-            FeatureDao featureDao = geo.getFeatureDao(tableName);
-            int count = featureDao.count();
+        if(geo != null) {
+            ContentsDao contentsDao = geo.getContentsDao();
+            List<String> features = geo.getFeatureTables();
+            if (features.contains(tableName)) {
+                FeatureDao featureDao = geo.getFeatureDao(tableName);
+                int count = featureDao.count();
 
-            GeometryType geometryType = null;
-            try {
-                Contents contents = contentsDao.queryForId(tableName);
-                GeometryColumns geometryColumns = contents
-                        .getGeometryColumns();
-                geometryType = geometryColumns.getGeometryType();
-            } catch (Exception e) {
-            }
-
-            GeoPackageTable table = new GeoPackageFeatureTable(gpName,
-                    tableName, geometryType, count);
-            return table;
-        }
-        List<String> tiles = geo.getTileTables();
-        if(tiles.contains(tableName)){
-            List<String> tileTables = null;
-            try {
-                tileTables = geo.getTileTables();
-            } catch (Exception e) {
-            }
-            if (tileTables != null) {
+                GeometryType geometryType = null;
                 try {
-                    for (String tileTableName : tileTables) {
-                        TileDao tileDao = geo.getTileDao(tileTableName);
-                        int count = tileDao.count();
-                        GeoPackageTable table = new GeoPackageTileTable(gpName,
-                                tileTableName, count);
-                        return table;
-                    }
-                } catch(Exception e){
+                    Contents contents = contentsDao.queryForId(tableName);
+                    GeometryColumns geometryColumns = contents
+                            .getGeometryColumns();
+                    geometryType = geometryColumns.getGeometryType();
+                } catch (Exception e) {
+                }
 
+                GeoPackageTable table = new GeoPackageFeatureTable(gpName,
+                        tableName, geometryType, count);
+                // If saveTable boolean is set, set the table's active status to that given value
+                if(saveTable != null){
+                    table.setActive(saveTable);
+                }
+                geo.close();
+                return table;
+            }
+            List<String> tiles = geo.getTileTables();
+            if (tiles.contains(tableName)) {
+                List<String> tileTables = null;
+                try {
+                    tileTables = geo.getTileTables();
+                } catch (Exception e) {
+                }
+                if (tileTables != null) {
+                    try {
+                        for (String tileTableName : tileTables) {
+                            TileDao tileDao = geo.getTileDao(tileTableName);
+                            int count = tileDao.count();
+                            GeoPackageTable table = new GeoPackageTileTable(gpName,
+                                    tileTableName, count);
+                            if(saveTable != null){
+                                table.setActive(saveTable);
+                            }
+                            geo.close();
+                            return table;
+                        }
+                    } catch (Exception e) {
+
+                    }
                 }
             }
+            geo.close();
+            return null;
         }
         return null;
     }

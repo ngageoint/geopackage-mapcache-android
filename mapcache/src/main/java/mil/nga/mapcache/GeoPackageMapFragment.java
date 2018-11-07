@@ -699,7 +699,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     map.clear();
                 }
             } else{
-                updateInBackground(true, false);
+                if(map != null) {
+                    updateInBackground(true, false);
+                }
 
             }
         });

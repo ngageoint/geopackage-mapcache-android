@@ -47,9 +47,6 @@ public class LayerDetailFragment extends Fragment {
     private static View view;
 
 
-
-
-
     public LayerDetailFragment() {
         // Required empty public constructor
     }
@@ -174,7 +171,7 @@ public class LayerDetailFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 // remove this layer from active layers drawn on map
-                                geoPackageViewModel.removeActiveTableByName(selectedGeo.getName(), selectedLayer.getName());
+                                geoPackageViewModel.removeActiveTableByName(selectedLayer.getName(), selectedGeo.getName());
 
                                 // Delete the layer from the geopacket
                                 try{

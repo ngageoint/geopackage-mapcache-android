@@ -103,6 +103,9 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
               if(geoTableList.get(0).getDatabase().equalsIgnoreCase(geoPackageName)) {
                   for (GeoPackageTable table : geoTableList) {
                       if (table.getName().equalsIgnoreCase(tableName)){
+                          // Save the geopackage with the layer as active
+                          repository.getTableObject(geoPackageName, tableName, true);
+                          // Add to our list of active tables
                           addToTables(table);
                           return true;
                       }
@@ -237,6 +240,14 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         List<List<GeoPackageTable>> databaseTables = repository.regenerateTableList();
          geoPackageTables.postValue(databaseTables);
 //         generateGeoPackageList();
+        for(List<GeoPackageTable> tableList : databaseTables){
+            for(GeoPackageTable table : tableList){
+                if(table.isActive()){
+                    addToTables(table);
+                }
+            }
+
+        }
         geoPackages.postValue(repository.getGeoPackages());
 
     }
@@ -388,7 +399,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * Get a GeoPackageTable object
      */
     public GeoPackageTable getTableObject(String gpName, String layerName){
-        return repository.getTableObject(gpName, layerName);
+        return repository.getTableObject(gpName, layerName, null);
     }
 
 

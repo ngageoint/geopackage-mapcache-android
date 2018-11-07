@@ -260,7 +260,7 @@ public class GeoPackageManagerFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        active = GeoPackageDatabases.getInstance(getActivity());
+//        active = GeoPackageDatabases.getInstance(getActivity());
         this.inflater = inflater;
         manager = GeoPackageFactory.getManager(getActivity());
         v = inflater.inflate(R.layout.fragment_manager, null, false);
@@ -467,7 +467,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                                 GeoPackageTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
-                                table.setActive(active.exists(table));
+                                //table.setActive(active.exists(table));
                                 tables.add(table);
                             }
                         } catch (Exception e) {
@@ -488,7 +488,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 int count = tileDao.count();
                                 GeoPackageTable table = new GeoPackageTileTable(database,
                                         tableName, count);
-                                table.setActive(active.exists(table));
+                                //table.setActive(active.exists(table));
                                 tables.add(table);
                             }
                         } catch (Exception e) {
@@ -496,16 +496,16 @@ public class GeoPackageManagerFragment extends Fragment implements
                         }
                     }
 
-                    for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
-                        try {
-                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-                            int count = featureDao.count();
-                            table.setCount(count);
-                            tables.add(table);
-                        } catch (Exception e) {
-                            exceptions.add(e);
-                        }
-                    }
+//                    for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
+//                        try {
+//                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
+//                            int count = featureDao.count();
+//                            table.setCount(count);
+//                            tables.add(table);
+//                        } catch (Exception e) {
+//                            exceptions.add(e);
+//                        }
+//                    }
 
                 } catch (Exception e) {
                     exceptions.add(e);

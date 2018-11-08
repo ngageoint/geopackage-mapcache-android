@@ -82,11 +82,13 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import org.osgeo.proj4j.units.DegreeUnit;
 import org.osgeo.proj4j.units.Unit;
 import org.osgeo.proj4j.units.Units;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -169,6 +171,7 @@ import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -1181,6 +1184,24 @@ public class GeoPackageMapFragment extends Fragment implements
         });
     }
 
+
+    /**
+     * Initiate an Import task (received from intent outside of application)
+     */
+    public void startImportTask(String name, Uri uri, String path, Intent intent){
+        ImportTask task = new ImportTask(getActivity(), intent);
+        task.importGeoPackage(name, uri, path);
+    }
+
+
+
+    /**
+     * Initiate an Import task with permissions(received from intent outside of application)
+     */
+    public void startImportTaskWithPermissions(String name, Uri uri, String path, Intent intent){
+        ImportTask task = new ImportTask(getActivity(), intent);
+        task.importGeoPackageExternalLinkWithPermissions(name, uri, path);
+    }
 
 
 

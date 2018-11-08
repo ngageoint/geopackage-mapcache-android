@@ -55,10 +55,6 @@
 
             </LinearLayout>
 
-            <View
-                style="@style/Divider"
-                android:layout_marginBottom="8dp" />
-
             <TextView
                 android:id="@+id/text_size"
                 android:layout_width="wrap_content"

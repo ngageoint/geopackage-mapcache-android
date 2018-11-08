@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
         if (uri != null) {
-            handleIntentUri(uri);
+            handleIntentUri(uri, intent);
         }
     }
 
@@ -164,14 +164,17 @@ public class MainActivity extends AppCompatActivity implements
      *
      * @param uri
      */
-    private void handleIntentUri(final Uri uri) {
+    private void handleIntentUri(final Uri uri, Intent intent) {
         String path = FileUtils.getPath(this, uri);
         String name = MapCacheFileUtils.getDisplayName(this, uri, path);
         try {
             if (path != null) {
-                managerFragment.importGeoPackageExternalLinkWithPermissions(name, uri, path);
+//                managerFragment.importGeoPackageExternalLinkWithPermissions(name, uri, path);
+                mapFragment.startImportTaskWithPermissions(name, uri, path, intent);
+
             } else {
-                managerFragment.importGeoPackage(name, uri, path);
+//                managerFragment.importGeoPackage(name, uri, path);
+                mapFragment.startImportTask(name, uri, path, intent);
             }
         } catch (final Exception e) {
             try {

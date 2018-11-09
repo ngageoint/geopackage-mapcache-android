@@ -318,7 +318,8 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
-                managerFragment.importGeoPackageExternalLinkAfterPermissionGranted(granted);
+//                managerFragment.importGeoPackageExternalLinkAfterPermissionGranted(granted);
+                mapFragment.importGeoPackageExternalLinkAfterPermissionGranted(granted);
                 break;
 
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:

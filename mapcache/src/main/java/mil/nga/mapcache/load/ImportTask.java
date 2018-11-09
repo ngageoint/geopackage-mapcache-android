@@ -191,6 +191,29 @@ public class ImportTask {
     }
 
 
+    /**
+     * Import a geopackage from external link with previously saved uri after waiting for permissions
+     */
+    public void importGeoPackageExternalLinkSavedData(){
+        if(importExternalName != null && importExternalUri != null && importExternalPath != null) {
+            importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
+        } else{
+            try {
+                activity.runOnUiThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                GeoPackageUtils.showMessage(activity,
+                                        "URL Import",
+                                        "Failed to import Uri: Could not get Uri name and path params");
+                            }
+                        });
+            } catch (Exception e) {
+                // eat
+            }
+        }
+    }
+
 
 
     /**

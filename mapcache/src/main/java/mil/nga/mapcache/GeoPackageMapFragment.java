@@ -2,9 +2,11 @@ package mil.nga.mapcache;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.CoordinatorLayout;
@@ -541,6 +543,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public static final int ACTIVITY_CHOOSE_FILE = 3342;
 
+    /**
+     * Intent activity request code when opening app settings
+     */
+    public static final int ACTIVITY_APP_SETTINGS = 3344;
+
     private GeoPackageDetailDrawer geoDetailFragment;
 
     private GeoPackageViewModel geoPackageViewModel;
@@ -553,6 +560,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private View bottomSheetView;
     private List<GeoPackage> geoPackageList = new ArrayList<GeoPackage>();
     private FloatingActionButton fab;
+    private ImportTask importTask;
 
     /**
      * Constructor
@@ -1189,8 +1197,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * Initiate an Import task (received from intent outside of application)
      */
     public void startImportTask(String name, Uri uri, String path, Intent intent){
-        ImportTask task = new ImportTask(getActivity(), intent);
-        task.importGeoPackage(name, uri, path);
+        importTask = new ImportTask(getActivity(), intent);
+        importTask.importGeoPackage(name, uri, path);
     }
 
 
@@ -1199,8 +1207,60 @@ public class GeoPackageMapFragment extends Fragment implements
      * Initiate an Import task with permissions(received from intent outside of application)
      */
     public void startImportTaskWithPermissions(String name, Uri uri, String path, Intent intent){
-        ImportTask task = new ImportTask(getActivity(), intent);
-        task.importGeoPackageExternalLinkWithPermissions(name, uri, path);
+        importTask = new ImportTask(getActivity(), intent);
+        importTask.importGeoPackageExternalLinkWithPermissions(name, uri, path);
+    }
+
+
+
+    /**
+     * Import the GeoPackage by linking to the file after write external storage permission was granted
+     *
+     * @param granted
+     */
+    public void importGeoPackageExternalLinkAfterPermissionGranted(boolean granted) {
+        if (granted) {
+            importTask.importGeoPackageExternalLinkSavedData();
+        } else {
+            showDisabledExternalImportPermissionsDialog();
+        }
+    }
+
+
+    /**
+     * Show a disabled permissions dialog
+     *
+     * @param title
+     * @param message
+     */
+    private void showDisabledPermissionsDialog(String title, String message) {
+        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(R.string.settings, new Dialog.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        intent.setData(Uri.fromParts("package", getActivity().getPackageName(), null));
+                        startActivityForResult(intent, ACTIVITY_APP_SETTINGS);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+
+
+    /**
+     * Show a disabled external import permissions dialog when external GeoPackages can not be imported
+     */
+    private void showDisabledExternalImportPermissionsDialog() {
+        // If the user has declared to no longer get asked about permissions
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showDisabledPermissionsDialog(
+                    getResources().getString(R.string.external_import_geopackage_access_title),
+                    getResources().getString(R.string.external_import_geopackage_access_message));
+        }
     }
 
 

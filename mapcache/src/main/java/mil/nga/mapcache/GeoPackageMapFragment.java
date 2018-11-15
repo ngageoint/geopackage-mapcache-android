@@ -96,6 +96,9 @@ import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
+import mil.nga.geopackage.extension.style.FeatureStyle;
+import mil.nga.geopackage.extension.style.FeatureStyleExtension;
+import mil.nga.geopackage.extension.style.FeatureTableStyles;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexListResults;
@@ -109,6 +112,7 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.map.MapUtils;
 import mil.nga.geopackage.map.features.FeatureInfoBuilder;
+import mil.nga.geopackage.map.features.StyleUtils;
 import mil.nga.geopackage.map.geom.FeatureShapes;
 import mil.nga.geopackage.map.geom.GoogleMapShape;
 import mil.nga.geopackage.map.geom.GoogleMapShapeConverter;
@@ -928,7 +932,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
                             featureDao.getProjection());
                     GoogleMapShape shape = converter.toShape(geometry);
-                    prepareShapeOptions(shape, true, true);
+                    FeatureStyleExtension featureStyleExtension = new FeatureStyleExtension(geoPackage);
+                    FeatureStyle featureStyle = featureStyleExtension.getFeatureStyle(featureRow);
+                    prepareShapeOptions(shape, featureStyle, true, true);
                     GoogleMapShape mapShape = GoogleMapShapeConverter
                             .addShapeToMap(map, shape);
                     addEditableShape(featureId, mapShape);
@@ -2211,6 +2217,7 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackage geoPackage = geoPackages.get(database);
         FeatureDao featureDao = featureDaos.get(database).get(features);
         GoogleMapShapeConverter converter = new GoogleMapShapeConverter(featureDao.getProjection());
+        FeatureTableStyles featureTableStyles = new FeatureTableStyles(geoPackage, featureDao.getTable());
 
         converter.setSimplifyTolerance(toleranceDistance);
 
@@ -2230,7 +2237,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
                 }
 
-                processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter,
+                processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter, featureTableStyles,
                         count, maxFeatures, editable, filter);
 
             } else {
@@ -2264,11 +2271,11 @@ public class GeoPackageMapFragment extends Fragment implements
                                 // Process the feature row in the thread pool
                                 FeatureRowProcessor processor = new FeatureRowProcessor(
                                         task, database, featureDao, row, count, maxFeatures, editable, converter,
-                                        filterBoundingBox, filterMaxLongitude, filter);
+                                        featureTableStyles, filterBoundingBox, filterMaxLongitude, filter);
                                 threadPool.execute(processor);
                             } else {
 
-                                processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures, editable,
+                                processFeatureRow(task, database, featureDao, converter, featureTableStyles, row, count, maxFeatures, editable,
                                         filterBoundingBox, filterMaxLongitude, filter);
                             }
                         } catch (Exception e) {
@@ -2297,6 +2304,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param indexResults
      * @param database
      * @param featureDao
+     * @param featureTableStyles
      * @param converter
      * @param count
      * @param maxFeatures
@@ -2304,7 +2312,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param filter
      */
     private void processFeatureIndexResults(MapFeaturesUpdateTask task, ExecutorService threadPool, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
-                                            GoogleMapShapeConverter converter, AtomicInteger count, final int maxFeatures, final boolean editable,
+                                            GoogleMapShapeConverter converter, FeatureTableStyles featureTableStyles, AtomicInteger count, final int maxFeatures, final boolean editable,
                                             boolean filter) {
 
         try {
@@ -2320,11 +2328,11 @@ public class GeoPackageMapFragment extends Fragment implements
                         // Process the feature row in the thread pool
                         FeatureRowProcessor processor = new FeatureRowProcessor(
                                 task, database, featureDao, row, count, maxFeatures, editable, converter,
-                                null, 0, filter);
+                                featureTableStyles, null, 0, filter);
                         threadPool.execute(processor);
                     } else {
 
-                        processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures, editable, null, 0, filter);
+                        processFeatureRow(task, database, featureDao, converter, featureTableStyles, row, count, maxFeatures, editable, null, 0, filter);
                     }
 
                 } catch (Exception e) {
@@ -2387,6 +2395,11 @@ public class GeoPackageMapFragment extends Fragment implements
         private final GoogleMapShapeConverter converter;
 
         /**
+         * Feature Table Styles
+         */
+        private final FeatureTableStyles featureTableStyles;
+
+        /**
          * Filter bounding box
          */
         private final BoundingBox filterBoundingBox;
@@ -2412,13 +2425,14 @@ public class GeoPackageMapFragment extends Fragment implements
          * @param maxFeatures
          * @param editable
          * @param converter
+         * @param featureTableStyles
          * @param filterBoundingBox
          * @param maxLongitude
          * @param filter
          */
         public FeatureRowProcessor(MapFeaturesUpdateTask task, String database, FeatureDao featureDao,
                                    FeatureRow row, AtomicInteger count, int maxFeatures,
-                                   boolean editable, GoogleMapShapeConverter converter,
+                                   boolean editable, GoogleMapShapeConverter converter, FeatureTableStyles featureTableStyles,
                                    BoundingBox filterBoundingBox, double maxLongitude, boolean filter) {
             this.task = task;
             this.database = database;
@@ -2428,6 +2442,7 @@ public class GeoPackageMapFragment extends Fragment implements
             this.maxFeatures = maxFeatures;
             this.editable = editable;
             this.converter = converter;
+            this.featureTableStyles = featureTableStyles;
             this.filterBoundingBox = filterBoundingBox;
             this.maxLongitude = maxLongitude;
             this.filter = filter;
@@ -2438,7 +2453,7 @@ public class GeoPackageMapFragment extends Fragment implements
          */
         @Override
         public void run() {
-            processFeatureRow(task, database, featureDao, converter, row, count, maxFeatures,
+            processFeatureRow(task, database, featureDao, converter, featureTableStyles, row, count, maxFeatures,
                     editable, filterBoundingBox, maxLongitude, filter);
         }
 
@@ -2450,6 +2465,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param task
      * @param database
      * @param featureDao
+     * @param converter
+     * @param featureTableStyles
      * @param row
      * @param count
      * @param maxFeatures
@@ -2459,7 +2476,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param filter
      */
     private void processFeatureRow(MapFeaturesUpdateTask task, String database, FeatureDao featureDao,
-                                   GoogleMapShapeConverter converter, FeatureRow row, AtomicInteger count,
+                                   GoogleMapShapeConverter converter, FeatureTableStyles featureTableStyles, FeatureRow row, AtomicInteger count,
                                    int maxFeatures, boolean editable, BoundingBox boundingBox, double maxLongitude,
                                    boolean filter) {
 
@@ -2499,7 +2516,8 @@ public class GeoPackageMapFragment extends Fragment implements
                         final long featureId = row.getId();
                         final GoogleMapShape shape = converter.toShape(geometry);
                         updateFeaturesBoundingBox(shape);
-                        prepareShapeOptions(shape, editable, true);
+                        FeatureStyle featureStyle = featureTableStyles.getFeatureStyle(row);
+                        prepareShapeOptions(shape, featureStyle, editable, true);
                         task.addToMap(featureId, database, featureDao.getTableName(), shape);
                     }
                 }
@@ -2528,18 +2546,19 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Prepare the shape options
      *
-     * @param shape
-     * @param editable
-     * @param topLevel
+     * @param shape        map shape
+     * @param featureStyle feature style
+     * @param editable     editable flag
+     * @param topLevel     top level flag
      */
-    private void prepareShapeOptions(GoogleMapShape shape, boolean editable,
+    private void prepareShapeOptions(GoogleMapShape shape, FeatureStyle featureStyle, boolean editable,
                                      boolean topLevel) {
 
         switch (shape.getShapeType()) {
 
             case LAT_LNG:
                 LatLng latLng = (LatLng) shape.getShape();
-                MarkerOptions markerOptions = getMarkerOptions(editable, topLevel);
+                MarkerOptions markerOptions = getMarkerOptions(featureStyle, editable, topLevel);
                 markerOptions.position(latLng);
                 shape.setShape(markerOptions);
                 shape.setShapeType(GoogleMapShapeType.MARKER_OPTIONS);
@@ -2548,17 +2567,17 @@ public class GeoPackageMapFragment extends Fragment implements
             case POLYLINE_OPTIONS:
                 PolylineOptions polylineOptions = (PolylineOptions) shape
                         .getShape();
-                setPolylineOptions(editable, polylineOptions);
+                setPolylineOptions(featureStyle, editable, polylineOptions);
                 break;
 
             case POLYGON_OPTIONS:
                 PolygonOptions polygonOptions = (PolygonOptions) shape.getShape();
-                setPolygonOptions(editable, polygonOptions);
+                setPolygonOptions(featureStyle, editable, polygonOptions);
                 break;
 
             case MULTI_LAT_LNG:
                 MultiLatLng multiLatLng = (MultiLatLng) shape.getShape();
-                MarkerOptions sharedMarkerOptions = getMarkerOptions(editable,
+                MarkerOptions sharedMarkerOptions = getMarkerOptions(featureStyle, editable,
                         false);
                 multiLatLng.setMarkerOptions(sharedMarkerOptions);
                 break;
@@ -2567,7 +2586,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 MultiPolylineOptions multiPolylineOptions = (MultiPolylineOptions) shape
                         .getShape();
                 PolylineOptions sharedPolylineOptions = new PolylineOptions();
-                setPolylineOptions(editable, sharedPolylineOptions);
+                setPolylineOptions(featureStyle, editable, sharedPolylineOptions);
                 multiPolylineOptions.setOptions(sharedPolylineOptions);
                 break;
 
@@ -2575,7 +2594,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 MultiPolygonOptions multiPolygonOptions = (MultiPolygonOptions) shape
                         .getShape();
                 PolygonOptions sharedPolygonOptions = new PolygonOptions();
-                setPolygonOptions(editable, sharedPolygonOptions);
+                setPolygonOptions(featureStyle, editable, sharedPolygonOptions);
                 multiPolygonOptions.setOptions(sharedPolygonOptions);
                 break;
 
@@ -2584,7 +2603,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 List<GoogleMapShape> shapes = (List<GoogleMapShape>) shape
                         .getShape();
                 for (int i = 0; i < shapes.size(); i++) {
-                    prepareShapeOptions(shapes.get(i), editable, false);
+                    prepareShapeOptions(shapes.get(i), featureStyle, editable, false);
                 }
                 break;
             default:
@@ -2595,14 +2614,15 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get marker options
      *
-     * @param editable
-     * @param clickable
-     * @return
+     * @param featureStyle feature style
+     * @param editable     editable flag
+     * @param clickable    clickable flag
+     * @return marker options
      */
-    private MarkerOptions getMarkerOptions(boolean editable, boolean clickable) {
+    private MarkerOptions getMarkerOptions(FeatureStyle featureStyle, boolean editable, boolean clickable) {
         MarkerOptions markerOptions = new MarkerOptions();
-        TypedValue typedValue = new TypedValue();
         if (editable) {
+            TypedValue typedValue = new TypedValue();
             if (clickable) {
                 getResources().getValue(R.dimen.marker_edit_color, typedValue,
                         true);
@@ -2610,26 +2630,31 @@ public class GeoPackageMapFragment extends Fragment implements
                 getResources().getValue(R.dimen.marker_edit_read_only_color,
                         typedValue, true);
             }
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(typedValue
+                    .getFloat()));
 
-        } else {
+        } else if (!StyleUtils.setFeatureStyle(markerOptions, featureStyle)) {
+
+            TypedValue typedValue = new TypedValue();
             getResources().getValue(R.dimen.marker_color, typedValue, true);
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(typedValue.getFloat()));
         }
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(typedValue
-                .getFloat()));
+
         return markerOptions;
     }
 
     /**
      * Set the Polyline Option attributes
      *
-     * @param editable
-     * @param polylineOptions
+     * @param featureStyle    feature style
+     * @param editable        editable flag
+     * @param polylineOptions polyline options
      */
-    private void setPolylineOptions(boolean editable,
+    private void setPolylineOptions(FeatureStyle featureStyle, boolean editable,
                                     PolylineOptions polylineOptions) {
         if (editable) {
             polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_edit_color));
-        } else {
+        } else if (!StyleUtils.setFeatureStyle(polylineOptions, featureStyle)) {
             polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_color));
         }
     }
@@ -2640,12 +2665,12 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param editable
      * @param polygonOptions
      */
-    private void setPolygonOptions(boolean editable,
+    private void setPolygonOptions(FeatureStyle featureStyle, boolean editable,
                                    PolygonOptions polygonOptions) {
         if (editable) {
             polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_color));
             polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_fill_color));
-        } else {
+        } else if (!StyleUtils.setFeatureStyle(polygonOptions, featureStyle)) {
             polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_color));
             polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_fill_color));
         }
@@ -4580,7 +4605,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
                             if (indexer.isIndexed()) {
                                 featureTiles.setIndexManager(indexer);
-                            }else {
+                            } else {
                                 indexer.close();
                             }
 

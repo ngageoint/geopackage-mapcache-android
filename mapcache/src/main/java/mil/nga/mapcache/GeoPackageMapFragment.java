@@ -2633,7 +2633,7 @@ public class GeoPackageMapFragment extends Fragment implements
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(typedValue
                     .getFloat()));
 
-        } else if (!StyleUtils.setFeatureStyle(markerOptions, featureStyle)) {
+        } else if (!StyleUtils.setFeatureStyle(markerOptions, featureStyle, getResources().getDisplayMetrics().density)) {
 
             TypedValue typedValue = new TypedValue();
             getResources().getValue(R.dimen.marker_color, typedValue, true);
@@ -2654,7 +2654,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     PolylineOptions polylineOptions) {
         if (editable) {
             polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_edit_color));
-        } else if (!StyleUtils.setFeatureStyle(polylineOptions, featureStyle)) {
+        } else if (!StyleUtils.setFeatureStyle(polylineOptions, featureStyle, getResources().getDisplayMetrics().density)) {
             polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_color));
         }
     }
@@ -2670,7 +2670,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (editable) {
             polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_color));
             polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_fill_color));
-        } else if (!StyleUtils.setFeatureStyle(polygonOptions, featureStyle)) {
+        } else if (!StyleUtils.setFeatureStyle(polygonOptions, featureStyle, getResources().getDisplayMetrics().density)) {
             polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_color));
             polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_fill_color));
         }

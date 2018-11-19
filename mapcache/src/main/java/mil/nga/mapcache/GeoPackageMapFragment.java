@@ -574,8 +574,10 @@ public class GeoPackageMapFragment extends Fragment implements
             int zoom = (int) MapUtils.getCurrentZoom(map);
             currentZoom = zoom;
             if (zoom != previousZoom) {
-                // Zoom level changed, remove all feature shapes
-                featureShapes.removeShapes();
+                // Zoom level changed, remove all feature shapes except for markers
+                Set<GoogleMapShapeType> excludeRemoval = new HashSet<>();
+                excludeRemoval.add(GoogleMapShapeType.MARKER);
+                featureShapes.removeShapesWithExclusions(excludeRemoval);
             } else {
                 // Remove shapes no longer visible on the map view
                 featureShapes.removeShapesNotWithinMap(map);

@@ -71,9 +71,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@android:color/transparent"
+                    android:background="@drawable/ripple"
                     android:drawableTop="@drawable/material_edit"
                     android:text="Edit" />
+                <!--android:background="@android:color/transparent"-->
+
 
 
                 <Button
@@ -81,7 +83,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@android:color/transparent"
+                    android:background="@drawable/ripple"
                     android:drawableTop="@drawable/ic_check_box_black_24dp"
                     android:text="Enable" />
 
@@ -90,7 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@android:color/transparent"
+                    android:background="@drawable/ripple"
                     android:drawableTop="@drawable/material_info"
                     android:text="Details" />
 
@@ -99,7 +101,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@android:color/transparent"
+                    android:background="@drawable/ripple"
                     android:drawableTop="@drawable/material_delete"
                     android:text="Delete" />
             </LinearLayout>

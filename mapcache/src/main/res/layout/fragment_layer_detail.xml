@@ -55,32 +55,6 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/text_size"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:text="Size"
-                android:textAppearance="@style/textAppearanceSubtitle2" />
-
-            <TextView
-                android:id="@+id/text_tiles"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="4dp"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:text="Tiles"
-                android:textAppearance="@style/textAppearanceSubtitle2" />
-
-            <TextView
-                android:id="@+id/text_features"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:text="Features"
-                android:textAppearance="@style/textAppearanceSubtitle2" />
-
             <!-- Icon row: info, rename, share, copy, delete -->
             <LinearLayout
                 android:id="@+id/LinearLayout01"
@@ -93,22 +67,23 @@
                 android:paddingRight="@dimen/activity_horizontal_margin">
 
                 <Button
-                    android:id="@+id/layer_info"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:drawableTop="@drawable/material_info"
-                    android:text="info" />
-
-                <Button
                     android:id="@+id/layer_rename"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:drawableTop="@drawable/material_edit"
-                    android:text="Rename" />
+                    android:text="Edit" />
+
+
+                <Button
+                    android:id="@+id/layer_enable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:drawableTop="@drawable/ic_check_box_black_24dp"
+                    android:text="Enable" />
 
                 <Button
                     android:id="@+id/layer_share"
@@ -116,17 +91,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:drawableTop="@drawable/material_share"
-                    android:text="Share" />
-
-                <Button
-                    android:id="@+id/layer_copy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:drawableTop="@drawable/material_copy"
-                    android:text="Copy" />
+                    android:drawableTop="@drawable/material_info"
+                    android:text="Details" />
 
                 <Button
                     android:id="@+id/layer_delete"
@@ -138,10 +104,32 @@
                     android:text="Delete" />
             </LinearLayout>
 
-
             <View
                 style="@style/Divider"
                 android:layout_marginBottom="16dp" />
+
+
+            <TextView
+                android:id="@+id/text_number_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingBottom="8dp"
+                android:text="Tiles: "
+                android:textAppearance="@style/textAppearanceSubtitle2" />
+
+            <TextView
+                android:id="@+id/text_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:text="Description: "
+                android:textAppearance="@style/textAppearanceSubtitle2" />
+
+
+
+
+
 
 
 

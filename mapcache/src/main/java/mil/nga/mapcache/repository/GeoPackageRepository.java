@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -21,6 +22,10 @@ import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.geopackage.tiles.matrix.TileMatrix;
+import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
+import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
@@ -237,6 +242,15 @@ public class GeoPackageRepository {
     }
 
     /**
+     * Rename a layer in a geopackage
+     */
+    public boolean renameLayer(String tableName, String gpName, String newName){
+       // find table by name
+        // change table identifier field
+        return false;
+    }
+
+    /**
      * Create a geoPackage by name
      */
     public boolean createGeoPackage(String geoPackageName){
@@ -331,7 +345,7 @@ public class GeoPackageRepository {
     /**
      * Get the given layer name
      */
-    public GeoPackageTable getTableObject(String gpName, String tableName, Boolean saveTable){
+    public GeoPackageTable getTableObject(String gpName, String tableName, Boolean setActive){
         GeoPackage geo = manager.open(gpName);
         if(geo != null) {
             ContentsDao contentsDao = geo.getContentsDao();
@@ -352,8 +366,8 @@ public class GeoPackageRepository {
                 GeoPackageTable table = new GeoPackageFeatureTable(gpName,
                         tableName, geometryType, count);
                 // If saveTable boolean is set, set the table's active status to that given value
-                if(saveTable != null){
-                    table.setActive(saveTable);
+                if(setActive != null){
+                    table.setActive(setActive);
                 }
                 geo.close();
                 return table;
@@ -372,8 +386,8 @@ public class GeoPackageRepository {
                             int count = tileDao.count();
                             GeoPackageTable table = new GeoPackageTileTable(gpName,
                                     tileTableName, count);
-                            if(saveTable != null){
-                                table.setActive(saveTable);
+                            if(setActive != null){
+                                table.setActive(setActive);
                             }
                             geo.close();
                             return table;
@@ -385,6 +399,30 @@ public class GeoPackageRepository {
             }
             geo.close();
             return null;
+        }
+        return null;
+    }
+
+
+    /**
+     * Get table Contents object
+     */
+    public Contents getTableContents(String gpName, String tableName){
+        GeoPackage geo = null;
+        try{
+            geo = manager.open(gpName);
+            if(geo != null) {
+                ContentsDao contentsDao = geo.getContentsDao();
+                Contents contents = contentsDao.queryForId(tableName);
+                return contents;
+            }
+
+        } catch (Exception e){
+
+        } finally {
+            if(geo !=  null){
+                geo.close();
+            }
         }
         return null;
     }

@@ -142,6 +142,12 @@ public class GeoPackageDetailDrawer extends Fragment implements
              }
         });
 
+        // Observe Active Tables - Redraw when a layer is set to active outside this class
+        geoPackageViewModel.getActiveTables().observe(this, newTables ->{
+            // Create the layer recycle view adapter
+            createLayerListView();
+        });
+
         return view;
 
     }

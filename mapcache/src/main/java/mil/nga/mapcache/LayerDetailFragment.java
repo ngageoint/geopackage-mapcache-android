@@ -100,8 +100,8 @@ public class LayerDetailFragment extends Fragment {
 
         dataCountText = (TextView) view.findViewById(R.id.text_number_items);
         enableButton = (Button) view.findViewById(R.id.layer_enable);
-        disableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_outline_blank_black_24dp);
-        enableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_black_24dp);
+        enableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_outline_blank_black_24dp);
+        disableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_black_24dp);
         disableIcon.setBounds(0, 0, 84, 84);
         enableIcon.setBounds(0, 0, 84, 84);
 

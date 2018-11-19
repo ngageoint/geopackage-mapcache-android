@@ -2,11 +2,14 @@ package mil.nga.mapcache;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
@@ -45,6 +50,12 @@ public class LayerDetailFragment extends Fragment {
     private GeoPackageTable selectedLayer;
     private ImageButton backArrow;
     private static View view;
+    private boolean isActive = false;
+    private TextView dataCountText;
+    private Button enableButton;
+    private Drawable disableIcon;
+    private Drawable enableIcon;
+
 
 
     public LayerDetailFragment() {
@@ -59,7 +70,6 @@ public class LayerDetailFragment extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment LayerDetailFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static LayerDetailFragment newInstance(String geoPackageName, String layerName) {
         LayerDetailFragment fragment = new LayerDetailFragment();
         Bundle args = new Bundle();
@@ -77,8 +87,9 @@ public class LayerDetailFragment extends Fragment {
             geoPackageName = getArguments().getString(GEO_NAME);
             geoPackageLayerName = getArguments().getString(GEO_LAYER_NAME);
             selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
-            selectedLayer = geoPackageViewModel.getTableObject(geoPackageName, geoPackageLayerName);
+            selectedLayer = geoPackageViewModel.getTableObjectActive(geoPackageName, geoPackageLayerName);
         }
+
     }
 
     @Override
@@ -87,6 +98,13 @@ public class LayerDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         view =  inflater.inflate(R.layout.fragment_layer_detail, container, false);
 
+        dataCountText = (TextView) view.findViewById(R.id.text_number_items);
+        enableButton = (Button) view.findViewById(R.id.layer_enable);
+        disableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_outline_blank_black_24dp);
+        enableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_black_24dp);
+        disableIcon.setBounds(0, 0, 84, 84);
+        enableIcon.setBounds(0, 0, 84, 84);
+
         // Set listener for leaving this view
         backArrow = view.findViewById(R.id.layerPageBackButton);
         setBackArrowListener();
@@ -94,6 +112,7 @@ public class LayerDetailFragment extends Fragment {
         // Create listeners for the row of action buttons
         createButtonListeners();
 
+        // Update data
         update();
 
         return view;
@@ -104,20 +123,63 @@ public class LayerDetailFragment extends Fragment {
      * @param uri
      */
     public void update(){
-        TextView nameText = (TextView) view.findViewById(R.id.layerName);
-        nameText.setText(selectedLayer.getName());
+        selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
+        selectedLayer = geoPackageViewModel.getTableObjectActive(geoPackageName, geoPackageLayerName);
+        if(selectedLayer != null) {
+            TextView nameText = (TextView) view.findViewById(R.id.layerName);
+            nameText.setText(selectedLayer.getName());
+
+            // Set descriptive text about the layer
+            setDescriptiveText();
+
+            // Set the enable / disable button based on current active status
+            if (selectedLayer.isActive()) {
+                enableButton.setCompoundDrawables(null, disableIcon, null, null);
+                enableButton.setText("Disable");
+            } else{
+                enableButton.setCompoundDrawables(null, enableIcon, null, null);
+                enableButton.setText("Enable");
+            }
+        }
+    }
+
+
+    /**
+     * Set descriptive text
+     */
+    public void setDescriptiveText(){
+        String countText = "";
+        if(selectedLayer.getType().equals(GeoPackageTableType.FEATURE)){
+            countText = "Features: " + selectedLayer.getCount();
+        } else if(selectedLayer.getType().equals(GeoPackageTableType.TILE)){
+            countText = "Tiles: " + selectedLayer.getCount();
+        } else if(selectedLayer.getType().equals(GeoPackageTableType.FEATURE_OVERLAY)){
+            countText = "Features: " + selectedLayer.getCount();
+        }
+        dataCountText.setText(countText);
+
+        // Description is inside the contents
+        Contents contents = geoPackageViewModel.getTableContents(geoPackageName, geoPackageLayerName);
+        TextView descriptionText = (TextView) view.findViewById(R.id.text_description);
+        String descText = "Description: none";
+        if(!TextUtils.isEmpty(contents.getDescription()) ){
+            descText = "Description: " + contents.getDescription();
+        }
+        descriptionText.setText(descText);
     }
 
     /**
      *  Create listeners for the row of buttons (Rename, Share, Copy, Delete)
      */
     private void createButtonListeners(){
-//        // Set listeners for geopackage action buttons
+        // Set listeners for geopackage action buttons
+
+        // Not going to allow rename at the moment
 //        Button renameButton = (Button) view.findViewById(R.id.layer_rename);
 //        renameButton.setOnClickListener(new View.OnClickListener(){
 //            @Override
 //            public void onClick(View v) {
-//                renameDatabaseOption(geoPackageName);
+//                renameLayerOption(selectedLayer.getName());
 //            }
 //        });
         Button deleteButton = (Button) view.findViewById(R.id.layer_delete);
@@ -127,13 +189,13 @@ public class LayerDetailFragment extends Fragment {
                 deleteLayerOption();
             }
         });
-//        Button copyButton = (Button) view.findViewById(R.id.layer_copy);
-//        copyButton.setOnClickListener(new View.OnClickListener(){
-//            @Override
-//            public void onClick(View v) {
-//                copyDatabaseOption(geoPackageName);
-//            }
-//        });
+        Button enableToggle = (Button) view.findViewById(R.id.layer_enable);
+        enableToggle.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                toggleEnabled();
+            }
+        });
 //        Button shareButton = (Button) view.findViewById(R.id.layer_share);
 //        shareButton.setOnClickListener(new View.OnClickListener(){
 //            @Override
@@ -143,6 +205,94 @@ public class LayerDetailFragment extends Fragment {
 //            }
 //        });
     }
+
+
+    /**
+     *  Toggle layer enabled
+     */
+    private void toggleEnabled(){
+        if (selectedLayer.isActive()) {
+            // Disable
+            boolean removed = geoPackageViewModel.removeActiveTableByName(geoPackageLayerName, geoPackageName);
+            update();
+        } else{
+            // enable
+            boolean added = geoPackageViewModel.addTableByName(geoPackageLayerName, geoPackageName);
+            update();
+        }
+    }
+
+
+
+//    /**
+//     * Rename layer dialog window.  Rename will reset the identifier field.  Identifier should be
+//     * displayed by default for the name if it exists
+//     *
+//     * @param database
+//     */
+//    private void renameLayerOption(final String layer) {
+//
+//        // Create Alert window with basic input text layout
+//        LayoutInflater inflater = LayoutInflater.from(getActivity());
+//        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+//        // Logo and title
+//        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+//        alertLogo.setBackgroundResource(R.drawable.material_edit);
+//        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+//        titleText.setText("Rename Layer");
+//        // Layer name
+//        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+//        inputName.setHint(layer);
+//        inputName.setText(layer);
+//
+//        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+//        dialogBuilder.setView(alertView);
+//        dialogBuilder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener(){
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                String value = inputName.getText().toString();
+//                if (value != null && !value.isEmpty()
+//                        && !value.equals(layer)) {
+//                    try{
+////                        if(geoPackageViewModel.setGeoPackageName(layer, value)){
+////                            geoPackageName = value;
+////                            update();
+//////                            Toast.makeText(GeoPackageDetail.this,"Renamed " + database, Toast.LENGTH_SHORT).show();
+////                        } else{
+////                            GeoPackageUtils
+////                                    .showMessage(
+////                                            getActivity(),
+////                                            getString(R.string.geopackage_rename_label),
+////                                            "Rename from "
+////                                                    + layer
+////                                                    + " to "
+////                                                    + value
+////                                                    + " was not successful");
+////                        };
+//                    } catch (Exception e){
+//                        GeoPackageUtils
+//                                .showMessage(
+//                                        getActivity(),
+//                                        getString(R.string.geopackage_rename_label),
+//                                        e.getMessage());
+//                    }
+//                }
+//            }
+//        });
+//        dialogBuilder.setNegativeButton(R.string.button_cancel_label, new DialogInterface.OnClickListener(){
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                dialog.cancel();
+//            }
+//        });
+//        AlertDialog alertDialog = dialogBuilder.create();
+//        alertDialog.show();
+//    }
+
+
+
 
     /**
      * Alert window to confirm then call to delete a layer from a geopackage

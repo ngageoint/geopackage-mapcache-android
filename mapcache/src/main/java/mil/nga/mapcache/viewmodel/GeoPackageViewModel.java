@@ -18,6 +18,7 @@ import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
+import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.io.GeoPackageProgress;
@@ -81,6 +82,25 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     *  Return true if the given table is in the list of active tables
+     * @param geoPackageName
+     * @param tableName
+     * @return
+     */
+    public boolean isTableActive(String geoPackageName, String tableName){
+        if(getActiveTables().getValue() != null)
+        {
+            for(GeoPackageTable table : getActiveTables().getValue()){
+                if(table.getDatabase().equalsIgnoreCase(geoPackageName) && table.getName().equalsIgnoreCase(tableName)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /**
      * Add the table to the activeTables list (used to enable a layer on the map)
      * @param newTable
      */
@@ -115,6 +135,18 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         }
         return false;
     }
+
+//    /**
+//     * Rename the given layer in the geopackage
+//     */
+//    public boolean renameLayer(String layerName, String geoPackageName, String newName){
+//        if(repository.renameLayer(geoPackageName, layerName, newName)) {
+//            regenerateGeoPackageTableList();
+//            return true;
+//        }
+//        return false;
+//    }
+
 
     /**
      * Find the given table in the table list, and remove from activeTables if found
@@ -396,10 +428,23 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     * Get a GeoPackageTable object and set the active state
+     */
+    public GeoPackageTable getTableObjectActive(String gpName, String layerName){
+        GeoPackageTable table = repository.getTableObject(gpName, layerName, null);
+        table.setActive(isTableActive(gpName, layerName));
+        return table;
+    }
+
+    /**
      * Get a GeoPackageTable object
      */
     public GeoPackageTable getTableObject(String gpName, String layerName){
         return repository.getTableObject(gpName, layerName, null);
+    }
+
+    public Contents getTableContents(String gpName, String tableName){
+        return repository.getTableContents(gpName, tableName);
     }
 
 

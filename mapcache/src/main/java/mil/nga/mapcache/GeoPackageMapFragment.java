@@ -575,9 +575,7 @@ public class GeoPackageMapFragment extends Fragment implements
             currentZoom = zoom;
             if (zoom != previousZoom) {
                 // Zoom level changed, remove all feature shapes except for markers
-                Set<GoogleMapShapeType> excludeRemoval = new HashSet<>();
-                excludeRemoval.add(GoogleMapShapeType.MARKER);
-                featureShapes.removeShapesWithExclusions(excludeRemoval);
+                featureShapes.removeShapesExcluding(GoogleMapShapeType.MARKER, GoogleMapShapeType.MULTI_MARKER);
             } else {
                 // Remove shapes no longer visible on the map view
                 featureShapes.removeShapesNotWithinMap(map);
@@ -1951,7 +1949,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         Marker marker = addEditableShape(featureId, mapShape);
                         if (marker != null) {
                             GoogleMapShape mapPointShape = new GoogleMapShape(GeometryType.POINT, GoogleMapShapeType.MARKER, marker);
-                            featureShapes.addMapShape(mapPointShape, featureId, database, tableName);
+                            featureShapes.addMapMetadataShape(mapPointShape, featureId, database, tableName);
                         }
                     } else {
                         addMarkerShape(featureId, database, tableName, mapShape);

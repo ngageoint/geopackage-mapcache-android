@@ -2853,11 +2853,7 @@ public class GeoPackageMapFragment extends Fragment implements
         for (FeatureDao featureDao : featureDaos) {
 
             // Create the feature tiles
-            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
-
-            // Create an index manager
-            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-            featureTiles.setIndexManager(indexer);
+            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
 
             featureOverlayTiles = true;
 
@@ -2903,15 +2899,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLon(), featureOverlayTable.getMaxLat());
 
         // Load tiles
-        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
+        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
 
         featureTiles.setMaxFeaturesPerTile(featureOverlayTable.getMaxFeaturesPerTile());
         if (featureOverlayTable.getMaxFeaturesPerTile() != null) {
             featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
         }
-
-        FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-        featureTiles.setIndexManager(indexer);
 
         Paint pointPaint = featureTiles.getPointPaint();
         pointPaint.setColor(Color.parseColor(featureOverlayTable.getPointColor()));
@@ -4613,17 +4606,10 @@ public class GeoPackageMapFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 
                             // Load tiles
-                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
+                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);
                             if (maxFeatures != null) {
                                 featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
-                            }
-
-                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-                            if (indexer.isIndexed()) {
-                                featureTiles.setIndexManager(indexer);
-                            } else {
-                                indexer.close();
                             }
 
                             Paint pointPaint = featureTiles.getPointPaint();

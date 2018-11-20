@@ -2243,7 +2243,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 try {
                                     indexer.setIndexLocation(indexLocation);
                                     indexer.deleteIndex();
-                                }finally{
+                                } finally {
                                     indexer.close();
                                 }
                                 geoPackage.close();
@@ -2525,17 +2525,10 @@ public class GeoPackageManagerFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
 
                             // Load tiles
-                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
+                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);
                             if (maxFeatures != null) {
                                 featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
-                            }
-
-                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-                            if (indexer.isIndexed()) {
-                                featureTiles.setIndexManager(indexer);
-                            }else{
-                                indexer.close();
                             }
 
                             Paint pointPaint = featureTiles.getPointPaint();
@@ -2712,7 +2705,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
         // Check if indexed
         FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-        try{
+        try {
             if (indexer.isIndexed()) {
                 indexWarning.setVisibility(View.GONE);
 
@@ -2728,7 +2721,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 }
                 maxFeaturesInput.setText(String.valueOf(maxFeatures));
             }
-        }finally{
+        } finally {
             indexer.close();
         }
 
@@ -3049,7 +3042,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             if (indexer.isIndexed()) {
                 indexWarning.setVisibility(View.GONE);
             }
-        }finally{
+        } finally {
             indexer.close();
         }
         geoPackage.close();

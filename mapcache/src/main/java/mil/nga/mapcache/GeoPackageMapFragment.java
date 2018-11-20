@@ -2225,6 +2225,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
         converter.setSimplifyTolerance(toleranceDistance);
 
+        if (!styleCache.getFeatureStyleExtension().has(features)) {
+            styleCache = null;
+        }
+
         count.getAndAdd(featureShapes.getFeatureIdsCount(database, features));
 
         if (!task.isCancelled() && count.get() < maxFeatures) {
@@ -2558,7 +2562,10 @@ public class GeoPackageMapFragment extends Fragment implements
     private void prepareShapeOptions(GoogleMapShape shape, StyleCache styleCache, FeatureRow featureRow, boolean editable,
                                      boolean topLevel) {
 
-        FeatureStyle featureStyle = styleCache.getFeatureStyleExtension().getFeatureStyle(featureRow, shape.getGeometryType());
+        FeatureStyle featureStyle = null;
+        if (styleCache != null) {
+            featureStyle = styleCache.getFeatureStyleExtension().getFeatureStyle(featureRow, shape.getGeometryType());
+        }
 
         switch (shape.getShapeType()) {
 
@@ -2640,7 +2647,7 @@ public class GeoPackageMapFragment extends Fragment implements
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(typedValue
                     .getFloat()));
 
-        } else if (!styleCache.setFeatureStyle(markerOptions, featureStyle)) {
+        } else if (styleCache == null || !styleCache.setFeatureStyle(markerOptions, featureStyle)) {
 
             TypedValue typedValue = new TypedValue();
             getResources().getValue(R.dimen.marker_color, typedValue, true);
@@ -2662,7 +2669,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     PolylineOptions polylineOptions) {
         if (editable) {
             polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_edit_color));
-        } else if (!styleCache.setFeatureStyle(polylineOptions, featureStyle)) {
+        } else if (styleCache == null || !styleCache.setFeatureStyle(polylineOptions, featureStyle)) {
             polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_color));
         }
     }
@@ -2680,7 +2687,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (editable) {
             polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_color));
             polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_fill_color));
-        } else if (!styleCache.setFeatureStyle(polygonOptions, featureStyle)) {
+        } else if (styleCache == null || !styleCache.setFeatureStyle(polygonOptions, featureStyle)) {
             polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_color));
             polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_fill_color));
         }

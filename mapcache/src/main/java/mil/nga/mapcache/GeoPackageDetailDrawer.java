@@ -131,9 +131,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
         // Create listeners for the row of action buttons
         createButtonListeners();
 
-        // Create the layer recycle view adapter
-        createLayerListView();
-
         // Create all switch listener
         createAllSwitchListener();
 
@@ -146,7 +143,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
                layerAdapter.clear();
                layers.clear();
                update();
-               createLayerListView();
              }
         });
 
@@ -324,8 +320,8 @@ public class GeoPackageDetailDrawer extends Fragment implements
                                             .getSelectedItem().toString());
 
                             geoPackageViewModel.createFeatureTable(geoPackageName, boundingBox, geometryType, tableName);
-
                             update();
+
 
                         } catch (Exception e) {
                             GeoPackageUtils
@@ -493,6 +489,9 @@ public class GeoPackageDetailDrawer extends Fragment implements
             int featureCount = featureTables.size();
             tileText.setText(tileCount + " " + pluralize(tileCount, "Tile layer"));
             featureText.setText(featureCount + " " + pluralize(featureCount, "Feature layer"));
+
+            // Recreate the layer recycle view adapter
+            createLayerListView();
         }
     }
 

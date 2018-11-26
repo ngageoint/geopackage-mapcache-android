@@ -462,7 +462,11 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * Create feature table in the given geopackage
      */
     public boolean createFeatureTable(String gpName, BoundingBox boundingBox, GeometryType geometryType, String tableName){
-        return repository.createFeatureTable(gpName, boundingBox, geometryType, tableName);
+        if(repository.createFeatureTable(gpName, boundingBox, geometryType, tableName)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
     }
 
 

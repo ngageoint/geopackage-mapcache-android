@@ -359,8 +359,11 @@ public class GeoPackageRepository {
 
         GeoPackage geoPackage = manager.open(gpName);
         try {
-            geoPackage.createFeatureTableWithMetadata(
+            GeometryColumns created = geoPackage.createFeatureTableWithMetadata(
                     geometryColumns, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            if(created != null) {
+                return true;
+            }
         } finally {
             geoPackage.close();
         }

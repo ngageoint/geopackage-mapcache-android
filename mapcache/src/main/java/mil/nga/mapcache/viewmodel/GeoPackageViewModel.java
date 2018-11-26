@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
@@ -28,6 +29,7 @@ import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.repository.GeoPackageRepository;
+import mil.nga.sf.GeometryType;
 
 
 public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTask {
@@ -454,6 +456,13 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     public boolean indexFeatures(Activity activity, String database, String tableName){
         IndexerTask.indexFeatures(activity, GeoPackageViewModel.this, database, tableName, FeatureIndexType.GEOPACKAGE);
         return true;
+    }
+
+    /**
+     * Create feature table in the given geopackage
+     */
+    public boolean createFeatureTable(String gpName, BoundingBox boundingBox, GeometryType geometryType, String tableName){
+        return repository.createFeatureTable(gpName, boundingBox, geometryType, tableName);
     }
 
 

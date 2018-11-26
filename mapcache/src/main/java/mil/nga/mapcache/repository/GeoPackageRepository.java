@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
@@ -22,6 +23,7 @@ import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
@@ -33,6 +35,7 @@ import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.sf.GeometryType;
+import mil.nga.sf.proj.ProjectionConstants;
 
 /**
  *  Repository to provide access to stored GeoPackages
@@ -340,6 +343,28 @@ public class GeoPackageRepository {
             return features;
         }
         return null;
+    }
+
+
+    /**
+     * Create feature table in the given geopackage
+     */
+    public boolean createFeatureTable(String gpName, BoundingBox boundingBox, GeometryType geometryType, String tableName){
+        GeometryColumns geometryColumns = new GeometryColumns();
+        geometryColumns.setId(new TableColumnKey(tableName,
+                "geom"));
+        geometryColumns.setGeometryType(geometryType);
+        geometryColumns.setZ((byte) 0);
+        geometryColumns.setM((byte) 0);
+
+        GeoPackage geoPackage = manager.open(gpName);
+        try {
+            geoPackage.createFeatureTableWithMetadata(
+                    geometryColumns, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+        } finally {
+            geoPackage.close();
+        }
+        return false;
     }
 
     /**

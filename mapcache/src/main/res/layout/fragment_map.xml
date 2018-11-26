@@ -268,8 +268,8 @@
         android:paddingRight="8dp"
         android:paddingTop="8dp"
         app:behavior_peekHeight="70dp"
-        app:layout_behavior="@string/bottom_sheet_behavior">
-        <!--app:behavior_hideable="true"-->
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:behavior_hideable="false">
         <!--To add gradient: android:background="@drawable/gradient_vertical-->
         <!--Different layout idea: only expand to show current content and no further:-->
         <!--android:layout_height="wrap_content"-->

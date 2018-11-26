@@ -17,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -26,7 +28,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
@@ -36,6 +42,8 @@ import mil.nga.mapcache.view.LayerViewAdapter;
 import mil.nga.mapcache.view.LayerViewObject;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
+import mil.nga.sf.GeometryType;
+import mil.nga.sf.proj.ProjectionConstants;
 
 /**
  *
@@ -216,7 +224,132 @@ public class GeoPackageDetailDrawer extends Fragment implements
             }
         });
 
+        // Listener for create features
+        TextView createFeature = (TextView) alertView.findViewById(R.id.create_feature);
+        createFeature.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                createFeatureOption();
+                alertDialog.dismiss();
+            }
+        });
+
+        // Listener for create tiles
+        TextView createTile = (TextView) alertView.findViewById(R.id.create_tile);
+        createTile.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                createTileOption();
+                alertDialog.dismiss();
+            }
+        });
+
+
         alertDialog.show();
+    }
+
+    /**
+     * Create feature layer menu
+     */
+    private void createFeatureOption(){
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View createFeaturesView = inflater.inflate(R.layout.create_features,
+                null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        dialog.setView(createFeaturesView);
+
+        final EditText nameInput = (EditText) createFeaturesView
+                .findViewById(R.id.create_features_name_input);
+        final EditText minLatInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_min_latitude_input);
+        final EditText maxLatInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_max_latitude_input);
+        final EditText minLonInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_min_longitude_input);
+        final EditText maxLonInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_max_longitude_input);
+        final Button preloadedLocationsButton = (Button) createFeaturesView
+                .findViewById(R.id.bounding_box_preloaded);
+        final Spinner geometryTypeSpinner = (Spinner) createFeaturesView
+                .findViewById(R.id.create_features_geometry_type);
+
+        GeoPackageUtils
+                .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                        maxLatInput, minLonInput, maxLonInput,
+                        preloadedLocationsButton);
+
+        dialog.setPositiveButton(
+                getString(R.string.geopackage_create_features_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        try {
+
+                            String tableName = nameInput.getText().toString();
+                            if (tableName == null || tableName.isEmpty()) {
+                                throw new GeoPackageException(
+                                        getString(R.string.create_features_name_label)
+                                                + " is required");
+                            }
+                            double minLat = Double.valueOf(minLatInput
+                                    .getText().toString());
+                            double maxLat = Double.valueOf(maxLatInput
+                                    .getText().toString());
+                            double minLon = Double.valueOf(minLonInput
+                                    .getText().toString());
+                            double maxLon = Double.valueOf(maxLonInput
+                                    .getText().toString());
+
+                            if (minLat > maxLat) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_latitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_latitude_label));
+                            }
+
+                            if (minLon > maxLon) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_longitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_longitude_label));
+                            }
+
+                            BoundingBox boundingBox = new BoundingBox(minLon,
+                                    minLat, maxLon, maxLat);
+
+                            GeometryType geometryType = GeometryType
+                                    .fromName(geometryTypeSpinner
+                                            .getSelectedItem().toString());
+
+                            geoPackageViewModel.createFeatureTable(geoPackageName, boundingBox, geometryType, tableName);
+
+                            update();
+
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.geopackage_create_features_label),
+                                            e.getMessage());
+                        }
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        dialog.show();
+    }
+
+    /**
+     * Create tile layer menu
+     */
+    private void createTileOption(){
 
     }
 

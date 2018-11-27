@@ -71,6 +71,10 @@ public class GeoPackageDetailDrawer extends Fragment implements
     private List<String> tileTables = new ArrayList<>();
     private List<String> featureTables = new ArrayList<>();
     private FloatingActionButton newLayer;
+    private Switch allLayers;
+    private boolean allChecked = false;
+
+
 
 
 
@@ -120,6 +124,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_geo_package_detail_drawer, container, false);
+        allLayers = (Switch)  view.findViewById(R.id.allSwitch);
 
         // Set listener for leaving this view
         backArrow = view.findViewById(R.id.detailPageBackButton);
@@ -132,7 +137,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
         createButtonListeners();
 
         // Create all switch listener
-        createAllSwitchListener();
+//        createAllSwitchListener();
 
         // Create floating action button
         setFLoatingActionButton();
@@ -161,25 +166,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
      * Listener for the enable/disable all layers button
      */
     public void createAllSwitchListener(){
-        Switch onOffSwitch = (Switch)  view.findViewById(R.id.allSwitch);
-        onOffSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                // Update adapter so the recycleview can update the list for the gui
-                boolean layersActivated = layerAdapter.checkAllLayers(checked);
-                if(layersActivated) {
-                    layerAdapter.notifyDataSetChanged();
-                    // Update the viewmodel to show those active layers
-                    if (checked) {
-                        // Enable all
-                        boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
-                    } else {
-                        // Disable all
-                        boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
-                    }
-                }
-            }
-        });
+        allLayers.setOnCheckedChangeListener(allCheckListener);
     }
 
 
@@ -413,26 +400,46 @@ public class GeoPackageDetailDrawer extends Fragment implements
             public void setChecked(String name, boolean checked) {
                 if(checked) {
                     // Enable the selected layer
+                    iterateAllTables(false);
                     boolean added = geoPackageViewModel.addTableByName(name, selectedGeo.getName());
                 }else{
                     // Disable selected layer
+                    iterateAllTables(false);
                     boolean removed = geoPackageViewModel.removeActiveTableByName(name, selectedGeo.getName());
                 }
             }
         };
 
+        // Goes through all tables to repopulate the layers list, setting active as necessary
+        iterateAllTables(true);
 
+        layerRecyclerView = (RecyclerView) view.findViewById(R.id.layer_recycler_view);
+        layerAdapter = new LayerViewAdapter(layers, view.getContext(), layerListener, switchListener);
+        layerRecyclerView.setAdapter(layerAdapter);
+        layerRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+    }
+
+
+    /**
+     * Iterates through all feature and tile tables, and compares them to the currently active tables list
+     * @param addToLayers - if true, repopulate the layers list as it iterates through
+     */
+    private void iterateAllTables(boolean addToLayers){
         // If the layer is active, make sure the LayerViewObject is created with that layer switch set to checked
         List<String> activeTables = generateBasicActiveList();
         Iterator<String> featureIterator = featureTables.iterator();
+        int activeCount = 0;
         while(featureIterator.hasNext()){
             String table = featureIterator.next();
             boolean isActive = false;
             if(activeTables.contains(table)){
                 isActive = true;
+                activeCount++;
             }
-            LayerViewObject layerObject = new LayerViewObject(R.drawable.material_feature, table, isActive);
-            layers.add(layerObject);
+            if(addToLayers) {
+                LayerViewObject layerObject = new LayerViewObject(R.drawable.material_feature, table, isActive);
+                layers.add(layerObject);
+            }
         }
         Iterator<String> tileIterator = tileTables.iterator();
         while(tileIterator.hasNext()){
@@ -440,14 +447,32 @@ public class GeoPackageDetailDrawer extends Fragment implements
             boolean isActive = false;
             if(activeTables.contains(table)){
                 isActive = true;
+                activeCount++;
             }
-            LayerViewObject layerObject = new LayerViewObject(R.drawable.material_tile, table, isActive);
-            layers.add(layerObject);
+            if(addToLayers) {
+                LayerViewObject layerObject = new LayerViewObject(R.drawable.material_tile, table, isActive);
+                layers.add(layerObject);
+            }
         }
-        layerRecyclerView = (RecyclerView) view.findViewById(R.id.layer_recycler_view);
-        layerAdapter = new LayerViewAdapter(layers, view.getContext(), layerListener, switchListener);
-        layerRecyclerView.setAdapter(layerAdapter);
-        layerRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        // If active matches total count, and > 0 active, then all are checked.  Set the all layers switch to on
+        if((featureTables.size() + tileTables.size() == activeCount) && (activeCount > 0)){
+            if(activeCount > 0) {
+                allChecked = true;
+                // remove the oncheck change listener because the user didn't click the all layer button
+                allLayers.setOnCheckedChangeListener(null);
+                allLayers.setChecked(true);
+                allLayers.setOnCheckedChangeListener(allCheckListener);
+
+            }
+        } else {
+            // If all switches aren't set to on, then the all layers switch needs to be set to off
+            // remove the oncheck change listener because the user didn't click the all layer button
+            allChecked = false;
+            allLayers.setOnCheckedChangeListener(null);
+            allLayers.setChecked(false);
+            allLayers.setOnCheckedChangeListener(allCheckListener);
+        }
+
     }
 
 
@@ -770,6 +795,28 @@ public class GeoPackageDetailDrawer extends Fragment implements
         }
     }
 
+
+    /**
+     *      Listener for the all layers switch.  Will turn off all layers or turn on all layers
+     */
+    private CompoundButton.OnCheckedChangeListener allCheckListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+            // Update adapter so the recycleview can update the list for the gui
+            boolean layersActivated = layerAdapter.checkAllLayers(checked);
+            if(layersActivated) {
+                layerAdapter.notifyDataSetChanged();
+                // Update the viewmodel to show those active layers
+                if (checked) {
+                    // Enable all
+                    boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
+                } else {
+                    // Disable all
+                    boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
+                }
+            }
+        }
+    };
 
 
 

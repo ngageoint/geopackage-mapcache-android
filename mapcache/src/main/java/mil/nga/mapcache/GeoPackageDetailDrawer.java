@@ -553,7 +553,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
                 if (value != null && !value.isEmpty()
                         && !value.equals(database)) {
                     try{
-//                        if(manager.rename(database, value)) {
                         if(geoPackageViewModel.setGeoPackageName(database, value)){
                             geoPackageName = value;
                             update();

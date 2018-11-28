@@ -250,7 +250,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Rename a GeoPackage
+     * Rename a GeoPackage, then find and change that old name in the activeTables list
      * @param oldName
      * @param newName
      * @return
@@ -261,10 +261,37 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         }
         if(repository.setGeoPackageName(oldName, newName)) {
             regenerateGeoPackageTableList();
-               return true;
+            renameActiveGeoPackages(oldName, newName);
+            return true;
         }
         return false;
+    }
 
+
+    /**
+     * Iterate through the current list of active tables.  Find any table that matches the old
+     * geopackage (database) name, and rename it to the new one
+     * @param oldName
+     * @param newName
+     * @return
+     */
+    private boolean renameActiveGeoPackages(String oldName, String newName){
+        boolean updated = false;
+        if(getActiveTables().getValue() != null)
+        {
+            List<GeoPackageTable> activeGeos = getActiveTables().getValue();
+            for(GeoPackageTable table : activeGeos){
+                if(table.getDatabase().equalsIgnoreCase(oldName)){
+                    updated = true;
+                    table.setDatabase(newName);
+                }
+            }
+            if(updated) {
+                setActiveTables(activeGeos);
+            }
+            return updated;
+        }
+        return false;
     }
 
     /**

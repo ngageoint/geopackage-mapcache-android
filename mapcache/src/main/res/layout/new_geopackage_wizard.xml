@@ -47,6 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
+            android:background="@drawable/ripple"
             android:text="Create New"
             android:textColor="@color/nga_primary_primary"/>
 
@@ -58,6 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
             android:layout_marginTop="24dp"
+            android:background="@drawable/ripple"
             android:text="Import from URL"
             android:textColor="@color/nga_primary_primary"/>
 
@@ -70,6 +72,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
+            android:background="@drawable/ripple"
             android:text="Import from file"
             android:textColor="@color/nga_primary_primary"/>
 

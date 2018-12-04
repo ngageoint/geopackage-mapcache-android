@@ -40,6 +40,9 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -809,7 +812,6 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             boundingBoxMode = true;
                             loadTilesView.setVisibility(View.VISIBLE);
-                            boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box_active);
                         } else {
                             resetBoundingBox();
                         }
@@ -817,6 +819,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     case R.id.maxFeatures:
                         setMaxFeatures();
+                        return true;
+
+                    case R.id.clearAllActive:
+                        clearAllActive();
                         return true;
 
                 }
@@ -1070,6 +1076,15 @@ public class GeoPackageMapFragment extends Fragment implements
             // eat
         }
 
+    }
+
+
+    /**
+     * Clear all active layers from the map
+     */
+    private void clearAllActive(){
+        geoPackageViewModel.clearAllActive();
+        zoomToZero();
     }
 
 
@@ -2225,7 +2240,7 @@ public class GeoPackageMapFragment extends Fragment implements
         boundingBoxMode = false;
         loadTilesView.setVisibility(View.INVISIBLE);
         if (boundingBoxMenuItem != null) {
-            boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box);
+//            boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box);
         }
         clearBoundingBox();
     }
@@ -2237,7 +2252,7 @@ public class GeoPackageMapFragment extends Fragment implements
         editFeaturesMode = false;
         editFeaturesView.setVisibility(View.INVISIBLE);
         if (editFeaturesMenuItem != null) {
-            editFeaturesMenuItem.setIcon(R.drawable.ic_features);
+//            editFeaturesMenuItem.setIcon(R.drawable.ic_features);
         }
         editFeaturesDatabase = null;
         editFeaturesTable = null;
@@ -2924,6 +2939,13 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void zoomToActive() {
         zoomToActive(false);
+    }
+
+    /**
+     * Zoom out to 0 over a 2 second animation period
+     */
+    private void zoomToZero(){
+        map.animateCamera(CameraUpdateFactory.zoomTo(0), 2000, null);
     }
 
     /**

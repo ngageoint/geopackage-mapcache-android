@@ -171,6 +171,15 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     * Remove all active tables
+     */
+    public void clearAllActive(){
+        List<GeoPackageTable> currentTables = activeTables.getValue();
+        currentTables.clear();
+        activeTables.postValue(currentTables);
+    }
+
+    /**
      * Remove all active layers for the given database
      */
     public boolean removeActiveTableLayers(String geoPackageName){

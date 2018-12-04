@@ -7,21 +7,31 @@
     <item
         android:id="@+id/zoomToActive"
         android:title="Zoom to Active"
+        android:icon="@drawable/ic_aspect_ratio_black_24dp"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/features"
-        android:title="Features"
+        android:title="Draw Features"
+        android:icon="@drawable/material_feature"
         app:showAsAction="never"
         />
 
     <item
         android:id="@+id/boundingBox"
-        android:title="Bounding Box"
+        android:title="Draw Bounding Box"
+        android:icon="@drawable/ic_crop_16_9_black_24dp"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/maxFeatures"
-        android:title="Max Features"
+        android:title="Set Max Features"
+        android:icon="@drawable/ic_remove_red_eye_black_24dp"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/clearAllActive"
+        android:title="Clear All Active"
+        android:icon="@drawable/ic_remove_red_eye_black_24dp"
         app:showAsAction="never"/>
 </menu>

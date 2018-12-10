@@ -9,6 +9,14 @@
         android:orientation="vertical"
         android:scrollbars="vertical" >
 
+        <CheckBox
+            android:id="@+id/feature_tiles_ignore_geopackage_styles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="20dp"
+            android:text="@string/feature_tiles_ignore_geopackage_styles_label" />
+
         <TextView
             android:id="@+id/feature_tiles_draw_point_label"
             android:layout_width="wrap_content"
@@ -28,12 +36,13 @@
                 android:layout_marginLeft="20dp"
                 android:text="@string/feature_tiles_draw_point_color_label" />
 
-            <Spinner
+            <EditText
                 android:id="@+id/feature_tiles_draw_point_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/feature_tiles_draw_colors"
-                android:prompt="@string/feature_tiles_draw_point_color_label" />
+                android:digits="#0123456789ABCDEF"
+                android:inputType="textCapCharacters"
+                android:maxLength="7"/>
         </LinearLayout>
 
         <LinearLayout
@@ -87,12 +96,13 @@
                 android:layout_marginLeft="20dp"
                 android:text="@string/feature_tiles_draw_line_color_label" />
 
-            <Spinner
+            <EditText
                 android:id="@+id/feature_tiles_draw_line_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/feature_tiles_draw_colors"
-                android:prompt="@string/feature_tiles_draw_line_color_label" />
+                android:digits="#0123456789ABCDEF"
+                android:inputType="textCapCharacters"
+                android:maxLength="7"/>
         </LinearLayout>
 
         <LinearLayout
@@ -146,12 +156,13 @@
                 android:layout_marginLeft="20dp"
                 android:text="@string/feature_tiles_draw_polygon_color_label" />
 
-            <Spinner
+            <EditText
                 android:id="@+id/feature_tiles_draw_polygon_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/feature_tiles_draw_colors"
-                android:prompt="@string/feature_tiles_draw_polygon_color_label" />
+                android:digits="#0123456789ABCDEF"
+                android:inputType="textCapCharacters"
+                android:maxLength="7"/>
         </LinearLayout>
 
         <LinearLayout
@@ -206,12 +217,13 @@
                 android:layout_marginLeft="30dp"
                 android:text="@string/feature_tiles_draw_polygon_fill_color_label" />
 
-            <Spinner
+            <EditText
                 android:id="@+id/feature_tiles_draw_polygon_fill_color"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:entries="@array/feature_tiles_draw_colors"
-                android:prompt="@string/feature_tiles_draw_polygon_fill_color_label" />
+                android:digits="#0123456789ABCDEF"
+                android:inputType="textCapCharacters"
+                android:maxLength="7"/>
         </LinearLayout>
 
         <LinearLayout

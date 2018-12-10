@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -2347,19 +2346,21 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_max_longitude_input);
         final Button preloadedLocationsButton = (Button) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
-        final Spinner pointColor = (Spinner) createTilesView
+        final CheckBox ignoreGeoPackageStyles = (CheckBox) createTilesView
+                .findViewById(R.id.feature_tiles_ignore_geopackage_styles);
+        final EditText pointColor = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_point_color);
         final EditText pointAlpha = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_point_alpha);
         final EditText pointRadius = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_point_radius);
-        final Spinner lineColor = (Spinner) createTilesView
+        final EditText lineColor = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_line_color);
         final EditText lineAlpha = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_line_alpha);
         final EditText lineStroke = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_line_stroke);
-        final Spinner polygonColor = (Spinner) createTilesView
+        final EditText polygonColor = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_color);
         final EditText polygonAlpha = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_alpha);
@@ -2367,7 +2368,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.feature_tiles_draw_polygon_stroke);
         final CheckBox polygonFill = (CheckBox) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill);
-        final Spinner polygonFillColor = (Spinner) createTilesView
+        final EditText polygonFillColor = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) createTilesView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
@@ -2437,9 +2438,6 @@ public class GeoPackageManagerFragment extends Fragment implements
         }
         indexer.close();
 
-        // Close the GeoPackage
-        geoPackage.close();
-
         GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
                 maxZoomInput, null, nameInput, null, null,
                 compressFormatInput, compressQualityInput, setZooms,
@@ -2450,9 +2448,12 @@ public class GeoPackageManagerFragment extends Fragment implements
         nameInput.setText(table.getName() + getString(R.string.feature_tiles_name_suffix));
 
         // Prepare the feature draw
-        prepareFeatureDraw(pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
+        GeoPackageUtils.prepareFeatureDraw(getActivity(), geoPackage, table.getName(), pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
                 pointColor, lineColor, pointRadius, lineStroke,
                 polygonColor, polygonStroke, polygonFill, polygonFillColor);
+
+        // Close the GeoPackage
+        geoPackage.close();
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_create_feature_tiles_label),
@@ -2526,31 +2527,28 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             // Load tiles
                             FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
+                            if(ignoreGeoPackageStyles.isChecked()){
+                                featureTiles.ignoreFeatureTableStyles();
+                            }
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);
                             if (maxFeatures != null) {
                                 featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
                             }
 
                             Paint pointPaint = featureTiles.getPointPaint();
-                            if (pointColor.getSelectedItemPosition() >= 0) {
-                                pointPaint.setColor(Color.parseColor(pointColor.getSelectedItem().toString()));
-                            }
+                            pointPaint.setColor(GeoPackageUtils.parseColor(pointColor.getText().toString()));
                             pointPaint.setAlpha(Integer.valueOf(pointAlpha
                                     .getText().toString()));
                             featureTiles.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
 
                             Paint linePaint = featureTiles.getLinePaint();
-                            if (lineColor.getSelectedItemPosition() >= 0) {
-                                linePaint.setColor(Color.parseColor(lineColor.getSelectedItem().toString()));
-                            }
+                            linePaint.setColor(GeoPackageUtils.parseColor(lineColor.getText().toString()));
                             linePaint.setAlpha(Integer.valueOf(lineAlpha
                                     .getText().toString()));
                             linePaint.setStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
 
                             Paint polygonPaint = featureTiles.getPolygonPaint();
-                            if (polygonColor.getSelectedItemPosition() >= 0) {
-                                polygonPaint.setColor(Color.parseColor(polygonColor.getSelectedItem().toString()));
-                            }
+                            polygonPaint.setColor(GeoPackageUtils.parseColor(polygonColor.getText().toString()));
                             polygonPaint.setAlpha(Integer.valueOf(polygonAlpha
                                     .getText().toString()));
                             polygonPaint.setStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
@@ -2558,9 +2556,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             featureTiles.setFillPolygon(polygonFill.isChecked());
                             if (featureTiles.isFillPolygon()) {
                                 Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
-                                if (polygonFillColor.getSelectedItemPosition() >= 0) {
-                                    polygonFillPaint.setColor(Color.parseColor(polygonFillColor.getSelectedItem().toString()));
-                                }
+                                polygonFillPaint.setColor(GeoPackageUtils.parseColor(polygonFillColor.getText().toString()));
                                 polygonFillPaint.setAlpha(Integer.valueOf(polygonFillAlpha
                                         .getText().toString()));
                             }
@@ -2629,19 +2625,21 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_max_longitude_input);
         final Button preloadedLocationsButton = (Button) createFeatureOverlayView
                 .findViewById(R.id.bounding_box_preloaded);
-        final Spinner pointColor = (Spinner) createFeatureOverlayView
+        final CheckBox ignoreGeoPackageStyles = (CheckBox) createFeatureOverlayView
+                .findViewById(R.id.feature_tiles_ignore_geopackage_styles);
+        final EditText pointColor = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_point_color);
         final EditText pointAlpha = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_point_alpha);
         final EditText pointRadius = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_point_radius);
-        final Spinner lineColor = (Spinner) createFeatureOverlayView
+        final EditText lineColor = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_line_color);
         final EditText lineAlpha = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_line_alpha);
         final EditText lineStroke = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_line_stroke);
-        final Spinner polygonColor = (Spinner) createFeatureOverlayView
+        final EditText polygonColor = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_color);
         final EditText polygonAlpha = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_alpha);
@@ -2649,7 +2647,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.feature_tiles_draw_polygon_stroke);
         final CheckBox polygonFill = (CheckBox) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill);
-        final Spinner polygonFillColor = (Spinner) createFeatureOverlayView
+        final EditText polygonFillColor = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) createFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
@@ -2725,12 +2723,12 @@ public class GeoPackageManagerFragment extends Fragment implements
             indexer.close();
         }
 
-        geoPackage.close();
-
         // Prepare the feature draw
-        prepareFeatureDraw(pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
+        GeoPackageUtils.prepareFeatureDraw(getActivity(), geoPackage, table.getName(), pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
                 pointColor, lineColor, pointRadius, lineStroke,
                 polygonColor, polygonStroke, polygonFill, polygonFillColor);
+
+        geoPackage.close();
 
         dialog.setPositiveButton(
                 getString(R.string.geopackage_table_add_feature_overlay_label),
@@ -2792,20 +2790,21 @@ public class GeoPackageManagerFragment extends Fragment implements
                             overlayTable.setMaxLat(maxLat);
                             overlayTable.setMinLon(minLon);
                             overlayTable.setMaxLon(maxLon);
-                            overlayTable.setPointColor(pointColor.getSelectedItem().toString());
+                            overlayTable.setIgnoreGeoPackageStyles(ignoreGeoPackageStyles.isChecked());
+                            overlayTable.setPointColor(pointColor.getText().toString());
                             overlayTable.setPointAlpha(Integer.valueOf(pointAlpha
                                     .getText().toString()));
                             overlayTable.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
-                            overlayTable.setLineColor(lineColor.getSelectedItem().toString());
+                            overlayTable.setLineColor(lineColor.getText().toString());
                             overlayTable.setLineAlpha(Integer.valueOf(lineAlpha
                                     .getText().toString()));
                             overlayTable.setLineStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
-                            overlayTable.setPolygonColor(polygonColor.getSelectedItem().toString());
+                            overlayTable.setPolygonColor(polygonColor.getText().toString());
                             overlayTable.setPolygonAlpha(Integer.valueOf(polygonAlpha
                                     .getText().toString()));
                             overlayTable.setPolygonStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
                             overlayTable.setPolygonFill(polygonFill.isChecked());
-                            overlayTable.setPolygonFillColor(polygonFillColor.getSelectedItem().toString());
+                            overlayTable.setPolygonFillColor(polygonFillColor.getText().toString());
                             overlayTable.setPolygonFillAlpha(Integer.valueOf(polygonFillAlpha
                                     .getText().toString()));
 
@@ -2993,19 +2992,21 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_max_longitude_input);
         final Button preloadedLocationsButton = (Button) editFeatureOverlayView
                 .findViewById(R.id.bounding_box_preloaded);
-        final Spinner pointColor = (Spinner) editFeatureOverlayView
+        final CheckBox ignoreGeoPackageStyles = (CheckBox) editFeatureOverlayView
+                .findViewById(R.id.feature_tiles_ignore_geopackage_styles);
+        final EditText pointColor = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_point_color);
         final EditText pointAlpha = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_point_alpha);
         final EditText pointRadius = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_point_radius);
-        final Spinner lineColor = (Spinner) editFeatureOverlayView
+        final EditText lineColor = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_line_color);
         final EditText lineAlpha = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_line_alpha);
         final EditText lineStroke = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_line_stroke);
-        final Spinner polygonColor = (Spinner) editFeatureOverlayView
+        final EditText polygonColor = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_color);
         final EditText polygonAlpha = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_alpha);
@@ -3013,7 +3014,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                 .findViewById(R.id.feature_tiles_draw_polygon_stroke);
         final CheckBox polygonFill = (CheckBox) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill);
-        final Spinner polygonFillColor = (Spinner) editFeatureOverlayView
+        final EditText polygonFillColor = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
         final EditText polygonFillAlpha = (EditText) editFeatureOverlayView
                 .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
@@ -3045,27 +3046,30 @@ public class GeoPackageManagerFragment extends Fragment implements
         } finally {
             indexer.close();
         }
-        geoPackage.close();
 
         // Prepare the feature draw
-        prepareFeatureDraw(pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
+        GeoPackageUtils.prepareFeatureDraw(getActivity(), geoPackage, table.getFeatureTable(), pointAlpha, lineAlpha, polygonAlpha, polygonFillAlpha,
                 pointColor, lineColor, pointRadius, lineStroke,
                 polygonColor, polygonStroke, polygonFill, polygonFillColor);
 
-        pointColor.setSelection(((ArrayAdapter) pointColor.getAdapter()).getPosition(table.getPointColor()));
+        geoPackage.close();
+
+        ignoreGeoPackageStyles.setChecked(table.isIgnoreGeoPackageStyles());
+
+        pointColor.setText(table.getPointColor());
         pointAlpha.setText(String.valueOf(table.getPointAlpha()));
         pointRadius.setText(String.valueOf(table.getPointRadius()));
 
-        lineColor.setSelection(((ArrayAdapter) lineColor.getAdapter()).getPosition(table.getLineColor()));
+        lineColor.setText(table.getLineColor());
         lineAlpha.setText(String.valueOf(table.getLineAlpha()));
         lineStroke.setText(String.valueOf(table.getLineStrokeWidth()));
 
-        polygonColor.setSelection(((ArrayAdapter) polygonColor.getAdapter()).getPosition(table.getPolygonColor()));
+        polygonColor.setText(table.getPolygonColor());
         polygonAlpha.setText(String.valueOf(table.getPolygonAlpha()));
         polygonStroke.setText(String.valueOf(table.getPolygonStrokeWidth()));
 
         polygonFill.setChecked(table.isPolygonFill());
-        polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(table.getPolygonFillColor()));
+        polygonFillColor.setText(table.getPolygonFillColor());
         polygonFillAlpha.setText(String.valueOf(table.getPolygonFillAlpha()));
 
         dialog.setPositiveButton(
@@ -3116,20 +3120,21 @@ public class GeoPackageManagerFragment extends Fragment implements
                             table.setMaxLat(maxLat);
                             table.setMinLon(minLon);
                             table.setMaxLon(maxLon);
-                            table.setPointColor(pointColor.getSelectedItem().toString());
+                            table.setIgnoreGeoPackageStyles(ignoreGeoPackageStyles.isChecked());
+                            table.setPointColor(pointColor.getText().toString());
                             table.setPointAlpha(Integer.valueOf(pointAlpha
                                     .getText().toString()));
                             table.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
-                            table.setLineColor(lineColor.getSelectedItem().toString());
+                            table.setLineColor(lineColor.getText().toString());
                             table.setLineAlpha(Integer.valueOf(lineAlpha
                                     .getText().toString()));
                             table.setLineStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
-                            table.setPolygonColor(polygonColor.getSelectedItem().toString());
+                            table.setPolygonColor(polygonColor.getText().toString());
                             table.setPolygonAlpha(Integer.valueOf(polygonAlpha
                                     .getText().toString()));
                             table.setPolygonStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
                             table.setPolygonFill(polygonFill.isChecked());
-                            table.setPolygonFillColor(polygonFillColor.getSelectedItem().toString());
+                            table.setPolygonFillColor(polygonFillColor.getText().toString());
                             table.setPolygonFillAlpha(Integer.valueOf(polygonFillAlpha
                                     .getText().toString()));
 
@@ -3153,61 +3158,6 @@ public class GeoPackageManagerFragment extends Fragment implements
                     }
                 });
         dialog.show();
-    }
-
-    /**
-     * Prepare the feature draw limits and defaults
-     *
-     * @param pointAlpha
-     * @param lineAlpha
-     * @param polygonAlpha
-     * @param polygonFillAlpha
-     * @param pointColor
-     * @param lineColor
-     * @param pointRadius
-     * @param lineStroke
-     * @param polygonColor
-     * @param polygonStroke
-     * @param polygonFill
-     * @param polygonFillColor
-     */
-    private void prepareFeatureDraw(EditText pointAlpha, EditText lineAlpha, EditText polygonAlpha, EditText polygonFillAlpha,
-                                    Spinner pointColor, Spinner lineColor, EditText pointRadius, EditText lineStroke,
-                                    Spinner polygonColor, EditText polygonStroke, CheckBox polygonFill, Spinner polygonFillColor) {
-
-        // Set feature limits
-        pointAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-        lineAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-        polygonAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-        polygonFillAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
-                0, 255)});
-
-        // Set default feature attributes
-        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity());
-        String defaultColor = "black";
-
-        Paint pointPaint = featureTiles.getPointPaint();
-        pointColor.setSelection(((ArrayAdapter) pointColor.getAdapter()).getPosition(defaultColor));
-        pointAlpha.setText(String.valueOf(pointPaint.getAlpha()));
-        pointRadius.setText(String.valueOf(featureTiles.getPointRadius()));
-
-        Paint linePaint = featureTiles.getLinePaint();
-        lineColor.setSelection(((ArrayAdapter) lineColor.getAdapter()).getPosition(defaultColor));
-        lineAlpha.setText(String.valueOf(linePaint.getAlpha()));
-        lineStroke.setText(String.valueOf(linePaint.getStrokeWidth()));
-
-        Paint polygonPaint = featureTiles.getPolygonPaint();
-        polygonColor.setSelection(((ArrayAdapter) polygonColor.getAdapter()).getPosition(defaultColor));
-        polygonAlpha.setText(String.valueOf(polygonPaint.getAlpha()));
-        polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
-
-        polygonFill.setChecked(featureTiles.isFillPolygon());
-        Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
-        polygonFillColor.setSelection(((ArrayAdapter) polygonFillColor.getAdapter()).getPosition(defaultColor));
-        polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
     }
 
     /**

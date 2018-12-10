@@ -32,6 +32,8 @@ public class GeoPackageFeatureOverlayTable extends GeoPackageFeatureTable implem
 
     private double maxLon;
 
+    private boolean ignoreGeoPackageStyles = false;
+
     private String pointColor;
 
     private int pointAlpha;
@@ -139,6 +141,14 @@ public class GeoPackageFeatureOverlayTable extends GeoPackageFeatureTable implem
 
     public void setMaxLon(double maxLon) {
         this.maxLon = maxLon;
+    }
+
+    public boolean isIgnoreGeoPackageStyles() {
+        return ignoreGeoPackageStyles;
+    }
+
+    public void setIgnoreGeoPackageStyles(boolean ignoreGeoPackageStyles) {
+        this.ignoreGeoPackageStyles = ignoreGeoPackageStyles;
     }
 
     public String getPointColor() {

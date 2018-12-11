@@ -84,6 +84,7 @@
     <string name="feature_tiles_name_suffix">_tiles</string>
     <string name="feature_overlay_tiles_name_suffix">_overlay</string>
     <string name="feature_tiles_ignore_geopackage_styles_label">Ignore GeoPackage Styles?</string>
+    <string name="feature_tiles_save_geopackage_styles_label">Save GeoPackage Styles?</string>
     <string name="feature_tiles_draw_point_label">Points - </string>
     <string name="feature_tiles_draw_point_color_label">Color: </string>
     <string name="feature_tiles_draw_point_alpha_label">Alpha: </string>

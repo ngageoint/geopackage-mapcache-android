@@ -74,6 +74,8 @@ import mil.nga.geopackage.extension.link.FeatureTileLink;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
+import mil.nga.geopackage.extension.style.FeatureTableStyles;
+import mil.nga.geopackage.extension.style.StyleRow;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
@@ -83,6 +85,7 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.style.Color;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
@@ -1659,6 +1662,19 @@ public class GeoPackageManagerFragment extends Fragment implements
         Spinner tempGeometryTypeSpinner = null;
         EditText tempZInput = null;
         EditText tempMInput = null;
+        CheckBox tempSaveGeoPackageStyles = null;
+        EditText tempPointColor = null;
+        EditText tempPointAlpha = null;
+        EditText tempPointRadius = null;
+        EditText tempLineColor = null;
+        EditText tempLineAlpha = null;
+        EditText tempLineStroke = null;
+        EditText tempPolygonColor = null;
+        EditText tempPolygonAlpha = null;
+        EditText tempPolygonStroke = null;
+        CheckBox tempPolygonFill = null;
+        EditText tempPolygonFillColor = null;
+        EditText tempPolygonFillAlpha = null;
 
         Spinner tempTileScalingInput = null;
         EditText tempTileScalingZoomOutInput = null;
@@ -1696,6 +1712,42 @@ public class GeoPackageManagerFragment extends Fragment implements
                             .getGeometryType()));
                     tempZInput.setText(String.valueOf(tempGeometryColumns.getZ()));
                     tempMInput.setText(String.valueOf(tempGeometryColumns.getM()));
+
+                    tempSaveGeoPackageStyles = (CheckBox) editTableView
+                            .findViewById(R.id.feature_tiles_ignore_geopackage_styles);
+                    tempSaveGeoPackageStyles.setText(R.string.feature_tiles_save_geopackage_styles_label);
+                    tempPointColor = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_point_color);
+                    tempPointAlpha = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_point_alpha);
+                    tempPointRadius = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_point_radius);
+                    tempLineColor = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_line_color);
+                    tempLineAlpha = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_line_alpha);
+                    tempLineStroke = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_line_stroke);
+                    tempPolygonColor = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_polygon_color);
+                    tempPolygonAlpha = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_polygon_alpha);
+                    tempPolygonStroke = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_polygon_stroke);
+                    tempPolygonFill = (CheckBox) editTableView
+                            .findViewById(R.id.feature_tiles_draw_polygon_fill);
+                    tempPolygonFillColor = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_polygon_fill_color);
+                    tempPolygonFillAlpha = (EditText) editTableView
+                            .findViewById(R.id.feature_tiles_draw_polygon_fill_alpha);
+
+                    GeoPackageUtils.prepareFeatureDraw(getActivity(), geoPackage, table.getName(), tempPointAlpha, tempLineAlpha, tempPolygonAlpha, tempPolygonFillAlpha,
+                            tempPointColor, tempLineColor, tempPointRadius, tempLineStroke,
+                            tempPolygonColor, tempPolygonStroke, tempPolygonFill, tempPolygonFillColor);
+
+                    FeatureTableStyles featureTableStyles = new FeatureTableStyles(geoPackage, table.getName());
+                    tempSaveGeoPackageStyles.setChecked(featureTableStyles.hasTableStyleRelationship());
+
                     break;
 
                 case TILE:
@@ -1773,6 +1825,19 @@ public class GeoPackageManagerFragment extends Fragment implements
         final Spinner geometryTypeSpinner = tempGeometryTypeSpinner;
         final EditText zInput = tempZInput;
         final EditText mInput = tempMInput;
+        final CheckBox saveGeoPackageStyles = tempSaveGeoPackageStyles;
+        final EditText pointColor = tempPointColor;
+        final EditText pointAlpha = tempPointAlpha;
+        final EditText pointRadius = tempPointRadius;
+        final EditText lineColor = tempLineColor;
+        final EditText lineAlpha = tempLineAlpha;
+        final EditText lineStroke = tempLineStroke;
+        final EditText polygonColor = tempPolygonColor;
+        final EditText polygonAlpha = tempPolygonAlpha;
+        final EditText polygonStroke = tempPolygonStroke;
+        final CheckBox polygonFill = tempPolygonFill;
+        final EditText polygonFillColor = tempPolygonFillColor;
+        final EditText polygonFillAlpha = tempPolygonFillAlpha;
         final TileMatrixSet tileMatrixSet = tempTileMatrixSet;
         final GeometryColumns geometryColumns = tempGeometryColumns;
         final EditText minYMatrixSetInput = tempMinYMatrixSetInput;
@@ -1846,6 +1911,37 @@ public class GeoPackageManagerFragment extends Fragment implements
                                             .getText().toString()));
 
                                     geometryColumnsDao.update(geometryColumns);
+
+                                    FeatureTableStyles featureTableStyles = new FeatureTableStyles(geoPackage, table.getName());
+
+                                    if(saveGeoPackageStyles.isChecked()){
+
+                                        StyleRow pointStyle = new StyleRow();
+                                        Color pointStyleColor = new Color(pointColor.getText().toString(), Integer.valueOf(pointAlpha.getText().toString()));
+                                        pointStyle.setColor(pointStyleColor);
+                                        pointStyle.setWidth(2 * Double.valueOf(pointRadius.getText().toString()));
+                                        featureTableStyles.setTableStyle(GeometryType.POINT, pointStyle);
+
+                                        StyleRow lineStyle = new StyleRow();
+                                        Color lineStyleColor = new Color(lineColor.getText().toString(), Integer.valueOf(lineAlpha.getText().toString()));
+                                        lineStyle.setColor(lineStyleColor);
+                                        lineStyle.setWidth(Double.valueOf(lineStroke.getText().toString()));
+                                        featureTableStyles.setTableStyle(GeometryType.LINESTRING, lineStyle);
+
+                                        StyleRow polygonStyle = new StyleRow();
+                                        Color polygonStyleColor = new Color(polygonColor.getText().toString(), Integer.valueOf(polygonAlpha.getText().toString()));
+                                        polygonStyle.setColor(polygonStyleColor);
+                                        polygonStyle.setWidth(Double.valueOf(polygonStroke.getText().toString()));
+                                        if(polygonFill.isChecked()){
+                                            Color polygonStyleFillColor = new Color(polygonFillColor.getText().toString(), Integer.valueOf(polygonFillAlpha.getText().toString()));
+                                            polygonStyle.setFillColor(polygonStyleFillColor);
+                                        }
+                                        featureTableStyles.setTableStyle(GeometryType.POLYGON, polygonStyle);
+
+                                    }else{
+                                        featureTableStyles.deleteTableStyles();
+                                    }
+
                                     break;
 
                                 case TILE:

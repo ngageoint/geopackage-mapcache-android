@@ -1939,7 +1939,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                         featureTableStyles.setTableStyle(GeometryType.POLYGON, polygonStyle);
 
                                     }else{
-                                        featureTableStyles.deleteTableStyles();
+                                        featureTableStyles.deleteTableStyleRelationship();
                                     }
 
                                     break;

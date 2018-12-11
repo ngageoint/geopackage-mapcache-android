@@ -12,7 +12,7 @@
 
     <item
         android:id="@+id/features"
-        android:title="Draw Features"
+        android:title="Edit Features"
         android:icon="@drawable/material_feature"
         app:showAsAction="never"
         />
@@ -20,7 +20,7 @@
     <item
         android:id="@+id/boundingBox"
         android:title="Load Tiles"
-        android:icon="@drawable/ic_crop_16_9_black_24dp"
+        android:icon="@drawable/ic_collections_black_24dp"
         app:showAsAction="never"/>
 
     <item

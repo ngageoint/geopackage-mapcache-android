@@ -62,9 +62,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
-import org.osgeo.proj4j.units.DegreeUnit;
-import org.osgeo.proj4j.units.Unit;
-import org.osgeo.proj4j.units.Units;
+import org.locationtech.proj4j.units.Units;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -1714,7 +1712,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private BoundingBox transformBoundingBoxToWgs84(BoundingBox boundingBox, SpatialReferenceSystem srs) {
 
         mil.nga.sf.proj.Projection projection = srs.getProjection();
-        if (projection.getUnit() instanceof DegreeUnit) {
+        if (projection.isUnit(Units.DEGREES)) {
             boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
         }
         ProjectionTransform transformToWebMercator = projection
@@ -2256,10 +2254,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
                     BoundingBox boundedMapViewBoundingBox = mapViewBoundingBox.boundWgs84Coordinates();
                     BoundingBox transformedBoundingBox = boundedMapViewBoundingBox.transform(projectionTransform);
-                    Unit unit = featureProjection.getUnit();
-                    if (unit instanceof DegreeUnit) {
+                    if (featureProjection.isUnit(Units.DEGREES)) {
                         filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
-                    } else if (unit == Units.METRES) {
+                    } else if (featureProjection.isUnit(Units.METRES)) {
                         filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
                     }
                     filterBoundingBox = transformedBoundingBox.expandCoordinates(filterMaxLongitude);
@@ -3437,11 +3434,10 @@ public class GeoPackageMapFragment extends Fragment implements
                                     ProjectionTransform projectionTransform = clickProjection.getTransformation(featureProjection);
                                     BoundingBox boundedClickBoundingBox = clickBoundingBox.boundWgs84Coordinates();
                                     BoundingBox transformedBoundingBox = boundedClickBoundingBox.transform(projectionTransform);
-                                    Unit unit = featureProjection.getUnit();
                                     double filterMaxLongitude = 0;
-                                    if (unit instanceof DegreeUnit) {
+                                    if (featureProjection.isUnit(Units.DEGREES)) {
                                         filterMaxLongitude = ProjectionConstants.WGS84_HALF_WORLD_LON_WIDTH;
-                                    } else if (unit == Units.METRES) {
+                                    } else if (featureProjection.isUnit(Units.METRES)) {
                                         filterMaxLongitude = ProjectionConstants.WEB_MERCATOR_HALF_WORLD_WIDTH;
                                     }
 

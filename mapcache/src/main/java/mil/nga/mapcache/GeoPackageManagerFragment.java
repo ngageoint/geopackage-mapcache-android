@@ -48,7 +48,7 @@ import android.widget.TextView;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
-import org.osgeo.proj4j.units.DegreeUnit;
+import org.locationtech.proj4j.units.Units;
 
 import java.io.File;
 import java.io.IOException;
@@ -2777,7 +2777,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
             ProjectionTransform webMercatorTransform = projection.getTransformation(
                     ProjectionConstants.EPSG_WEB_MERCATOR);
-            if (projection.getUnit() instanceof DegreeUnit) {
+            if (projection.isUnit(Units.DEGREES)) {
                 boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
             }
             BoundingBox webMercatorBoundingBox = boundingBox.transform(webMercatorTransform);

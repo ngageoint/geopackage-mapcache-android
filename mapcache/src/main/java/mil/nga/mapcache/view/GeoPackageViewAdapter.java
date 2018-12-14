@@ -2,6 +2,7 @@ package mil.nga.mapcache.view;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.mapcache.GeoPackageManagerFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
@@ -98,8 +100,12 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
 
 
         Iterator<GeoPackageTable> tableIterator = list.get(position).iterator();
+        boolean active = false;
         while (tableIterator.hasNext()) {
             GeoPackageTable current = tableIterator.next();
+            if(current.isActive()){
+                active = true;
+            }
             holder.title.setText(current.getDatabase());
 
             if(current instanceof GeoPackageFeatureTable && !current.getName().equalsIgnoreCase(""))
@@ -110,7 +116,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
         }
         holder.featureTables.setText("Feature Tables: " + featureTables);
         holder.tileTables.setText("Tile Tables: " + tileTables);
-
+        holder.setActiveColor(active);
         //animate(holder);
     }
 
@@ -164,5 +170,31 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
     public List<GeoPackageTable> getPosition(int position){
         return list.get(position);
     }
+
+
+
+    public boolean updateActive(List<String> newTables){
+        int position = 0;
+        for(List<GeoPackageTable> dbList : list){
+            String currentName = dbList.get(0).getDatabase();
+            boolean found = false;
+            for(String newName : newTables){
+                if(currentName.equalsIgnoreCase(newName)){
+                    // Current table should be active
+                    found = true;
+                    dbList.get(0).setActive(true);
+                }
+            }
+            if(!found){
+                // Should not be active
+                dbList.get(0).setActive(false);
+            }
+            notifyItemChanged(position);
+            position++;
+        }
+        return false;
+    }
+
+
 
 }

@@ -13,6 +13,7 @@
     <color name="polyline_edit_color">#FF00FF00</color>
     <color name="polygon_edit_color">#FF00FF00</color>
     <color name="polygon_edit_fill_color">#5000FF00</color>
+    <color name="active_on">#3AA6AC</color>
     <item name="marker_edit_read_only_color" type="dimen" format="float">30.0</item>
     <item name="marker_create_color" type="dimen" format="float">0.0</item>
     <item name="shape_draw_icon_anchor_width" type="dimen" format="float">0.5</item>

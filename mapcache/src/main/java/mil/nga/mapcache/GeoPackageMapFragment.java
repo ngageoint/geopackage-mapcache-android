@@ -701,12 +701,14 @@ public class GeoPackageMapFragment extends Fragment implements
         // Observe Active Tables - used to determine which layers are enabled
         geoPackageViewModel.getActiveTables().observe(this, newTables ->{
             active.clearActive();
+            List<String> activeNames = new ArrayList<>();
             for(int i=0; i < newTables.size(); i++) {
                 GeoPackageTable table = newTables.get(i);
                 active.addTable(table);
+                activeNames.add(table.getDatabase());
 //                updateInBackground(true, false);
             }
-
+            geoAdapter.updateActive(activeNames);
             geoAdapter.notifyDataSetChanged();
             if(newTables.isEmpty()){
                 if(map != null){
@@ -720,7 +722,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
     }
-
+    
 
 
 

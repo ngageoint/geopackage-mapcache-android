@@ -369,6 +369,13 @@
         android:background="@drawable/shape_gradient_top_shadow"
         app:layout_anchor="@id/bottom_sheet" />
 
+    <View
+        android:id="@+id/topBorder"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black"
+        app:layout_anchor="@id/bottom_sheet" />
+
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
@@ -385,6 +392,8 @@
         <!--Different layout idea: only expand to show current content and no further:-->
         <!--android:layout_height="wrap_content"-->
         <!--android:fillViewport="true"-->
+        <!--for colored angled gradient:         android:background="@drawable/gradient_angle"-->
+
 
 
         <FrameLayout
@@ -422,7 +431,8 @@
                         android:layout_gravity="center"
                         android:layout_marginBottom="4dp"
                         android:layout_marginTop="4dp"
-                        android:background="@color/horizontal_line" />
+                        android:background="@color/black"/>
+                        <!--android:background="@color/horizontal_line" />-->
 
                     <!--Title-->
                     <android.support.v7.widget.AppCompatTextView

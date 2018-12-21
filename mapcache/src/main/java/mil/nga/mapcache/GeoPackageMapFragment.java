@@ -7,9 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
@@ -40,9 +38,6 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -57,14 +52,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -79,6 +75,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
@@ -87,16 +84,12 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
-import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import org.osgeo.proj4j.units.DegreeUnit;
 import org.osgeo.proj4j.units.Unit;
 import org.osgeo.proj4j.units.Units;
 
-import java.io.File;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -176,7 +169,6 @@ import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
-import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -558,12 +550,17 @@ public class GeoPackageMapFragment extends Fragment implements
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
     private ImageButton mapSelectButton;
     private ImageButton editFeaturesButton;
+    private ImageButton settingsCloseButton;
+    private ImageButton settingsIcon;
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
     private View bottomSheetView;
+    private BottomSheetBehavior settingsView;
     private List<GeoPackage> geoPackageList = new ArrayList<GeoPackage>();
     private FloatingActionButton fab;
     private ImportTask importTask;
+    private Switch darkMapSwitch;
+
 
     /**
      * Constructor
@@ -600,7 +597,11 @@ public class GeoPackageMapFragment extends Fragment implements
         view = inflater.inflate(R.layout.fragment_map, container, false);
         getMapFragment().getMapAsync(this);
 
+        // Bottom sheet for geopackages
         bottomSheetView = view.findViewById(R.id.bottom_sheet);
+
+        // Bottom sheet for settings
+        settingsView = BottomSheetBehavior.from(view.findViewById(R.id.settings_sheet));
 
         touch = new TouchableMap(getActivity());
         touch.addView(view);
@@ -617,29 +618,32 @@ public class GeoPackageMapFragment extends Fragment implements
         // Floating action button
         setFLoatingActionButton();
 
+        darkMapSwitch = (Switch) view.findViewById(R.id.mapDarkSwitch);
+        darkMapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b) {
+                    setMapDark();
+                } else{
+                    setMapDefault();
+                }
+            }
+        });
 
-
-//        List<String> activeDbs = manager.databases();
-//        geoPackageViewModel.setDatabases(activeDbs);
-
-
-        // Create bottom sheet listeners for on click and on slide
-        //createBottomSheetListeners();
-
-        // Live Data examples
-//        final TextView enabledDatabase = view.findViewById(R.id.enabledDatabase);
-//        geoPackageViewModel.getTheDb().observe(this, newDbName -> {
-//            enabledDatabase.setText("live: " + newDbName);
-//        });
-//        final TextView activeDbTextView = view.findViewById(R.id.activeDatabases);
-//        geoPackageViewModel.getDatabases().observe(this, newActiveDbList -> {
-//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
-//        });
-//        geoPackageViewModel.getGeoPackageTables().observe(this, newActiveDbList -> {
-//            activeDbTextView.setText("active DBs: " + newActiveDbList.size());
-//        });
 
         return touch;
+    }
+
+
+
+    public void launchSettingsFragment(){
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
+//        GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(name);
+//        transaction.replace(R.id.fragmentOutterContainer, drawer, "geoPackageDetail");
+//        transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
+//        transaction.commit();
     }
 
 
@@ -722,7 +726,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
     }
-    
+
 
 
 
@@ -926,6 +930,24 @@ public class GeoPackageMapFragment extends Fragment implements
                 zoomOut();
             }
         });
+
+        settingsCloseButton = (ImageButton) view.findViewById(R.id.closeSettingsButton);
+        settingsCloseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeSettings();
+            }
+        });
+
+        settingsIcon = (ImageButton) view.findViewById(R.id.settingsIcon);
+        settingsIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSettings();
+            }
+        });
+
+
     }
 
 
@@ -1090,6 +1112,26 @@ public class GeoPackageMapFragment extends Fragment implements
         zoomOut();
     }
 
+
+
+
+
+    /**
+     * Close the settings view
+     */
+    private void closeSettings(){
+//        settingsView.setVisibility(View.INVISIBLE);
+        settingsView.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+
+
+    /**
+     * Open the settings view
+     */
+    private void openSettings(){
+        settingsView.setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
 
 
 
@@ -1369,6 +1411,15 @@ public class GeoPackageMapFragment extends Fragment implements
                 mapLoaded = true;
             }
         });
+    }
+
+
+    private void setMapDark(){
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
+    }
+
+    private void setMapDefault(){
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
     }
 
 

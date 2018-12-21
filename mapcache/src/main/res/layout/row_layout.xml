@@ -47,7 +47,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
         android:layout_marginBottom="@dimen/small_margin"
-        android:background="@color/nga_primary_primary_dark"
         android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="10dp"
         app:cardElevation="3dp"

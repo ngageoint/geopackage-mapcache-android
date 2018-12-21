@@ -72,6 +72,17 @@
         android:background="@android:color/transparent"
         android:src="@drawable/minus_icon" />
 
+    <ImageButton
+        android:id="@+id/settingsIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="216dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/settings_icon" />
+
     <LinearLayout
         android:id="@+id/mapLoadTilesButtons"
         android:layout_width="wrap_content"
@@ -499,6 +510,24 @@
             </FrameLayout>
         </FrameLayout>
 
+
+    </android.support.v4.widget.NestedScrollView>
+
+
+    <!--Settings view-->
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/settings_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_vertical"
+        android:elevation="4dp"
+        app:behavior_peekHeight="0dp"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:behavior_hideable="true">
+
+        <!--Include the settings view-->
+        <include
+        layout="@layout/settings_menu" />
 
     </android.support.v4.widget.NestedScrollView>
 

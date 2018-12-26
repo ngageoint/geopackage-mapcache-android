@@ -11,6 +11,8 @@
             backward-compatibility can go here.
         -->
         <item name="colorAccent">@color/nga_primary_light</item>
+        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 
     <!-- Application theme. -->
@@ -23,15 +25,21 @@
         <!--<item name="colorAccent">@color/nga_accent_primary</item>-->
         <!--<item name="android:textColorPrimary">#FFFFFF</item>-->
         <item name="android:statusBarColor">@color/nga_primary_light</item>
-
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item name="colorPrimary">@color/nga_primary_bright</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:textColorPrimary">#89000000</item>
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
+    </style>
 
-
+    <!-- ActionBar styles -->
+    <style name="MyActionBar"
+        parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/gradient_angle</item>
+        <item name="android:textColor">@color/white</item>
     </style>
 
 
@@ -120,7 +128,6 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
     </style>
-
 
 
 

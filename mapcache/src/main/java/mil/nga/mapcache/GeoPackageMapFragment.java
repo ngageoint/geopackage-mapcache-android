@@ -173,6 +173,7 @@ import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -550,7 +551,6 @@ public class GeoPackageMapFragment extends Fragment implements
     List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
     private ImageButton mapSelectButton;
     private ImageButton editFeaturesButton;
-    private ImageButton settingsCloseButton;
     private ImageButton settingsIcon;
     private ImageButton zoomInButton;
     private ImageButton zoomOutButton;
@@ -635,15 +635,39 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
+    /**
+     * Launch the preferences activity
+     */
+    public void launchPreferences(){
+        Intent intent = new Intent(getContext(), PreferencesActivity.class);
+        startActivity(intent);
 
-    public void launchSettingsFragment(){
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-//        GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(name);
-//        transaction.replace(R.id.fragmentOutterContainer, drawer, "geoPackageDetail");
-//        transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
+        // Launch from a fragment instead to build own custom settings menu
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//        transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
+//        SettingsFragment settingsFragment = SettingsFragment.newInstance();
+//        transaction.replace(R.id.fragment_map, new SettingsFragment(), "settings");
+//        transaction.addToBackStack("settings");
 //        transaction.commit();
+    }
+
+    /**
+     * When using custom settings view as a nested scroll view, these will expand / collapse the menu
+     */
+    /**
+     * Close the settings view
+     */
+    private void closeSettings(){
+//        settingsView.setVisibility(View.INVISIBLE);
+        settingsView.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    }
+
+    /**
+     * Open the settings view
+     */
+    private void openSettings(){
+        settingsView.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
 
@@ -653,8 +677,6 @@ public class GeoPackageMapFragment extends Fragment implements
      *  Creates the GeoPackage recyclerview and assigns listeners
      */
     public void createRecyclerView(){
-
-
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
             @Override
@@ -931,19 +953,20 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        settingsCloseButton = (ImageButton) view.findViewById(R.id.closeSettingsButton);
-        settingsCloseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeSettings();
-            }
-        });
+//        settingsCloseButton = (ImageButton) view.findViewById(R.id.closeSettingsButton);
+//        settingsCloseButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                closeSettings();
+//            }
+//        });
 
         settingsIcon = (ImageButton) view.findViewById(R.id.settingsIcon);
         settingsIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openSettings();
+                launchPreferences();
+//                openSettings();
             }
         });
 
@@ -1114,24 +1137,6 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
-
-
-    /**
-     * Close the settings view
-     */
-    private void closeSettings(){
-//        settingsView.setVisibility(View.INVISIBLE);
-        settingsView.setState(BottomSheetBehavior.STATE_COLLAPSED);
-    }
-
-
-
-    /**
-     * Open the settings view
-     */
-    private void openSettings(){
-        settingsView.setState(BottomSheetBehavior.STATE_EXPANDED);
-    }
 
 
 

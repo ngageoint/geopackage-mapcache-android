@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/nga_accent_light">
+
+    <PreferenceCategory
+        app:key="configure_category"
+        app:title="Configure Map">
+
+        <SwitchPreferenceCompat
+            app:key="zoom_icons"
+            app:title="Show one touch zoom icons"/>
+
+        <SwitchPreferenceCompat
+            app:key="dark_map"
+            app:title="Use dark map"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="about_category"
+        app:title="About">
+        <Preference
+            app:key="about"
+            app:title="MapCache" />
+
+        <Preference
+            app:key="ogc"
+            app:title="OGC GeoPackage"
+            app:summary="License information"/>
+    </PreferenceCategory>
+
+</android.support.v7.preference.PreferenceScreen>

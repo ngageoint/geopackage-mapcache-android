@@ -2,11 +2,15 @@ package mil.nga.mapcache.preferences;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceScreen;
 import android.text.Html;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -14,13 +18,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import mil.nga.mapcache.LayerDetailFragment;
 import mil.nga.mapcache.R;
 
 /**
  * Activity for the Preferences menu
  */
-public class PreferencesActivity extends AppCompatActivity {
+public class PreferencesActivity extends AppCompatActivity implements
+        PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
+    /**
+     * Create the activity and set to content_frame
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,15 +58,31 @@ public class PreferencesActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onPreferenceStartFragment(PreferenceFragmentCompat preferenceFragmentCompat, Preference preference) {
+        return false;
+    }
+
+
+
+
+
     /**
+     *  -------------------------------------------------------
      * Fragment to hold the preferences from xml/preferences.xml
      */
     public static class PreferencesFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
 
+        /**
+         * Build from a preferences file instead of a layout
+         * @param bundle
+         * @param s
+         */
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
             addPreferencesFromResource(R.xml.preferences);
         }
+
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -71,5 +97,6 @@ public class PreferencesActivity extends AppCompatActivity {
         }
 
     }
+
 
 }

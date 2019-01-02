@@ -26,7 +26,7 @@
         <!--<item name="android:textColorPrimary">#FFFFFF</item>-->
         <item name="android:statusBarColor">@color/nga_primary_light</item>
         <item name="android:actionBarStyle">@style/MyActionBar</item>
-        <item name="colorPrimary">@color/nga_primary_bright</item>
+        <item name="colorPrimary">@color/status_bar_light</item>
     </style>
 
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">

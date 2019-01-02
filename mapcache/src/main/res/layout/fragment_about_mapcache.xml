@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!--Icon-->
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@mipmap/ic_launcher" />
+
+
+        <!--Title and version-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="16dp"
+                android:text="MapCache"
+                android:textAppearance="@style/textAppearanceHeadline6"/>
+            <TextView
+                android:id="@+id/mapcache_version"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:paddingLeft="16dp"
+                android:textAppearance="@style/textAppearanceSubtitle2_light"
+                android:text="App Version: 2.0.0"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:text="@string/about_mapcache"
+        android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+
+        <TextView
+            android:id="@+id/github_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:linksClickable="true"
+            android:clickable="true"
+            android:text="MapCache on GitHub"
+            android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+
+        <TextView
+            android:id="@+id/geopackage_github_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:linksClickable="true"
+            android:clickable="true"
+            android:text="GeoPackage Android on GitHub"
+            android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+
+        <TextView
+            android:id="@+id/ogc_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:linksClickable="true"
+            android:clickable="true"
+            android:text="OGC GeoPackage"
+            android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

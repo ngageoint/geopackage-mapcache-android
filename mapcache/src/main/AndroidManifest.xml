@@ -100,6 +100,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="mil.nga.mapcache.MainActivity" />
         </activity>
+        <activity
+            android:name=".preferences.AboutMapcacheActivity"
+            android:label="@string/title_activity_about_mapcache"></activity>
     </application>
 
 </manifest>

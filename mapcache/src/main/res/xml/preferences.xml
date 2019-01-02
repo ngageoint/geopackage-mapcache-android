@@ -22,12 +22,18 @@
         app:title="About">
         <Preference
             app:key="about"
-            app:title="MapCache" />
+            app:title="MapCache" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="mil.nga.mapcache.preferences.AboutMapcacheActivity"
+                android:targetPackage="@string/applicationId"/>
+        </Preference>
 
-        <Preference
-            app:key="ogc"
-            app:title="OGC GeoPackage"
-            app:summary="License information"/>
+        <!--<Preference-->
+            <!--app:key="ogc"-->
+            <!--app:title="OGC GeoPackage"-->
+            <!--app:summary="License information"/>-->
+
     </PreferenceCategory>
 
 </android.support.v7.preference.PreferenceScreen>

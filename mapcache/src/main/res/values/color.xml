@@ -37,6 +37,7 @@
     <color name="light_blue_background">#E7EAF1</color>
     <color name="transparent">#00ffffff</color>
     <color name="status_bar">#4E97C2</color>
+    <color name="status_bar_light">#cce0ec</color>
 
 
 

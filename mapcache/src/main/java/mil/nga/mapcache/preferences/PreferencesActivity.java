@@ -72,6 +72,10 @@ public class PreferencesActivity extends AppCompatActivity implements
      * Fragment to hold the preferences from xml/preferences.xml
      */
     public static class PreferencesFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
+        // Preference for setting the map to dark mode
+        private Preference darkMap;
+        // Preference for making the zoom icons visible
+        private Preference zoomIcons;
 
         /**
          * Build from a preferences file instead of a layout

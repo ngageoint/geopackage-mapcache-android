@@ -207,6 +207,17 @@ public class GeoPackageMapFragment extends Fragment implements
     private static final String MAP_TYPE_KEY = "map_type_key";
 
     /**
+     * Key for using dark mode from preferences
+     */
+    private static final String SETTINGS_DARK_KEY = "dark_map";
+
+    /**
+     * Key for zoom icons being visible from shared preferences
+     */
+    private static final String SETTINGS_ZOOM_KEY = "zoom_icons";
+
+
+    /**
      * Active GeoPackages
      */
     private GeoPackageDatabases active;
@@ -544,6 +555,12 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public static final int ACTIVITY_APP_SETTINGS = 3344;
 
+    /**
+     * Intent activity request code when opening preferences menu
+     */
+    public static final int ACTIVITY_PREFERENCES = 3345;
+
+
     private GeoPackageDetailDrawer geoDetailFragment;
 
     private GeoPackageViewModel geoPackageViewModel;
@@ -618,21 +635,12 @@ public class GeoPackageMapFragment extends Fragment implements
         // Floating action button
         setFLoatingActionButton();
 
-        darkMapSwitch = (Switch) view.findViewById(R.id.mapDarkSwitch);
-        darkMapSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b) {
-                    setMapDark();
-                } else{
-                    setMapDefault();
-                }
-            }
-        });
-
 
         return touch;
     }
+
+
+
 
 
     /**
@@ -640,35 +648,26 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void launchPreferences(){
         Intent intent = new Intent(getContext(), PreferencesActivity.class);
-        startActivity(intent);
-
-        // Launch from a fragment instead to build own custom settings menu
-//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//        FragmentTransaction transaction = fragmentManager.beginTransaction();
-//        transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-//        SettingsFragment settingsFragment = SettingsFragment.newInstance();
-//        transaction.replace(R.id.fragment_map, new SettingsFragment(), "settings");
-//        transaction.addToBackStack("settings");
-//        transaction.commit();
+        startActivityForResult(intent, ACTIVITY_PREFERENCES);
     }
 
     /**
-     * When using custom settings view as a nested scroll view, these will expand / collapse the menu
+     * Update after the settings activity is closed
+     *
+     * Note: instead of being called in the initial onCreateView, it gets called in onMapReady, because
+     * we need the map to be initialized before we can set it to dark mode
+     *
      */
-    /**
-     * Close the settings view
-     */
-    private void closeSettings(){
-//        settingsView.setVisibility(View.INVISIBLE);
-        settingsView.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    private void settingsUpdate(){
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
+        boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
+
+        setMapDarkMode(darkMode);
+        setZoomIconsVisible(zoomIconsVisible);
     }
 
-    /**
-     * Open the settings view
-     */
-    private void openSettings(){
-        settingsView.setState(BottomSheetBehavior.STATE_EXPANDED);
-    }
 
 
 
@@ -953,20 +952,11 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-//        settingsCloseButton = (ImageButton) view.findViewById(R.id.closeSettingsButton);
-//        settingsCloseButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                closeSettings();
-//            }
-//        });
-
         settingsIcon = (ImageButton) view.findViewById(R.id.settingsIcon);
         settingsIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 launchPreferences();
-//                openSettings();
             }
         });
 
@@ -1363,7 +1353,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     task.importFile();
                 }
                 break;
-
+            case ACTIVITY_PREFERENCES:
+                settingsUpdate();
+                break;
             default:
                 handled = false;
         }
@@ -1416,16 +1408,41 @@ public class GeoPackageMapFragment extends Fragment implements
                 mapLoaded = true;
             }
         });
+
+        // Call the initial update to the settings
+        settingsUpdate();
     }
 
 
-    private void setMapDark(){
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
+    /**
+     * Set the map color scheme to dark or default
+     * @param makeDark
+     */
+    private void setMapDarkMode(boolean makeDark){
+        if(map == null) return;
+
+        if(makeDark){
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
+        } else{
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
+        }
     }
 
-    private void setMapDefault(){
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
+    /**
+     * Make the zoom in / zoom out icons visible
+     */
+    private void setZoomIconsVisible(boolean visible){
+        if(visible){
+            zoomInButton.setVisibility(View.VISIBLE);
+            zoomOutButton.setVisibility(View.VISIBLE);
+        } else{
+            zoomInButton.setVisibility(View.INVISIBLE);
+            zoomOutButton.setVisibility(View.INVISIBLE);
+        }
     }
+
+
+
 
 
 

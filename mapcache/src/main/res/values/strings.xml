@@ -311,9 +311,13 @@
     <string name="no_packages_text">No GeoPackage files found</string>
     <string name="activity_geo_package_detail">All GeoPackages</string>
     <string name="layers_label">Layers</string>
-
     <string name="geopackage_detail_page">GeoPackage Detail</string>
     <string name="layer_detail_page">Layer Detail</string>
+
+    <!--preferences-->
+    <string name="dark_map_key">dark_map</string>
+    <string name="zoom_icons_key">zoom_icons</string>
+
 
     <!--about page-->
     <string name="about_mapcache">The GeoPackage MapCache app was developed as part of the GeoPackage Libraries by the National Geospatial-Intelligence Agency (NGA) in collaboration with BIT Systems.\n\n

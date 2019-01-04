@@ -51,13 +51,24 @@
         android:onClick="openMapSelect"/>
 
     <ImageButton
-        android:id="@+id/zoomInIcon"
+        android:id="@+id/settingsIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="116dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/settings_icon" />
+
+    <ImageButton
+        android:id="@+id/zoomInIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="166dp"
         android:background="@android:color/transparent"
         android:src="@drawable/plus_icon" />
 
@@ -68,20 +79,9 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="166dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/minus_icon" />
-
-    <ImageButton
-        android:id="@+id/settingsIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
         android:layout_marginTop="216dp"
         android:background="@android:color/transparent"
-        android:src="@drawable/settings_icon" />
+        android:src="@drawable/minus_icon" />
 
     <LinearLayout
         android:id="@+id/mapLoadTilesButtons"

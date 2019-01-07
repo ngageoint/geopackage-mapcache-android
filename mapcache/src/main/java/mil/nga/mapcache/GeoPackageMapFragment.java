@@ -635,6 +635,9 @@ public class GeoPackageMapFragment extends Fragment implements
         // Floating action button
         setFLoatingActionButton();
 
+        // Show disclaimer
+        showDisclaimer();
+
 
         return touch;
     }
@@ -960,8 +963,44 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
+    }
+
+
+    /**
+     *  Disclaimer popup
+     */
+    private void showDisclaimer(){
+        // Only show it if the user hasn't already accepted it before
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean disclaimerPref = sharedPreferences.getBoolean(getString(R.string.disclaimerPref), false);
+        if(!disclaimerPref) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
+            Button acceptButton = (Button) disclaimerView.findViewById(R.id.accept_button);
+            Button exitButton = (Button) disclaimerView.findViewById(R.id.exit_button);
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(disclaimerView);
+            final AlertDialog alertDialog = dialogBuilder.create();
+            acceptButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).commit();
+                    alertDialog.dismiss();
+                }
+            });
+            exitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getActivity().finish();
+                }
+            });
+            alertDialog.show();
+        }
 
     }
+
+
 
 
     /**
@@ -1028,9 +1067,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 alertDialog.dismiss();
             }
         });
-
-
-
         alertDialog.show();
     }
 

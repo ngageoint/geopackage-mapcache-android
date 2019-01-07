@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/disclaimer_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="16dp"
+        android:text="@string/disclaimer_title"
+        android:textAppearance="@style/textAppearanceHeadline6" />
+
+    <TextView
+        android:id="@+id/disclaimer_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="@string/disclaimer"
+        android:textAppearance="@style/textAppearanceSubtitle2_light" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="16dp">
+
+        <Button
+            android:id="@+id/accept_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_marginRight="16dp"
+            android:background="@color/nga_primary_bright"
+            android:text="Accept"/>
+
+        <Button
+            android:id="@+id/exit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_marginLeft="16dp"
+            android:background="@color/nga_primary_bright"
+            android:text="Exit"/>
+
+    </LinearLayout>
+
+</LinearLayout>

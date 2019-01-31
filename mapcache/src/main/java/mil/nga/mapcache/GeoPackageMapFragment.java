@@ -61,6 +61,7 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -652,6 +653,8 @@ public class GeoPackageMapFragment extends Fragment implements
     public void launchPreferences(){
         Intent intent = new Intent(getContext(), PreferencesActivity.class);
         startActivityForResult(intent, ACTIVITY_PREFERENCES);
+//        startActivity(intent);
+
     }
 
     /**
@@ -993,6 +996,19 @@ public class GeoPackageMapFragment extends Fragment implements
                 @Override
                 public void onClick(View view) {
                     getActivity().finish();
+                }
+            });
+
+            // Prevent the dialog from closing when clicking outside the dialog or the back button
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.setOnKeyListener(new Dialog.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface arg0, int keyCode,
+                                     KeyEvent event) {
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
+                        // do nothing
+                    }
+                    return true;
                 }
             });
             alertDialog.show();
@@ -2099,6 +2115,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onResume() {
+        settingsUpdate();
         super.onResume();
     }
 

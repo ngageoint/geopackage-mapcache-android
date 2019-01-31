@@ -44,8 +44,8 @@
     <string name="import_url_label">URL: </string>
     <string name="import_url_preloaded_label">Preloaded</string>
     <string name="import_file_name_label">Name: </string>
-    <string name="import_file_copy_label">Copy</string>
-    <string name="import_file_external_label">External Link</string>
+    <string name="import_file_copy_label">Copy Locally</string>
+    <string name="import_file_external_label">Modify Original</string>
     <string name="create_tiles_name_label">Name: </string>
     <string name="load_tiles_url_label">URL: </string>
     <string name="load_tiles_preloaded_label">Preloaded URLs</string>
@@ -328,26 +328,35 @@ The MapCache app provides read and write access to GeoPackage files, including f
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
 
     <!--disclaimer-->
-    <string name="disclaimer">(U) As a condition of downloading, accessing, or using the products, you agree to the terms of the NGA Disclaimer.\n\n
-(U) DISCLAIMER OF WARRANTIES.\n\n
+    <!--<string name="disclaimer2">(U) As a condition of downloading, accessing, or using the products, you agree to the terms of the NGA Disclaimer.\n\n-->
+<!--(U) DISCLAIMER OF WARRANTIES.\n\n-->
 
-(U) NGA MAKES NO REPRESENTATIONS OR WARRANTIES REGARDING THE ACCURACY OR COMPLETENESS OF THE CONTENT OF THE PRODUCTS. 10 USC 456.\n\n
+<!--(U) NGA MAKES NO REPRESENTATIONS OR WARRANTIES REGARDING THE ACCURACY OR COMPLETENESS OF THE CONTENT OF THE PRODUCTS. 10 USC 456.\n\n-->
 
-(U)You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.\n\n
+<!--(U)You are accessing a U.S. Government (USG) Information System (IS) that is provided for USG-authorized use only.\n\n-->
 
-By using this IS (which includes any device attached to this IS), you consent to the following conditions:\n\n
+<!--By using this IS (which includes any device attached to this IS), you consent to the following conditions:\n\n-->
 
-- The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\n\n
+<!-- - The USG routinely intercepts and monitors communications on this IS for purposes including, but not limited to, penetration testing, COMSEC monitoring, network operations and defense, personnel misconduct (PM), law enforcement (LE), and counterintelligence (CI) investigations.\n\n-->
 
-- At any time, the USG may inspect and seize data stored on this IS\n\n
+<!-- - At any time, the USG may inspect and seize data stored on this IS\n\n-->
 
-- Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception and search, and may be disclosed or used for any USG-authorized purpose.\n\n
+<!-- - Communications using, or data stored on, this IS are not private, are subject to routine monitoring, interception and search, and may be disclosed or used for any USG-authorized purpose.\n\n-->
 
-- This IS includes security measures (e.g., authentication and access controls) to protect USG interests -- not for your personal benefit or privacy.\n\n
+<!-- - This IS includes security measures (e.g., authentication and access controls) to protect USG interests &#45;&#45; not for your personal benefit or privacy.\n\n-->
 
-- Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and theirs assistants. Such communications and work product are private and confidential. See User Agreement for details.</string>
+<!-- - Notwithstanding the above, using this IS does not constitute consent to PM, LE or CI investigative searching or monitoring of the content of privileged communications, or work product, related to personal representation or services by attorneys, psychotherapists, or clergy, and theirs assistants. Such communications and work product are private and confidential. See User Agreement for details.</string>-->
     <string name="disclaimer_title">US Government Warning</string>
     <string name="disclaimerPref">disclaimerAccepted</string>
+    <!--<string name="disclaimer">“NGA Mobile Application Privacy Policy for MapCache\n\nThis App is exclusively licensed to and operated by the National Geospatial-Intelligence Agency (NGA). Our Privacy Policy informs you, the user, what personally identifiable information (PII) we collect when you use this App, how we use and share the PII we collect, and how we protect your privacy. Further information on NGA’s privacy practices can be found at http://www.nga.mil, at the \“Privacy and Security\” tab.\n\nIf you have any questions about this Policy or our privacy practices, please contact us using the following information: publicaffairs@nga.mil. Effective Date: 20 August 2012.\n\nYour Consent: Please review NGA’s Privacy Policy before using this App. By using this App you are consenting to the collection, use, and disclosure of your PII as set forth in this Policy. If you do not agree to be bound by this Policy, you may not access or use this App.\n\nPrivacy Notices\n\nThis Policy may be supplemented or amended from time to time and NGA will notify you by issuing \“privacy notices.\” These Privacy Notices will provide a level of detail describing the changes in our policy and how they may affect you. For example, this App may issue Privacy Notices providing details about changes in the function and use of the PII we collect, and why we need that information.\n\nTypes of Information We Collect\n\nNGA will collect NO PII or information from your mobile device. NGA neither collects nor acquires any user names, passwords or other login information or personal information from Apple.\n\nLinks to Third-Party Websites\n\nThis App may contain links to websites operated by other organizations. This Policy does not apply to PII collected on any of these third-party websites. When you access third-party websites through a link on this App, please take a few minutes to review the privacy policy posted on that site.”</string>-->
+    <string name="disclaimer">
+        Disclaimer\n\nAs a condition of downloading, accessing, or using the products, you agree to the terms of the NGA Disclaimer.\n\nDisclaimer of warranties and limitations on liability.\n\nNGA makes no representations or warranties regarding the accuracy or completeness of any content of the products.\n\nUser agrees, through use of the product, to assume any and all liability for any damage or loss resulting from your use of the content or the products and holds NGA harmless from liability.
+    </string>
+    <string name="privacy_policy">
+        NGA Mobile Application Privacy Policy for MapCache\n\nThis App is exclusively licensed to and operated by the National Geospatial-Intelligence Agency (NGA). Our Privacy Policy informs you, the user, what personally identifiable information (PII) we collect when you use this App, how we use and share the PII we collect, and how we protect your privacy. Further information on NGA’s privacy practices can be found at http://www.nga.mil, at the “Privacy and Security” tab.\n\nIf you have any questions about this Policy or our privacy practices, please contact us using the following information: publicaffairs@nga.mil. Effective Date: 20 August 2012\n\nYour Consent: Please review NGA’s Privacy Policy before using this App. By using this App you are consenting to the collection, use, and disclosure of your PII as set forth in this Policy. If you do not agree to be bound by this Policy, you may not access or use this App.\n\nPrivacy Notices\n\nThis Policy may be supplemented or amended from time to time and NGA will notify you by issuing “privacy notices.” These Privacy Notices will provide a level of detail describing the changes in our policy and how they may affect you. For example, this App may issue Privacy Notices providing details about changes in the function and use of the PII we collect, and why we need that information.\n\nTypes of Information We Collect\n\nNGA will collect NO PII or information from your mobile device. NGA neither collects nor acquires any user names, passwords or other login information or personal information from Apple.\n\nLinks to Third-Party Websites\n\nThis App may contain links to websites operated by other organizations. This Policy does not apply to PII collected on any of these third-party websites. When you access third-party websites through a link on this App, please take a few minutes to review the privacy policy posted on that site.
+    </string>
+
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -355,6 +364,7 @@ By using this IS (which includes any device attached to this IS), you consent to
     <string name="title_activity_about_mapcache">AboutMapcacheActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_disclaimer">DisclaimerActivity</string>
+    <string name="title_activity_privacy_policy">PrivacyPolicyActivity</string>
 
 
 </resources>

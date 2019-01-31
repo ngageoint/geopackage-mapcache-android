@@ -27,7 +27,7 @@
             android:layout_alignTop="@+id/import_export"
             android:layout_marginLeft="36dp"
             android:layout_toRightOf="@+id/import_export"
-            android:text="Import URL" />
+            android:text="Import from URL" />
     </LinearLayout>
 
     <!--Name-->

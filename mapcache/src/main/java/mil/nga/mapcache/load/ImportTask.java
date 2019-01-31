@@ -94,7 +94,6 @@ public class ImportTask {
             if (path == null) {
                 externalRadioButton.setEnabled(false);
             }
-
             dialog.setTitle(importLabel)
                     .setPositiveButton(okLabel,
                             new DialogInterface.OnClickListener() {

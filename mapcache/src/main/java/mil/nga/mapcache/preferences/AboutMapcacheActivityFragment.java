@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import mil.nga.mapcache.R;
 
 /**
- * A placeholder fragment containing a simple view.
+ * About MapCache page in settings
  */
 public class AboutMapcacheActivityFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
 

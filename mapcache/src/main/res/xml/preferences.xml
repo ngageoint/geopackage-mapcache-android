@@ -28,6 +28,14 @@
                 android:targetClass="mil.nga.mapcache.preferences.AboutMapcacheActivity"
                 android:targetPackage="@string/applicationId"/>
         </Preference>
+        <Preference
+            app:key="privacy"
+            app:title="Privacy Policy" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="mil.nga.mapcache.preferences.PrivacyPolicyActivity"
+                android:targetPackage="@string/applicationId"/>
+        </Preference>
 
         <!--<Preference-->
             <!--app:key="ogc"-->

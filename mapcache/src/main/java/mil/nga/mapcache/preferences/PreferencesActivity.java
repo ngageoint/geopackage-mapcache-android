@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import mil.nga.mapcache.LayerDetailFragment;
 import mil.nga.mapcache.R;
@@ -51,7 +52,7 @@ public class PreferencesActivity extends AppCompatActivity implements
         switch (item.getItemId()) {
             case android.R.id.home:
 //                NavUtils.navigateUpFromSameTask(this);
-                this.finish();
+                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -105,7 +105,10 @@
             android:label="@string/title_activity_about_mapcache" />
         <activity
             android:name=".preferences.PrivacyPolicyActivity"
-            android:label="@string/title_activity_privacy_policy"></activity>
+            android:label="@string/title_activity_privacy_policy" />
+        <activity
+            android:name=".tutorial.TutorialActivity"
+            android:label="@string/title_activity_tutorial"></activity>
     </application>
 
 </manifest>

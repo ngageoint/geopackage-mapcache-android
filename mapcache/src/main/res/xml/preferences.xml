@@ -36,6 +36,14 @@
                 android:targetClass="mil.nga.mapcache.preferences.PrivacyPolicyActivity"
                 android:targetPackage="@string/applicationId"/>
         </Preference>
+        <Preference
+            app:key="tutorial"
+            app:title="Tutorial" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="mil.nga.mapcache.tutorial.TutorialActivity"
+                android:targetPackage="@string/applicationId"/>
+        </Preference>
 
         <!--<Preference-->
             <!--app:key="ogc"-->

@@ -151,7 +151,10 @@ public class ImportTask {
 
 
     /**
-     * Import the GeoPackage by linking to the file if write external storage permissions are granted, otherwise request permission
+     * Import the GeoPackage by linking to the file if write external storage permissions are granted, otherwise request permission.
+     *
+     * We should never reach this method without permission, but in case we do, it'll get permissions and
+     * restart the process with the call back to MainActivity
      *
      * @param name
      * @param uri
@@ -163,7 +166,6 @@ public class ImportTask {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             importGeoPackageExternalLink(name, uri, path);
         } else {
-
             // Save off the values and ask for permission
             importExternalName = name;
             importExternalUri = uri;

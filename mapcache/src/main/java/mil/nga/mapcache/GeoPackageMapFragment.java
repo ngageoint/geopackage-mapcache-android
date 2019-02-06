@@ -1071,7 +1071,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        importGeopackageFromFile();
+                        getImportPermissions();
                         alertDialog.dismiss();
                     }
                 });
@@ -1147,13 +1147,37 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
+    /**
+     * Make sure we have permissions to read/write to external before importing.  The result will
+     * send MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL back up to mainactivity, and should
+     * call importGeopackageFromFile after
+     */
+    private void getImportPermissions(){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setTitle(R.string.storage_access_rational_title)
+                    .setMessage(R.string.storage_access_rational_message)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                        }
+                    })
+                    .create()
+                    .show();
+
+        } else {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+        }
+    }
+
 
 
 
     /**
      * Import a GeoPackage from a file
      */
-    private void importGeopackageFromFile() {
+    public void importGeopackageFromFile() {
 
         try {
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
@@ -1164,12 +1188,11 @@ public class GeoPackageMapFragment extends Fragment implements
         } catch (Exception e) {
             // eat
         }
-
     }
 
 
     /**
-     * Clear all active layers from the map
+     * Clear all active layers from the map and zoom out 1 level
      */
     private void clearAllActive(){
         geoPackageViewModel.clearAllActive();

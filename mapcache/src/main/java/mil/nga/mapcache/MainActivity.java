@@ -57,6 +57,12 @@ public class MainActivity extends AppCompatActivity { //,
     public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE = 202;
 
     /**
+     * Permission request from the geopackage detail page to export a database
+     */
+    public static final int DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE = 401;
+
+
+    /**
      * Fragment managing the behaviors, interactions and presentation of the
      * navigation drawer.
      */
@@ -103,6 +109,9 @@ public class MainActivity extends AppCompatActivity { //,
 
         // Set up the map fragment
         createMainFragment();
+
+        hideActionBar();
+
 
 //        navigationBarFragment = (NavigationBarFragment) getFragmentManager()
 //                .findFragmentById(R.id.navigation_bar);
@@ -216,31 +225,31 @@ public class MainActivity extends AppCompatActivity { //,
 
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-//        if (!navigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-
-            if (navigationPosition != MANAGER_POSITION) {
-                menu.setGroupVisible(R.id.menu_group_list, false);
-            }
-            if (navigationPosition != MAP_POSITION) {
-                menu.setGroupVisible(R.id.menu_group_map, false);
-            } else if (mapFragment != null) {
-                mapFragment.handleMenu(menu);
-            }
-
-            hideActionBar();
-            return true;
-//        }
-        //return super.onCreateOptionsMenu(menu);
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+////        if (!navigationDrawerFragment.isDrawerOpen()) {
+//            // Only show items in the action bar relevant to this screen
+//            // if the drawer is not showing. Otherwise, let the drawer
+//            // decide what to show in the action bar.
+////            getMenuInflater().inflate(R.menu.main, menu);
+//
+////            if (navigationPosition != MANAGER_POSITION) {
+////                menu.setGroupVisible(R.id.menu_group_list, false);
+////            }
+////            if (navigationPosition != MAP_POSITION) {
+////                menu.setGroupVisible(R.id.menu_group_map, false);
+////            } else if (mapFragment != null) {
+////                mapFragment.handleMenu(menu);
+////            }
+//
+////            hideActionBar();
+//            return true;
+////        }
+//        //return super.onCreateOptionsMenu(menu);
+//    }
 
     /**
      * Hide the action bar
@@ -289,7 +298,12 @@ public class MainActivity extends AppCompatActivity { //,
                 break;
 
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
-                managerFragment.update(granted);
+//                managerFragment.update(granted);
+                break;
+
+            case DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                // Tell the mapFragment to find the open detail fragment and share the GP
+                mapFragment.giveSharePermissions(requestCode, permissions, grantResults);
                 break;
 
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:

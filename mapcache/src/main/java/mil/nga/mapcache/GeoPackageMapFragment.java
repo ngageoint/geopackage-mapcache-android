@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
@@ -672,6 +673,36 @@ public class GeoPackageMapFragment extends Fragment implements
 
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
+    }
+
+
+
+
+
+    /**
+     * When the main activity gets a DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE,
+     * it forwards the request here.  This will search through our open fragments for the currently
+     * open GeoPackageDetailDrawer fragment (there can only be one open at a time) and tell it to
+     * execute a share task
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    public void giveSharePermissions(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        if (requestCode == MainActivity.DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE) {
+            if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Find the open GeoPackage Detail fragment, and share it
+                List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
+                if (fragments != null) {
+                    for (Fragment fragment : fragments) {
+                        if(fragment instanceof GeoPackageDetailDrawer) {
+                            ((GeoPackageDetailDrawer) fragment).shareGeopackage();
+                        }
+                    }
+                }
+            }
+        }
     }
 
 

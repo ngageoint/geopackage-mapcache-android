@@ -1,11 +1,15 @@
 package mil.nga.mapcache;
 
+import android.Manifest;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -73,7 +77,6 @@ public class GeoPackageDetailDrawer extends Fragment implements
     private FloatingActionButton newLayer;
     private Switch allLayers;
     private boolean allChecked = false;
-
 
 
 
@@ -367,10 +370,26 @@ public class GeoPackageDetailDrawer extends Fragment implements
         shareButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                ShareTask shareTask = new ShareTask(getActivity());
-                shareTask.shareDatabaseOption(geoPackageName);
+                // Get permissions to write to external storage first.  If success, it'll forward
+                // the request to the shareGeopackage() method below
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE);
             }
         });
+    }
+
+
+
+
+
+
+    /**
+     * Create a share task to export a GeoPackage
+     */
+    public void shareGeopackage(){
+        if(geoPackageName != null && !geoPackageName.isEmpty()) {
+            ShareTask shareTask = new ShareTask(getActivity());
+            shareTask.shareDatabaseOption(geoPackageName);
+        }
     }
 
 

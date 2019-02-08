@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity { //,
     /**
      * Manager fragment
      */
-    private GeoPackageManagerFragment managerFragment;
+//    private GeoPackageManagerFragment managerFragment;
 
     private GeoPackageViewModel geoPackageViewModel;
 
@@ -102,8 +102,8 @@ public class MainActivity extends AppCompatActivity { //,
         setContentView(R.layout.activity_main);
 
         // Retrieve the fragments
-        managerFragment = (GeoPackageManagerFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_manager);
+//        managerFragment = (GeoPackageManagerFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.fragment_manager);
         mapFragment = (GeoPackageMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_map);
 
@@ -170,9 +170,9 @@ public class MainActivity extends AppCompatActivity { //,
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.show(mapFragment);
         title = getString(R.string.title_map);
-        if (managerFragment != null && managerFragment.isAdded()) {
-            transaction.hide(managerFragment);
-        }
+//        if (managerFragment != null && managerFragment.isAdded()) {
+//            transaction.hide(managerFragment);
+//        }
         navigationPosition = MAP_POSITION;
         transaction.commit();
     }
@@ -270,9 +270,9 @@ public class MainActivity extends AppCompatActivity { //,
         if (mapFragment.handleMenuClick(item)) {
             return true;
         }
-        if (managerFragment.handleMenuClick(item)) {
-            return true;
-        }
+//        if (managerFragment.handleMenuClick(item)) {
+//            return true;
+//        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -306,9 +306,10 @@ public class MainActivity extends AppCompatActivity { //,
                 mapFragment.giveSharePermissions(requestCode, permissions, grantResults);
                 break;
 
-            case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
-                managerFragment.exportDatabaseAfterPermission(granted);
-                break;
+                // old export option
+            //case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                //managerFragment.exportDatabaseAfterPermission(granted);
+                //break;
         }
     }
 

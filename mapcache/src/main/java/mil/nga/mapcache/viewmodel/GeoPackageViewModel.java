@@ -1,6 +1,7 @@
 package mil.nga.mapcache.viewmodel;
 
 import android.app.Activity;
+import android.support.v7.app.AlertDialog;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
@@ -505,6 +506,16 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return false;
     }
 
+
+    /**
+     * Get an alert dialog filled with a GeoPackage's details
+     * @param geoPackageName
+     * @param activity
+     * @return
+     */
+    public AlertDialog getGeoPackageDetailDialog(String geoPackageName, Activity activity){
+        return repository.getGeoPackageDetailDialog(geoPackageName, activity);
+    }
 
     // Indexing functions
     @Override

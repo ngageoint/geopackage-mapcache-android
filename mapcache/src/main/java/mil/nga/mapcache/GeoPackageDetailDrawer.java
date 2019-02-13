@@ -35,6 +35,8 @@ import java.util.List;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.mapcache.data.GeoPackageTable;
@@ -344,6 +346,14 @@ public class GeoPackageDetailDrawer extends Fragment implements
      *  Create listeners for the row of buttons (Rename, Share, Copy, Delete)
      */
     private void createButtonListeners(){
+
+        Button infoButton = (Button) view.findViewById(R.id.detail_info);
+        infoButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                viewDatabaseOption(geoPackageName);
+            }
+        });
         // Set listeners for geopackage action buttons
         Button renameButton = (Button) view.findViewById(R.id.detail_rename);
         renameButton.setOnClickListener(new View.OnClickListener(){
@@ -377,6 +387,20 @@ public class GeoPackageDetailDrawer extends Fragment implements
         });
     }
 
+
+
+
+
+
+    /**
+     * View database information
+     *
+     * @param database
+     */
+    private void viewDatabaseOption(final String database) {
+        AlertDialog viewDialog = geoPackageViewModel.getGeoPackageDetailDialog(database, getActivity());
+        viewDialog.show();
+    }
 
 
 

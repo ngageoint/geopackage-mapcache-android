@@ -104,7 +104,8 @@
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingRight="@dimen/activity_horizontal_margin">
+            >
+            <!--android:paddingRight="@dimen/activity_horizontal_margin"-->
 
             <Button
                 android:id="@+id/detail_info"
@@ -113,7 +114,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/ripple"
                 android:drawableTop="@drawable/material_info"
-                android:text="info" />
+                android:text="Details" />
             <!--android:background="@drawable/ripple"-->
 
 

@@ -1,6 +1,9 @@
 package mil.nga.mapcache.repository;
 
+import android.app.Activity;
+import android.support.v7.app.AlertDialog;
 import android.app.Application;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 
 import java.io.File;
@@ -18,6 +21,8 @@ import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.db.metadata.GeoPackageMetadata;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
@@ -29,6 +34,7 @@ import mil.nga.geopackage.tiles.matrix.TileMatrixDao;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
@@ -47,23 +53,23 @@ public class GeoPackageRepository {
     private List<GeoPackage> geoPackages = new ArrayList<>();
     private GeoPackageDatabases active;
 
-    public GeoPackageRepository(@NonNull Application application){
+    public GeoPackageRepository(@NonNull Application application) {
         manager = GeoPackageFactory.getManager(application);
         active = GeoPackageDatabases.getInstance(application);
     }
 
-    public GeoPackage getGeoPackageByName(String name){
-        try{
+    public GeoPackage getGeoPackageByName(String name) {
+        try {
             GeoPackage geo = manager.open(name);
             geo.close();
             return geo;
-        }catch(Exception e){
+        } catch (Exception e) {
 
         }
         return null;
     }
 
-    public boolean setGeoPackageName(String oldName, String newName){
+    public boolean setGeoPackageName(String oldName, String newName) {
         return manager.rename(oldName, newName);
     }
 
@@ -71,7 +77,7 @@ public class GeoPackageRepository {
         return geoPackages;
     }
 
-    public List<List<GeoPackageTable>> regenerateTableList(){
+    public List<List<GeoPackageTable>> regenerateTableList() {
         geoPackages.clear();
         List<List<GeoPackageTable>> databaseTables = new ArrayList<List<GeoPackageTable>>();
         StringBuilder errorMessage = new StringBuilder();
@@ -160,7 +166,7 @@ public class GeoPackageRepository {
 
                 } catch (Exception e) {
                     // If the error message contains "invalid geopackage", this GP will be labeled as invalid
-                    invalidGP = e.toString().indexOf("Invalid GeoPackage") !=-1? true: false;
+                    invalidGP = e.toString().indexOf("Invalid GeoPackage") != -1 ? true : false;
                     exceptions.add(e);
                 }
 
@@ -188,10 +194,10 @@ public class GeoPackageRepository {
                     } else {
                         // If a geopackage is missing tables, it's invalid, don't add to the list.
                         // make sure it's deleteed
-                        if(!invalidGP){
+                        if (!invalidGP) {
                             databaseTables.add(tables);
 //                        geoAdapter.insertToEnd(tables);
-                        }else{
+                        } else {
                             manager.delete(database);
                         }
 
@@ -214,32 +220,32 @@ public class GeoPackageRepository {
 
 
     /**
-     *  Returns the GeoPackage's size
+     * Returns the GeoPackage's size
      */
-    public String getGeoPackageSize(String geoPackageName){
+    public String getGeoPackageSize(String geoPackageName) {
         return manager.readableSize(geoPackageName);
     }
 
     /**
      * Delete a geoPackage by name
      */
-    public boolean deleteGeoPackage(String geoPackageName){
+    public boolean deleteGeoPackage(String geoPackageName) {
         return manager.delete(geoPackageName);
     }
 
     /**
      * Delete a layer from a geopackage
      */
-    public boolean removeLayerFromGeo(String geoPackageName, String layerName){
+    public boolean removeLayerFromGeo(String geoPackageName, String layerName) {
         try {
             GeoPackage geo = manager.open(geoPackageName);
-            if(geo != null) {
+            if (geo != null) {
                 geo.deleteTable(layerName);
                 geo.close();
                 return true;
             }
             return false;
-        } catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -247,8 +253,8 @@ public class GeoPackageRepository {
     /**
      * Rename a layer in a geopackage
      */
-    public boolean renameLayer(String tableName, String gpName, String newName){
-       // find table by name
+    public boolean renameLayer(String tableName, String gpName, String newName) {
+        // find table by name
         // change table identifier field
         return false;
     }
@@ -256,42 +262,42 @@ public class GeoPackageRepository {
     /**
      * Create a geoPackage by name
      */
-    public boolean createGeoPackage(String geoPackageName){
+    public boolean createGeoPackage(String geoPackageName) {
         return manager.create(geoPackageName);
     }
 
     /**
      * Copy a geoPackage by name
      */
-    public boolean copyGeoPackage(String geoPackageName, String newName){
+    public boolean copyGeoPackage(String geoPackageName, String newName) {
         return manager.copy(geoPackageName, newName);
     }
 
     /**
      * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
      */
-    public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
+    public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress) {
         return manager.importGeoPackage(name, source, progress);
     }
 
     /**
-     *  Returns a database file
+     * Returns a database file
      */
-    public File getDatabaseFile(String database){
+    public File getDatabaseFile(String database) {
         return manager.getFile(database);
     }
 
     /**
-     *  Returns true if it's an external db
+     * Returns true if it's an external db
      */
-    public boolean isExternal(String database){
+    public boolean isExternal(String database) {
         return manager.isExternal(database);
     }
 
     /**
-     *  Returns true if exists
+     * Returns true if exists
      */
-    public boolean exists(String database){
+    public boolean exists(String database) {
         return manager.exists(database);
     }
 
@@ -302,7 +308,7 @@ public class GeoPackageRepository {
      * @param database name to reference the database
      * @return true if imported successfully
      */
-    public boolean importGeoPackageAsExternalLink(String path, String database){
+    public boolean importGeoPackageAsExternalLink(String path, String database) {
         return manager.importGeoPackageAsExternalLink(path, database);
     }
 
@@ -315,12 +321,12 @@ public class GeoPackageRepository {
      * @return true if loaded
      */
     public boolean importGeoPackage(String database, InputStream stream,
-                                    GeoPackageProgress progress){
+                                    GeoPackageProgress progress) {
         return manager.importGeoPackage(database, stream, progress);
     }
 
     /**
-     *  Returns the list of tile tables for a geopackage
+     * Returns the list of tile tables for a geopackage
      */
     public List<String> getTileTables(String database){
         GeoPackage geo = manager.open(database);
@@ -435,7 +441,7 @@ public class GeoPackageRepository {
     /**
      * Get table Contents object
      */
-    public Contents getTableContents(String gpName, String tableName){
+    public Contents getTableContents(String gpName, String tableName) {
         GeoPackage geo = null;
         try{
             geo = manager.open(gpName);
@@ -456,4 +462,69 @@ public class GeoPackageRepository {
     }
 
 
+    /**
+     * Create an alert dialog with a GeoPackage's details for viewing
+     *
+     * @param geoPackageName
+     * @param activity
+     * @return
+     */
+    public AlertDialog getGeoPackageDetailDialog(String geoPackageName, Activity activity) {
+        StringBuilder databaseInfo = new StringBuilder();
+        GeoPackage geoPackage = manager.open(geoPackageName, false);
+        try {
+            SpatialReferenceSystemDao srsDao = geoPackage
+                    .getSpatialReferenceSystemDao();
+
+            List<SpatialReferenceSystem> srsList = srsDao.queryForAll();
+            databaseInfo.append("Size: ")
+                    .append(manager.readableSize(geoPackageName));
+            databaseInfo.append("\n\nLocation: ").append(
+                    manager.isExternal(geoPackageName) ? "External" : "Local");
+            databaseInfo.append("\nPath: ").append(manager.getPath(geoPackageName));
+            databaseInfo.append("\n\nFeature Tables: ").append(
+                    geoPackage.getFeatureTables().size());
+            databaseInfo.append("\nTile Tables: ").append(
+                    geoPackage.getTileTables().size());
+            databaseInfo.append("\n\nSpatial Reference Systems: ").append(
+                    srsList.size());
+            for (SpatialReferenceSystem srs : srsList) {
+                databaseInfo.append("\n");
+                addSrs(databaseInfo, srs);
+            }
+
+        } catch (Exception e) {
+            databaseInfo.append(e.getMessage());
+        } finally {
+            geoPackage.close();
+        }
+        AlertDialog viewDialog = new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
+                .setTitle(geoPackageName)
+                .setPositiveButton(R.string.button_ok_label,
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        }).setMessage(databaseInfo.toString()).create();
+
+        return viewDialog;
+
+    }
+
+    /**
+     * Add Spatial Reference System to the info
+     *
+     * @param info
+     * @param srs
+     */
+    private void addSrs(StringBuilder info, SpatialReferenceSystem srs) {
+        info.append("\nSRS Name: ").append(srs.getSrsName());
+        info.append("\nSRS ID: ").append(srs.getSrsId());
+        info.append("\nOrganization: ").append(srs.getOrganization());
+        info.append("\nCoordsys ID: ").append(srs.getOrganizationCoordsysId());
+        info.append("\nDefinition: ").append(srs.getDefinition());
+        info.append("\nDescription: ").append(srs.getDescription());
+    }
 }

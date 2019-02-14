@@ -9,21 +9,21 @@
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/layout_main"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="fill_parent"
             android:orientation="vertical">
 
             <!--Small tab to indicate drag window    -->
             <View
                 android:layout_width="30dp"
                 android:layout_height="1dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="0dp"
                 android:layout_gravity="center"
                 android:background="@color/horizontal_line" />
@@ -35,6 +35,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
+                android:paddingLeft="8dp"
                 android:paddingBottom="8dp">
 
                 <ImageButton
@@ -51,91 +52,195 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:text="@string/layer_detail_page"
-                    android:textAppearance="@style/textAppearanceSubtitle1" />
+                    android:textAppearance="@style/textAppearanceHeadline6" />
 
             </LinearLayout>
 
-            <!-- Icon row: info, rename, share, copy, delete -->
-            <LinearLayout
-                android:id="@+id/LinearLayout01"
+
+
+            <!--Layer type and delete button-->
+            <RelativeLayout
+                android:id="@+id/typeAndDelete"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
                 android:orientation="horizontal"
-                android:paddingRight="@dimen/activity_horizontal_margin">
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingLeft="24dp"
+                android:paddingBottom="16dp">
 
-                <Button
-                    android:id="@+id/layer_rename"
+                <ImageView
+                    android:id="@+id/layer_type_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
-                    android:drawableTop="@drawable/material_edit"
-                    android:text="Edit" />
-                <!--android:background="@android:color/transparent"-->
+                    android:src="@drawable/material_feature" >
+                </ImageView>
 
-
-
-                <Button
-                    android:id="@+id/layer_enable"
+                <TextView
+                    android:id="@+id/layerType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
-                    android:drawableTop="@drawable/ic_check_box_black_24dp"
-                    android:text="Enable" />
+                    android:text="Feature Layer"
+                    android:layout_toRightOf="@+id/layer_type_icon"
+                    android:paddingLeft="8dp"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
-                <Button
-                    android:id="@+id/layer_share"
+                <TextView
+                    android:id="@+id/layerDelete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
-                    android:drawableTop="@drawable/material_info"
-                    android:text="Details" />
+                    android:layout_alignParentRight="true"
+                    android:text="Delete"
+                    android:textStyle="bold"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                    android:textColor="@color/nga_warning" />
+                    <!--make it a button-->
+                    <!--android:background="@color/nga_warning_light"-->
+                    <!--android:paddingVertical="8dp"-->
+                    <!--android:paddingHorizontal="16dp"-->
 
-                <Button
-                    android:id="@+id/layer_delete"
+            </RelativeLayout>
+
+
+
+
+
+            <!--Tile count and enable button-->
+            <RelativeLayout
+                android:id="@+id/layerDetailFields"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/light_blue_bg"
+                android:orientation="horizontal"
+                android:paddingLeft="24dp"
+                android:paddingTop="16dp">
+
+                <TextView
+                    android:id="@+id/layerTileCountLbl"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
-                    android:drawableTop="@drawable/material_delete"
-                    android:text="Delete" />
-            </LinearLayout>
+                    android:text="Tiles"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
-            <View
-                style="@style/Divider"
-                android:layout_marginBottom="16dp" />
+                <TextView
+                    android:id="@+id/layerTileCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/layerTileCountLbl"
+                    android:text="0"
+                    android:textAppearance="@style/textAppearanceSubtitle2" />
 
+                <TextView
+                    android:id="@+id/enableLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/enableSwitch"
+                    android:paddingRight="16dp"
+                    android:text="Enable"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
-            <TextView
-                android:id="@+id/text_number_items"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingBottom="8dp"
-                android:text="Tiles: "
-                android:textAppearance="@style/textAppearanceSubtitle2" />
-
-            <TextView
-                android:id="@+id/text_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:text="Description: "
-                android:textAppearance="@style/textAppearanceSubtitle2" />
-
+                <Switch
+                    android:id="@+id/enableSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:paddingLeft="8dp" />
 
 
+                <TextView
+                    android:id="@+id/layerDescriptionLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/layerTileCount"
+                    android:paddingTop="8dp"
+                    android:text="Description"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+                <TextView
+                    android:id="@+id/text_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/layerDescriptionLabel"
+                    android:text="Layer Description"
+                    android:textAppearance="@style/textAppearanceSubtitle2" />
+
+
+            </RelativeLayout>
 
 
 
 
+            <!--&lt;!&ndash; Icon row: info, rename, share, copy, delete &ndash;&gt;-->
+            <!--<LinearLayout-->
+                <!--android:id="@+id/LinearLayout01"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginBottom="8dp"-->
+                <!--android:layout_marginTop="16dp"-->
+                <!--android:gravity="center"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:paddingRight="@dimen/activity_horizontal_margin">-->
+
+                <!--<Button-->
+                    <!--android:id="@+id/layer_rename"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/ripple"-->
+                    <!--android:drawableTop="@drawable/material_edit"-->
+                    <!--android:text="Edit" />-->
+                <!--&lt;!&ndash;android:background="@android:color/transparent"&ndash;&gt;-->
 
 
+
+                <!--<Button-->
+                    <!--android:id="@+id/layer_enable"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/ripple"-->
+                    <!--android:drawableTop="@drawable/ic_check_box_black_24dp"-->
+                    <!--android:text="Enable" />-->
+
+                <!--<Button-->
+                    <!--android:id="@+id/layer_share"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/ripple"-->
+                    <!--android:drawableTop="@drawable/material_info"-->
+                    <!--android:text="Details" />-->
+
+                <!--<Button-->
+                    <!--android:id="@+id/layer_delete"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:background="@drawable/ripple"-->
+                    <!--android:drawableTop="@drawable/material_delete"-->
+                    <!--android:text="Delete" />-->
+            <!--</LinearLayout>-->
+
+            <!--<View-->
+                <!--style="@style/Divider"-->
+                <!--android:layout_marginBottom="16dp" />-->
+
+
+            <!--<TextView-->
+                <!--android:id="@+id/text_number_items"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
+                <!--android:paddingBottom="8dp"-->
+                <!--android:text="Tiles: "-->
+                <!--android:textAppearance="@style/textAppearanceSubtitle2" />-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/text_description"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
+                <!--android:text="Description: "-->
+                <!--android:textAppearance="@style/textAppearanceSubtitle2" />-->
 
 
         </LinearLayout>

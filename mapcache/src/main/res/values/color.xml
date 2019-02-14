@@ -39,6 +39,9 @@
     <color name="status_bar">#4E97C2</color>
     <color name="status_bar_light">#cce0ec</color>
 
+    <color name="light_blue_bg">#B4E0E8EC</color>
+
+
 
 
     <!-- NGA specific colors -->
@@ -50,6 +53,8 @@
     <color name="nga_accent_primary">#3AA6AC</color>
     <color name="nga_accent_light">#73C1C5</color>
     <color name="nga_accent_bright">#AEDBDD</color>
+    <color name="nga_warning">#A12D0F</color>
+    <color name="nga_warning_light">#E6D0CB</color>
 
 
 

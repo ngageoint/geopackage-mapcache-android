@@ -64,7 +64,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingRight="24dp"
                 android:paddingLeft="24dp"
                 android:paddingBottom="16dp">
 
@@ -112,6 +112,7 @@
                 android:background="@color/light_blue_bg"
                 android:orientation="horizontal"
                 android:paddingLeft="24dp"
+                android:paddingRight="24dp"
                 android:paddingTop="16dp">
 
                 <TextView
@@ -133,8 +134,7 @@
                     android:id="@+id/enableLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/enableSwitch"
-                    android:paddingRight="16dp"
+                    android:layout_alignParentRight="true"
                     android:text="Enable"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
@@ -142,8 +142,9 @@
                     android:id="@+id/enableSwitch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/enableLabel"
                     android:layout_alignParentRight="true"
-                    android:paddingLeft="8dp" />
+                    />
 
 
                 <TextView

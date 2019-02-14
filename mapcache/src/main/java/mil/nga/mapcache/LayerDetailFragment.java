@@ -17,8 +17,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,15 +39,9 @@ import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
  * create an instance of this fragment.
  */
 public class LayerDetailFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final String GEO_NAME = "geoPackageName";
     private static final String GEO_LAYER_NAME = "geoPackageLayerName";
 
-
-    // TODO: Rename and change types of parameters
     private String geoPackageName;
     private String geoPackageLayerName;
     private OnFragmentInteractionListener mListener;
@@ -56,9 +52,13 @@ public class LayerDetailFragment extends Fragment {
     private static View view;
     private boolean isActive = false;
     private TextView dataCountText;
-    private Button enableButton;
-    private Drawable disableIcon;
-    private Drawable enableIcon;
+    private TextView layerTypeText;
+    private TextView layerCountLbl;
+    private ImageView layerTypeIcon;
+    //    private Button enableButton;
+//    private Drawable disableIcon;
+//    private Drawable enableIcon;
+    private Switch layerOn;
 
 
 
@@ -70,8 +70,6 @@ public class LayerDetailFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment LayerDetailFragment.
      */
     public static LayerDetailFragment newInstance(String geoPackageName, String layerName) {
@@ -102,12 +100,19 @@ public class LayerDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         view =  inflater.inflate(R.layout.fragment_layer_detail, container, false);
 
-        dataCountText = (TextView) view.findViewById(R.id.text_number_items);
-        enableButton = (Button) view.findViewById(R.id.layer_enable);
-        enableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_outline_blank_black_24dp);
-        disableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_black_24dp);
-        disableIcon.setBounds(0, 0, 84, 84);
-        enableIcon.setBounds(0, 0, 84, 84);
+        dataCountText = (TextView) view.findViewById(R.id.layerTileCount);
+        layerTypeText = (TextView) view.findViewById(R.id.layerType);
+        layerCountLbl = (TextView) view.findViewById(R.id.layerTileCountLbl);
+        layerTypeIcon = (ImageView) view.findViewById(R.id.layer_type_icon);
+        layerOn = (Switch) view.findViewById(R.id.enableSwitch);
+//        enableButton = (Button) view.findViewById(R.id.layer_enable);
+//        enableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_outline_blank_black_24dp);
+//        disableIcon = getContext().getResources().getDrawable(R.drawable.ic_check_box_black_24dp);
+//        disableIcon.setBounds(0, 0, 84, 84);
+//        enableIcon.setBounds(0, 0, 84, 84);
+
+        // Set the switch to true if it's active on load
+        layerOn.setChecked(selectedLayer.isActive());
 
         // Set listener for leaving this view
         backArrow = view.findViewById(R.id.layerPageBackButton);
@@ -124,7 +129,6 @@ public class LayerDetailFragment extends Fragment {
 
     /**
      * update the currently loaded layer object
-     * @param uri
      */
     public void update(){
         selectedGeo = geoPackageViewModel.getGeoPackageByName(geoPackageName);
@@ -136,14 +140,14 @@ public class LayerDetailFragment extends Fragment {
             // Set descriptive text about the layer
             setDescriptiveText();
 
-            // Set the enable / disable button based on current active status
-            if (selectedLayer.isActive()) {
-                enableButton.setCompoundDrawables(null, disableIcon, null, null);
-                enableButton.setText("Disable");
-            } else{
-                enableButton.setCompoundDrawables(null, enableIcon, null, null);
-                enableButton.setText("Enable");
-            }
+//            // Set the enable / disable button based on current active status
+//            if (selectedLayer.isActive()) {
+//                enableButton.setCompoundDrawables(null, disableIcon, null, null);
+//                enableButton.setText("Disable");
+//            } else{
+//                enableButton.setCompoundDrawables(null, enableIcon, null, null);
+//                enableButton.setText("Enable");
+//            }
         }
     }
 
@@ -152,22 +156,35 @@ public class LayerDetailFragment extends Fragment {
      * Set descriptive text
      */
     public void setDescriptiveText(){
+        if(selectedLayer.getType().equals(GeoPackageTableType.FEATURE)){
+            layerTypeText.setText("Feature Layer");
+            layerCountLbl.setText("Features");
+            layerTypeIcon.setImageResource(R.drawable.material_feature);
+        } else if(selectedLayer.getType().equals(GeoPackageTableType.TILE)){
+            layerTypeText.setText("Tile Layer");
+            layerCountLbl.setText("Tiles");
+            layerTypeIcon.setImageResource(R.drawable.material_tile);
+        }
+
         String countText = "";
         if(selectedLayer.getType().equals(GeoPackageTableType.FEATURE)){
-            countText = "Features: " + selectedLayer.getCount();
+            countText = "" + selectedLayer.getCount();
+//            countText = "Features: " + selectedLayer.getCount();
         } else if(selectedLayer.getType().equals(GeoPackageTableType.TILE)){
-            countText = "Tiles: " + selectedLayer.getCount();
+            countText = "" + selectedLayer.getCount();
+//            countText = "Features: " + selectedLayer.getCount();
         } else if(selectedLayer.getType().equals(GeoPackageTableType.FEATURE_OVERLAY)){
-            countText = "Features: " + selectedLayer.getCount();
+            countText = "" + selectedLayer.getCount();
+//            countText = "Features: " + selectedLayer.getCount();
         }
         dataCountText.setText(countText);
 
         // Description is inside the contents
         Contents contents = geoPackageViewModel.getTableContents(geoPackageName, geoPackageLayerName);
         TextView descriptionText = (TextView) view.findViewById(R.id.text_description);
-        String descText = "Description: none";
+        String descText = "None";
         if(!TextUtils.isEmpty(contents.getDescription()) ){
-            descText = "Description: " + contents.getDescription();
+            descText = contents.getDescription();
         }
         descriptionText.setText(descText);
     }
@@ -186,20 +203,26 @@ public class LayerDetailFragment extends Fragment {
 //                renameLayerOption(selectedLayer.getName());
 //            }
 //        });
-        Button deleteButton = (Button) view.findViewById(R.id.layer_delete);
-        deleteButton.setOnClickListener(new View.OnClickListener(){
+        TextView deleteText = (TextView) view.findViewById(R.id.layerDelete);
+        deleteText.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 deleteLayerOption();
             }
         });
-        Button enableToggle = (Button) view.findViewById(R.id.layer_enable);
-        enableToggle.setOnClickListener(new View.OnClickListener(){
+        layerOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                toggleEnabled();
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                toggleEnabled(b);
             }
         });
+//        Button enableToggle = (Button) view.findViewById(R.id.layer_enable);
+//        enableToggle.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                toggleEnabled();
+//            }
+//        });
 //        Button shareButton = (Button) view.findViewById(R.id.layer_share);
 //        shareButton.setOnClickListener(new View.OnClickListener(){
 //            @Override
@@ -208,15 +231,17 @@ public class LayerDetailFragment extends Fragment {
 //                shareTask.shareDatabaseOption(geoPackageName);
 //            }
 //        });
+
+
     }
 
 
     /**
      *  Toggle layer enabled
      */
-    private void toggleEnabled(){
-        if (selectedLayer.isActive()) {
-            // Disable
+    private void toggleEnabled(boolean switchedOff){
+        if (!switchedOff) {
+            // Disable - switch was turned off
             boolean removed = geoPackageViewModel.removeActiveTableByName(geoPackageLayerName, geoPackageName);
             update();
         } else{
@@ -301,7 +326,6 @@ public class LayerDetailFragment extends Fragment {
     /**
      * Alert window to confirm then call to delete a layer from a geopackage
      *
-     * @param database
      */
     private void deleteLayerOption() {
         // Create Alert window with basic input text layout

@@ -93,6 +93,12 @@
         <item name="android:textSize">14sp</item>
         <item name="android:letterSpacing">0.0071</item>
     </style>
+    <style name="textAppearanceSubtitle2_light_heavy" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/nav_not_selected</item>
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
     <style name="textAppearanceBody1" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_regular</item>
         <item name="android:textSize">16sp</item>

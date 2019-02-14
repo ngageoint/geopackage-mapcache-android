@@ -115,6 +115,8 @@
                 android:paddingRight="24dp"
                 android:paddingTop="16dp">
 
+
+                <!--Tile / Feature count-->
                 <TextView
                     android:id="@+id/layerTileCountLbl"
                     android:layout_width="wrap_content"
@@ -128,8 +130,11 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerTileCountLbl"
                     android:text="0"
-                    android:textAppearance="@style/textAppearanceSubtitle2" />
+                    android:textAppearance="@style/textAppearanceBody1" />
 
+
+
+                <!--Enable / Disable switch-->
                 <TextView
                     android:id="@+id/enableLabel"
                     android:layout_width="wrap_content"
@@ -147,6 +152,8 @@
                     />
 
 
+
+                <!--Description-->
                 <TextView
                     android:id="@+id/layerDescriptionLabel"
                     android:layout_width="wrap_content"
@@ -162,7 +169,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerDescriptionLabel"
                     android:text="Layer Description"
-                    android:textAppearance="@style/textAppearanceSubtitle2" />
+                    android:textAppearance="@style/textAppearanceBody1" />
 
 
             </RelativeLayout>

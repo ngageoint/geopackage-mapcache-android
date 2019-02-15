@@ -9,6 +9,33 @@
         android:orientation="vertical"
         android:scrollbars="vertical" >
 
+        <!-- logo and title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/new_layer_close_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/material_feature" />
+
+            <TextView
+                android:id="@+id/new_layer_title"
+                style="@style/Base.TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/alert_logo"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@+id/alert_logo"
+                android:text="New Feature Layer" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

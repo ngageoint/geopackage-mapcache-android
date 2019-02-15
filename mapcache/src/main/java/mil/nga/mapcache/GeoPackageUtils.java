@@ -285,7 +285,7 @@ public class GeoPackageUtils {
     public static void prepareBoundingBoxInputs(final Activity activity,
                                                 final EditText minLatInput, final EditText maxLatInput,
                                                 final EditText minLonInput, final EditText maxLonInput,
-                                                Button preloadedButton) {
+                                                TextView preloadedButton) {
 
         minLatInput
                 .setFilters(new InputFilter[]{new InputFilterDecimalMinMax(

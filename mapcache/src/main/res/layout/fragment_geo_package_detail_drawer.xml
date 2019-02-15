@@ -78,7 +78,7 @@
             android:layout_marginBottom="4dp"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:text="Size"
-            android:textAppearance="@style/textAppearanceSubtitle2" />
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
         <TextView
             android:id="@+id/text_tiles"
@@ -87,7 +87,7 @@
             android:layout_marginBottom="4dp"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:text="Tiles"
-            android:textAppearance="@style/textAppearanceSubtitle2" />
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
         <TextView
             android:id="@+id/text_features"
@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:text="Features"
-            android:textAppearance="@style/textAppearanceSubtitle2" />
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
         <!-- Icon row: info, rename, share, copy, delete -->
         <LinearLayout
@@ -104,6 +104,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="16dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:gravity="center"
             android:orientation="horizontal"
             >
@@ -160,7 +162,10 @@
 
         <View
             style="@style/Divider"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            />
 
         <!--<TextView-->
             <!--android:id="@+id/text_layers"-->
@@ -177,7 +182,6 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_marginBottom="8dp"
-            android:paddingRight="@dimen/activity_horizontal_margin"
             >
             <TextView
                 android:id="@+id/text_layers"
@@ -197,7 +201,7 @@
                 android:layout_gravity="bottom|right"
                 android:gravity="right"
                 android:layout_weight="1"
-                android:text="All layers"
+                android:text="Enable all"
                 android:textAppearance="@style/textAppearanceSubtitle1" />
 
             <Switch
@@ -213,7 +217,9 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/layer_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            >
         </android.support.v7.widget.RecyclerView>
 
 

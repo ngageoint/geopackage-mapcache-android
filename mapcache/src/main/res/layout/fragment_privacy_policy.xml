@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
         android:text="@string/privacy_policy" />
     </ScrollView>
 

@@ -256,7 +256,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
                 .findViewById(R.id.bounding_box_min_longitude_input);
         final EditText maxLonInput = (EditText) createFeaturesView
                 .findViewById(R.id.bounding_box_max_longitude_input);
-        final Button preloadedLocationsButton = (Button) createFeaturesView
+        final TextView preloadedLocationsButton = (TextView) createFeaturesView
                 .findViewById(R.id.bounding_box_preloaded);
         final Spinner geometryTypeSpinner = (Spinner) createFeaturesView
                 .findViewById(R.id.create_features_geometry_type);

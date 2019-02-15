@@ -29,6 +29,15 @@
             android:text="Import URL" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/alert_description"
+        style="@style/textAppearanceSubtitle2_light_heavy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
+        android:visibility="gone"
+        android:text=" " />
+
     <!--Name-->
     <android.support.design.widget.TextInputLayout
         android:id="@+id/edit_text_layout"

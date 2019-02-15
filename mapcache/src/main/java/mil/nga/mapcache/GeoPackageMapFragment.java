@@ -2524,15 +2524,26 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void setMaxFeatures() {
 
-        final EditText input = new EditText(getActivity());
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_edit);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Max Active Features");
+        // Set description
+        TextView descText = (TextView) alertView.findViewById(R.id.alert_description);
+        descText.setText("Limit the number of features to display in active layers for faster processing");
+        descText.setVisibility(View.VISIBLE);
+        // Set input to current max features value
+        final EditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
         final String maxFeatures = String.valueOf(getMaxFeatures());
         input.setText(maxFeatures);
+        input.setHint(maxFeatures);
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(getString(R.string.map_max_features))
-                .setMessage(getString(R.string.map_max_features_message))
-                .setView(input)
+                .setView(alertView)
                 .setPositiveButton(getString(R.string.button_ok_label),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,

@@ -541,6 +541,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * Text view to show "no geopackages found" message when the list is empty
      */
     private TextView emptyView;
+    private TextView getStartedView;
+    private ImageView emptyViewIcon;
 
     /**
      * Progress dialog for network operations
@@ -940,12 +942,29 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void setListVisibility(boolean empty){
         emptyView = (TextView) view.findViewById(R.id.empty_view);
+        emptyViewIcon = (ImageView) view.findViewById(R.id.empty_view_icon);
+        getStartedView = (TextView) view.findViewById(R.id.get_started);
+
+        // Give the get started message a listener
+        getStartedView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createNewWizard();
+            }
+        });
+
+        // Set the visibility
         if(empty){
             geoPackageRecyclerView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
+            emptyViewIcon.setVisibility(View.VISIBLE);
+            getStartedView.setVisibility(View.VISIBLE);
         } else{
             geoPackageRecyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
+            emptyViewIcon.setVisibility(View.GONE);
+            getStartedView.setVisibility(View.GONE);
+
         }
     }
 

@@ -428,12 +428,32 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
 
+                    <ImageView
+                        android:id="@+id/empty_view_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center|center_vertical"
+                        android:layout_gravity="center|center_vertical"
+                        android:paddingTop="16dp"
+                        android:background="@drawable/material_info" />
+
                     <TextView
                         android:id="@+id/empty_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
+                        android:paddingTop="8dp"
                         android:text="@string/no_packages_text" />
+
+                    <TextView
+                        android:id="@+id/get_started"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingTop="16dp"
+                        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                        android:textColor="@color/nga_primary_light"
+                        android:text="Get Started" />
 
                     <android.support.v7.widget.AppCompatTextView
                         android:id="@+id/enabledDatabase"

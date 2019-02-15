@@ -29,22 +29,30 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            >
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="16dp"
                 android:text="MapCache"
-                android:textAppearance="@style/textAppearanceHeadline6"/>
+                android:textAppearance="@style/textAppearanceHeadline5"/>
             <TextView
                 android:id="@+id/mapcache_version"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:clickable="false"
-                android:paddingLeft="16dp"
                 android:textAppearance="@style/textAppearanceSubtitle2_light"
-                android:text="App Version: 2.0.0"/>
+                android:text="App Version 2.0.0"/>
+
+            <TextView
+                android:id="@+id/mapcache_release_date"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:textAppearance="@style/textAppearanceSubtitle2_light"
+                android:text="Released April 2019"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -54,7 +62,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="16dp"
         android:text="@string/about_mapcache"
-        android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"/>
 
         <TextView
             android:id="@+id/github_url"
@@ -64,7 +72,7 @@
             android:linksClickable="true"
             android:clickable="true"
             android:text="MapCache on GitHub"
-            android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"/>
 
         <TextView
             android:id="@+id/geopackage_github_url"
@@ -74,7 +82,7 @@
             android:linksClickable="true"
             android:clickable="true"
             android:text="GeoPackage Android on GitHub"
-            android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"/>
 
         <TextView
             android:id="@+id/ogc_url"
@@ -84,7 +92,7 @@
             android:linksClickable="true"
             android:clickable="true"
             android:text="OGC GeoPackage"
-            android:textAppearance="@style/textAppearanceSubtitle2_light"/>
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

@@ -68,14 +68,22 @@
     <!--android:text="@string/example_geopackages" />-->
     <!--android:textAppearance="@style/Base.TextAppearance.AppCompat.Body2"-->
 
-    <android.support.v7.widget.AppCompatTextView
+    <!--<android.support.v7.widget.AppCompatTextView-->
+        <!--android:id="@+id/import_examples"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:textAppearance="@style/textAppearanceBody2"-->
+        <!--android:textColor="@color/nga_primary_primary"-->
+        <!--android:text="@string/example_geopackages"/>-->
+
+    <TextView
         android:id="@+id/import_examples"
+        style="@style/textAppearanceSubtitle2_light_heavy"
+        android:textColor="@color/nga_primary_light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/textAppearanceBody2"
-        android:textColor="@color/nga_primary_primary"
-        android:text="@string/example_geopackages"/>
+        android:text="Example GeoPackages" />
 
 
     <!--<TextView-->

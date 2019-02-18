@@ -480,8 +480,8 @@ public class ImportTask {
                                                       String path, Uri uri,
                                                       String suffix) {
         ProgressDialog dialog = new ProgressDialog(activity);
-        dialog.setMessage(importLabel + " "
-                + database + "\n\n" + (path != null ? path : uri.getPath()) + (suffix != null ? suffix : ""));
+        dialog.setTitle(importLabel);
+        dialog.setMessage("\n" + database + "\n\n" + (path != null ? path : uri.getPath()) + (suffix != null ? suffix : ""));
         dialog.setCancelable(false);
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE,
                 cancelLabel,

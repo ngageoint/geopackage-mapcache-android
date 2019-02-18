@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.PowerManager;
+import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
@@ -78,7 +79,7 @@ public class ImportTask {
             AlertDialog.Builder dialog = new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle);
             dialog.setView(importFileView);
 
-            final EditText nameInput = (EditText) importFileView
+            final TextInputEditText nameInput = (TextInputEditText) importFileView
                     .findViewById(R.id.import_file_name_input);
             final RadioButton copyRadioButton = (RadioButton) importFileView
                     .findViewById(R.id.import_file_copy_radio_button);
@@ -94,8 +95,7 @@ public class ImportTask {
             if (path == null) {
                 externalRadioButton.setEnabled(false);
             }
-            dialog.setTitle(importLabel)
-                    .setPositiveButton(okLabel,
+            dialog.setPositiveButton(okLabel,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int whichButton) {

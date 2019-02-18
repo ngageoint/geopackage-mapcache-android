@@ -412,7 +412,8 @@
                         android:layout_height="wrap_content"
                         android:text="GeoPackages"
                         android:layout_marginBottom="8dp"
-                        android:textAppearance="@style/textAppearanceSubtitle1" />
+                        android:paddingLeft="4dp"
+                        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
                     <!--horizontal line-->
                     <!--<View-->

@@ -104,6 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:text="features"
+                    android:textColor="@color/black87"
                     android:textAppearance="@style/textAppearanceCaption" />
 
                 <TextView
@@ -112,6 +113,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="16dp"
                     android:layout_marginBottom="8dp"
+                    android:textColor="@color/black87"
                     android:text="tiles"
                     android:textAppearance="@style/textAppearanceCaption" />
 

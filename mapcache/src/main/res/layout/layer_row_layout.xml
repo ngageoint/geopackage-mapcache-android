@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@+id/label"
-        android:textAppearance="@style/textAppearanceSubtitle1"
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
         android:paddingBottom="16dp"
         android:paddingTop="16dp">
     </TextView>

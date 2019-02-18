@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:text="@string/geopackage_detail_page"
-                android:textAppearance="@style/textAppearanceSubtitle1" />
+                android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
 
         </LinearLayout>
 
@@ -202,7 +202,7 @@
                 android:gravity="right"
                 android:layout_weight="1"
                 android:text="Enable all"
-                android:textAppearance="@style/textAppearanceSubtitle1" />
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
             <Switch
                 android:id="@+id/allSwitch"

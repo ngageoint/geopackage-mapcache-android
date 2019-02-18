@@ -412,8 +412,7 @@
                         android:layout_height="wrap_content"
                         android:text="GeoPackages"
                         android:layout_marginBottom="8dp"
-                        android:textAppearance="@style/textAppearanceSubtitle1"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/textAppearanceSubtitle1" />
 
                     <!--horizontal line-->
                     <!--<View-->
@@ -428,6 +427,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
 
+
+                    <!--Image and text for when the geopackage list is empty-->
                     <ImageView
                         android:id="@+id/empty_view_icon"
                         android:layout_width="wrap_content"
@@ -454,6 +455,8 @@
                         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
                         android:textColor="@color/nga_primary_light"
                         android:text="Get Started" />
+
+
 
                     <android.support.v7.widget.AppCompatTextView
                         android:id="@+id/enabledDatabase"

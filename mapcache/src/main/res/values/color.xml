@@ -31,6 +31,7 @@
     <color name="white">#ffffff</color>
     <color name="offwhite">#F8F9FA</color>
     <color name="black">#000000</color>
+    <color name="black87">#3D3D3D</color>
     <color name="slide_menu_bg">#eaffffff</color>
     <color name="btn_light_background">#d3ebfd</color>
     <color name="horizontal_line">#d4d4d4</color>
@@ -39,7 +40,10 @@
     <color name="status_bar">#4E97C2</color>
     <color name="status_bar_light">#cce0ec</color>
 
-    <color name="light_blue_bg">#B4E0E8EC</color>
+    <color name="light_blue_bg">#B4E2E9EC</color>
+    <color name="dark_blue_text">#0B1F2C</color>
+    <color name="grey_blue_secondary">#778490</color>
+
 
 
 

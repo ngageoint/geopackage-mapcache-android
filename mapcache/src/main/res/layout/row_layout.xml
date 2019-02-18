@@ -94,7 +94,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_marginLeft="8dp"
                     android:text="Title"
-                    android:textAppearance="@style/textAppearanceHeadline6" />
+                    android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
                 <!--android:background="@color/nga_primary_bright"-->
 
 

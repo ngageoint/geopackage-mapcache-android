@@ -41,7 +41,7 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
      */
     public void setActiveColor(boolean active){
         if(active){
-            activeLayout.setBackgroundColor(res.getColor(R.color.nga_primary_primary));
+            activeLayout.setBackgroundColor(res.getColor(R.color.nga_accent_light));
         } else{
             activeLayout.setBackgroundColor(Color.WHITE);
         }

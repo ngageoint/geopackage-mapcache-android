@@ -52,7 +52,7 @@
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
                     android:text="@string/layer_detail_page"
-                    android:textAppearance="@style/textAppearanceHeadline6" />
+                    android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
 
             </LinearLayout>
 
@@ -122,6 +122,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Tiles"
+                    android:textColor="@color/grey_blue_secondary"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
                 <TextView
@@ -130,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerTileCountLbl"
                     android:text="0"
-                    android:textAppearance="@style/textAppearanceBody1" />
+                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
 
 
 
@@ -141,6 +142,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:text="Enable"
+                    android:textColor="@color/grey_blue_secondary"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
                 <Switch
@@ -160,6 +162,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerTileCount"
                     android:paddingTop="8dp"
+                    android:textColor="@color/grey_blue_secondary"
                     android:text="Description"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
@@ -169,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerDescriptionLabel"
                     android:text="Layer Description"
-                    android:textAppearance="@style/textAppearanceBody1" />
+                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
 
 
             </RelativeLayout>

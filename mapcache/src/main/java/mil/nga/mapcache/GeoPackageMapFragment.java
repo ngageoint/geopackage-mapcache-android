@@ -2839,7 +2839,7 @@ public class GeoPackageMapFragment extends Fragment implements
         TileScaling tileScaling = tileTableScaling.get();
 
         BoundedOverlay overlay = GeoPackageOverlayFactory
-                .getBoundedOverlay(tileDao, tileScaling);
+                .getBoundedOverlay(tileDao, getResources().getDisplayMetrics().density, tileScaling);
 
         TileMatrixSet tileMatrixSet = tileDao.getTileMatrixSet();
 
@@ -2848,7 +2848,8 @@ public class GeoPackageMapFragment extends Fragment implements
         for (FeatureDao featureDao : featureDaos) {
 
             // Create the feature tiles
-            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
+            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
+                    getResources().getDisplayMetrics().density);
 
             featureOverlayTiles = true;
 
@@ -2894,8 +2895,9 @@ public class GeoPackageMapFragment extends Fragment implements
                 featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLon(), featureOverlayTable.getMaxLat());
 
         // Load tiles
-        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
-        if(featureOverlayTable.isIgnoreGeoPackageStyles()){
+        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
+                getResources().getDisplayMetrics().density);
+        if (featureOverlayTable.isIgnoreGeoPackageStyles()) {
             featureTiles.ignoreFeatureTableStyles();
         }
 
@@ -4578,8 +4580,9 @@ public class GeoPackageMapFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(featureTable);
 
                             // Load tiles
-                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
-                            if(ignoreGeoPackageStyles.isChecked()){
+                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
+                                    getResources().getDisplayMetrics().density);
+                            if (ignoreGeoPackageStyles.isChecked()) {
                                 featureTiles.ignoreFeatureTableStyles();
                             }
                             featureTiles.setMaxFeaturesPerTile(maxFeatures);

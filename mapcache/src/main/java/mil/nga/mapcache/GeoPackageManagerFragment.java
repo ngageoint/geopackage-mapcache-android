@@ -2622,7 +2622,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                             FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
 
                             // Load tiles
-                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao);
+                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
+                                    getResources().getDisplayMetrics().density);
                             if(ignoreGeoPackageStyles.isChecked()){
                                 featureTiles.ignoreFeatureTableStyles();
                             }

@@ -485,7 +485,7 @@ public class GeoPackageUtils {
             lineAlpha.setText(String.valueOf(lineStyleColor.getAlpha()));
             lineStroke.setText(new DecimalFormat("0.0#").format(lineStyle.getWidthOrDefault()));
         }else{
-            Paint linePaint = featureTiles.getLinePaint();
+            Paint linePaint = featureTiles.getLinePaintCopy();
             lineColor.setText(defaultColor);
             lineAlpha.setText(String.valueOf(linePaint.getAlpha()));
             lineStroke.setText(String.valueOf(linePaint.getStrokeWidth()));
@@ -507,13 +507,13 @@ public class GeoPackageUtils {
                 polygonFillAlpha.setText(String.valueOf(255));
             }
         }else{
-            Paint polygonPaint = featureTiles.getPolygonPaint();
+            Paint polygonPaint = featureTiles.getPolygonPaintCopy();
             polygonColor.setText(defaultColor);
             polygonAlpha.setText(String.valueOf(polygonPaint.getAlpha()));
             polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
 
             polygonFill.setChecked(featureTiles.isFillPolygon());
-            Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
+            Paint polygonFillPaint = featureTiles.getPolygonFillPaintCopy();
             polygonFillColor.setText(defaultColor);
             polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
         }

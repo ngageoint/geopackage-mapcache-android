@@ -2638,24 +2638,27 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     .getText().toString()));
                             featureTiles.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
 
-                            Paint linePaint = featureTiles.getLinePaint();
+                            Paint linePaint = featureTiles.getLinePaintCopy();
                             linePaint.setColor(GeoPackageUtils.parseColor(lineColor.getText().toString()));
                             linePaint.setAlpha(Integer.valueOf(lineAlpha
                                     .getText().toString()));
                             linePaint.setStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
+                            featureTiles.setLinePaint(linePaint);
 
-                            Paint polygonPaint = featureTiles.getPolygonPaint();
+                            Paint polygonPaint = featureTiles.getPolygonPaintCopy();
                             polygonPaint.setColor(GeoPackageUtils.parseColor(polygonColor.getText().toString()));
                             polygonPaint.setAlpha(Integer.valueOf(polygonAlpha
                                     .getText().toString()));
                             polygonPaint.setStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
+                            featureTiles.setPolygonPaint(polygonPaint);
 
                             featureTiles.setFillPolygon(polygonFill.isChecked());
                             if (featureTiles.isFillPolygon()) {
-                                Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
+                                Paint polygonFillPaint = featureTiles.getPolygonFillPaintCopy();
                                 polygonFillPaint.setColor(GeoPackageUtils.parseColor(polygonFillColor.getText().toString()));
                                 polygonFillPaint.setAlpha(Integer.valueOf(polygonFillAlpha
                                         .getText().toString()));
+                                featureTiles.setPolygonFillPaint(polygonFillPaint);
                             }
 
                             featureTiles.calculateDrawOverlap();

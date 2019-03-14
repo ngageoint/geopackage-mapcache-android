@@ -9,6 +9,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 * geopackage-android-map version 3.2.0
 * Feature Style support
 * Hex Color support
+* Upgrade to AndroidX support libraries
 * gradle plugin updated to 3.3.2
 * gradle version 4.10.1
 

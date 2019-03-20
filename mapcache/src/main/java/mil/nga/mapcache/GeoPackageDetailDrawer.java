@@ -29,6 +29,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -149,7 +150,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
 
         // Subscribe to the geopackage list to detect when a layer is deleted
         geoPackageViewModel.getGeoPackages().observe(this, newGeoPackages ->{
-            if(selectedGeo != null) {
+            if(selectedGeo != null && layerAdapter != null) {
                layerAdapter.clear();
                layers.clear();
                update();
@@ -162,8 +163,19 @@ public class GeoPackageDetailDrawer extends Fragment implements
             createLayerListView();
         });
 
+        // Observe Active Tables - Redraw when a layer is set to active outside this class
+        geoPackageViewModel.getAllTables().observe(this, newTables ->{
+            // Create the layer recycle view adapter
+            updateBasicTables(newTables);
+        });
+
         return view;
 
+    }
+
+    private void updateBasicTables(HashMap<String, List<String>> tableMap){
+        TextView basicTables = (TextView) view.findViewById(R.id.basic_tables);
+        basicTables.setText("basicTablesSet: " + tableMap.size());
     }
 
 

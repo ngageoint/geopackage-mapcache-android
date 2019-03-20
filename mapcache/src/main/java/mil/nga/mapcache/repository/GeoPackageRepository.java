@@ -1,6 +1,7 @@
 package mil.nga.mapcache.repository;
 
 import android.app.Activity;
+import android.arch.lifecycle.MutableLiveData;
 import android.support.v7.app.AlertDialog;
 import android.app.Application;
 import android.content.DialogInterface;
@@ -12,6 +13,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -52,6 +54,58 @@ public class GeoPackageRepository {
     private GeoPackageManager manager;
     private List<GeoPackage> geoPackages = new ArrayList<>();
     private GeoPackageDatabases active;
+    // Maintain a list of GeoPackage names and tables
+    private MutableLiveData<HashMap<String, List<String>>> allTables = new MutableLiveData<>();
+
+    /**
+     * Adds the tablename to the currently existing list under the geopackage name.
+     * If it doesn't exist, it'll create a new list with that geopackage's name
+     * @param geopackageName
+     * @param tableName
+     * @return
+     */
+    public boolean addOrCreateToAllTables(String geopackageName, String tableName){
+        List<String> currentTables = allTables.getValue().get(geopackageName);
+        if(currentTables == null){
+            currentTables = new ArrayList<>();
+        }
+        currentTables.add(tableName);
+        allTables.getValue().put(geopackageName, currentTables);
+        return true;
+    }
+
+    /**
+     * Updates the hashmap of tables with the given list
+     * @param geopackageName
+     * @param tables
+     * @return
+     */
+    public boolean addOrCreateListToAllTables(String geopackageName, List<String> tables){
+        HashMap<String, List<String>> currentList = allTables.getValue();
+        if(currentList != null) {
+            currentList.put(geopackageName, tables);
+            allTables.postValue(currentList);
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    /**
+     * Get's the current list of table names belonging to the given geopackage name
+     * @param geopackageName
+     * @return
+     */
+    public List<String> getGpTables(String geopackageName){
+        return allTables.getValue().get(geopackageName);
+    }
+
+    public MutableLiveData<HashMap<String, List<String>>> getAllTables(){
+        return allTables;
+    }
+
+
+
 
     public GeoPackageRepository(@NonNull Application application) {
         manager = GeoPackageFactory.getManager(application);
@@ -97,6 +151,8 @@ public class GeoPackageRepository {
                 List<Exception> exceptions = new ArrayList<>();
                 GeoPackage geoPackage = null;
                 List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
+                // This is a simple list of layer names (will be assigned to the 'allTables' var)
+                List<String> tableNames = new ArrayList<>();
                 try {
                     geoPackage = manager.open(database, false);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
@@ -126,6 +182,8 @@ public class GeoPackageRepository {
                                         tableName, geometryType, count);
                                 table.setActive(active.exists(table));
                                 tables.add(table);
+                                // Update simple list of layer names
+                                tableNames.add(table.getName());
                             }
                         } catch (Exception e) {
                             exceptions.add(e);
@@ -147,6 +205,9 @@ public class GeoPackageRepository {
                                         tableName, count);
                                 table.setActive(active.exists(table));
                                 tables.add(table);
+                                // Update simple list of layer names
+                                tableNames.add(table.getName());
+
                             }
                         } catch (Exception e) {
                             exceptions.add(e);
@@ -186,6 +247,8 @@ public class GeoPackageRepository {
 
                 if (exceptions.isEmpty()) {
                     databaseTables.add(tables);
+                    // Also update our plain list of geopackage and table names
+                    addOrCreateListToAllTables(database, tableNames);
 //                    geoAdapter.insertToEnd(tables);
                 } else {
                     // On exception, check the integrity of the database and delete if not valid

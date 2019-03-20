@@ -627,7 +627,9 @@ public class GeoPackageMapFragment extends Fragment implements
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
-        manager = GeoPackageFactory.getManager(getActivity());
+//        manager = GeoPackageFactory.getManager(getActivity());
+        manager = GeoPackageFactory.getManager(getContext().getApplicationContext());
+
         geoPackages = new GeoPackageCache(manager);
 
         // Set listeners for icons on map

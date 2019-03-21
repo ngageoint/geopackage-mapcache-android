@@ -1896,159 +1896,159 @@ public class GeoPackageManagerFragment extends Fragment implements
         final EditText tileScalingZoomOutInput = tempTileScalingZoomOutInput;
         final EditText tileScalingZoomInInput = tempTileScalingZoomInInput;
 
-        dialog.setPositiveButton(getString(R.string.button_ok_label),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        GeoPackage geoPackage = manager.open(table.getDatabase());
-                        try {
-
-                            String identifier = identifierInput.getText()
-                                    .toString();
-                            String description = descriptionInput.getText()
-                                    .toString();
-
-                            String minYString = minYInput.getText().toString();
-                            Double minY = minYString != null
-                                    && !minYString.isEmpty() ? Double
-                                    .valueOf(minYString) : null;
-
-                            String maxYString = maxYInput.getText().toString();
-                            Double maxY = maxYString != null
-                                    && !maxYString.isEmpty() ? Double
-                                    .valueOf(maxYString) : null;
-
-                            String minXString = minXInput.getText().toString();
-                            Double minX = minXString != null
-                                    && !minXString.isEmpty() ? Double
-                                    .valueOf(minXString) : null;
-
-                            String maxXString = maxXInput.getText().toString();
-                            Double maxX = maxXString != null
-                                    && !maxXString.isEmpty() ? Double
-                                    .valueOf(maxXString) : null;
-
-                            if (minY != null && maxY != null && minY > maxY) {
-                                throw new GeoPackageException(
-                                        getString(R.string.edit_contents_min_y_label)
-                                                + " can not be larger than "
-                                                + getString(R.string.edit_contents_max_y_label));
-                            }
-
-                            if (minX != null && maxX != null && minX > maxX) {
-                                throw new GeoPackageException(
-                                        getString(R.string.edit_contents_min_x_label)
-                                                + " can not be larger than "
-                                                + getString(R.string.edit_contents_max_x_label));
-                            }
-
-                            switch (table.getType()) {
-
-                                case FEATURE:
-                                    GeometryColumnsDao geometryColumnsDao = geoPackage
-                                            .getGeometryColumnsDao();
-
-                                    geometryColumns.setGeometryType(GeometryType
-                                            .fromName(geometryTypeSpinner
-                                                    .getSelectedItem().toString()));
-                                    geometryColumns.setZ(Byte.valueOf(zInput
-                                            .getText().toString()));
-                                    geometryColumns.setM(Byte.valueOf(mInput
-                                            .getText().toString()));
-
-                                    geometryColumnsDao.update(geometryColumns);
-                                    break;
-
-                                case TILE:
-                                    TileMatrixSetDao tileMatrixSetDao = geoPackage
-                                            .getTileMatrixSetDao();
-
-                                    String minYMatrixSetString = minYMatrixSetInput
-                                            .getText().toString();
-                                    Double minMatrixSetY = minYMatrixSetString != null
-                                            && !minYMatrixSetString.isEmpty() ? Double
-                                            .valueOf(minYMatrixSetString) : null;
-
-                                    String maxYMatrixSetString = maxYMatrixSetInput
-                                            .getText().toString();
-                                    Double maxMatrixSetY = maxYMatrixSetString != null
-                                            && !maxYMatrixSetString.isEmpty() ? Double
-                                            .valueOf(maxYMatrixSetString) : null;
-
-                                    String minXMatrixSetString = minXMatrixSetInput
-                                            .getText().toString();
-                                    Double minMatrixSetX = minXMatrixSetString != null
-                                            && !minXMatrixSetString.isEmpty() ? Double
-                                            .valueOf(minXMatrixSetString) : null;
-
-                                    String maxXMatrixSetString = maxXMatrixSetInput
-                                            .getText().toString();
-                                    Double maxMatrixSetX = maxXMatrixSetString != null
-                                            && !maxXMatrixSetString.isEmpty() ? Double
-                                            .valueOf(maxXMatrixSetString) : null;
-
-                                    if (minMatrixSetY == null
-                                            || maxMatrixSetY == null
-                                            || minMatrixSetX == null
-                                            || maxMatrixSetX == null) {
-                                        throw new GeoPackageException(
-                                                "Min and max bounds are required for Tiles");
-                                    }
-                                    tileMatrixSet.setMinY(minMatrixSetY);
-                                    tileMatrixSet.setMaxY(maxMatrixSetY);
-                                    tileMatrixSet.setMinX(minMatrixSetX);
-                                    tileMatrixSet.setMaxX(maxMatrixSetX);
-
-                                    tileMatrixSetDao.update(tileMatrixSet);
-
-                                    TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
-                                    TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tileMatrixSet);
-                                    if (scaling != null) {
-                                        tileTableScaling.createOrUpdate(scaling);
-                                    } else {
-                                        tileTableScaling.delete();
-                                    }
-
-                                    break;
-
-                                default:
-                                    throw new IllegalArgumentException("Unsupported table type: " + table.getType());
-                            }
-
-                            ContentsDao contentsDao = geoPackage
-                                    .getContentsDao();
-                            contents.setIdentifier(identifier);
-                            contents.setDescription(description);
-                            contents.setMinY(minY);
-                            contents.setMaxY(maxY);
-                            contents.setMinX(minX);
-                            contents.setMaxX(maxX);
-                            contents.setLastChange(new Date());
-                            contentsDao.update(contents);
-
-                            active.setModified(true);
-
-                        } catch (Exception e) {
-                            GeoPackageUtils
-                                    .showMessage(
-                                            getActivity(),
-                                            getString(R.string.geopackage_table_edit_label),
-                                            e.getMessage());
-                        } finally {
-                            geoPackage.close();
-                            update();
-                        }
-                    }
-                }).setNegativeButton(getString(R.string.button_cancel_label),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
+//        dialog.setPositiveButton(getString(R.string.button_ok_label),
+//                new DialogInterface.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int id) {
+//
+//                        GeoPackage geoPackage = manager.open(table.getDatabase());
+//                        try {
+//
+//                            String identifier = identifierInput.getText()
+//                                    .toString();
+//                            String description = descriptionInput.getText()
+//                                    .toString();
+//
+//                            String minYString = minYInput.getText().toString();
+//                            Double minY = minYString != null
+//                                    && !minYString.isEmpty() ? Double
+//                                    .valueOf(minYString) : null;
+//
+//                            String maxYString = maxYInput.getText().toString();
+//                            Double maxY = maxYString != null
+//                                    && !maxYString.isEmpty() ? Double
+//                                    .valueOf(maxYString) : null;
+//
+//                            String minXString = minXInput.getText().toString();
+//                            Double minX = minXString != null
+//                                    && !minXString.isEmpty() ? Double
+//                                    .valueOf(minXString) : null;
+//
+//                            String maxXString = maxXInput.getText().toString();
+//                            Double maxX = maxXString != null
+//                                    && !maxXString.isEmpty() ? Double
+//                                    .valueOf(maxXString) : null;
+//
+//                            if (minY != null && maxY != null && minY > maxY) {
+//                                throw new GeoPackageException(
+//                                        getString(R.string.edit_contents_min_y_label)
+//                                                + " can not be larger than "
+//                                                + getString(R.string.edit_contents_max_y_label));
+//                            }
+//
+//                            if (minX != null && maxX != null && minX > maxX) {
+//                                throw new GeoPackageException(
+//                                        getString(R.string.edit_contents_min_x_label)
+//                                                + " can not be larger than "
+//                                                + getString(R.string.edit_contents_max_x_label));
+//                            }
+//
+//                            switch (table.getType()) {
+//
+//                                case FEATURE:
+//                                    GeometryColumnsDao geometryColumnsDao = geoPackage
+//                                            .getGeometryColumnsDao();
+//
+//                                    geometryColumns.setGeometryType(GeometryType
+//                                            .fromName(geometryTypeSpinner
+//                                                    .getSelectedItem().toString()));
+//                                    geometryColumns.setZ(Byte.valueOf(zInput
+//                                            .getText().toString()));
+//                                    geometryColumns.setM(Byte.valueOf(mInput
+//                                            .getText().toString()));
+//
+//                                    geometryColumnsDao.update(geometryColumns);
+//                                    break;
+//
+//                                case TILE:
+//                                    TileMatrixSetDao tileMatrixSetDao = geoPackage
+//                                            .getTileMatrixSetDao();
+//
+//                                    String minYMatrixSetString = minYMatrixSetInput
+//                                            .getText().toString();
+//                                    Double minMatrixSetY = minYMatrixSetString != null
+//                                            && !minYMatrixSetString.isEmpty() ? Double
+//                                            .valueOf(minYMatrixSetString) : null;
+//
+//                                    String maxYMatrixSetString = maxYMatrixSetInput
+//                                            .getText().toString();
+//                                    Double maxMatrixSetY = maxYMatrixSetString != null
+//                                            && !maxYMatrixSetString.isEmpty() ? Double
+//                                            .valueOf(maxYMatrixSetString) : null;
+//
+//                                    String minXMatrixSetString = minXMatrixSetInput
+//                                            .getText().toString();
+//                                    Double minMatrixSetX = minXMatrixSetString != null
+//                                            && !minXMatrixSetString.isEmpty() ? Double
+//                                            .valueOf(minXMatrixSetString) : null;
+//
+//                                    String maxXMatrixSetString = maxXMatrixSetInput
+//                                            .getText().toString();
+//                                    Double maxMatrixSetX = maxXMatrixSetString != null
+//                                            && !maxXMatrixSetString.isEmpty() ? Double
+//                                            .valueOf(maxXMatrixSetString) : null;
+//
+//                                    if (minMatrixSetY == null
+//                                            || maxMatrixSetY == null
+//                                            || minMatrixSetX == null
+//                                            || maxMatrixSetX == null) {
+//                                        throw new GeoPackageException(
+//                                                "Min and max bounds are required for Tiles");
+//                                    }
+//                                    tileMatrixSet.setMinY(minMatrixSetY);
+//                                    tileMatrixSet.setMaxY(maxMatrixSetY);
+//                                    tileMatrixSet.setMinX(minMatrixSetX);
+//                                    tileMatrixSet.setMaxX(maxMatrixSetX);
+//
+//                                    tileMatrixSetDao.update(tileMatrixSet);
+//
+//                                    TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
+//                                    TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tileMatrixSet);
+//                                    if (scaling != null) {
+//                                        tileTableScaling.createOrUpdate(scaling);
+//                                    } else {
+//                                        tileTableScaling.delete();
+//                                    }
+//
+//                                    break;
+//
+//                                default:
+//                                    throw new IllegalArgumentException("Unsupported table type: " + table.getType());
+//                            }
+//
+//                            ContentsDao contentsDao = geoPackage
+//                                    .getContentsDao();
+//                            contents.setIdentifier(identifier);
+//                            contents.setDescription(description);
+//                            contents.setMinY(minY);
+//                            contents.setMaxY(maxY);
+//                            contents.setMinX(minX);
+//                            contents.setMaxX(maxX);
+//                            contents.setLastChange(new Date());
+//                            contentsDao.update(contents);
+//
+//                            active.setModified(true);
+//
+//                        } catch (Exception e) {
+//                            GeoPackageUtils
+//                                    .showMessage(
+//                                            getActivity(),
+//                                            getString(R.string.geopackage_table_edit_label),
+//                                            e.getMessage());
+//                        } finally {
+//                            geoPackage.close();
+//                            update();
+//                        }
+//                    }
+//                }).setNegativeButton(getString(R.string.button_cancel_label),
+//                new DialogInterface.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int id) {
+//                        dialog.cancel();
+//                    }
+//                });
         dialog.show();
 
     }
@@ -3509,7 +3509,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         inputName.setOnKeyListener(new View.OnKeyListener(){
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                inputLayoutName.setError(null);
+                // commenting out security issue
+                //inputLayoutName.setError(null);
                 return validateInput(inputLayoutName, inputName);
             }
         });
@@ -3518,7 +3519,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         inputUrl.setOnKeyListener(new View.OnKeyListener(){
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                inputLayoutUrl.setError(null);
+                // commenting out security issue
+                //inputLayoutUrl.setError(null);
                 return validateInput(inputLayoutUrl, inputUrl);
             }
         });

@@ -802,7 +802,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Needed to make the icons visible
         try {
             Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
-            method.setAccessible(true);
+            //method.setAccessible(true);
             method.invoke(pm.getMenu(), true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -844,7 +844,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Needed to make the icons visible
         try {
             Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
-            method.setAccessible(true);
+            //method.setAccessible(true);
             method.invoke(pm.getMenu(), true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -5591,7 +5591,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             int maxZoom = Integer.valueOf(maxZoomInput
                                     .getText().toString());
 
-                            Integer maxFeatures = null;
+                            Integer maxFeatures = 500;
                             String maxFeaturesText = maxFeaturesInput.getText().toString();
                             if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
                                 maxFeatures = Integer.valueOf(maxFeaturesText);

@@ -2566,152 +2566,152 @@ public class GeoPackageManagerFragment extends Fragment implements
                 pointColor, lineColor, pointRadius, lineStroke,
                 polygonColor, polygonStroke, polygonFill, polygonFillColor);
 
-        dialog.setPositiveButton(
-                getString(R.string.geopackage_table_create_feature_tiles_label),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-
-                        try {
-
-                            String tableName = nameInput.getText().toString();
-                            if (tableName == null || tableName.isEmpty()) {
-                                throw new GeoPackageException(
-                                        getString(R.string.feature_tiles_name_label)
-                                                + " is required");
-                            }
-                            int minZoom = Integer.valueOf(minZoomInput
-                                    .getText().toString());
-                            int maxZoom = Integer.valueOf(maxZoomInput
-                                    .getText().toString());
-
-                            Integer maxFeatures = null;
-                            String maxFeaturesText = maxFeaturesInput.getText().toString();
-                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
-                                maxFeatures = Integer.valueOf(maxFeaturesText);
-                            }
-
-                            double minLat = Double.valueOf(minLatInput
-                                    .getText().toString());
-                            double maxLat = Double.valueOf(maxLatInput
-                                    .getText().toString());
-                            double minLon = Double.valueOf(minLonInput
-                                    .getText().toString());
-                            double maxLon = Double.valueOf(maxLonInput
-                                    .getText().toString());
-
-                            if (minLat > maxLat) {
-                                throw new GeoPackageException(
-                                        getString(R.string.bounding_box_min_latitude_label)
-                                                + " can not be larger than "
-                                                + getString(R.string.bounding_box_max_latitude_label));
-                            }
-
-                            if (minLon > maxLon) {
-                                throw new GeoPackageException(
-                                        getString(R.string.bounding_box_min_longitude_label)
-                                                + " can not be larger than "
-                                                + getString(R.string.bounding_box_max_longitude_label));
-                            }
-
-                            CompressFormat compressFormat = null;
-                            Integer compressQuality = null;
-                            if (compressFormatInput.getSelectedItemPosition() > 0) {
-                                compressFormat = CompressFormat
-                                        .valueOf(compressFormatInput
-                                                .getSelectedItem().toString());
-                                compressQuality = Integer
-                                        .valueOf(compressQualityInput.getText()
-                                                .toString());
-                            }
-
-                            boolean googleTiles = googleTilesRadioButton
-                                    .isChecked();
-
-                            BoundingBox boundingBox = new BoundingBox(minLon,
-                                    minLat, maxLon, maxLat);
-
-                            GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
-                            GeoPackage geoPackage = manager.open(table.getDatabase());
-                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
-
-                            // Load tiles
-                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
-                            featureTiles.setMaxFeaturesPerTile(maxFeatures);
-                            if (maxFeatures != null) {
-                                featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
-                            }
-
-                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
-                            if (indexer.isIndexed()) {
-                                featureTiles.setIndexManager(indexer);
-                            }else{
-                                indexer.close();
-                            }
-
-                            Paint pointPaint = featureTiles.getPointPaint();
-                            if (pointColor.getSelectedItemPosition() >= 0) {
-                                pointPaint.setColor(Color.parseColor(pointColor.getSelectedItem().toString()));
-                            }
-                            pointPaint.setAlpha(Integer.valueOf(pointAlpha
-                                    .getText().toString()));
-                            featureTiles.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
-
-                            Paint linePaint = featureTiles.getLinePaint();
-                            if (lineColor.getSelectedItemPosition() >= 0) {
-                                linePaint.setColor(Color.parseColor(lineColor.getSelectedItem().toString()));
-                            }
-                            linePaint.setAlpha(Integer.valueOf(lineAlpha
-                                    .getText().toString()));
-                            linePaint.setStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
-
-                            Paint polygonPaint = featureTiles.getPolygonPaint();
-                            if (polygonColor.getSelectedItemPosition() >= 0) {
-                                polygonPaint.setColor(Color.parseColor(polygonColor.getSelectedItem().toString()));
-                            }
-                            polygonPaint.setAlpha(Integer.valueOf(polygonAlpha
-                                    .getText().toString()));
-                            polygonPaint.setStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
-
-                            featureTiles.setFillPolygon(polygonFill.isChecked());
-                            if (featureTiles.isFillPolygon()) {
-                                Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
-                                if (polygonFillColor.getSelectedItemPosition() >= 0) {
-                                    polygonFillPaint.setColor(Color.parseColor(polygonFillColor.getSelectedItem().toString()));
-                                }
-                                polygonFillPaint.setAlpha(Integer.valueOf(polygonFillAlpha
-                                        .getText().toString()));
-                            }
-
-                            featureTiles.calculateDrawOverlap();
-
-                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
-
-                            LoadTilesTask.loadTiles(getActivity(),
-                                    GeoPackageManagerFragment.this, active,
-                                    geoPackage, tableName, featureTiles, minZoom,
-                                    maxZoom, compressFormat,
-                                    compressQuality, googleTiles,
-                                    boundingBox, scaling,
-                                    ProjectionConstants.AUTHORITY_EPSG,
-                                    String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
-                        } catch (Exception e) {
-                            GeoPackageUtils
-                                    .showMessage(
-                                            getActivity(),
-                                            getString(R.string.geopackage_create_tiles_label),
-                                            e.getMessage());
-                        }
-                    }
-                }).setNegativeButton(getString(R.string.button_cancel_label),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
+//        dialog.setPositiveButton(
+//                getString(R.string.geopackage_table_create_feature_tiles_label),
+//                new DialogInterface.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int id) {
+//
+//                        try {
+//
+//                            String tableName = nameInput.getText().toString();
+//                            if (tableName == null || tableName.isEmpty()) {
+//                                throw new GeoPackageException(
+//                                        getString(R.string.feature_tiles_name_label)
+//                                                + " is required");
+//                            }
+//                            int minZoom = Integer.valueOf(minZoomInput
+//                                    .getText().toString());
+//                            int maxZoom = Integer.valueOf(maxZoomInput
+//                                    .getText().toString());
+//
+//                            Integer maxFeatures = null;
+//                            String maxFeaturesText = maxFeaturesInput.getText().toString();
+//                            if (maxFeaturesText != null && !maxFeaturesText.isEmpty()) {
+//                                maxFeatures = Integer.valueOf(maxFeaturesText);
+//                            }
+//
+//                            double minLat = Double.valueOf(minLatInput
+//                                    .getText().toString());
+//                            double maxLat = Double.valueOf(maxLatInput
+//                                    .getText().toString());
+//                            double minLon = Double.valueOf(minLonInput
+//                                    .getText().toString());
+//                            double maxLon = Double.valueOf(maxLonInput
+//                                    .getText().toString());
+//
+//                            if (minLat > maxLat) {
+//                                throw new GeoPackageException(
+//                                        getString(R.string.bounding_box_min_latitude_label)
+//                                                + " can not be larger than "
+//                                                + getString(R.string.bounding_box_max_latitude_label));
+//                            }
+//
+//                            if (minLon > maxLon) {
+//                                throw new GeoPackageException(
+//                                        getString(R.string.bounding_box_min_longitude_label)
+//                                                + " can not be larger than "
+//                                                + getString(R.string.bounding_box_max_longitude_label));
+//                            }
+//
+//                            CompressFormat compressFormat = null;
+//                            Integer compressQuality = null;
+//                            if (compressFormatInput.getSelectedItemPosition() > 0) {
+//                                compressFormat = CompressFormat
+//                                        .valueOf(compressFormatInput
+//                                                .getSelectedItem().toString());
+//                                compressQuality = Integer
+//                                        .valueOf(compressQualityInput.getText()
+//                                                .toString());
+//                            }
+//
+//                            boolean googleTiles = googleTilesRadioButton
+//                                    .isChecked();
+//
+//                            BoundingBox boundingBox = new BoundingBox(minLon,
+//                                    minLat, maxLon, maxLat);
+//
+//                            GeoPackageManager manager = GeoPackageFactory.getManager(getActivity());
+//                            GeoPackage geoPackage = manager.open(table.getDatabase());
+//                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getName());
+//
+//                            // Load tiles
+//                            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), featureDao);
+//                            featureTiles.setMaxFeaturesPerTile(maxFeatures);
+//                            if (maxFeatures != null) {
+//                                featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
+//                            }
+//
+//                            FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
+//                            if (indexer.isIndexed()) {
+//                                featureTiles.setIndexManager(indexer);
+//                            }else{
+//                                indexer.close();
+//                            }
+//
+//                            Paint pointPaint = featureTiles.getPointPaint();
+//                            if (pointColor.getSelectedItemPosition() >= 0) {
+//                                pointPaint.setColor(Color.parseColor(pointColor.getSelectedItem().toString()));
+//                            }
+//                            pointPaint.setAlpha(Integer.valueOf(pointAlpha
+//                                    .getText().toString()));
+//                            featureTiles.setPointRadius(Float.valueOf(pointRadius.getText().toString()));
+//
+//                            Paint linePaint = featureTiles.getLinePaint();
+//                            if (lineColor.getSelectedItemPosition() >= 0) {
+//                                linePaint.setColor(Color.parseColor(lineColor.getSelectedItem().toString()));
+//                            }
+//                            linePaint.setAlpha(Integer.valueOf(lineAlpha
+//                                    .getText().toString()));
+//                            linePaint.setStrokeWidth(Float.valueOf(lineStroke.getText().toString()));
+//
+//                            Paint polygonPaint = featureTiles.getPolygonPaint();
+//                            if (polygonColor.getSelectedItemPosition() >= 0) {
+//                                polygonPaint.setColor(Color.parseColor(polygonColor.getSelectedItem().toString()));
+//                            }
+//                            polygonPaint.setAlpha(Integer.valueOf(polygonAlpha
+//                                    .getText().toString()));
+//                            polygonPaint.setStrokeWidth(Float.valueOf(polygonStroke.getText().toString()));
+//
+//                            featureTiles.setFillPolygon(polygonFill.isChecked());
+//                            if (featureTiles.isFillPolygon()) {
+//                                Paint polygonFillPaint = featureTiles.getPolygonFillPaint();
+//                                if (polygonFillColor.getSelectedItemPosition() >= 0) {
+//                                    polygonFillPaint.setColor(Color.parseColor(polygonFillColor.getSelectedItem().toString()));
+//                                }
+//                                polygonFillPaint.setAlpha(Integer.valueOf(polygonFillAlpha
+//                                        .getText().toString()));
+//                            }
+//
+//                            featureTiles.calculateDrawOverlap();
+//
+//                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
+//
+//                            LoadTilesTask.loadTiles(getActivity(),
+//                                    GeoPackageManagerFragment.this, active,
+//                                    geoPackage, tableName, featureTiles, minZoom,
+//                                    maxZoom, compressFormat,
+//                                    compressQuality, googleTiles,
+//                                    boundingBox, scaling,
+//                                    ProjectionConstants.AUTHORITY_EPSG,
+//                                    String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));
+//                        } catch (Exception e) {
+//                            GeoPackageUtils
+//                                    .showMessage(
+//                                            getActivity(),
+//                                            getString(R.string.geopackage_create_tiles_label),
+//                                            e.getMessage());
+//                        }
+//                    }
+//                }).setNegativeButton(getString(R.string.button_cancel_label),
+//                new DialogInterface.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int id) {
+//                        dialog.cancel();
+//                    }
+//                });
         dialog.show();
 
     }

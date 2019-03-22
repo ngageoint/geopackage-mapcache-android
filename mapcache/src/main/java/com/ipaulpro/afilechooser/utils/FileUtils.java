@@ -47,6 +47,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.text.DecimalFormat;
 import java.util.Comparator;
+import java.util.Locale;
 
 /**
  * @version 2009-07-03
@@ -541,8 +542,9 @@ public class FileUtils {
         @Override
         public int compare(File f1, File f2) {
             // Sort alphabetically by lower case, which is much cleaner
-            return f1.getName().toLowerCase().compareTo(
-                    f2.getName().toLowerCase());
+            return f1.getName().compareToIgnoreCase(f2.getName());
+//            return f1.getName().toLowerCase().compareTo(
+//                    f2.getName().toLowerCase());
         }
     };
 

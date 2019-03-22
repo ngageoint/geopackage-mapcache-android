@@ -37,8 +37,10 @@ import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -1274,6 +1276,38 @@ public class GeoPackageMapFragment extends Fragment implements
         final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
         final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
 
+        // Listen for text changes in the name input.  This will clear error messages when the user types
+        TextWatcher inputNameWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                inputLayoutName.setErrorEnabled(false);
+                boolean newTextValid = validateInput(inputLayoutName, inputName);
+            }
+        };
+        inputName.addTextChangedListener(inputNameWatcher);
+
+        // Listen for text changes in the url input.  This will clear error messages when the user types
+        TextWatcher inputUrlWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                inputLayoutUrl.setErrorEnabled(false);
+                boolean newUrlValid = validateInput(inputLayoutUrl, inputUrl);
+            }
+        };
+        inputUrl.addTextChangedListener(inputUrlWatcher);
+
         // Example Geopackages link handler
         ((AppCompatTextView) importUrlView.findViewById(R.id.import_examples))
                 .setOnClickListener(new View.OnClickListener() {
@@ -1355,23 +1389,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        // Reset the error message when the user types
-        inputName.setOnKeyListener(new View.OnKeyListener(){
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                inputLayoutName.setError(null);
-                return validateInput(inputLayoutName, inputName);
-            }
-        });
 
-        // Reset the error message when the user types
-        inputUrl.setOnKeyListener(new View.OnKeyListener(){
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                inputLayoutUrl.setError(null);
-                return validateInput(inputLayoutUrl, inputUrl);
-            }
-        });
     }
 
 

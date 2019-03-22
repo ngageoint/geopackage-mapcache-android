@@ -81,6 +81,14 @@ public class GeoPackageDetailDrawer extends Fragment implements
     private Switch allLayers;
     private boolean allChecked = false;
 
+    // ignoreStateChange gives us a way to change the state of a switch without kicking off the listener
+    // actions.  Set this to true before changing the state in order for it to be ignored, then
+    // revert it back to false
+    boolean ignoreStateChange = false;
+    public void setIgnoreStateChange(boolean ignore){
+        ignoreStateChange = ignore;
+    }
+
 
 
 
@@ -143,7 +151,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
         createButtonListeners();
 
         // Create all switch listener
-//        createAllSwitchListener();
+        createAllSwitchListener();
 
         // Create floating action button
         setFLoatingActionButton();
@@ -513,19 +521,21 @@ public class GeoPackageDetailDrawer extends Fragment implements
         if((featureTables.size() + tileTables.size() == activeCount) && (activeCount > 0)){
             if(activeCount > 0) {
                 allChecked = true;
-                // remove the oncheck change listener because the user didn't click the all layer button
-                allLayers.setOnCheckedChangeListener(null);
+//                temporarily have the change listener ignore while we update the switch
+                setIgnoreStateChange(true);
                 allLayers.setChecked(true);
-                allLayers.setOnCheckedChangeListener(allCheckListener);
+                setIgnoreStateChange(false);
 
             }
         } else {
             // If all switches aren't set to on, then the all layers switch needs to be set to off
             // remove the oncheck change listener because the user didn't click the all layer button
             allChecked = false;
-            allLayers.setOnCheckedChangeListener(null);
+            // temporarily have the change listener ignore while we update the switch
+            setIgnoreStateChange(true);
             allLayers.setChecked(false);
-            allLayers.setOnCheckedChangeListener(allCheckListener);
+            setIgnoreStateChange(false);
+
         }
 
     }
@@ -854,19 +864,24 @@ public class GeoPackageDetailDrawer extends Fragment implements
      *      Listener for the all layers switch.  Will turn off all layers or turn on all layers
      */
     private CompoundButton.OnCheckedChangeListener allCheckListener = new CompoundButton.OnCheckedChangeListener() {
+
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-            // Update adapter so the recycleview can update the list for the gui
-            boolean layersActivated = layerAdapter.checkAllLayers(checked);
-            if(layersActivated) {
-                layerAdapter.notifyDataSetChanged();
-                // Update the viewmodel to show those active layers
-                if (checked) {
-                    // Enable all
-                    boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
-                } else {
-                    // Disable all
-                    boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
+
+            // Only run listener if it's not set to ignore
+            if(!ignoreStateChange) {
+                // Update adapter so the recycleview can update the list for the gui
+                boolean layersActivated = layerAdapter.checkAllLayers(checked);
+                if (layersActivated) {
+                    layerAdapter.notifyDataSetChanged();
+                    // Update the viewmodel to show those active layers
+                    if (checked) {
+                        // Enable all
+                        boolean added = geoPackageViewModel.enableAllLayers(selectedGeo.getName());
+                    } else {
+                        // Disable all
+                        boolean removed = geoPackageViewModel.removeActiveTableLayers(selectedGeo.getName());
+                    }
                 }
             }
         }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/nga_primary_bright"
+    android:paddingLeft="@dimen/activity_horizontal_margin">
+
+    <!--GeoPackage Name-->
+    <TextView
+    android:id="@+id/headerTitle"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:textStyle="bold"
+    android:text="test header"
+    android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
+
+    <!--GeoPackage Size-->
+    <TextView
+        android:id="@+id/headerSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Size"
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+    <!--Number of tile layers-->
+    <TextView
+        android:id="@+id/text_tiles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tiles"
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+    <!--Number of feature layers-->
+    <TextView
+        android:id="@+id/text_features"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Features"
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+
+</LinearLayout>

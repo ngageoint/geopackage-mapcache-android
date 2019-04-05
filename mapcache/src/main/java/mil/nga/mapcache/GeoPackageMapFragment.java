@@ -723,11 +723,7 @@ public class GeoPackageMapFragment extends Fragment implements
         RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
             @Override
             public void onClick(View view, int position, String name) {
-//                Toast toast = Toast.makeText(getActivity(), "GeoPackage size: " + geoAdapter.getGeoPackageListSize(), Toast.LENGTH_LONG);
-//                toast.show();
-
-                // Create list of active layer names
-
+                // Create the detial view
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
@@ -735,6 +731,14 @@ public class GeoPackageMapFragment extends Fragment implements
                 transaction.replace(R.id.fragmentOutterContainer, drawer, "geoPackageDetail");
                 transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();
+
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction transaction = fragmentManager.beginTransaction();
+//                transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
+//                GeoPackageDetailView detailView = GeoPackageDetailView.newInstance(name);
+//                transaction.replace(R.id.fragmentOutterContainer, detailView, "geoPackageDetail");
+//                transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
+//                transaction.commit();
 
             }
         };

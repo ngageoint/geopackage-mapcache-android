@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import mil.nga.mapcache.GeoPackageDetail;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
 /**
  *  ViewHolder to show a GeoPackage layer name and icon corresponding to the layer type
@@ -18,6 +19,7 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
     TextView title;
     ImageView icon;
     Switch layerOn;
+    DetailPageLayerObject layerObject;
     private RecyclerViewClickListener mListener;
 
     public LayerViewHolder(View itemView, RecyclerViewClickListener listener){
@@ -31,6 +33,14 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
         mListener = listener;
         itemView.setClickable(true);
         itemView.setOnClickListener(this);
+    }
+
+    public void setData(Object data){
+        if(data instanceof DetailPageLayerObject){
+            this.layerObject = (DetailPageLayerObject)data;
+            icon.setImageResource(this.layerObject.getIconType());
+            title.setText(layerObject.getName());
+        }
     }
 
     @Override

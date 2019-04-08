@@ -2,14 +2,14 @@ package mil.nga.mapcache.load;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.FileProvider;
-import android.support.v4.app.*;
+import androidx.fragment.app.FragmentActivity;
+import androidx.core.content.FileProvider;
+import androidx.core.app.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,9 +17,7 @@ import java.io.IOException;
 import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.mapcache.BuildConfig;
-import mil.nga.mapcache.GeoPackageManagerFragment;
 import mil.nga.mapcache.GeoPackageUtils;
-import mil.nga.mapcache.R;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 public class ShareTask {

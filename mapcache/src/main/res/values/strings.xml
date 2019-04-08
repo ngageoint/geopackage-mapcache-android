@@ -83,6 +83,8 @@
     <string name="feature_tiles_name_label">Name: </string>
     <string name="feature_tiles_name_suffix">_tiles</string>
     <string name="feature_overlay_tiles_name_suffix">_overlay</string>
+    <string name="feature_tiles_ignore_geopackage_styles_label">Ignore GeoPackage Styles?</string>
+    <string name="feature_tiles_save_geopackage_styles_label">Save GeoPackage Styles?</string>
     <string name="feature_tiles_draw_point_label">Points - </string>
     <string name="feature_tiles_draw_point_color_label">Color: </string>
     <string name="feature_tiles_draw_point_alpha_label">Alpha: </string>
@@ -98,28 +100,6 @@
     <string name="feature_tiles_draw_polygon_fill_label">Fill?</string>
     <string name="feature_tiles_draw_polygon_fill_color_label">Fill Color: </string>
     <string name="feature_tiles_draw_polygon_fill_alpha_label">Fill Alpha: </string>
-    <array name="feature_tiles_draw_colors">
-        <item>aqua</item>
-        <item>black</item>
-        <item>blue</item>
-        <item>cyan</item>
-        <item>darkgray</item>
-        <item>fuchsia</item>
-        <item>gray</item>
-        <item>green</item>
-        <item>lightgray</item>
-        <item>lime</item>
-        <item>magenta</item>
-        <item>maroon</item>
-        <item>navy</item>
-        <item>olive</item>
-        <item>purple</item>
-        <item>red</item>
-        <item>silver</item>
-        <item>teal</item>
-        <item>white</item>
-        <item>yellow</item>
-    </array>
     <string name="map_create_tiles_geopackage_label">GeoPackage: </string>
     <string name="map_create_tiles_existing_geopackage_label">Existing</string>
     <string name="map_create_tiles_existing_geopackage_dialog_label">GeoPackages</string>

@@ -2,20 +2,31 @@ package mil.nga.mapcache;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.text.InputFilter;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
+
+import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileScalingType;
+import mil.nga.geopackage.extension.style.FeatureTableStyles;
+import mil.nga.geopackage.extension.style.StyleRow;
+import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
 import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.ProjectionConstants;
 
 public class GeoPackageUtils {
@@ -385,6 +396,126 @@ public class GeoPackageUtils {
         // Buffer the pixels around the image when querying the feature index
         if (featureTiles.getFeatureDao().getProjection().equals(ProjectionConstants.AUTHORITY_EPSG, 27700)) {
             featureTiles.setHeightDrawOverlap(featureTiles.getHeightDrawOverlap() + 100);
+        }
+
+    }
+
+    /**
+     * Parse the color string
+     * @param color color string
+     * @return color int
+     */
+    public static int parseColor(String color){
+
+        int value = Color.BLACK;
+
+        if(color != null && !color.isEmpty()) {
+            try {
+                value = Color.parseColor(color);
+            } catch (IllegalArgumentException e) {
+                if (!color.startsWith("#")) {
+                    try {
+                        value = Color.parseColor("#" + color);
+                    } catch (IllegalArgumentException e2) {
+
+                    }
+                }
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Prepare the feature draw limits and defaults
+     *
+     * @param context
+     * @param geoPackage
+     * @param featureTable
+     * @param pointAlpha
+     * @param lineAlpha
+     * @param polygonAlpha
+     * @param polygonFillAlpha
+     * @param pointColor
+     * @param lineColor
+     * @param pointRadius
+     * @param lineStroke
+     * @param polygonColor
+     * @param polygonStroke
+     * @param polygonFill
+     * @param polygonFillColor
+     */
+    public static void prepareFeatureDraw(Context context, GeoPackage geoPackage, String featureTable, EditText pointAlpha, EditText lineAlpha, EditText polygonAlpha, EditText polygonFillAlpha,
+                                          EditText pointColor, EditText lineColor, EditText pointRadius, EditText lineStroke,
+                                          EditText polygonColor, EditText polygonStroke, CheckBox polygonFill, EditText polygonFillColor) {
+
+        FeatureTableStyles featureTableStyles = new FeatureTableStyles(geoPackage, featureTable);
+
+        // Set feature limits
+        pointAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+        lineAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+        polygonAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+        polygonFillAlpha.setFilters(new InputFilter[]{new InputFilterMinMax(
+                0, 255)});
+
+        // Set default feature attributes
+        FeatureTiles featureTiles = new DefaultFeatureTiles(context);
+        String defaultColor = "#000000";
+
+        StyleRow pointStyle = featureTableStyles.getTableStyle(GeometryType.POINT);
+        if(pointStyle != null){
+            mil.nga.geopackage.style.Color pointStyleColor = pointStyle.getColorOrDefault();
+            pointColor.setText(pointStyleColor.getColorHex());
+            pointAlpha.setText(String.valueOf(pointStyleColor.getAlpha()));
+            pointRadius.setText(new DecimalFormat("0.0#").format(pointStyle.getWidthOrDefault() / 2.0));
+        }else{
+            Paint pointPaint = featureTiles.getPointPaint();
+            pointColor.setText(defaultColor);
+            pointAlpha.setText(String.valueOf(pointPaint.getAlpha()));
+            pointRadius.setText(String.valueOf(featureTiles.getPointRadius()));
+        }
+
+        StyleRow lineStyle = featureTableStyles.getTableStyle(GeometryType.LINESTRING);
+        if(lineStyle != null){
+            mil.nga.geopackage.style.Color lineStyleColor = lineStyle.getColorOrDefault();
+            lineColor.setText(lineStyleColor.getColorHex());
+            lineAlpha.setText(String.valueOf(lineStyleColor.getAlpha()));
+            lineStroke.setText(new DecimalFormat("0.0#").format(lineStyle.getWidthOrDefault()));
+        }else{
+            Paint linePaint = featureTiles.getLinePaintCopy();
+            lineColor.setText(defaultColor);
+            lineAlpha.setText(String.valueOf(linePaint.getAlpha()));
+            lineStroke.setText(String.valueOf(linePaint.getStrokeWidth()));
+        }
+
+        StyleRow polygonStyle = featureTableStyles.getTableStyle(GeometryType.POLYGON);
+        if(polygonStyle != null){
+            mil.nga.geopackage.style.Color polygonStyleColor = polygonStyle.getColorOrDefault();
+            polygonColor.setText(polygonStyleColor.getColorHex());
+            polygonAlpha.setText(String.valueOf(polygonStyleColor.getAlpha()));
+            polygonStroke.setText(new DecimalFormat("0.0#").format(polygonStyle.getWidthOrDefault()));
+            mil.nga.geopackage.style.Color polygonStyleFillColor = polygonStyle.getFillColor();
+            polygonFill.setChecked(polygonStyleFillColor != null);
+            if(polygonStyleFillColor != null){
+                polygonFillColor.setText(polygonStyleFillColor.getColorHex());
+                polygonFillAlpha.setText(String.valueOf(polygonStyleFillColor.getAlpha()));
+            }else{
+                polygonFillColor.setText(defaultColor);
+                polygonFillAlpha.setText(String.valueOf(255));
+            }
+        }else{
+            Paint polygonPaint = featureTiles.getPolygonPaintCopy();
+            polygonColor.setText(defaultColor);
+            polygonAlpha.setText(String.valueOf(polygonPaint.getAlpha()));
+            polygonStroke.setText(String.valueOf(polygonPaint.getStrokeWidth()));
+
+            polygonFill.setChecked(featureTiles.isFillPolygon());
+            Paint polygonFillPaint = featureTiles.getPolygonFillPaintCopy();
+            polygonFillColor.setText(defaultColor);
+            polygonFillAlpha.setText(String.valueOf(polygonFillPaint.getAlpha()));
         }
 
     }

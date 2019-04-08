@@ -67,6 +67,11 @@
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal|numberSigned" />
         </LinearLayout>
+
+        <include
+            android:id="@+id/feature_tiles_feature_draw"
+            layout="@layout/feature_tiles_draw" />
+
     </LinearLayout>
 
 </ScrollView>

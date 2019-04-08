@@ -4,9 +4,18 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.23 (TBD)
+## 1.24 (TBD)
 
 * TBD
+
+## [1.23](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.23) (04-02-2019)
+
+* geopackage-android-map version 3.2.0
+* Feature Style support
+* Hex Color support
+* Upgrade to AndroidX support libraries
+* gradle plugin updated to 3.3.2
+* gradle version 4.10.1
 
 ## [1.22](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.22) (10-04-2018)
 

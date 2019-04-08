@@ -1,10 +1,10 @@
 package mil.nga.mapcache.view;
 
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +14,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.mapcache.GeoPackageManagerFragment;
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.data.GeoPackageDatabase;
-import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
-import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
  * GeoPackageViewAdapter : Adapter class to hold data to bind to a GeoPackage Recycler View.

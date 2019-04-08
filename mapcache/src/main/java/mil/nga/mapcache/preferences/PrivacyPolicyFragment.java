@@ -1,17 +1,12 @@
 package mil.nga.mapcache.preferences;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.text.Html;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
+
+import androidx.preference.PreferenceFragmentCompat;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import mil.nga.mapcache.R;
 

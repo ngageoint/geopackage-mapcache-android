@@ -1,14 +1,13 @@
 package mil.nga.mapcache.viewmodel;
 
 import android.app.Activity;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -20,16 +19,10 @@ import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.factory.GeoPackageFactory;
-import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.mapcache.GeoPackageManagerFragment;
-import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
-import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.repository.GeoPackageRepository;
 import mil.nga.sf.GeometryType;
 

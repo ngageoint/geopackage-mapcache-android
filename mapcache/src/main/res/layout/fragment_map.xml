@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     android:id="@+id/mapParentLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -348,7 +348,7 @@
         android:background="@color/black"
         app:layout_anchor="@id/bottom_sheet" />
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -380,7 +380,7 @@
                 android:paddingRight="8dp">
 
                 <!--use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page-->
-                <android.support.design.widget.FloatingActionButton
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/bottom_sheet_fab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -407,7 +407,7 @@
                         <!--android:background="@color/horizontal_line" />-->
 
                     <!--Title-->
-                    <android.support.v7.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="GeoPackages"
@@ -423,10 +423,10 @@
                         <!--android:layout_marginTop="8dp"-->
                         <!--android:background="@color/horizontal_line" />-->
 
-                    <android.support.v7.widget.RecyclerView
+                    <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/geopackage_list"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+                        android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
 
 
                     <!--Image and text for when the geopackage list is empty-->
@@ -459,12 +459,12 @@
 
 
 
-                    <android.support.v7.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/enabledDatabase"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent" />
 
-                    <android.support.v7.widget.AppCompatTextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/activeDatabases"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent" />
@@ -496,11 +496,11 @@
         </FrameLayout>
 
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 
     <!--Settings view-->
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/settings_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -514,7 +514,7 @@
         <include
         layout="@layout/settings_menu" />
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <!--Use the floating action button here if you want it pinned to the top of the entire drawer-->
     <!--<android.support.design.widget.FloatingActionButton-->
@@ -530,4 +530,4 @@
 
 
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

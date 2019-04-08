@@ -1,12 +1,11 @@
 package mil.nga.mapcache.view;
 
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import mil.nga.mapcache.GeoPackageDetail;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 

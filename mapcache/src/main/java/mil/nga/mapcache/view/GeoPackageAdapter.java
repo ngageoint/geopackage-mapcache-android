@@ -42,7 +42,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * Click listener for clicking on a GeoPackage row
      */
-    RecyclerViewClickListener mListener;
+    GeoPackageClickListener mListener;
 
     /**
      * Constants to identify the type of view to be inflated
@@ -56,7 +56,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * @param geos - List of GeoPackages for display by name
      * @param listener - Click listener for clicking on a GeoPackage
      */
-    public GeoPackageAdapter(List<Object> geos, RecyclerViewClickListener listener){
+    public GeoPackageAdapter(List<Object> geos, GeoPackageClickListener listener){
         mGeoPackages = geos;
         mListener = listener;
     }
@@ -65,7 +65,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * Constructor - optional with no list of geoPackages to pass in
      * @param listener - Click listener for clicking on a GeoPackage
      */
-    public GeoPackageAdapter(RecyclerViewClickListener listener){
+    public GeoPackageAdapter(GeoPackageClickListener listener){
         mListener = listener;
     }
 
@@ -199,10 +199,10 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void setmGeoPackages(List<Object> mGeoPackages) {
         this.mGeoPackages = mGeoPackages;
     }
-    public RecyclerViewClickListener getmListener() {
+    public GeoPackageClickListener getmListener() {
         return mListener;
     }
-    public void setmListener(RecyclerViewClickListener mListener) {
+    public void setmListener(GeoPackageClickListener mListener) {
         this.mListener = mListener;
     }
 

@@ -47,14 +47,19 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
     /**
      * Click listener to be attached to the layer
      */
-    private RecyclerViewClickListener mListener;
+    private GeoPackageClickListener mListener;
+
+    /**
+     * GeoPackageDatabase object to represent this geopackage to pass back in the click listener
+     */
+    private GeoPackageDatabase mDatabase;
 
     /**
      * Constructor
      * @param itemView View to attach
      * @param listener Click listener for clicking on a GeoPackage row
      */
-    public GeoPackageViewHolder(View itemView, RecyclerViewClickListener listener) {
+    public GeoPackageViewHolder(View itemView, GeoPackageClickListener listener) {
         super(itemView);
         title = (TextView) itemView.findViewById(R.id.geopackage_title);
         featureTables = (TextView) itemView
@@ -84,6 +89,7 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
      * @param db a GeoPackageDatabase object
      */
     public void setData(GeoPackageDatabase db){
+        mDatabase = db;
         // Get the count of tile tables and feature tables associated with each geopackage list to set counts
         int tileTables = 0;
         int featureTables = 0;
@@ -122,7 +128,7 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
      */
     @Override
     public void onClick(View view) {
-        mListener.onClick(view, getAdapterPosition(), title.getText().toString());
+        mListener.onClick(view, getAdapterPosition(), mDatabase);
     }
 
     /**
@@ -152,11 +158,11 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
         this.tileTables = tileTables;
     }
 
-    public RecyclerViewClickListener getmListener() {
+    public GeoPackageClickListener getmListener() {
         return mListener;
     }
 
-    public void setmListener(RecyclerViewClickListener mListener) {
+    public void setmListener(GeoPackageClickListener mListener) {
         this.mListener = mListener;
     }
 }

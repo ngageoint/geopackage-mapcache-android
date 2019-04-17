@@ -174,6 +174,7 @@ import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.view.GeoPackageAdapter;
+import mil.nga.mapcache.view.GeoPackageClickListener;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 import mil.nga.mapcache.view.detail.DetailPageAdapter;
@@ -753,17 +754,16 @@ public class GeoPackageMapFragment extends Fragment implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         geoPackageRecycler.setLayoutManager(layoutManager);
 
-        // Listener for clicking on a geopackage item
-        RecyclerViewClickListener mainGeoListener = new RecyclerViewClickListener() {
+        GeoPackageClickListener geoClickListener = new GeoPackageClickListener() {
             @Override
-            public void onClick(View view, int position, String name) {
+            public void onClick(View view, int position, GeoPackageDatabase db) {
                 Log.i("click", "clicked a geo");
-                createGeoPackageDetailAdapter(name);
+                createGeoPackageDetailAdapter(db);
             }
         };
 
         // Create the adapter and set it for the recyclerview
-        geoPackageRecyclerAdapter = new GeoPackageAdapter(mainGeoListener);
+        geoPackageRecyclerAdapter = new GeoPackageAdapter(geoClickListener);
         populateRecyclerWithGeoPackages();
     }
 
@@ -792,9 +792,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Populate the RecyclerView with details about a single GeoPackage
-     * @param geoPackageName - Name of the GeoPackage to create the view for
+     * @param db - GeoPackageDatabase object of the GP that we're going to create the view for
      */
-    private void createGeoPackageDetailAdapter(String geoPackageName){
+    private void createGeoPackageDetailAdapter(GeoPackageDatabase db){
         // Listener for clicking on Layer
         RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
             @Override
@@ -806,8 +806,8 @@ public class GeoPackageMapFragment extends Fragment implements
         // Generate a list to pass to the adapter.  Should contain:
         // - A heaader: DetailPageHeaderObject
         // - N number of DetailPageLayerObject objects
-        String gpSize = geoPackageViewModel.getGeoPackageSize(geoPackageName);
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(geoPackageName, gpSize);
+        String gpSize = geoPackageViewModel.getGeoPackageSize(db.getDatabase());
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db.getDatabase(), gpSize);
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
         for(int i=0; i<500; i++){
@@ -840,14 +840,14 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void createRecyclerView(){
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
-        RecyclerViewClickListener packageListener = new RecyclerViewClickListener() {
+        GeoPackageClickListener packageListener = new GeoPackageClickListener() {
             @Override
-            public void onClick(View view, int position, String name) {
+            public void onClick(View view, int position, GeoPackageDatabase db) {
                 // Create the detial view
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-                GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(name);
+                GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(db.getDatabase());
                 transaction.replace(R.id.fragmentOutterContainer, drawer, "geoPackageDetail");
                 transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();

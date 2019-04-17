@@ -100,6 +100,7 @@ import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.user.UserColumn;
 import mil.nga.geopackage.user.UserTable;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
@@ -112,6 +113,7 @@ import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.view.GeoPackageClickListener;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -291,9 +293,9 @@ public class GeoPackageManagerFragment extends Fragment implements
         });
 
         // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
-        RecyclerViewClickListener listener = new RecyclerViewClickListener() {
+        GeoPackageClickListener listener = new GeoPackageClickListener() {
             @Override
-            public void onClick(View view, int position, String name) {
+            public void onClick(View view, int position, GeoPackageDatabase name) {
                 Intent detailIntent = new Intent(v.getContext(), GeoPackageDetail.class);
                 String geoPackageName = databases.get(position);
                 detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);

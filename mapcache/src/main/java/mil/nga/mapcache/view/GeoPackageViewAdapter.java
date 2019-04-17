@@ -47,7 +47,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
     /**
      * Click listener to give to each ViewHolder
      */
-    private RecyclerViewClickListener mListener;
+    private GeoPackageClickListener mListener;
 
 
     Context context;
@@ -57,7 +57,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
      * @param context
      * @param listener
      */
-    public GeoPackageViewAdapter(Context context, RecyclerViewClickListener listener){
+    public GeoPackageViewAdapter(Context context, GeoPackageClickListener listener){
         this.context = context;
         this.mListener = listener;
     }

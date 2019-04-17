@@ -339,14 +339,25 @@
         android:layout_width="match_parent"
         android:layout_height="16dp"
         android:background="@drawable/shape_gradient_top_shadow"
-        app:layout_anchor="@id/bottom_sheet" />
+        app:layout_anchor="@id/recycler_geopackages" />
 
     <View
         android:id="@+id/topBorder"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/black"
-        app:layout_anchor="@id/bottom_sheet" />
+        app:layout_anchor="@id/recycler_geopackages" />
+
+    <!--A recycler view to hold our list of Geopackages.  This will hold our GeoPackages,
+        GeoPackage detail view, and Layer view.  It will be repopulated based on user action -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_geopackages"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/nga_primary_bright"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        app:behavior_peekHeight="200dp"
+        />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
@@ -355,7 +366,7 @@
         android:background="@drawable/gradient_vertical"
         android:elevation="4dp"
         android:fillViewport="true"
-        app:behavior_peekHeight="70dp"
+        app:behavior_peekHeight="1dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
         app:behavior_hideable="false">
         <!--To add gradient: android:background="@drawable/gradient_vertical-->

@@ -1,45 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Layout for the header of the GeoPackage detail view-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@color/nga_primary_bright"
-    android:paddingLeft="@dimen/activity_horizontal_margin">
+    android:background="@color/offwhite"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin">
 
-    <!--GeoPackage Name-->
-    <TextView
-    android:id="@+id/headerTitle"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:textStyle="bold"
-    android:text="test header"
-    android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
+
+    <!--Small tab to indicate drag window    -->
+    <View
+        android:layout_width="30dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center"
+        android:background="@color/horizontal_line" />
+
+
+    <!--First row containing back button and GeoPackage name-->
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="8dp">
+
+        <!--Back Button-->
+        <ImageButton
+            android:id="@+id/detailPageBackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:paddingRight="16dp"
+            android:src="@drawable/arrow_back" />
+
+        <!--GeoPackage Name-->
+        <TextView
+            android:id="@+id/headerTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/geopackage_detail_page"
+            android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
+    </LinearLayout>
+
 
     <!--GeoPackage Size-->
     <TextView
         android:id="@+id/headerSize"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:text="Size"
         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
+
     <!--Number of tile layers-->
     <TextView
-        android:id="@+id/text_tiles"
+        android:id="@+id/header_text_tiles"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:text="Tiles"
         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
+
     <!--Number of feature layers-->
     <TextView
-        android:id="@+id/text_features"
+        android:id="@+id/header_text_features"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Features"
         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
 
+    <!-- Icon row: info, rename, share, copy, delete -->
+    <LinearLayout
+        android:id="@+id/header_icon_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/header_detail_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ripple"
+            android:drawableTop="@drawable/material_info"
+            android:text="Details" />
+
+        <Button
+            android:id="@+id/header_detail_rename"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ripple"
+            android:drawableTop="@drawable/material_edit"
+            android:text="Rename" />
+
+        <Button
+            android:id="@+id/header_detail_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ripple"
+            android:drawableTop="@drawable/material_share"
+            android:text="Share" />
+
+        <Button
+            android:id="@+id/header_detail_copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ripple"
+            android:drawableTop="@drawable/material_copy"
+            android:text="Copy" />
+
+        <Button
+            android:id="@+id/header_detail_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/ripple"
+            android:drawableTop="@drawable/material_delete"
+            android:text="Delete" />
+    </LinearLayout>
 </LinearLayout>

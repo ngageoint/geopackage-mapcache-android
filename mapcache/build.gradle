@@ -85,5 +85,17 @@ configure extensions.android, {
     }
 }
 
+// This is to fix the errors : java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/View$OnUnhandledKeyEventListener;
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == "androidx") {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion "26.+"
+            }
+        }
+    }
+}
+
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'

@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--Layout for an individual layer item in the recyclerview for a GeoPackage detail-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="@dimen/activity_horizontal_margin">
 
+
+    <!--Active layer switch-->
     <Switch
         android:id="@+id/simpleSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+
+    <!--Layer type icon-->
     <ImageView
         android:id="@+id/layer_icon"
         android:layout_width="match_parent"
@@ -17,6 +24,8 @@
         android:src="@drawable/ic_launcher" >
     </ImageView>
 
+
+    <!--Layer name-->
     <TextView
         android:id="@+id/layer_label"
         android:layout_width="wrap_content"

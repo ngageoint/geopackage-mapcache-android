@@ -174,8 +174,12 @@ import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
+import mil.nga.mapcache.view.GeoPackageAdapter;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
+import mil.nga.mapcache.view.detail.DetailPageAdapter;
+import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
+import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -562,6 +566,16 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public static final int ACTIVITY_PREFERENCES = 3345;
 
+    /**
+     * RecyclerView that will hold our GeoPackages
+     */
+    private RecyclerView geoPackageRecycler;
+
+    /**
+     * Adapter for the main RecyclerView of GeoPackages
+     */
+    private GeoPackageAdapter geoPackageRecyclerAdapter;
+
 
     private GeoPackageDetailDrawer geoDetailFragment;
 
@@ -635,6 +649,8 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Create the GeoPackage recycler view
         createRecyclerView();
+        createGeoPackageRecycler();
+        subscribeGeoPackageRecycler();
 
         // Floating action button
         setFLoatingActionButton();
@@ -709,6 +725,99 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
+
+    /**
+     * Sets the main RecyclerView to show the list of GeoPackages by setting the adapter
+     */
+    private void populateRecyclerWithGeoPackages(){
+        geoPackageRecycler.setAdapter(geoPackageRecyclerAdapter);
+    }
+
+    /**
+     * Sets the main RecyclerView to show the details for a selected GeoPackage
+     * @param detailAdapter - A prepopulated adapter to power a RecyclerView for GeoPackage detail
+     */
+    private void populateRecyclerWithDetail(DetailPageAdapter detailAdapter){
+        geoPackageRecycler.setAdapter(detailAdapter);
+    }
+
+    /**
+     * Populate the top level GeoPackage recyclerview with GeoPackage names
+     */
+    private void createGeoPackageRecycler(){
+        geoPackageRecycler = (RecyclerView) view.findViewById(R.id.recycler_geopackages);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+        geoPackageRecycler.setLayoutManager(layoutManager);
+
+        // Listener for clicking on a geopackage item
+        RecyclerViewClickListener mainGeoListener = new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position, String name) {
+                Log.i("click", "clicked a geo");
+                populateGeoPackageDetail("test");
+            }
+        };
+
+        // Create the adapter and set it for the recyclerview
+        geoPackageRecyclerAdapter = new GeoPackageAdapter(mainGeoListener);
+        populateRecyclerWithGeoPackages();
+    }
+
+    /**
+     * Subscribe to populate the list of GeoPackages for the recyclerview.
+     * Gets a list of GeoPackageTables and sends them to the adapter.
+     */
+    private void subscribeGeoPackageRecycler(){
+        // Observe geopackages as livedata
+        geoPackageViewModel.getGeoPackageTables().observe(this, newGeoTableList ->{
+            geoPackageRecyclerAdapter.clear();
+            geoPackageRecyclerAdapter.insertDefaultHeader();
+            for(int i=0; i < newGeoTableList.size(); i++) {
+                List<GeoPackageTable> tablesList = newGeoTableList.get(i);
+                geoPackageRecyclerAdapter.insertToEnd(tablesList);
+            }
+            setListVisibility(newGeoTableList.isEmpty());
+            geoPackageRecyclerAdapter.notifyDataSetChanged();
+        });
+    }
+
+
+    /**
+     * Populate the RecyclerView with details about a single GeoPackage
+     * @param geoPackageName - Name of the GeoPackage to create the view for
+     */
+    private void populateGeoPackageDetail(String geoPackageName){
+        // Listener for clicking on Layer
+        RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
+            @Override
+            public void onClick(View view, int position, String name) {
+                Log.i("click", "clicked a layer");
+            }
+        };
+
+        // Generate a list to pass to the adapter.  Should contain:
+        // - A heaader: DetailPageHeaderObject
+        // - N number of DetailPageLayerObject objects
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(geoPackageName, "30mb");
+        List<Object> detailList = new ArrayList<>();
+        detailList.add(detailHeader);
+        for(int i=0; i<500; i++){
+            DetailPageLayerObject layer = new DetailPageLayerObject("Layer " + i);
+            detailList.add(layer);
+        }
+
+        // Click listener for the back arrow on the detail header.  Resets the RecyclerView to
+        // show GeoPackages
+        View.OnClickListener detailBackListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                populateRecyclerWithGeoPackages();
+            }
+        };
+
+        DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener, detailBackListener);
+        populateRecyclerWithDetail(detailAdapter);
+    }
 
 
     /**

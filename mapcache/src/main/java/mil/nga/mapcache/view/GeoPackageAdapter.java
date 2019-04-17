@@ -13,6 +13,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import mil.nga.geopackage.GeoPackage;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
@@ -130,6 +131,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if(holder instanceof GeoPackageViewHolder){
             GeoPackageViewHolder viewHolder = (GeoPackageViewHolder)holder;
             if(mGeoPackages.get(position) instanceof GeoPackageDatabase) {
+                // The ViewHolder knows how to populate itself when given a GeoPackageDatabase object
                 viewHolder.setData((GeoPackageDatabase)mGeoPackages.get(position));
             }
         }
@@ -210,7 +212,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * View holder for a GeoPackage header object
      * -----------------------------------------------------------------------------------
      */
-    public class GeoPackageHeaderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class GeoPackageHeaderViewHolder extends RecyclerView.ViewHolder{
 
         /**
          * Name of the state
@@ -224,16 +226,6 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         public GeoPackageHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             title = (TextView) itemView.findViewById(R.id.geopackage_header_title);
-        }
-
-        /**
-         * Click listener
-         * @param view - clicked view
-         */
-        @Override
-        public void onClick(View view) {
-            int adapterPosition = getAdapterPosition();
-            mListener.onClick(view, adapterPosition, "");
         }
 
         /**

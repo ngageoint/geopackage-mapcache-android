@@ -35,9 +35,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     private MutableLiveData<List<GeoPackageTable>> activeTables = new MutableLiveData<>();
     private MutableLiveData<List<List<GeoPackageTable>>> geoPackageTables = new MutableLiveData<List<List<GeoPackageTable>>>();
     private MutableLiveData<List<GeoPackage>> geoPackages = new MutableLiveData<>();
-    /** allTables is a simple list of strings of table names
-    */
-    private MutableLiveData<HashMap<String, List<String>>> allTables = new MutableLiveData<>();
+
 
 
     public GeoPackageViewModel(@NonNull Application application) {
@@ -52,25 +50,8 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         regenerateGeoPackageTableList();
 //        geoPackageTables.setValue(geoList);
 //        geoPackages.setValue(geoPackageList);
-        allTables = getAllTables();
     }
 
-    /**
-     * Get the list of tables belonging to the geopackage name
-     * @param geopackageName
-     * @return
-     */
-    public List<String> getGpTableList(String geopackageName){
-        return repository.getGpTables(geopackageName);
-    }
-
-    /**
-     * return the alltables live data from repository
-     */
-    public MutableLiveData<HashMap<String, List<String>>> getAllTables(){
-//        return repository.getAllTables();
-        return allTables;
-    }
 
 
     /**

@@ -165,19 +165,8 @@ public class GeoPackageDetailDrawer extends Fragment implements
             createLayerListView();
         });
 
-        // Observe Active Tables - Redraw when a layer is set to active outside this class
-        geoPackageViewModel.getAllTables().observe(this, newTables ->{
-            // Create the layer recycle view adapter
-            updateBasicTables(newTables);
-        });
-
         return view;
 
-    }
-
-    private void updateBasicTables(HashMap<String, List<String>> tableMap){
-        TextView basicTables = (TextView) view.findViewById(R.id.basic_tables);
-        basicTables.setText("basicTablesSet: " + tableMap.size());
     }
 
 

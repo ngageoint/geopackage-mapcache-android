@@ -45,56 +45,6 @@ public class GeoPackageRepository {
     private GeoPackageManager manager;
     private List<GeoPackage> geoPackages = new ArrayList<>();
     private GeoPackageDatabases active;
-    // Maintain a list of GeoPackage names and tables
-    private MutableLiveData<HashMap<String, List<String>>> allTables = new MutableLiveData<>();
-
-    /**
-     * Adds the tablename to the currently existing list under the geopackage name.
-     * If it doesn't exist, it'll create a new list with that geopackage's name
-     * @param geopackageName
-     * @param tableName
-     * @return
-     */
-    public boolean addOrCreateToAllTables(String geopackageName, String tableName){
-        List<String> currentTables = allTables.getValue().get(geopackageName);
-        if(currentTables == null){
-            currentTables = new ArrayList<>();
-        }
-        currentTables.add(tableName);
-        allTables.getValue().put(geopackageName, currentTables);
-        return true;
-    }
-
-    /**
-     * Updates the hashmap of tables with the given list
-     * @param geopackageName
-     * @param tables
-     * @return
-     */
-    public boolean addOrCreateListToAllTables(String geopackageName, List<String> tables){
-        HashMap<String, List<String>> currentList = allTables.getValue();
-        if(currentList != null) {
-            currentList.put(geopackageName, tables);
-            allTables.postValue(currentList);
-            return true;
-        } else{
-            return false;
-        }
-    }
-
-    /**
-     * Get's the current list of table names belonging to the given geopackage name
-     * @param geopackageName
-     * @return
-     */
-    public List<String> getGpTables(String geopackageName){
-        return allTables.getValue().get(geopackageName);
-    }
-
-    public MutableLiveData<HashMap<String, List<String>>> getAllTables(){
-        return allTables;
-    }
-
 
 
 
@@ -238,8 +188,6 @@ public class GeoPackageRepository {
 
                 if (exceptions.isEmpty()) {
                     databaseTables.add(tables);
-                    // Also update our plain list of geopackage and table names
-                    addOrCreateListToAllTables(database, tableNames);
 //                    geoAdapter.insertToEnd(tables);
                 } else {
                     // On exception, check the integrity of the database and delete if not valid

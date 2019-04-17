@@ -108,7 +108,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
             if(current.isActive()){
                 active = true;
             }
-            holder.title.setText(current.getDatabase());
+            holder.getTitle().setText(current.getDatabase());
 
             if(current instanceof GeoPackageFeatureTable && !current.getName().equalsIgnoreCase(""))
                 featureTables++;

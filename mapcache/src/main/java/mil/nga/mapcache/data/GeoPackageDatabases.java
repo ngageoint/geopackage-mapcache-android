@@ -50,11 +50,6 @@ public class GeoPackageDatabases {
     private static final String FEATURE_OVERLAY_TABLES_PREFERENCE_SUFFIX = "_feature_overlay_tables";
 
     /**
-     * Singleton instance
-     */
-    private static GeoPackageDatabases instance;
-
-    /**
      * Initialization lock
      */
     private static final Lock initializeLock = new ReentrantLock();

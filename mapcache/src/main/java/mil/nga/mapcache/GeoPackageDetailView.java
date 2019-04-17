@@ -126,7 +126,7 @@ public class GeoPackageDetailView extends Fragment implements
     private void populateRecyclerView(){
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_recycler_view);
         // Create a header object to be first in the recyclerview
-        DetailPageHeaderObject headerObject = new DetailPageHeaderObject(geoPackageName, "30mb");
+        DetailPageHeaderObject headerObject = new DetailPageHeaderObject(geoPackageName, "30mb", 0, 0);
         items.add(headerObject);
 
         // Add a Layer Object for every layer in this geopackage

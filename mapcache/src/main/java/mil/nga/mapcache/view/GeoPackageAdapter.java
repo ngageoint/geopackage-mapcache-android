@@ -14,6 +14,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
@@ -33,7 +34,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * List of GeoPackage objects.  Two types:
      *   - A String to represent the header object
-     *   - A list of GeoPackageTable objects for a single geopackage
+     *   - A GeoPackageDatabase object for a single geopackage
      */
     private List<Object> mGeoPackages = new ArrayList<>();
 
@@ -128,31 +129,8 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         // Start with type checking to avoid issues
         if(holder instanceof GeoPackageViewHolder){
             GeoPackageViewHolder viewHolder = (GeoPackageViewHolder)holder;
-            if(mGeoPackages.get(position) instanceof List<?>) {
-                List<GeoPackageTable> positionList = (List<GeoPackageTable>) mGeoPackages.get(position);
-                if(!positionList.isEmpty()) {
-                    // Get the count of tile tables and feature tables associated with each geopackage list to set counts
-                    int tileTables = 0;
-                    int featureTables = 0;
-                    Iterator<GeoPackageTable> tableIterator = positionList.iterator();
-                    boolean active = false;
-                    while (tableIterator.hasNext()) {
-                        GeoPackageTable current = tableIterator.next();
-                        if(current.isActive()){
-                            active = true;
-                        }
-                        // GeoPackage title
-                        viewHolder.getTitle().setText(current.getDatabase());
-
-                        if(current instanceof GeoPackageFeatureTable && !current.getName().equalsIgnoreCase(""))
-                            featureTables++;
-                        if(current instanceof GeoPackageTileTable)
-                            tileTables++;
-                    }
-                    viewHolder.getFeatureTables().setText("Feature Tables: " + featureTables);
-                    viewHolder.getTileTables().setText("Tile Tables: " + tileTables);
-                    viewHolder.setActiveColor(active);
-                }
+            if(mGeoPackages.get(position) instanceof GeoPackageDatabase) {
+                viewHolder.setData((GeoPackageDatabase)mGeoPackages.get(position));
             }
         }
     }
@@ -165,7 +143,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      */
     @Override
     public int getItemViewType(int position){
-        if(mGeoPackages.get(position) instanceof List){
+        if(mGeoPackages.get(position) instanceof GeoPackageDatabase){
             return GEOPACKAGE_ITEM;
         } else if(mGeoPackages.get(position) instanceof String){
             return GEOPACKAGE_HEADER;
@@ -202,9 +180,9 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     /**
-     * Inserts a GeoPackageTable list to the mGeoPackages list object
+     * Inserts a GeoPackageDatabase object to the mGeoPackages list object
      */
-    public void insertToEnd(List<GeoPackageTable> data){
+    public void insertToEnd(GeoPackageDatabase data){
         mGeoPackages.add(data);
     }
 
@@ -237,7 +215,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         /**
          * Name of the state
          */
-        TextView title;
+        private TextView title;
 
         /**
          * Constructor

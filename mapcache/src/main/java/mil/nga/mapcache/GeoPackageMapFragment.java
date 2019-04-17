@@ -771,15 +771,19 @@ public class GeoPackageMapFragment extends Fragment implements
      * Gets a list of GeoPackageTables and sends them to the adapter.
      */
     private void subscribeGeoPackageRecycler(){
-        // Observe geopackages as livedata
-        geoPackageViewModel.getGeoPackageTables().observe(this, newGeoTableList ->{
-            geoPackageRecyclerAdapter.clear();
-            geoPackageRecyclerAdapter.insertDefaultHeader();
-            for(int i=0; i < newGeoTableList.size(); i++) {
-                List<GeoPackageTable> tablesList = newGeoTableList.get(i);
-                geoPackageRecyclerAdapter.insertToEnd(tablesList);
+        geoPackageViewModel.getGeos().observe(this, newGeos ->{
+            // If empty, show the no GeoPackages message in the recycler
+            setListVisibility(newGeos.isEmpty());
+
+            // If not empty, repopulate the list
+            if(!newGeos.isEmpty()){
+                geoPackageRecyclerAdapter.clear();
+                geoPackageRecyclerAdapter.insertDefaultHeader();
+                // add all features
+                for(GeoPackageDatabase db : newGeos.getDatabases()){
+                    geoPackageRecyclerAdapter.insertToEnd(db);
+                }
             }
-            setListVisibility(newGeoTableList.isEmpty());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
         });
     }

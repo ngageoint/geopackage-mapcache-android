@@ -7,7 +7,12 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Iterator;
+
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageFeatureTable;
+import mil.nga.mapcache.data.GeoPackageTileTable;
 
 /**
  * ViewHolder to show a GeoPackage name, and the number of feature and tile tables.  Also binds a
@@ -17,27 +22,27 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
     /**
      * GeoPackage name
      */
-    TextView title;
+    private TextView title;
 
     /**
      * Text to hold number of feature tables
      */
-    TextView featureTables;
+    private TextView featureTables;
 
     /**
      * Text to hold number of tile tables
      */
-    TextView tileTables;
+    private TextView tileTables;
 
     /**
      * Layout to hold the color of the active state (if the geopackage has active layers on the map
      */
-    LinearLayout activeLayout;
+    private LinearLayout activeLayout;
 
     /**
      * Context resources
      */
-    Resources res;
+    private Resources res;
 
     /**
      * Click listener to be attached to the layer
@@ -72,6 +77,43 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
         } else{
             activeLayout.setBackgroundColor(Color.WHITE);
         }
+    }
+
+    /**
+     * Sets the ViewHolder's data based on the given GeoPackageDatabase object
+     * @param db a GeoPackageDatabase object
+     */
+    public void setData(GeoPackageDatabase db){
+        // Get the count of tile tables and feature tables associated with each geopackage list to set counts
+        int tileTables = 0;
+        int featureTables = 0;
+        Iterator<GeoPackageFeatureTable> featureIterator = db.getFeatures().iterator();
+        boolean active = false;
+        while (featureIterator.hasNext()) {
+            GeoPackageFeatureTable current = featureIterator.next();
+            if(current.isActive()){
+                active = true;
+            }
+            // GeoPackage title
+            this.title.setText(current.getDatabase());
+            if(!current.getName().equalsIgnoreCase(""))
+                featureTables++;
+        }
+
+        Iterator<GeoPackageTileTable> tileIterator = db.getTiles().iterator();
+        while (tileIterator.hasNext()) {
+            GeoPackageTileTable current = tileIterator.next();
+            if(current.isActive()){
+                active = true;
+            }
+            // GeoPackage title
+            this.title.setText(current.getDatabase());
+            if(current instanceof GeoPackageTileTable)
+                tileTables++;
+        }
+        this.featureTables.setText("Feature Tables: " + featureTables);
+        this.tileTables.setText("Tile Tables: " + tileTables);
+        setActiveColor(active);
     }
 
     /**

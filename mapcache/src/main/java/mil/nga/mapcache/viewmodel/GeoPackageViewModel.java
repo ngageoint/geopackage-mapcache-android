@@ -21,6 +21,7 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.repository.GeoPackageRepository;
@@ -29,28 +30,100 @@ import mil.nga.sf.GeometryType;
 
 public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTask {
 
+    /**
+     * Repository to access GeoPackages and provide data
+     */
     private GeoPackageRepository repository;
 
-//    private MutableLiveData<GeoPackageDatabases> active = new MutableLiveData<GeoPackageDatabases>();
+    /**
+     * List of active tables
+     */
     private MutableLiveData<List<GeoPackageTable>> activeTables = new MutableLiveData<>();
+
+    /**
+     * List of GeoPackageTable objects organized by GeoPackage Name
+     */
     private MutableLiveData<List<List<GeoPackageTable>>> geoPackageTables = new MutableLiveData<List<List<GeoPackageTable>>>();
+
+    /**
+     * List of (closed) GeoPackage objects
+     */
     private MutableLiveData<List<GeoPackage>> geoPackages = new MutableLiveData<>();
 
+    /**
+     * geos is a GeoPackageDatabases object powered by the repository (
+     */
+    private MutableLiveData<GeoPackageDatabases> geos = new MutableLiveData<>();
 
 
+    /**
+     * Constructor
+     * @param application application
+     */
     public GeoPackageViewModel(@NonNull Application application) {
         super(application);
     }
 
-
+    /**
+     * Init
+     * Create our live data objects and generate the data for the first time
+     */
     public void init() {
         repository = new GeoPackageRepository(getApplication());
         activeTables.setValue(new ArrayList<GeoPackageTable>());
+        geos = getGeos();
 //        generateGeoPackageList();
         regenerateGeoPackageTableList();
 //        geoPackageTables.setValue(geoList);
 //        geoPackages.setValue(geoPackageList);
     }
+
+
+
+    /**
+     *  Get geos live data from repository
+     */
+    public MutableLiveData<GeoPackageDatabases> getGeos(){
+        return repository.getGeos();
+    }
+
+    /**
+     *  Returns the GeoPackage's size from the GeoPackageDatabases storage by accessing geos
+     */
+    public String getGeoPackageSize(String geoPackageName){
+        String size = "0mb";
+        if(geos.getValue().getDatabase(geoPackageName) != null) {
+            size = geos.getValue().getDatabase(geoPackageName).getSize();
+        }
+        return size;
+    }
+
+    /**
+     * Returns the GeoPackage's featureTable size from the GeoPackageDatabases storage
+     * @param geoPackageName Name of the geopackage to search for
+     * @return count - int of the number of feature tables
+     */
+    public int getFeatureCount(String geoPackageName){
+        int count = 0;
+        if(geos.getValue().getDatabase(geoPackageName) != null) {
+            count = geos.getValue().getDatabase(geoPackageName).getFeatureCount();
+        }
+        return count;
+    }
+
+    /**
+     *  Returns the GeoPackage's tileTable size from the GeoPackageDatabases storage
+     * @param geoPackageName Name of the geopackage to search for
+     * @return count - int of the number of tile tables
+     */
+    public int getTileCount(String geoPackageName){
+        int count = 0;
+        if(geos.getValue().getDatabase(geoPackageName) != null) {
+            count = geos.getValue().getDatabase(geoPackageName).getTileCount();
+        }
+        return count;
+    }
+
 
 
 
@@ -380,13 +453,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return false;
     }
 
-
-    /**
-     *  Returns the GeoPackage's size
-     */
-    public String getGeoPackageSize(String geoPackageName){
-        return repository.getGeoPackageSize(geoPackageName);
-    }
 
     /**
      *  Returns a database file

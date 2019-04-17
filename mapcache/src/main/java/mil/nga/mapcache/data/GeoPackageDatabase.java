@@ -32,12 +32,18 @@ public class GeoPackageDatabase {
     private String database;
 
     /**
+     * Database size
+     */
+    private String size;
+
+    /**
      * Constructor
      *
      * @param database
      */
     public GeoPackageDatabase(String database) {
         this.database = database;
+        this.size = "0mb";
     }
 
     /**
@@ -131,6 +137,22 @@ public class GeoPackageDatabase {
 
     public String getDatabase() {
         return database;
+    }
+
+    /**
+     * Get the size of the database file
+     * @return
+     */
+    public String getSize() {
+        return size;
+    }
+
+    /**
+     * Set the size of the database file
+     * @param size in string format
+     */
+    public void setSize(String size) {
+        this.size = size;
     }
 
     /**

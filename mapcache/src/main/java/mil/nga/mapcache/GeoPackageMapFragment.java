@@ -622,7 +622,7 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackageViewModel.init();
 
 
-        active = GeoPackageDatabases.getInstance(getActivity());
+        active = new GeoPackageDatabases(getActivity().getApplicationContext());
 
         vibrator = (Vibrator) getActivity().getSystemService(
                 Context.VIBRATOR_SERVICE);

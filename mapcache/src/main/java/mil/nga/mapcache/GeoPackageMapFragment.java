@@ -726,6 +726,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
+    
+
+
     /**
      * Sets the main RecyclerView to show the list of GeoPackages by setting the adapter
      */
@@ -818,6 +821,12 @@ public class GeoPackageMapFragment extends Fragment implements
         DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener, detailBackListener);
         populateRecyclerWithDetail(detailAdapter);
     }
+
+
+
+
+
+
 
 
     /**

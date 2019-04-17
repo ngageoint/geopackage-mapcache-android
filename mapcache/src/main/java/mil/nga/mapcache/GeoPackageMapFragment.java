@@ -38,7 +38,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
@@ -741,7 +740,9 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param detailAdapter - A prepopulated adapter to power a RecyclerView for GeoPackage detail
      */
     private void populateRecyclerWithDetail(DetailPageAdapter detailAdapter){
-        geoPackageRecycler.setAdapter(detailAdapter);
+        if(detailAdapter != null) {
+            geoPackageRecycler.setAdapter(detailAdapter);
+        }
     }
 
     /**
@@ -757,7 +758,7 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onClick(View view, int position, String name) {
                 Log.i("click", "clicked a geo");
-                populateGeoPackageDetail("test");
+                createGeoPackageDetailAdapter(name);
             }
         };
 
@@ -793,7 +794,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * Populate the RecyclerView with details about a single GeoPackage
      * @param geoPackageName - Name of the GeoPackage to create the view for
      */
-    private void populateGeoPackageDetail(String geoPackageName){
+    private void createGeoPackageDetailAdapter(String geoPackageName){
         // Listener for clicking on Layer
         RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
             @Override
@@ -805,7 +806,8 @@ public class GeoPackageMapFragment extends Fragment implements
         // Generate a list to pass to the adapter.  Should contain:
         // - A heaader: DetailPageHeaderObject
         // - N number of DetailPageLayerObject objects
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(geoPackageName, "30mb");
+        String gpSize = geoPackageViewModel.getGeoPackageSize(geoPackageName);
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(geoPackageName, gpSize);
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
         for(int i=0; i<500; i++){

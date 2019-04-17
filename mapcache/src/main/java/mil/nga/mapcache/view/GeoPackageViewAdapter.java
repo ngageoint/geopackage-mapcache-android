@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -37,6 +38,11 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
      *  List of GeoPackage objects
      */
     List<GeoPackage> geoPackageList = new ArrayList<>();
+
+    /**
+     * Name of the GeoPackage
+     */
+    TextView name;
 
     /**
      * Click listener to give to each ViewHolder
@@ -73,7 +79,7 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
     @Override
     public void onBindViewHolder(GeoPackageViewHolder holder, int position) {
         //Use the provided View Holder on the onCreateViewHolder method to populate the current row on the RecyclerView
-        holder.title.setText("GeoPackage Name Not Found");
+        holder.getTitle().setText("GeoPackage Name Not Found");
 
         // Get the count of tile tables and feature tables associated with each geopackage list to set counts
         int tileTables = 0;
@@ -110,8 +116,8 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
                 tileTables++;
 
         }
-        holder.featureTables.setText("Feature Tables: " + featureTables);
-        holder.tileTables.setText("Tile Tables: " + tileTables);
+        holder.getFeatureTables().setText("Feature Tables: " + featureTables);
+        holder.getTileTables().setText("Tile Tables: " + tileTables);
         holder.setActiveColor(active);
         //animate(holder);
     }
@@ -190,6 +196,8 @@ public class GeoPackageViewAdapter extends RecyclerView.Adapter<GeoPackageViewHo
         }
         return false;
     }
+
+
 
 
 

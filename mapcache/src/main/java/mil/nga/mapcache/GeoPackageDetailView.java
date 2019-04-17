@@ -7,6 +7,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,7 +135,7 @@ public class GeoPackageDetailView extends Fragment implements
         }
 
         // Create and populate the RecyclerView's adapter
-        DetailPageAdapter adapter = new DetailPageAdapter(items, null);
+        DetailPageAdapter adapter = new DetailPageAdapter(items, null, null);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View layout to contain header display data for the main geopackage list
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!--Title-->
+    <TextView
+        android:id="@+id/geopackage_header_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/nga_accent_light"
+        android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+        android:padding="16dp"
+        android:text="Title"
+        android:textSize="16dp" />
+</LinearLayout>

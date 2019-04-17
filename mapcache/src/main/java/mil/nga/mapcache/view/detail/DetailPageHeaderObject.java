@@ -5,9 +5,15 @@ package mil.nga.mapcache.view.detail;
  * name, size, number of feature layers, number of tile layers
  */
 public class DetailPageHeaderObject {
-    // GeoPackage name
+
+    /**
+     * GeoPackage name
+     */
     private String geopackageName;
-    // GeoPackage size (it comes as a string from the GP libraries
+
+    /**
+     * GeoPackage size (it comes as a string from the GP libraries)
+     */
     private String size;
 
     /**

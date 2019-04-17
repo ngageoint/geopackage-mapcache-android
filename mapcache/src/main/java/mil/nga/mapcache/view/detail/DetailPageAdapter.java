@@ -13,19 +13,33 @@ import mil.nga.mapcache.view.LayerViewHolder;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 
 /**
- * This adapter will power the recyclerview on the GeoPackageDetailView page.  It will populate 2
- * types of views:
- *  - first will be a DetailPageHeader, which contains basic info about the geopackage
+ * This adapter will power the RecyclerView to hold details of a selected GeoPackage.  It will
+ * populate 2 types of views:
+ *  - first will be a DetailPageHeader, which contains basic info about the geopackage (Name, size,
+ *      number of layers)
  *  - all others will be DetailPageLayer rows, which will be a row for every layer name in the
  *      geopackage.
  */
 public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
-    // List of DetailPageHeaderObject and DetailPageLayerObjects
+    /**
+     * List of 1 DetailPageHeaderObject followed by multiple DetailPageLayerObjects
+     */
     private List<Object> mItems;
-    // Click listener
+
+    /**
+     * Click listener for clicking on a Layer row
+     */
     private RecyclerViewClickListener mListener;
-    // Two types of objects to be inflated, Headers and Rows
+
+    /**
+     * Click listener for the back button in the header
+     */
+    private View.OnClickListener mBackArrowListener;
+
+    /**
+     * Two types of objects to be inflated, Headers and Rows
+     */
     private final int HEADER = 0, LAYER = 1;
 
 
@@ -34,19 +48,26 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * @param items - list of DetailPageHeaderObject and DetailPageLayerObject
      * @param listener - row click listener
      */
-    public DetailPageAdapter(List<Object> items, RecyclerViewClickListener listener){
+    public DetailPageAdapter(List<Object> items, RecyclerViewClickListener listener, View.OnClickListener backArrowListener){
         mItems = items;
         mListener = listener;
+        mBackArrowListener = backArrowListener;
     }
 
 
+    /**
+     * Use the viewType to determing what type of ViewHolder to create
+     * @param viewGroup Parent viewGroup
+     * @param viewType viewType will either be Header or Layer based on getItemViewType
+     * @return The appropriate viewHolder
+     */
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         switch(viewType) {
             case HEADER:
                 View headerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.detail_header_layout, viewGroup, false);
-                return new HeaderViewHolder(headerView);
+                return new HeaderViewHolder(headerView, mBackArrowListener);
             case LAYER:
                 View layerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layer_row_layout, viewGroup, false);
                 return new LayerViewHolder(layerView, mListener);
@@ -54,6 +75,11 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return null;
     }
 
+    /**
+     * Bind the ViewHolder depending on the type given
+     * @param holder The ViewHolder to bind
+     * @param position passing the position of the ViewHolder through
+     */
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof LayerViewHolder) {
@@ -63,6 +89,10 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
+    /**
+     * Return the size of the item list
+     * @return
+     */
     @Override
     public int getItemCount() {
         return mItems.size();
@@ -70,8 +100,8 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     /**
      * Bind a view for an Layer type
-     * @param holder
-     * @param position
+     * @param holder a LayerViewHolder
+     * @param position position in the list to build
      */
     private void bindLayer(RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof LayerViewHolder){
@@ -82,8 +112,8 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     /**
      * Bind a view for a Header type
-     * @param holder
-     * @param position
+     * @param holder a HeaderViewHolder
+     * @param position position in the list to build
      */
     private void bindHeader(RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof HeaderViewHolder){
@@ -95,8 +125,8 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * You can either get the item type by finding out what kind of object it is, or put it
      * first in the list if you know you'll always put the header there
-     * @param position
-     * @return
+     * @param position position in the list to evaluate
+     * @return the type of object in the list
      */
     @Override
     public int getItemViewType(int position) {

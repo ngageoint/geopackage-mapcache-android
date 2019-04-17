@@ -726,7 +726,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
-    
+
 
 
     /**

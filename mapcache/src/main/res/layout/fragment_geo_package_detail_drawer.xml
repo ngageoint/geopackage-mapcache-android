@@ -97,14 +97,6 @@
             android:text="Features"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
-        <TextView
-            android:id="@+id/basic_tables"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:text="basic tables"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
-
         <!-- Icon row: info, rename, share, copy, delete -->
         <LinearLayout
             android:id="@+id/LinearLayout01"

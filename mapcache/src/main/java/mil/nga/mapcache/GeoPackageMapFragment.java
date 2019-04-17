@@ -757,11 +757,9 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageClickListener geoClickListener = new GeoPackageClickListener() {
             @Override
             public void onClick(View view, int position, GeoPackageDatabase db) {
-                Log.i("click", "clicked a geo");
                 createGeoPackageDetailAdapter(db);
             }
         };
-
         // Create the adapter and set it for the recyclerview
         geoPackageRecyclerAdapter = new GeoPackageAdapter(geoClickListener);
         populateRecyclerWithGeoPackages();
@@ -773,9 +771,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void subscribeGeoPackageRecycler(){
         geoPackageViewModel.getGeos().observe(this, newGeos ->{
-            // If empty, show the no GeoPackages message in the recycler
+            // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.isEmpty());
-
             // If not empty, repopulate the list
             if(!newGeos.isEmpty()){
                 geoPackageRecyclerAdapter.clear();
@@ -806,8 +803,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Generate a list to pass to the adapter.  Should contain:
         // - A heaader: DetailPageHeaderObject
         // - N number of DetailPageLayerObject objects
-        String gpSize = geoPackageViewModel.getGeoPackageSize(db.getDatabase());
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db.getDatabase(), gpSize);
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db.getDatabase(), db.getSize(), db.getFeatureCount(), db.getTileCount());
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
         for(int i=0; i<500; i++){

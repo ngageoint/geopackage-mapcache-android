@@ -17,13 +17,26 @@ public class DetailPageHeaderObject {
     private String size;
 
     /**
+     * Number of feature layers
+     */
+    private int featureCount;
+
+    /**
+     * Number of tile layers
+     */
+    private int tileCount;
+
+
+    /**
      * Constructor
      * @param gpName - GeoPackage Name
      * @param gpSize - GeoPackage size (as a string)
      */
-    public DetailPageHeaderObject(String gpName, String gpSize){
+    public DetailPageHeaderObject(String gpName, String gpSize, int gpFeatureCount, int gpTileCount){
         size = gpSize;
         geopackageName = gpName;
+        featureCount = gpFeatureCount;
+        tileCount = gpTileCount;
     }
 
 
@@ -45,5 +58,21 @@ public class DetailPageHeaderObject {
 
     public void setSize(String size) {
         this.size = size;
+    }
+
+    public int getFeatureCount() {
+        return featureCount;
+    }
+
+    public void setFeatureCount(int featureCount) {
+        this.featureCount = featureCount;
+    }
+
+    public int getTileCount() {
+        return tileCount;
+    }
+
+    public void setTileCount(int tileCount) {
+        this.tileCount = tileCount;
     }
 }

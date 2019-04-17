@@ -35,6 +35,16 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      */
     private ImageButton backArrow;
 
+    /**
+     * Text view for feature count
+     */
+    private TextView textFeatures;
+
+    /**
+     * Text view for tile count
+     */
+    private TextView textTiles;
+
 
     /**
      * Constructor
@@ -46,6 +56,8 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         textName = (TextView) itemView.findViewById(R.id.headerTitle);
         textSize = (TextView) itemView.findViewById(R.id.headerSize);
+        textFeatures = (TextView) itemView.findViewById(R.id.header_text_features);
+        textTiles = (TextView) itemView.findViewById(R.id.header_text_tiles);
         backArrow = (ImageButton) itemView.findViewById(R.id.detailPageBackButton);
         backArrow.setOnClickListener(backListener);
     }
@@ -59,9 +71,25 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
             header = (DetailPageHeaderObject) data;
             textName.setText(header.getGeopackageName());
             textSize.setText(header.getSize());
+            textFeatures.setText(pluralize(header.getFeatureCount(), "Feature"));
+            textTiles.setText(pluralize(header.getTileCount(), "Tile"));
         } else{
             textName.setText("No header text given");
             textSize.setText("-");
+        }
+    }
+
+    /**
+     * makes a string plural based on the count
+     * @param count
+     * @param text singular word
+     * @return
+     */
+    private String pluralize(int count, String text){
+        if(count == 1){
+            return count + " " + text;
+        } else {
+            return count + " " + text + "s";
         }
     }
 }

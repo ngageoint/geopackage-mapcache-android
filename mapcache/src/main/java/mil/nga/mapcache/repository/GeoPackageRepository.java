@@ -4,6 +4,7 @@ import android.app.Activity;
 import androidx.lifecycle.MutableLiveData;
 import androidx.appcompat.app.AlertDialog;
 import android.app.Application;
+import android.content.Context;
 import android.content.DialogInterface;
 import androidx.annotation.NonNull;
 
@@ -37,21 +38,78 @@ import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.ProjectionConstants;
 
 /**
- *  Repository to provide access to stored GeoPackages
+ *  Repository to provide access to stored GeoPackages.  Most of the data in the app is powered by
+ *  the 'geos' object, and instance of GeoPackageDatabases
  */
-
 public class GeoPackageRepository {
 
     private GeoPackageManager manager;
     private List<GeoPackage> geoPackages = new ArrayList<>();
     private GeoPackageDatabases active;
 
+    /**
+     * Live object to track currently opened GeoPackages in the application.  Inside this object,
+     * it's tracked as a map:
+     * Map<String, GeoPackageDatabase>
+     */
+    private MutableLiveData<GeoPackageDatabases> geos = new MutableLiveData<>();
+
+    /**
+     * Set this to application context for the GeoPackageDatabases object
+     */
+    private Context context;
 
 
+    /**
+     * Constructor
+     * @param application the running application
+     */
     public GeoPackageRepository(@NonNull Application application) {
+        context = application.getApplicationContext();
         manager = GeoPackageFactory.getManager(application);
-        active = GeoPackageDatabases.getInstance(application);
+        active = new GeoPackageDatabases(context);
+        geos.setValue(new GeoPackageDatabases(context));
     }
+
+
+    /**
+     * GeoPackageDatabases Live Data (geos) ----
+     */
+
+    /**
+     * Get GeopackageDatabases object for tracking all geoPackages open in the application
+     * @return GeoPackageDatabases object
+     */
+    public MutableLiveData<GeoPackageDatabases> getGeos(){
+        return geos;
+    }
+
+    /**
+     * Add GeoPackageTable to the GeoPackageDatabases live data object
+     * @param table - GeoPackageTable to add to the list
+     */
+    private void addTableToDatabases(GeoPackageTable table){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.addTable(table);
+            geos.postValue(currentGeos);
+        }
+    }
+
+    /**
+     * Finds the given database in the stored list and sets the size field
+     * @param databaseName - name of the geopackage to find
+     * @param size - size of the geopackage in string format
+     */
+    private void setGeoSize(String databaseName, String size){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.setDatabaseSize(databaseName, size);
+            geos.postValue(currentGeos);
+        }
+    }
+
+
 
     public GeoPackage getGeoPackageByName(String name) {
         try {
@@ -72,6 +130,12 @@ public class GeoPackageRepository {
         return geoPackages;
     }
 
+
+    /**
+     * Using the Manager to generate our list of GeoPackages.  This should populate live data for
+     * the application to use GeoPackages.
+     * @return List of GeoPackageTables for every GeoPackage
+     */
     public List<List<GeoPackageTable>> regenerateTableList() {
         geoPackages.clear();
         List<List<GeoPackageTable>> databaseTables = new ArrayList<List<GeoPackageTable>>();
@@ -123,6 +187,8 @@ public class GeoPackageRepository {
                                         tableName, geometryType, count);
                                 table.setActive(active.exists(table));
                                 tables.add(table);
+                                // add table to GeoPackageDatabases list
+                                addTableToDatabases(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
                             }
@@ -146,6 +212,8 @@ public class GeoPackageRepository {
                                         tableName, count);
                                 table.setActive(active.exists(table));
                                 tables.add(table);
+                                // add table to GeoPackageDatabases list
+                                addTableToDatabases(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
 
@@ -214,9 +282,10 @@ public class GeoPackageRepository {
                         errorMessage.append(exception.getMessage());
                     }
                 }
+                // Set the size field of the database in our stored list
+                setGeoSize(database, manager.readableSize(database));
             }
         }
-
         return databaseTables;
     }
 

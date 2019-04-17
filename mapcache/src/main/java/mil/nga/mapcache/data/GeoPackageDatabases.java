@@ -60,30 +60,6 @@ public class GeoPackageDatabases {
     private static final Lock initializeLock = new ReentrantLock();
 
     /**
-     * Get the singleton instance
-     *
-     * @param context
-     * @return
-     */
-    public static GeoPackageDatabases getInstance(Context context) {
-        if (instance == null) {
-            try {
-                initializeLock.lock();
-                if (instance == null) {
-                    SharedPreferences preferences = PreferenceManager
-                            .getDefaultSharedPreferences(context);
-                    GeoPackageDatabases active = new GeoPackageDatabases(context, preferences);
-                    active.loadFromPreferences();
-                    instance = active;
-                }
-            } finally {
-                initializeLock.unlock();
-            }
-        }
-        return instance;
-    }
-
-    /**
      * Map of databases
      */
     private Map<String, GeoPackageDatabase> databases = new HashMap<String, GeoPackageDatabase>();
@@ -104,11 +80,27 @@ public class GeoPackageDatabases {
     private boolean modified = false;
 
     /**
-     * Constructor
+     * Public constructor
+     * @param context application context used for opening PreferenceManager
      */
-    private GeoPackageDatabases(Context context, SharedPreferences settings) {
+    public GeoPackageDatabases(Context context){
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(context);
         this.context = context;
-        this.settings = settings;
+        this.settings = preferences;
+        // Load current preference data
+        loadFromPreferences();
+    }
+
+    /**
+     * Set the size field of a GeoPackageDatabase
+     * @param database GeoPackage (database) name
+     * @param size file size in string format
+     */
+    public void setDatabaseSize(String database, String size){
+        if(databases.get(database) != null) {
+            databases.get(database).setSize(size);
+        }
     }
 
     /**

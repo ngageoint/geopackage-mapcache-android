@@ -97,6 +97,18 @@ public class GeoPackageRepository {
     }
 
     /**
+     * Add a GeoPackageDatabase with no tables to the Databases list
+     * @param dbName
+     */
+    private void addEmptyDatabase(String dbName){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.addEmptyDatabase(dbName);
+            geos.postValue(currentGeos);
+        }
+    }
+
+    /**
      * Finds the given database in the stored list and sets the size field
      * @param databaseName - name of the geopackage to find
      * @param size - size of the geopackage in string format
@@ -161,7 +173,8 @@ public class GeoPackageRepository {
                 try {
                     geoPackage = manager.open(database, false);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
-
+                    // Make sure the Database is added even if it has no tables
+                    addEmptyDatabase(geoPackage.getName());
                     List<String> featureTables = null;
                     try {
                         featureTables = geoPackage.getFeatureTables();
@@ -249,10 +262,10 @@ public class GeoPackageRepository {
 
                 // If There are no tables under the database, create a blank table so that we can at
                 // least pass the database name up to the recycler view
-                if (tables.isEmpty() && exceptions.isEmpty()) {
-                    GeoPackageTable table = new GeoPackageFeatureTable(database, "", GeometryType.GEOMETRY, 0);
-                    tables.add(table);
-                }
+//                if (tables.isEmpty() && exceptions.isEmpty()) {
+//                    GeoPackageTable table = new GeoPackageFeatureTable(database, "", GeometryType.GEOMETRY, 0);
+//                    tables.add(table);
+//                }
 
                 if (exceptions.isEmpty()) {
                     databaseTables.add(tables);

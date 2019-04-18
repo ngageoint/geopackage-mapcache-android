@@ -101,7 +101,6 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
                 active = true;
             }
             // GeoPackage title
-            this.title.setText(current.getDatabase());
             if(!current.getName().equalsIgnoreCase(""))
                 featureTables++;
         }
@@ -113,13 +112,13 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
                 active = true;
             }
             // GeoPackage title
-            this.title.setText(current.getDatabase());
             if(current instanceof GeoPackageTileTable)
                 tileTables++;
         }
         if(db.isActiveTables()){
             active = true;
         }
+        this.title.setText(db.getDatabase());
         this.featureTables.setText("Feature Tables: " + featureTables);
         this.tileTables.setText("Tile Tables: " + tileTables);
         setActiveColor(active);

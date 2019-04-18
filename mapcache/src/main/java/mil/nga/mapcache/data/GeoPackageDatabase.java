@@ -37,6 +37,11 @@ public class GeoPackageDatabase {
     private String size;
 
     /**
+     * True if any of the tables in this GeoPackage are active
+     */
+    private boolean activeTables;
+
+    /**
      * Constructor
      *
      * @param database
@@ -258,4 +263,19 @@ public class GeoPackageDatabase {
         return getTableCount() == 0;
     }
 
+    /**
+     * Returns true if any tables in this GeoPackage are set to active
+     * @return
+     */
+    public boolean isActiveTables() {
+        return activeTables;
+    }
+
+    /**
+     * Set the active state of this GeoPackage
+     * @param activeTables
+     */
+    public void setActiveTables(boolean activeTables) {
+        this.activeTables = activeTables;
+    }
 }

@@ -117,6 +117,9 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
             if(current instanceof GeoPackageTileTable)
                 tileTables++;
         }
+        if(db.isActiveTables()){
+            active = true;
+        }
         this.featureTables.setText("Feature Tables: " + featureTables);
         this.tileTables.setText("Tile Tables: " + tileTables);
         setActiveColor(active);

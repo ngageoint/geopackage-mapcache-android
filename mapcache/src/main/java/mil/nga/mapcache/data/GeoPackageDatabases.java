@@ -208,6 +208,18 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Add a GeoPackageDatabase with no tables
+     * @param dbName
+     */
+    public void addEmptyDatabase(String dbName){
+        GeoPackageDatabase database = databases.get(dbName);
+        if(database == null){
+            database = new GeoPackageDatabase(dbName);
+            databases.put(dbName, database);
+        }
+    }
+
+    /**
      * Remove a table
      *
      * @param table

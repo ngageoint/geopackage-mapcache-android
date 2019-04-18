@@ -648,9 +648,12 @@ public class GeoPackageMapFragment extends Fragment implements
         setIconListeners();
 
         // Create the GeoPackage recycler view
-        createRecyclerView();
         createGeoPackageRecycler();
         subscribeGeoPackageRecycler();
+
+        // Old recycler
+        //createRecyclerView();
+
 
         // Floating action button
         setFLoatingActionButton();
@@ -783,6 +786,30 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             }
             geoPackageRecyclerAdapter.notifyDataSetChanged();
+        });
+
+        // Observe Active Tables - used to determine which layers are enabled
+        geoPackageViewModel.getActiveTables().observe(this, newTables ->{
+            active.clearActive();
+            List<String> activeNames = new ArrayList<>();
+            for(int i=0; i < newTables.size(); i++) {
+                GeoPackageTable table = newTables.get(i);
+                active.addTable(table);
+                activeNames.add(table.getDatabase());
+//                updateInBackground(true, false);
+            }
+            geoPackageRecyclerAdapter.updateActiveTables(activeNames);
+            geoPackageRecyclerAdapter.notifyDataSetChanged();
+            if(newTables.isEmpty()){
+                if(map != null){
+                    map.clear();
+                }
+            } else{
+                if(map != null) {
+                    updateInBackground(true, false);
+                }
+
+            }
         });
     }
 
@@ -1079,16 +1106,13 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Set the visibility
         if(empty){
-            geoPackageRecyclerView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
             emptyViewIcon.setVisibility(View.VISIBLE);
             getStartedView.setVisibility(View.VISIBLE);
         } else{
-            geoPackageRecyclerView.setVisibility(View.VISIBLE);
+            geoPackageRecycler.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
             emptyViewIcon.setVisibility(View.GONE);
-            getStartedView.setVisibility(View.GONE);
-
         }
     }
 

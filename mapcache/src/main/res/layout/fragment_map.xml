@@ -359,6 +359,17 @@
         app:behavior_peekHeight="200dp"
         />
 
+    <!--Floating action button for new Geopackage-->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/bottom_sheet_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/add"
+        android:visibility="visible"
+        app:layout_anchor="@id/fragment_map_view_ui"
+        app:layout_anchorGravity="bottom|right|end" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
@@ -391,14 +402,14 @@
                 android:paddingRight="8dp">
 
                 <!--use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page-->
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/bottom_sheet_fab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_margin="4dp"
-                    android:src="@drawable/add"
-                    app:layout_anchor="@id/fragmentContainer" />
+                <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+                    <!--android:id="@+id/bottom_sheet_fab"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="right"-->
+                    <!--android:layout_margin="4dp"-->
+                    <!--android:src="@drawable/add"-->
+                    <!--app:layout_anchor="@id/fragmentContainer" />-->
 
 
                 <LinearLayout
@@ -527,16 +538,6 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!--Use the floating action button here if you want it pinned to the top of the entire drawer-->
-    <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/bottom_sheet_fab"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_margin="16dp"-->
-        <!--android:src="@drawable/add"-->
-        <!--app:layout_anchor="@id/fragment_map_view_ui"-->
-        <!--app:layout_anchorGravity="bottom|right"/>-->
-    <!--for bottom right corner: layout_anchorGravity="bottom|right|end"-->
 
 
 

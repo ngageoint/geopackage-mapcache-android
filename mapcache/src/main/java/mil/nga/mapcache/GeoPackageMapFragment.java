@@ -771,8 +771,11 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Subscribe to populate the list of GeoPackages for the recyclerview.
      * Gets a list of GeoPackageTables and sends them to the adapter.
+     * Also subscribes to the list of active tables.  When that is updated, the adapter will set
+     * the active status for all GeoPackages in the RecyclerView
      */
     private void subscribeGeoPackageRecycler(){
+        // Observe list of GeoPackages
         geoPackageViewModel.getGeos().observe(this, newGeos ->{
             // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.isEmpty());
@@ -808,7 +811,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 if(map != null) {
                     updateInBackground(true, false);
                 }
-
             }
         });
     }

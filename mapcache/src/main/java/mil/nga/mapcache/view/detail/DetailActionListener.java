@@ -1,4 +1,4 @@
-package mil.nga.mapcache.view;
+package mil.nga.mapcache.view.detail;
 
 import android.view.View;
 

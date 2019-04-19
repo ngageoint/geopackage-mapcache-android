@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.view.DetailActionListener;
 import mil.nga.mapcache.view.LayerViewHolder;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 

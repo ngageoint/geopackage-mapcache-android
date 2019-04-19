@@ -390,7 +390,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
 
         }
         geoPackages.postValue(repository.getGeoPackages());
-        geos.postValue(repository.getGeos().getValue());
+//        geos.postValue(repository.getGeos().getValue());
     }
 
     /**

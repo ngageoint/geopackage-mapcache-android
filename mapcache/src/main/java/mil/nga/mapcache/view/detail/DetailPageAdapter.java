@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.view.DetailActionListener;
 import mil.nga.mapcache.view.LayerViewHolder;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 
@@ -38,6 +39,11 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private View.OnClickListener mBackArrowListener;
 
     /**
+     * Click listener for the buttons in the detail header
+     */
+    private DetailActionListener mActionListener;
+
+    /**
      * Two types of objects to be inflated, Headers and Rows
      */
     private final int HEADER = 0, LAYER = 1;
@@ -48,10 +54,12 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * @param items - list of DetailPageHeaderObject and DetailPageLayerObject
      * @param listener - row click listener
      */
-    public DetailPageAdapter(List<Object> items, RecyclerViewClickListener listener, View.OnClickListener backArrowListener){
+    public DetailPageAdapter(List<Object> items, RecyclerViewClickListener listener,
+                             View.OnClickListener backArrowListener, DetailActionListener actionListener){
         mItems = items;
         mListener = listener;
         mBackArrowListener = backArrowListener;
+        mActionListener = actionListener;
     }
 
 
@@ -67,7 +75,7 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch(viewType) {
             case HEADER:
                 View headerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.detail_header_layout, viewGroup, false);
-                return new HeaderViewHolder(headerView, mBackArrowListener);
+                return new HeaderViewHolder(headerView, mBackArrowListener, mActionListener);
             case LAYER:
                 View layerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layer_row_layout, viewGroup, false);
                 return new LayerViewHolder(layerView, mListener);

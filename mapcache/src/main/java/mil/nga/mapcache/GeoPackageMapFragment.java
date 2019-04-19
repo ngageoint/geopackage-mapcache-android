@@ -173,6 +173,7 @@ import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
+import mil.nga.mapcache.view.DetailActionListener;
 import mil.nga.mapcache.view.GeoPackageAdapter;
 import mil.nga.mapcache.view.GeoPackageClickListener;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
@@ -780,14 +781,12 @@ public class GeoPackageMapFragment extends Fragment implements
             // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.isEmpty());
             // If not empty, repopulate the list
-            if(!newGeos.isEmpty()){
                 geoPackageRecyclerAdapter.clear();
                 geoPackageRecyclerAdapter.insertDefaultHeader();
                 // add all features
                 for(GeoPackageDatabase db : newGeos.getDatabases()){
                     geoPackageRecyclerAdapter.insertToEnd(db);
                 }
-            }
             geoPackageRecyclerAdapter.notifyDataSetChanged();
         });
 
@@ -829,13 +828,23 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+
+        DetailActionListener detailActionListener = new DetailActionListener() {
+            @Override
+            public void onClick(View view, int actionType, String gpName) {
+                deleteDatabaseOption(gpName);
+            }
+        };
+
+
         // Generate a list to pass to the adapter.  Should contain:
         // - A heaader: DetailPageHeaderObject
         // - N number of DetailPageLayerObject objects
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db.getDatabase(), db.getSize(), db.getFeatureCount(), db.getTileCount());
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db.getDatabase(),
+                db.getSize(), db.getFeatureCount(), db.getTileCount());
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
-        for(int i=0; i<500; i++){
+        for(int i=0; i<20; i++){
             DetailPageLayerObject layer = new DetailPageLayerObject("Layer " + i);
             detailList.add(layer);
         }
@@ -849,7 +858,8 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
-        DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener, detailBackListener);
+        DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener,
+                detailBackListener, detailActionListener);
         populateRecyclerWithDetail(detailAdapter);
     }
 
@@ -1247,7 +1257,7 @@ public class GeoPackageMapFragment extends Fragment implements
         final AlertDialog alertDialog = dialog.create();
 
         // Click listener for "Create New"
-        ((AppCompatTextView) alertView.findViewById(R.id.wizard_create))
+        ((TextView) alertView.findViewById(R.id.wizard_create))
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1257,7 +1267,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 });
 
         // Click listener for "Import URL"
-        ((AppCompatTextView) alertView.findViewById(R.id.wizard_import))
+        ((TextView) alertView.findViewById(R.id.wizard_import))
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1267,7 +1277,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 });
 
         // Click listener for "Import from file"
-        ((AppCompatTextView) alertView.findViewById(R.id.wizard_import_file))
+        ((TextView) alertView.findViewById(R.id.wizard_import_file))
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1345,6 +1355,59 @@ public class GeoPackageMapFragment extends Fragment implements
 
         dialog.show();
     }
+
+
+
+
+
+    /**
+     * Alert window to confirm then call to delete a GeoPackage
+     *
+     * @param database
+     */
+    private void deleteDatabaseOption(final String database) {
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_label_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Delete this GeoPackage?");
+        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        actionLabel.setText(database);
+        actionLabel.setVisibility(View.INVISIBLE);
+
+        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setIcon(getResources().getDrawable(R.drawable.material_delete))
+                .setPositiveButton(getString(R.string.geopackage_delete_label),
+
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // remove any active layers drawn on map
+                                geoPackageViewModel.removeActiveTableLayers(database);
+                                // Delete the geopackage
+                                if(geoPackageViewModel.deleteGeoPackage(database)){
+                                    populateRecyclerWithGeoPackages();
+                                }
+                            }
+                        })
+
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+
+        deleteDialog.show();
+    }
+
+
 
 
     /**
@@ -1455,7 +1518,7 @@ public class GeoPackageMapFragment extends Fragment implements
         inputUrl.addTextChangedListener(inputUrlWatcher);
 
         // Example Geopackages link handler
-        ((AppCompatTextView) importUrlView.findViewById(R.id.import_examples))
+        ((TextView) importUrlView.findViewById(R.id.import_examples))
                 .setOnClickListener(new View.OnClickListener() {
 
                     @Override
@@ -5368,7 +5431,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_min_longitude_input);
         final EditText maxLonInput = (EditText) createTilesView
                 .findViewById(R.id.bounding_box_max_longitude_input);
-        final Button preloadedLocationsButton = (Button) createTilesView
+        final TextView preloadedLocationsButton = (TextView) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
         final Spinner tileScalingInput = (Spinner) createTilesView
                 .findViewById(R.id.tile_scaling_type);
@@ -5648,7 +5711,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.bounding_box_min_longitude_input);
         final EditText maxLonInput = (EditText) createTilesView
                 .findViewById(R.id.bounding_box_max_longitude_input);
-        final Button preloadedLocationsButton = (Button) createTilesView
+        final TextView preloadedLocationsButton = (TextView) createTilesView
                 .findViewById(R.id.bounding_box_preloaded);
         final CheckBox ignoreGeoPackageStyles = (CheckBox) createTilesView
                 .findViewById(R.id.feature_tiles_ignore_geopackage_styles);

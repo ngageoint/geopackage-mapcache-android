@@ -4,10 +4,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.media.Image;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.view.DetailActionListener;
+import mil.nga.mapcache.view.RecyclerViewClickListener;
 
 
 /**
@@ -45,6 +48,13 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      */
     private TextView textTiles;
 
+    /**
+     * Action buttons for detail, rename, share, copy, and delete GeoPackage
+     */
+    private Button detailButton, renameButton, shareButton, copyButton, deleteButton;
+
+    private DetailActionListener actionListener;
+
 
     /**
      * Constructor
@@ -52,7 +62,8 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      * @param backListener - A click listener which should set the RecyclerView to contain the
      *                     list of GeoPackages again
      */
-    public HeaderViewHolder(View itemView, View.OnClickListener backListener) {
+    public HeaderViewHolder(View itemView, View.OnClickListener backListener,
+                            DetailActionListener actionListener) {
         super(itemView);
         textName = (TextView) itemView.findViewById(R.id.headerTitle);
         textSize = (TextView) itemView.findViewById(R.id.headerSize);
@@ -60,6 +71,8 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         textTiles = (TextView) itemView.findViewById(R.id.header_text_tiles);
         backArrow = (ImageButton) itemView.findViewById(R.id.detailPageBackButton);
         backArrow.setOnClickListener(backListener);
+        this.actionListener = actionListener;
+        setActionButtonListeners();
     }
 
     /**
@@ -77,6 +90,56 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
             textName.setText("No header text given");
             textSize.setText("-");
         }
+    }
+
+    /**
+     * Sets the funtions for all the buttons.  Pass back to the MapFragment via the actionListener
+     */
+    private void setActionButtonListeners(){
+        // Detail
+        detailButton = (Button) itemView.findViewById(R.id.header_detail_info);
+        detailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionListener.onClick(view, DetailActionListener.DETAIL_GP, textName.getText().toString());
+            }
+        });
+
+        // Rename
+        renameButton = (Button) itemView.findViewById(R.id.header_detail_rename);
+        renameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionListener.onClick(view, DetailActionListener.RENAME_GP, textName.getText().toString());
+            }
+        });
+
+        // Share
+        shareButton = (Button) itemView.findViewById(R.id.header_detail_share);
+        shareButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionListener.onClick(view, DetailActionListener.SHARE_GP, textName.getText().toString());
+            }
+        });
+
+        // Copy
+        copyButton = (Button) itemView.findViewById(R.id.header_detail_copy);
+        copyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionListener.onClick(view, DetailActionListener.COPY_GP, textName.getText().toString());
+            }
+        });
+
+        // Delete
+        deleteButton = (Button) itemView.findViewById(R.id.header_detail_delete);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionListener.onClick(view, DetailActionListener.DELETE_GP, textName.getText().toString());
+            }
+        });
     }
 
     /**

@@ -2,15 +2,12 @@ package mil.nga.mapcache.view.detail;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.media.Image;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.view.DetailActionListener;
-import mil.nga.mapcache.view.RecyclerViewClickListener;
 
 
 /**

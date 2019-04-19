@@ -21,6 +21,7 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.io.GeoPackageProgress;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
@@ -96,6 +97,15 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
             size = geos.getValue().getDatabase(geoPackageName).getSize();
         }
         return size;
+    }
+
+    /**
+     * Returns a GeoPackageDatabase from the geos list
+     * @param geoPackageName The name of the geopackage to return
+     * @return a GeoPackageDatabase object
+     */
+    public GeoPackageDatabase getGeoByName(String geoPackageName){
+        return geos.getValue().getDatabase(geoPackageName);
     }
 
     /**

@@ -33,7 +33,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
@@ -172,12 +171,15 @@ import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
-import mil.nga.mapcache.view.DetailActionListener;
+import mil.nga.mapcache.view.OnDialogButtonClickListener;
+import mil.nga.mapcache.view.detail.DetailActionListener;
 import mil.nga.mapcache.view.GeoPackageAdapter;
 import mil.nga.mapcache.view.GeoPackageClickListener;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
+import mil.nga.mapcache.view.detail.DetailActionUtil;
 import mil.nga.mapcache.view.detail.DetailPageAdapter;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
@@ -199,7 +201,7 @@ import mil.nga.sf.util.GeometryPrinter;
  */
 public class GeoPackageMapFragment extends Fragment implements
         OnMapReadyCallback, OnMapLongClickListener, OnMapClickListener, OnMarkerClickListener,
-        OnMarkerDragListener, ILoadTilesTask, IIndexerTask, OnCameraIdleListener {
+        OnMarkerDragListener, ILoadTilesTask, IIndexerTask, OnCameraIdleListener, OnDialogButtonClickListener {
 
     /**
      * Max features key for saving to preferences
@@ -577,6 +579,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private GeoPackageAdapter geoPackageRecyclerAdapter;
 
+    /**
+     * Util class for opening dialogs to respond to the GeoPackage detail view buttons
+     */
+    private DetailActionUtil detailButtonUtil;
+
 
     private GeoPackageDetailDrawer geoDetailFragment;
 
@@ -649,6 +656,7 @@ public class GeoPackageMapFragment extends Fragment implements
         setIconListeners();
 
         // Create the GeoPackage recycler view
+        detailButtonUtil = new DetailActionUtil(getActivity());
         createGeoPackageRecycler();
         subscribeGeoPackageRecycler();
 
@@ -781,12 +789,11 @@ public class GeoPackageMapFragment extends Fragment implements
             // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.isEmpty());
             // If not empty, repopulate the list
-                geoPackageRecyclerAdapter.clear();
-                geoPackageRecyclerAdapter.insertDefaultHeader();
-                // add all features
-                for(GeoPackageDatabase db : newGeos.getDatabases()){
-                    geoPackageRecyclerAdapter.insertToEnd(db);
-                }
+            geoPackageRecyclerAdapter.clear();
+            geoPackageRecyclerAdapter.insertDefaultHeader();
+            for(GeoPackageDatabase db : newGeos.getDatabases()){
+                geoPackageRecyclerAdapter.insertToEnd(db);
+            }
             geoPackageRecyclerAdapter.notifyDataSetChanged();
         });
 
@@ -828,14 +835,13 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
-
-        DetailActionListener detailActionListener = new DetailActionListener() {
+        // Listener to forward a button click on the detail header to the appropriate dialog function
+        DetailActionListener detailActionListener = new DetailActionListener(){
             @Override
             public void onClick(View view, int actionType, String gpName) {
-                deleteDatabaseOption(gpName);
+                    openActionDialog(gpName, actionType);
             }
         };
-
 
         // Generate a list to pass to the adapter.  Should contain:
         // - A heaader: DetailPageHeaderObject
@@ -863,6 +869,118 @@ public class GeoPackageMapFragment extends Fragment implements
         populateRecyclerWithDetail(detailAdapter);
     }
 
+    /**
+     * Ask the DetailButtonUtil to open a dialog to complete the action related to the button
+     * that was clicked
+     * @param gpName GeoPackage name
+     * @param actionType ActionType enum
+     */
+    private void openActionDialog(String gpName, int actionType){
+        if(actionType == DetailActionListener.DETAIL_GP){
+            detailButtonUtil.openDetailDialog(getActivity(), gpName, this);
+        } else if(actionType == DetailActionListener.RENAME_GP){
+            detailButtonUtil.openRenameDialog(getActivity(), gpName, this);
+        } else if(actionType == DetailActionListener.SHARE_GP){
+            detailButtonUtil.openShareDialog(getActivity(), gpName, this);
+        } else if(actionType == DetailActionListener.COPY_GP){
+            detailButtonUtil.openCopyDialog(getActivity(), gpName, this);
+        } else if(actionType == DetailActionListener.DELETE_GP){
+            detailButtonUtil.openDeleteDialog(getActivity(), gpName, this);
+        }
+    }
+
+
+    /**
+     * Implement OnDialogButtonClickListener Detail button confirm click
+     * Open a dialog with the GeoPackages advanced details
+     * @param gpName - GeoPackage name
+     */
+    @Override
+    public void onDetailGP(String gpName) {
+        AlertDialog viewDialog = geoPackageViewModel.getGeoPackageDetailDialog(gpName, getActivity());
+        viewDialog.show();
+    }
+
+    /**
+     * Implement OnDialogButtonClickListener Rename button confirm click
+     * Rename a GeoPackage and recreate the detailview adapter to make it refresh
+     * @param oldName - GeoPackage original name
+     * @param newName - New GeoPackage name
+     */
+    @Override
+    public void onRenameGP(String oldName, String newName) {
+        Log.i("click", "Rename GeoPackage from: " + oldName + " to: " + newName);
+        try {
+            if (geoPackageViewModel.setGeoPackageName(oldName, newName)) {
+                // recreate the adapter and repopulate the recyclerview
+                createGeoPackageDetailAdapter(geoPackageViewModel.getGeoByName(newName));
+            } else {
+                GeoPackageUtils.showMessage(getActivity(),
+                        getString(R.string.geopackage_rename_label),
+                        "Rename from " + oldName + " to " + newName
+                                + " was not successful");
+            }
+        } catch(Exception e){
+            GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_rename_label),
+                            e.getMessage());
+        }
+    }
+
+    /**
+     * Implement OnDialogButtonClickListener Share button confirm click
+     * Kick off a share task with this GeoPackage
+     * @param gpName - GeoPackage name
+     */
+    @Override
+    public void onShareGP(String gpName) {
+        ShareTask shareTask = new ShareTask(getActivity());
+        shareTask.shareDatabaseOption(gpName);
+    }
+
+    /**
+     * Implement OnDialogButtonClickListener Copy button confirm click
+     * Copy a GeoPackage in the repository and replace the recyclerview with the geopackages list
+     * @param gpName - GeoPackage name
+     */
+    @Override
+    public void onCopyGP(String gpName, String newName) {
+        Log.i("click", "Copy Geopackage");
+        try {
+            if (geoPackageViewModel.copyGeoPackage(gpName, newName)) {
+                populateRecyclerWithGeoPackages();
+            }else{
+                GeoPackageUtils.showMessage(getActivity(),
+                                getString(R.string.geopackage_copy_label),"Copy from "
+                                        + gpName + " to " + newName + " was not successful");
+            }
+        } catch (Exception e) {
+            GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_copy_label),
+                            e.getMessage());
+        }
+    }
+
+    /**
+     * Implement OnDialogButtonClickListener Delete button confirm click
+     * Delete GeoPackage from the repository which should trigger an update to our views
+     * @param gpName - GeoPackage name
+     */
+    @Override
+    public void onDeleteGP(String gpName) {
+        // remove any active layers drawn on map
+        geoPackageViewModel.removeActiveTableLayers(gpName);
+        // Delete the geopackage
+        if(geoPackageViewModel.deleteGeoPackage(gpName)){
+            populateRecyclerWithGeoPackages();
+        }
+    }
+
+    /**
+     * Implement OnDialogButtonClickListener Cancel button click
+     */
+    @Override
+    public void onCancelButtonClicked() {
+        Log.i("click", "close clicked");
+    }
 
 
 
@@ -1360,52 +1478,6 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
 
-    /**
-     * Alert window to confirm then call to delete a GeoPackage
-     *
-     * @param database
-     */
-    private void deleteDatabaseOption(final String database) {
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View alertView = inflater.inflate(R.layout.basic_label_alert, null);
-        // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_delete);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-        titleText.setText("Delete this GeoPackage?");
-        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
-        actionLabel.setText(database);
-        actionLabel.setVisibility(View.INVISIBLE);
-
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setView(alertView)
-                .setIcon(getResources().getDrawable(R.drawable.material_delete))
-                .setPositiveButton(getString(R.string.geopackage_delete_label),
-
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // remove any active layers drawn on map
-                                geoPackageViewModel.removeActiveTableLayers(database);
-                                // Delete the geopackage
-                                if(geoPackageViewModel.deleteGeoPackage(database)){
-                                    populateRecyclerWithGeoPackages();
-                                }
-                            }
-                        })
-
-                .setNegativeButton(getString(R.string.button_cancel_label),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                dialog.dismiss();
-                            }
-                        }).create();
-
-        deleteDialog.show();
-    }
 
 
 

@@ -300,6 +300,10 @@ public class GeoPackageRepository {
                 setGeoSize(database, manager.readableSize(database));
             }
         }
+        // Make sure to still post the value of Geos if it's empty
+        if(geos.getValue().isEmpty()){
+            geos.setValue(geos.getValue());
+        }
         return databaseTables;
     }
 

@@ -150,6 +150,7 @@ public class GeoPackageRepository {
      */
     public List<List<GeoPackageTable>> regenerateTableList() {
         geoPackages.clear();
+        geos.getValue().getDatabases().clear();
         List<List<GeoPackageTable>> databaseTables = new ArrayList<List<GeoPackageTable>>();
         StringBuilder errorMessage = new StringBuilder();
         Iterator<String> databasesIterator = manager.databases().iterator();

@@ -1,5 +1,7 @@
 package mil.nga.mapcache.view.detail;
 
+import mil.nga.mapcache.data.GeoPackageDatabase;
+
 /**
  * Holds values for the Header of the GeoPackage Detail View's recyclerview.  Contains: GeoPackage
  * name, size, number of feature layers, number of tile layers
@@ -29,14 +31,13 @@ public class DetailPageHeaderObject {
 
     /**
      * Constructor
-     * @param gpName - GeoPackage Name
-     * @param gpSize - GeoPackage size (as a string)
+     * @param gp - A GeoPackageDatabase object
      */
-    public DetailPageHeaderObject(String gpName, String gpSize, int gpFeatureCount, int gpTileCount){
-        size = gpSize;
-        geopackageName = gpName;
-        featureCount = gpFeatureCount;
-        tileCount = gpTileCount;
+    public DetailPageHeaderObject(GeoPackageDatabase gp){
+        size = gp.getSize();
+        geopackageName = gp.getDatabase();
+        featureCount = gp.getFeatureCount();
+        tileCount = gp.getTileCount();
     }
 
 

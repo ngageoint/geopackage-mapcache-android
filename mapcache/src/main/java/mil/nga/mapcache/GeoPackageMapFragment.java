@@ -714,9 +714,9 @@ public class GeoPackageMapFragment extends Fragment implements
      * it forwards the request here.  This will search through our open fragments for the currently
      * open GeoPackageDetailDrawer fragment (there can only be one open at a time) and tell it to
      * execute a share task
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
+     * @param requestCode Activity request code
+     * @param permissions Requested permissions
+     * @param grantResults Result of the request
      */
     public void giveSharePermissions(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         if (requestCode == MainActivity.DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE) {
@@ -846,8 +846,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Generate a list to pass to the adapter.  Should contain:
         // - A heaader: DetailPageHeaderObject
         // - N number of DetailPageLayerObject objects
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db.getDatabase(),
-                db.getSize(), db.getFeatureCount(), db.getTileCount());
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
         for(int i=0; i<20; i++){
@@ -869,6 +868,10 @@ public class GeoPackageMapFragment extends Fragment implements
         populateRecyclerWithDetail(detailAdapter);
     }
 
+
+
+
+
     /**
      * Ask the DetailButtonUtil to open a dialog to complete the action related to the button
      * that was clicked
@@ -888,7 +891,6 @@ public class GeoPackageMapFragment extends Fragment implements
             detailButtonUtil.openDeleteDialog(getActivity(), gpName, this);
         }
     }
-
 
     /**
      * Implement OnDialogButtonClickListener Detail button confirm click

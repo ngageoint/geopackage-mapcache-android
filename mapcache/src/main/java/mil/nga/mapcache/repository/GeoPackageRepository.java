@@ -85,13 +85,15 @@ public class GeoPackageRepository {
     }
 
     /**
-     * Add GeoPackageTable to the GeoPackageDatabases live data object
-     * @param table - GeoPackageTable to add to the list
+     * Add GeoPackageTables to the GeoPackageDatabases live data object
+     * @param tables - List of GeoPackageTables to add to the list
      */
-    private void addTableToDatabases(GeoPackageTable table){
+    private void addTablesToDatabases(List<GeoPackageTable> tables){
         GeoPackageDatabases currentGeos = geos.getValue();
         if(currentGeos != null) {
-            currentGeos.addTable(table);
+            for(GeoPackageTable table : tables) {
+                currentGeos.addTable(table);
+            }
             geos.postValue(currentGeos);
         }
     }
@@ -201,8 +203,6 @@ public class GeoPackageRepository {
                                         tableName, geometryType, count);
                                 table.setActive(active.exists(table));
                                 tables.add(table);
-                                // add table to GeoPackageDatabases list
-                                addTableToDatabases(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
                             }
@@ -226,8 +226,6 @@ public class GeoPackageRepository {
                                         tableName, count);
                                 table.setActive(active.exists(table));
                                 tables.add(table);
-                                // add table to GeoPackageDatabases list
-                                addTableToDatabases(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
 
@@ -270,6 +268,7 @@ public class GeoPackageRepository {
 
                 if (exceptions.isEmpty()) {
                     databaseTables.add(tables);
+                    addTablesToDatabases(tables);
 //                    geoAdapter.insertToEnd(tables);
                 } else {
                     // On exception, check the integrity of the database and delete if not valid
@@ -280,6 +279,7 @@ public class GeoPackageRepository {
                         // make sure it's deleteed
                         if (!invalidGP) {
                             databaseTables.add(tables);
+                            addTablesToDatabases(tables);
 //                        geoAdapter.insertToEnd(tables);
                         } else {
                             manager.delete(database);

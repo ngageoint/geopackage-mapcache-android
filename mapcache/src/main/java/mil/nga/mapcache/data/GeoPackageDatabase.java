@@ -1,8 +1,12 @@
 package mil.nga.mapcache.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
 /**
  * Active feature and tile tables within a GeoPackage database
@@ -277,5 +281,20 @@ public class GeoPackageDatabase {
      */
     public void setActiveTables(boolean activeTables) {
         this.activeTables = activeTables;
+    }
+
+    /**
+     * Create a list of DetailPageLayerObjects for every table in this GeoPackage
+     * @return List<DetailPageLayerObject>
+     */
+    public List<DetailPageLayerObject> getLayerObjects(){
+        List<DetailPageLayerObject> list = new ArrayList<>(getFeatureCount() + getTileCount());
+        for(GeoPackageTileTable tile : getTiles()){
+            list.add(new DetailPageLayerObject(tile.getName()));
+        }
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            list.add(new DetailPageLayerObject(feature.getName()));
+        }
+        return list;
     }
 }

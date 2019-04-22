@@ -849,10 +849,11 @@ public class GeoPackageMapFragment extends Fragment implements
         DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
-        for(int i=0; i<20; i++){
-            DetailPageLayerObject layer = new DetailPageLayerObject("Layer " + i);
-            detailList.add(layer);
-        }
+        detailList.addAll(db.getLayerObjects());
+//        for(int i=0; i<500; i++){
+//            DetailPageLayerObject layer = new DetailPageLayerObject("Layer " + i);
+//            detailList.add(layer);
+//        }
 
         // Click listener for the back arrow on the detail header.  Resets the RecyclerView to
         // show GeoPackages

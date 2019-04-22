@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.view.LayerViewAdapter;
@@ -126,7 +127,7 @@ public class GeoPackageDetailView extends Fragment implements
     private void populateRecyclerView(){
         RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.detail_recycler_view);
         // Create a header object to be first in the recyclerview
-        DetailPageHeaderObject headerObject = new DetailPageHeaderObject(geoPackageName, "30mb", 0, 0);
+        DetailPageHeaderObject headerObject = new DetailPageHeaderObject(new GeoPackageDatabase(geoPackageName));
         items.add(headerObject);
 
         // Add a Layer Object for every layer in this geopackage

@@ -32,7 +32,7 @@ public class GeoPackageDatabases {
     /**
      * Database preferences value
      */
-    private static final String DATABASES_PREFERENCE = "databases";
+    private String DATABASES_PREFERENCE = "databases";
 
     /**
      * Tile Tables Preference suffix
@@ -74,15 +74,19 @@ public class GeoPackageDatabases {
      */
     private boolean modified = false;
 
+    private String prefix;
+
     /**
      * Public constructor
      * @param context application context used for opening PreferenceManager
      */
-    public GeoPackageDatabases(Context context){
+    public GeoPackageDatabases(Context context, String prefix){
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
         this.context = context;
         this.settings = preferences;
+        this.prefix = prefix;
+        DATABASES_PREFERENCE = prefix + "databases";
         // Load current preference data
         loadFromPreferences();
     }
@@ -543,7 +547,7 @@ public class GeoPackageDatabases {
      * @return
      */
     private String getTileTablesPreferenceKey(String database) {
-        return database + TILE_TABLES_PREFERENCE_SUFFIX;
+        return prefix + database + TILE_TABLES_PREFERENCE_SUFFIX;
     }
 
     /**
@@ -563,7 +567,7 @@ public class GeoPackageDatabases {
      * @return
      */
     private String getFeatureTablesPreferenceKey(String database) {
-        return database + FEATURE_TABLES_PREFERENCE_SUFFIX;
+        return prefix + database + FEATURE_TABLES_PREFERENCE_SUFFIX;
     }
 
     /**
@@ -583,7 +587,7 @@ public class GeoPackageDatabases {
      * @return
      */
     private String getFeatureOverlayTablesPreferenceKey(String database) {
-        return database + FEATURE_OVERLAY_TABLES_PREFERENCE_SUFFIX;
+        return prefix + database + FEATURE_OVERLAY_TABLES_PREFERENCE_SUFFIX;
     }
 
     /**
@@ -593,7 +597,7 @@ public class GeoPackageDatabases {
      */
     private void writeTableFile(GeoPackageTable table) {
 
-        String fileName = getFileName(table);
+        String fileName = getFileName(prefix, table);
 
         ObjectOutputStream objectOut = null;
         try {
@@ -622,7 +626,7 @@ public class GeoPackageDatabases {
      */
     private GeoPackageTable readTableFile(String database, String table) {
 
-        String fileName = getFileName(database, table);
+        String fileName = getFileName(prefix, database, table);
 
         ObjectInputStream objectIn = null;
         Object object = null;
@@ -670,7 +674,7 @@ public class GeoPackageDatabases {
      * @return
      */
     private boolean deleteTableFile(String database, String table) {
-        String fileName = getFileName(database, table);
+        String fileName = getFileName(prefix, database, table);
         return context.deleteFile(fileName);
     }
 
@@ -680,7 +684,7 @@ public class GeoPackageDatabases {
      * @param database
      */
     private void deleteTableFiles(String database) {
-        String filePrefix = getFileName(database, "");
+        String filePrefix = getFileName(prefix, database, "");
         for (String file : context.fileList()) {
             if (file.startsWith(filePrefix)) {
                 context.deleteFile(file);
@@ -694,8 +698,8 @@ public class GeoPackageDatabases {
      * @param table
      * @return
      */
-    private static String getFileName(GeoPackageTable table) {
-        return getFileName(table.getDatabase(), table.getName());
+    private static String getFileName(String prefix, GeoPackageTable table) {
+        return getFileName(prefix, table.getDatabase(), table.getName());
     }
 
     /**
@@ -705,8 +709,8 @@ public class GeoPackageDatabases {
      * @param table
      * @return
      */
-    private static String getFileName(String database, String table) {
-        return database + "-" + table;
+    private static String getFileName(String prefix, String database, String table) {
+        return prefix + database + "-" + table;
     }
 
 }

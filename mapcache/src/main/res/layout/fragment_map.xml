@@ -354,9 +354,9 @@
         android:id="@+id/recycler_geopackages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/nga_primary_bright"
+        android:background="@drawable/gradient_vertical"
         app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_peekHeight="200dp"
+        app:behavior_peekHeight="250dp"
         />
 
     <!--Floating action button for new Geopackage-->

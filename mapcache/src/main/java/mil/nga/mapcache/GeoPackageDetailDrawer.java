@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import androidx.core.app.ActivityCompat;
@@ -28,7 +28,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -42,7 +41,7 @@ import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.view.LayerSwitchListener;
 import mil.nga.mapcache.view.LayerViewAdapter;
 import mil.nga.mapcache.view.LayerViewObject;
-import mil.nga.mapcache.view.RecyclerViewClickListener;
+import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.GeometryType;
 

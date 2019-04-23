@@ -1,9 +1,7 @@
 package mil.nga.mapcache.view;
 
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +17,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.listeners.GeoPackageClickListener;
 
 /**
  * GeoPackageViewAdapter : Adapter class to hold data to bind to a GeoPackage Recycler View.

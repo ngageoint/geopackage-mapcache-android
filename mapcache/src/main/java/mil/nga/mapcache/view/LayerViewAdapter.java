@@ -1,6 +1,5 @@
 package mil.nga.mapcache.view;
 
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 
 /**
  *  LayerViewAdapter: Adapter class to hold data to bind to the GeoPackage's Layer List Recycler view

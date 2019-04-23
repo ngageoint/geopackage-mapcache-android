@@ -1,4 +1,4 @@
-package mil.nga.mapcache.view;
+package mil.nga.mapcache.listeners;
 
 /**
  * Listener to be implemented for opening dialog windows

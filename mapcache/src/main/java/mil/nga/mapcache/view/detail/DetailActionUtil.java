@@ -1,7 +1,6 @@
 package mil.nga.mapcache.view.detail;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -11,7 +10,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.AlertDialog;
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.view.OnDialogButtonClickListener;
+import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 
 /**
  * Util class to launch dialogs and return click listeners for the action buttons in the GeoPackage

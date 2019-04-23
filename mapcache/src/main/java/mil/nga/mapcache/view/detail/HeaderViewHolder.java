@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.DetailActionListener;
 
 
 /**

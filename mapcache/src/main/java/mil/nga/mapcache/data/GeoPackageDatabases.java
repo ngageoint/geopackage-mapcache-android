@@ -32,7 +32,7 @@ public class GeoPackageDatabases {
     /**
      * Database preferences value
      */
-    private String DATABASES_PREFERENCE = "databases";
+    private String databasePreference = "databases";
 
     /**
      * Tile Tables Preference suffix
@@ -74,6 +74,9 @@ public class GeoPackageDatabases {
      */
     private boolean modified = false;
 
+    /**
+     * prefix to add to the saved preference before saving
+     */
     private String prefix;
 
     /**
@@ -86,7 +89,7 @@ public class GeoPackageDatabases {
         this.context = context;
         this.settings = preferences;
         this.prefix = prefix;
-        DATABASES_PREFERENCE = prefix + "databases";
+        databasePreference = prefix + "databases";
         // Load current preference data
         loadFromPreferences();
     }
@@ -346,7 +349,7 @@ public class GeoPackageDatabases {
      */
     public void loadFromPreferences() {
         databases.clear();
-        Set<String> databases = settings.getStringSet(DATABASES_PREFERENCE,
+        Set<String> databases = settings.getStringSet(databasePreference,
                 new HashSet<String>());
         for (String database : databases) {
             Set<String> tiles = settings
@@ -384,13 +387,13 @@ public class GeoPackageDatabases {
     private void removeDatabaseFromPreferences(String database, boolean preserveOverlays) {
         Editor editor = settings.edit();
 
-        Set<String> databases = settings.getStringSet(DATABASES_PREFERENCE,
+        Set<String> databases = settings.getStringSet(databasePreference,
                 new HashSet<String>());
         if (databases != null && databases.contains(database)) {
             Set<String> newDatabases = new HashSet<String>();
             newDatabases.addAll(databases);
             newDatabases.remove(database);
-            editor.putStringSet(DATABASES_PREFERENCE, newDatabases);
+            editor.putStringSet(databasePreference, newDatabases);
         }
         editor.remove(getTileTablesPreferenceKey(database));
         editor.remove(getFeatureTablesPreferenceKey(database));
@@ -466,7 +469,7 @@ public class GeoPackageDatabases {
     private void addTableToPreferences(GeoPackageTable table) {
         Editor editor = settings.edit();
 
-        Set<String> databases = settings.getStringSet(DATABASES_PREFERENCE,
+        Set<String> databases = settings.getStringSet(databasePreference,
                 new HashSet<String>());
         if (databases == null || !databases.contains(table.getDatabase())) {
             Set<String> newDatabases = new HashSet<String>();
@@ -474,7 +477,7 @@ public class GeoPackageDatabases {
                 newDatabases.addAll(databases);
             }
             newDatabases.add(table.getDatabase());
-            editor.putStringSet(DATABASES_PREFERENCE, newDatabases);
+            editor.putStringSet(databasePreference, newDatabases);
         }
 
         switch (table.getType()) {

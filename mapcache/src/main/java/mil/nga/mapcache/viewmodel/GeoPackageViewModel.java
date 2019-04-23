@@ -165,6 +165,21 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return repository.setLayerActive(table);
     }
 
+    /**
+     * Remove all active layers for the given database
+     */
+    public boolean removeActiveTableLayers(String geoPackageName){
+        return repository.removeActiveForGeoPackage(geoPackageName);
+    }
+
+    /**
+     * Remove all active tables
+     */
+    public void clearAllActive(){
+        repository.clearAllActive();
+    }
+
+
 
 
 
@@ -220,9 +235,9 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * @param newTable
      */
     public void addToTables(GeoPackageTable newTable){
-        List<GeoPackageTable> newTables = activeTables.getValue();
-        newTables.add(newTable);
-        activeTables.postValue(newTables);
+        //List<GeoPackageTable> newTables = activeTables.getValue();
+        //newTables.add(newTable);
+        //activeTables.postValue(newTables);
     }
 
     /**
@@ -281,34 +296,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
             }
         }
         return false;
-    }
-
-    /**
-     * Remove all active tables
-     */
-    public void clearAllActive(){
-        List<GeoPackageTable> currentTables = activeTables.getValue();
-        currentTables.clear();
-        activeTables.postValue(currentTables);
-    }
-
-    /**
-     * Remove all active layers for the given database
-     */
-    public boolean removeActiveTableLayers(String geoPackageName){
-        List<GeoPackageTable> currentTables = activeTables.getValue();
-        if(currentTables != null && currentTables.size() > 0) {
-            Iterator<GeoPackageTable> tableIterator = currentTables.iterator();
-            while(tableIterator.hasNext()){
-                // Only delete if the geopackage name matches
-                GeoPackageTable table = tableIterator.next();
-                if(table.getDatabase().equalsIgnoreCase(geoPackageName)) {
-                    tableIterator.remove();
-                }
-            }
-        }
-        activeTables.postValue(currentTables);
-        return true;
     }
 
     /**
@@ -453,7 +440,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      */
     public boolean deleteGeoPackage(String geoPackageName){
         if(repository.deleteGeoPackage(geoPackageName)){
-            generateGeoPackageList();
             regenerateGeoPackageTableList();
             return true;
         }

@@ -631,7 +631,7 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackageViewModel.init();
 
 
-        active = new GeoPackageDatabases(getActivity().getApplicationContext());
+        active = new GeoPackageDatabases(getActivity().getApplicationContext(), "active");
 
         vibrator = (Vibrator) getActivity().getSystemService(
                 Context.VIBRATOR_SERVICE);
@@ -801,6 +801,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Observe Active Tables - used to determine which layers are enabled.  Update main list
         // of geoPackages when a change is made in order to change the active state
         geoPackageViewModel.getActive().observe(this, newTables ->{
+            active = newTables;
             geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
             // Update the map

@@ -72,8 +72,8 @@ public class GeoPackageRepository {
     public GeoPackageRepository(@NonNull Application application) {
         context = application.getApplicationContext();
         manager = GeoPackageFactory.getManager(application);
-        active.setValue(new GeoPackageDatabases(context));
-        geos.setValue(new GeoPackageDatabases(context));
+        active.setValue(new GeoPackageDatabases(context, "active"));
+        geos.setValue(new GeoPackageDatabases(context, "all"));
     }
 
 
@@ -153,6 +153,32 @@ public class GeoPackageRepository {
             active.postValue(currentActive);
         }
         return false;
+    }
+
+    /**
+     * Remove all active tables for the given GeoPackage name
+     * @param geoPackageName name of the geopackage to remove all active layers for
+     * @return true if the geopackage was found and deleted
+     */
+    public boolean removeActiveForGeoPackage(String geoPackageName){
+        GeoPackageDatabases currentActive = active.getValue();
+        if(currentActive != null) {
+            currentActive.removeDatabase(geoPackageName, false);
+            active.postValue(currentActive);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Clear all active tables
+     */
+    public void clearAllActive(){
+        GeoPackageDatabases currentActive = active.getValue();
+        if(currentActive != null) {
+            currentActive.getDatabases().clear();
+            active.postValue(currentActive);
+        }
     }
 
 
@@ -352,6 +378,7 @@ public class GeoPackageRepository {
      * Delete a geoPackage by name
      */
     public boolean deleteGeoPackage(String geoPackageName) {
+        removeActiveForGeoPackage(geoPackageName);
         return manager.delete(geoPackageName);
     }
 

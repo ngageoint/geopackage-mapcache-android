@@ -1,7 +1,6 @@
 package mil.nga.mapcache.view;
 
 import android.content.Context;
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,17 +8,13 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import mil.nga.geopackage.GeoPackage;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
-import mil.nga.mapcache.data.GeoPackageFeatureTable;
-import mil.nga.mapcache.data.GeoPackageTable;
-import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.listeners.GeoPackageClickListener;
 
 /**
  *  Adapter to power the main RecyclerView containing our GeoPackages.  Creates a list with 2

@@ -13,6 +13,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.listeners.GeoPackageClickListener;
 
 /**
  * ViewHolder to show a GeoPackage name, and the number of feature and tile tables.  Also binds a

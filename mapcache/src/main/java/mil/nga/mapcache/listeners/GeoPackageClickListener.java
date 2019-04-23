@@ -1,4 +1,4 @@
-package mil.nga.mapcache.view;
+package mil.nga.mapcache.listeners;
 
 import android.view.View;
 

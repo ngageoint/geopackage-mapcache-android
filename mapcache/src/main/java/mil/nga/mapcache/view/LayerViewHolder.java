@@ -7,8 +7,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
+import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
 /**

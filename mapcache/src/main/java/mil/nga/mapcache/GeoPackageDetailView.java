@@ -132,11 +132,11 @@ public class GeoPackageDetailView extends Fragment implements
 
         // Add a Layer Object for every layer in this geopackage
         for(int i=0; i<20; i++){
-            items.add(new DetailPageLayerObject("Layer " + i));
+            items.add(new DetailPageLayerObject("Layer " + i, geoPackageName, false, null));
         }
 
         // Create and populate the RecyclerView's adapter
-        DetailPageAdapter adapter = new DetailPageAdapter(items, null, null, null);
+        DetailPageAdapter adapter = new DetailPageAdapter(items, null, null, null, null);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

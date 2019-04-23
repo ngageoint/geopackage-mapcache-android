@@ -173,6 +173,7 @@ import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
+import mil.nga.mapcache.view.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.OnDialogButtonClickListener;
 import mil.nga.mapcache.view.detail.DetailActionListener;
 import mil.nga.mapcache.view.GeoPackageAdapter;
@@ -797,18 +798,12 @@ public class GeoPackageMapFragment extends Fragment implements
             geoPackageRecyclerAdapter.notifyDataSetChanged();
         });
 
-        // Observe Active Tables - used to determine which layers are enabled
-        geoPackageViewModel.getActiveTables().observe(this, newTables ->{
-            active.clearActive();
-            List<String> activeNames = new ArrayList<>();
-            for(int i=0; i < newTables.size(); i++) {
-                GeoPackageTable table = newTables.get(i);
-                active.addTable(table);
-                activeNames.add(table.getDatabase());
-//                updateInBackground(true, false);
-            }
-            geoPackageRecyclerAdapter.updateActiveTables(activeNames);
+        // Observe Active Tables - used to determine which layers are enabled.  Update main list
+        // of geoPackages when a change is made in order to change the active state
+        geoPackageViewModel.getActive().observe(this, newTables ->{
+            geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
+            // Update the map
             if(newTables.isEmpty()){
                 if(map != null){
                     map.clear();
@@ -823,7 +818,8 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * Populate the RecyclerView with details about a single GeoPackage
+     * Populate the RecyclerView with details about a single GeoPackage, and generate click listeners
+     * for the detail view
      * @param db - GeoPackageDatabase object of the GP that we're going to create the view for
      */
     private void createGeoPackageDetailAdapter(GeoPackageDatabase db){
@@ -835,6 +831,15 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+        // Listener for clicking on Layer's active switch.  Sends the table and active state to the
+        // repository to be stored in the active tables list
+        LayerActiveSwitchListener activeLayerListener = new LayerActiveSwitchListener() {
+            @Override
+            public void onClick(boolean active, GeoPackageTable table) {
+                geoPackageViewModel.setLayerActive(table);
+            }
+        };
+
         // Listener to forward a button click on the detail header to the appropriate dialog function
         DetailActionListener detailActionListener = new DetailActionListener(){
             @Override
@@ -842,18 +847,6 @@ public class GeoPackageMapFragment extends Fragment implements
                     openActionDialog(gpName, actionType);
             }
         };
-
-        // Generate a list to pass to the adapter.  Should contain:
-        // - A heaader: DetailPageHeaderObject
-        // - N number of DetailPageLayerObject objects
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
-        List<Object> detailList = new ArrayList<>();
-        detailList.add(detailHeader);
-        detailList.addAll(db.getLayerObjects());
-//        for(int i=0; i<500; i++){
-//            DetailPageLayerObject layer = new DetailPageLayerObject("Layer " + i);
-//            detailList.add(layer);
-//        }
 
         // Click listener for the back arrow on the detail header.  Resets the RecyclerView to
         // show GeoPackages
@@ -864,8 +857,16 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+        // Generate a list to pass to the adapter.  Should contain:
+        // - A heaader: DetailPageHeaderObject
+        // - N number of DetailPageLayerObject objects generated from the GeoPackageDatabase object
+        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
+        List<Object> detailList = new ArrayList<>();
+        detailList.add(detailHeader);
+        detailList.addAll(db.getLayerObjects());
+
         DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener,
-                detailBackListener, detailActionListener);
+                detailBackListener, detailActionListener, activeLayerListener);
         populateRecyclerWithDetail(detailAdapter);
     }
 
@@ -1886,26 +1887,6 @@ public class GeoPackageMapFragment extends Fragment implements
         // Set map icon positions (left, top, right, bottom)
         map.setPadding(16, 16, 16, bottomSheetView.getHeight());
     }
-
-
-
-
-//    /**
-//     *  Create click and slide listeners for the bottom sheet
-//     */
-//    public void createBottomSheetListeners(){
-//        // Listener for sliding the bottom sheet
-//        BottomSheetBehavior bottomSheet = BottomSheetBehavior.from(view.findViewById(R.id.bottom_sheet));
-//        bottomSheet.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-//            @Override
-//            public void onStateChanged(@NonNull View view, int i) {
-//            }
-//            @Override
-//            public void onSlide(@NonNull View view, float v) {
-//                setMapIconPosition(map, Math.round(bottomSheetView.getHeight() * v) + 16);
-//            }
-//        });
-//    }
 
 
 

@@ -54,7 +54,7 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
     public LayerViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         //Inflate the layout, initialize the View Holder
         View v = LayoutInflater.from(context).inflate(R.layout.layer_row_layout, viewGroup, false);
-        LayerViewHolder holder = new LayerViewHolder(v, mListener);
+        LayerViewHolder holder = new LayerViewHolder(v, mListener, null);
         // Callback when the layer's switch is changed
         holder.layerOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

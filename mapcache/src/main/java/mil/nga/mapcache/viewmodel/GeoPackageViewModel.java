@@ -52,9 +52,16 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     private MutableLiveData<List<GeoPackage>> geoPackages = new MutableLiveData<>();
 
     /**
-     * geos is a GeoPackageDatabases object powered by the repository (
+     * geos is a GeoPackageDatabases object powered by the repository.  Contains a list of all
+     * GeoPackageTables opened in this project
      */
     private MutableLiveData<GeoPackageDatabases> geos = new MutableLiveData<>();
+
+    /**
+     * active is a GeoPackageDatabases object powered by the repository.  Contains a list
+     * ONLY the GeoPackageTables that are set to active
+     */
+    private MutableLiveData<GeoPackageDatabases> active = new MutableLiveData<>();
 
 
     /**
@@ -73,6 +80,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         repository = new GeoPackageRepository(getApplication());
         activeTables.setValue(new ArrayList<GeoPackageTable>());
         geos = getGeos();
+        active = getActive();
 //        generateGeoPackageList();
         regenerateGeoPackageTableList();
 //        geoPackageTables.setValue(geoList);
@@ -80,7 +88,9 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
 
-
+    /**
+     * geos GeoPackageTables --------------
+     */
     /**
      *  Get geos live data from repository
      */
@@ -133,6 +143,28 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         }
         return count;
     }
+
+
+
+
+    /**
+     * Active GeoPackageTables --------------
+     */
+    /**
+     *  Get active live data from repository
+     */
+    public MutableLiveData<GeoPackageDatabases> getActive(){
+        return repository.getActive();
+    }
+
+    /**
+     * Sets the layer's active state to the given value
+     * @param table GeoPackageTable type
+     */
+    public boolean setLayerActive(GeoPackageTable table){
+        return repository.setLayerActive(table);
+    }
+
 
 
 

@@ -290,10 +290,10 @@ public class GeoPackageDatabase {
     public List<DetailPageLayerObject> getLayerObjects(){
         List<DetailPageLayerObject> list = new ArrayList<>(getFeatureCount() + getTileCount());
         for(GeoPackageTileTable tile : getTiles()){
-            list.add(new DetailPageLayerObject(tile.getName()));
+            list.add(new DetailPageLayerObject(tile.getName(), database, tile.isActive(), tile));
         }
         for(GeoPackageFeatureTable feature : getFeatures()){
-            list.add(new DetailPageLayerObject(feature.getName()));
+            list.add(new DetailPageLayerObject(feature.getName(), database, feature.isActive(), feature));
         }
         return list;
     }

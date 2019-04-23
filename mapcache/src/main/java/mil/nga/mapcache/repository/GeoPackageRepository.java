@@ -30,6 +30,7 @@ import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
@@ -45,7 +46,11 @@ public class GeoPackageRepository {
 
     private GeoPackageManager manager;
     private List<GeoPackage> geoPackages = new ArrayList<>();
-    private GeoPackageDatabases active;
+
+    /**
+     * Live object ONLY tracks active GeoPackage tables
+     */
+    private MutableLiveData<GeoPackageDatabases> active = new MutableLiveData<>();
 
     /**
      * Live object to track currently opened GeoPackages in the application.  Inside this object,
@@ -67,7 +72,7 @@ public class GeoPackageRepository {
     public GeoPackageRepository(@NonNull Application application) {
         context = application.getApplicationContext();
         manager = GeoPackageFactory.getManager(application);
-        active = new GeoPackageDatabases(context);
+        active.setValue(new GeoPackageDatabases(context));
         geos.setValue(new GeoPackageDatabases(context));
     }
 
@@ -122,6 +127,34 @@ public class GeoPackageRepository {
             geos.postValue(currentGeos);
         }
     }
+
+
+    /**
+     * Active GeoPackage Layers --------------
+     */
+
+    public MutableLiveData<GeoPackageDatabases> getActive(){
+        return active;
+    }
+
+    /**
+     * If the table is active, it's added to the currentActive table's object.  If it's not active,
+     * it's removed from currentActive.  Then the new currentActive object value is posted
+     * @param table GeoPackageTable
+     */
+    public boolean setLayerActive(GeoPackageTable table){
+        GeoPackageDatabases currentActive = active.getValue();
+        if(currentActive != null) {
+            if(table.isActive()) {
+                currentActive.addTable(table);
+            } else {
+                currentActive.removeTable(table);
+            }
+            active.postValue(currentActive);
+        }
+        return false;
+    }
+
 
 
 
@@ -201,7 +234,7 @@ public class GeoPackageRepository {
 
                                 GeoPackageTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
-                                table.setActive(active.exists(table));
+                                table.setActive(active.getValue().exists(table));
                                 tables.add(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
@@ -224,7 +257,7 @@ public class GeoPackageRepository {
                                 int count = tileDao.count();
                                 GeoPackageTable table = new GeoPackageTileTable(database,
                                         tableName, count);
-                                table.setActive(active.exists(table));
+                                table.setActive(active.getValue().exists(table));
                                 tables.add(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());

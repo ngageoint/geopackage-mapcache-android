@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -190,18 +191,20 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     /**
      * Updates the mGeoPackage list to set tables to active if they're found in the given list.  Then
-     * calls the adapter's notify method to update the row
-     * @param activeTables List of table names that should be set to active
+     * calls the adapter's notify method to update the row.  This is done when a user changes the
+     * active state on a layer, and will update the main geopackage list view to show active
+     * states if they've changed
+     * @param activeTables List of tables that should be set to active
      */
-    public void updateActiveTables(List<String> activeTables){
+    public void updateActiveTables(Collection<GeoPackageDatabase> activeTables){
         int position = 0;
         for(Object db : mGeoPackages){
             if(db instanceof GeoPackageDatabase) {
                 GeoPackageDatabase geoPackage = (GeoPackageDatabase)db;
                 String currentName = geoPackage.getDatabase();
                 boolean found = false;
-                for (String newName : activeTables) {
-                    if (currentName.equalsIgnoreCase(newName)) {
+                for (GeoPackageDatabase activeDb : activeTables) {
+                    if (currentName.equalsIgnoreCase(activeDb.getDatabase())) {
                         // Current table should be active
                         found = true;
                         geoPackage.setActiveTables(true);

@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.view.GeoPackageClickListener;
+import mil.nga.mapcache.view.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.LayerViewHolder;
 import mil.nga.mapcache.view.RecyclerViewClickListener;
 
@@ -43,6 +45,11 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private DetailActionListener mActionListener;
 
     /**
+     * Click listener for clicking a layer's active switch
+     */
+    private LayerActiveSwitchListener mLayerSwitchListener;
+
+    /**
      * Two types of objects to be inflated, Headers and Rows
      */
     private final int HEADER = 0, LAYER = 1;
@@ -54,11 +61,13 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * @param listener - row click listener
      */
     public DetailPageAdapter(List<Object> items, RecyclerViewClickListener listener,
-                             View.OnClickListener backArrowListener, DetailActionListener actionListener){
+                             View.OnClickListener backArrowListener, DetailActionListener actionListener,
+                             LayerActiveSwitchListener activeLayerListener){
         mItems = items;
         mListener = listener;
         mBackArrowListener = backArrowListener;
         mActionListener = actionListener;
+        mLayerSwitchListener = activeLayerListener;
     }
 
 
@@ -77,7 +86,7 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 return new HeaderViewHolder(headerView, mBackArrowListener, mActionListener);
             case LAYER:
                 View layerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layer_row_layout, viewGroup, false);
-                return new LayerViewHolder(layerView, mListener);
+                return new LayerViewHolder(layerView, mListener, mLayerSwitchListener);
         }
         return null;
     }

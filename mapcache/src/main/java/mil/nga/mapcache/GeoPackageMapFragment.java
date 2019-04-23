@@ -544,7 +544,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private GeoPackageViewAdapter geoAdapter;
 
     /**
-     * Text view to show "no geopackages found" message when the list is empty
+     * Views to show "no geopackages found" message when the list is empty
      */
     private TextView emptyView;
     private TextView getStartedView;
@@ -585,23 +585,45 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private DetailActionUtil detailButtonUtil;
 
-
-    private GeoPackageDetailDrawer geoDetailFragment;
-
+    /**
+     * ViewModel for accessing data from the repository
+     */
     private GeoPackageViewModel geoPackageViewModel;
-    private String dbName;
-    List<List<GeoPackageTable>> geoPackageData = new ArrayList<List<GeoPackageTable>>();
+
+    /**
+     * Button for selecting map type
+     */
     private ImageButton mapSelectButton;
+
+    /**
+     * Button for editing features
+     */
     private ImageButton editFeaturesButton;
+
+    /**
+     * Button for opening the settings view
+     */
     private ImageButton settingsIcon;
+
+    /**
+     * Zoom in button
+     */
     private ImageButton zoomInButton;
+
+    /**
+     * Zoom out button
+     */
     private ImageButton zoomOutButton;
-    private View bottomSheetView;
-    private BottomSheetBehavior settingsView;
-    private List<GeoPackage> geoPackageList = new ArrayList<GeoPackage>();
+
+    /**
+     * Floating Action Button for creating geopackages
+     */
     private FloatingActionButton fab;
+
+    /**
+     * Task for importing a geopackage
+     */
     private ImportTask importTask;
-    private Switch darkMapSwitch;
 
 
     /**
@@ -630,7 +652,6 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
         geoPackageViewModel.init();
 
-
         active = new GeoPackageDatabases(getActivity().getApplicationContext(), "active");
 
         vibrator = (Vibrator) getActivity().getSystemService(
@@ -639,16 +660,9 @@ public class GeoPackageMapFragment extends Fragment implements
         view = inflater.inflate(R.layout.fragment_map, container, false);
         getMapFragment().getMapAsync(this);
 
-        // Bottom sheet for geopackages
-        bottomSheetView = view.findViewById(R.id.bottom_sheet);
-
-        // Bottom sheet for settings
-        settingsView = BottomSheetBehavior.from(view.findViewById(R.id.settings_sheet));
-
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
-//        manager = GeoPackageFactory.getManager(getActivity());
         manager = GeoPackageFactory.getManager(getContext().getApplicationContext());
 
         geoPackages = new GeoPackageCache(manager);
@@ -656,21 +670,18 @@ public class GeoPackageMapFragment extends Fragment implements
         // Set listeners for icons on map
         setIconListeners();
 
-        // Create the GeoPackage recycler view
+        // Util class for launching dialogs when clicking buttons on GeoPackage detail page
         detailButtonUtil = new DetailActionUtil(getActivity());
+
+        // Create the GeoPackage recycler view
         createGeoPackageRecycler();
         subscribeGeoPackageRecycler();
-
-        // Old recycler
-        //createRecyclerView();
-
 
         // Floating action button
         setFLoatingActionButton();
 
         // Show disclaimer
         showDisclaimer();
-
 
         return touch;
     }
@@ -685,8 +696,6 @@ public class GeoPackageMapFragment extends Fragment implements
     public void launchPreferences(){
         Intent intent = new Intent(getContext(), PreferencesActivity.class);
         startActivityForResult(intent, ACTIVITY_PREFERENCES);
-//        startActivity(intent);
-
     }
 
     /**
@@ -994,90 +1003,6 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     *  Creates the GeoPackage recyclerview and assigns listeners
-     */
-    public void createRecyclerView(){
-        // Listener for clicking on a geopackage, sends you to the detail activity with the geopackage name
-        GeoPackageClickListener packageListener = new GeoPackageClickListener() {
-            @Override
-            public void onClick(View view, int position, GeoPackageDatabase db) {
-                // Create the detial view
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-                GeoPackageDetailDrawer drawer = GeoPackageDetailDrawer.newInstance(db.getDatabase());
-                transaction.replace(R.id.fragmentOutterContainer, drawer, "geoPackageDetail");
-                transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
-                transaction.commit();
-
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction transaction = fragmentManager.beginTransaction();
-//                transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-//                GeoPackageDetailView detailView = GeoPackageDetailView.newInstance(name);
-//                transaction.replace(R.id.fragmentOutterContainer, detailView, "geoPackageDetail");
-//                transaction.addToBackStack("geoPackageDetail");  // if written, this transaction will be added to backstack
-//                transaction.commit();
-
-            }
-        };
-
-        geoPackageRecyclerView = (RecyclerView) view.findViewById(R.id.geopackage_list);
-        geoAdapter = new GeoPackageViewAdapter(view.getContext(), packageListener);
-        geoPackageRecyclerView.setAdapter(geoAdapter);
-        geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
-
-        // Observe geopackages as livedata
-        geoPackageViewModel.getGeoPackageTables().observe(this, newGeoTableList ->{
-            geoAdapter.clear();
-            for(int i=0; i < newGeoTableList.size(); i++) {
-                List<GeoPackageTable> tablesList = newGeoTableList.get(i);
-                geoAdapter.insertToEnd(tablesList);
-            }
-            setListVisibility(newGeoTableList.isEmpty());
-            geoAdapter.notifyDataSetChanged();
-        });
-
-        // Observe GeoPackage list as livedata
-        geoPackageViewModel.getGeoPackages().observe(this, newGeoPackages ->{
-            List<GeoPackage> newGeos = new ArrayList<>();
-            for(GeoPackage geo : newGeoPackages){
-                GeoPackage newGeo = geoPackageViewModel.getGeoPackageByName(geo.getName());
-                newGeos.add(newGeo);
-            }
-            geoAdapter.setGeoPackageList(newGeos);
-            geoAdapter.notifyDataSetChanged();
-        });
-
-        // Observe Active Tables - used to determine which layers are enabled
-        geoPackageViewModel.getActiveTables().observe(this, newTables ->{
-            active.clearActive();
-            List<String> activeNames = new ArrayList<>();
-            for(int i=0; i < newTables.size(); i++) {
-                GeoPackageTable table = newTables.get(i);
-                active.addTable(table);
-                activeNames.add(table.getDatabase());
-//                updateInBackground(true, false);
-            }
-            geoAdapter.updateActive(activeNames);
-            geoAdapter.notifyDataSetChanged();
-            if(newTables.isEmpty()){
-                if(map != null){
-                    map.clear();
-                }
-            } else{
-                if(map != null) {
-                    updateInBackground(true, false);
-                }
-
-            }
-        });
-    }
-
-
-
-
-
-    /**
      * Pop up menu for map view type icon button - selector for map, satellite, terrain
      * @param view
      */
@@ -1369,14 +1294,6 @@ public class GeoPackageMapFragment extends Fragment implements
         // Initial dialog asking for create or import
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(alertView);
-        // Leave the cancel button out for now
-//                .setNegativeButton(getString(R.string.button_cancel_label),
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog,
-//                                                int whichButton) {
-//                                dialog.cancel();
-//                            }
-//                        });
         final AlertDialog alertDialog = dialog.create();
 
         // Click listener for "Create New"
@@ -1870,23 +1787,6 @@ public class GeoPackageMapFragment extends Fragment implements
             zoomInButton.setVisibility(View.INVISIBLE);
             zoomOutButton.setVisibility(View.INVISIBLE);
         }
-    }
-
-
-
-
-
-
-    /**
-     * sets the position of the zoom icons on the google map.  Do this to account for actions like
-     * repositioning the bottom sheet
-     * @param googleMap
-     */
-    public void setMapIconPosition(GoogleMap googleMap, int height){
-        if(googleMap == null) return;
-
-        // Set map icon positions (left, top, right, bottom)
-        map.setPadding(16, 16, 16, bottomSheetView.getHeight());
     }
 
 

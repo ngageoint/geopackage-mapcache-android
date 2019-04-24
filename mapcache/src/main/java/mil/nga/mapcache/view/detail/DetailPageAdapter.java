@@ -10,6 +10,7 @@ import java.util.List;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.DetailActionListener;
+import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.LayerViewHolder;
 import mil.nga.mapcache.listeners.RecyclerViewClickListener;
@@ -32,7 +33,7 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     /**
      * Click listener for clicking on a Layer row
      */
-    private RecyclerViewClickListener mListener;
+    private DetailLayerClickListener mListener;
 
     /**
      * Click listener for the back button in the header
@@ -60,7 +61,7 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * @param items - list of DetailPageHeaderObject and DetailPageLayerObject
      * @param listener - row click listener
      */
-    public DetailPageAdapter(List<Object> items, RecyclerViewClickListener listener,
+    public DetailPageAdapter(List<Object> items, DetailLayerClickListener listener,
                              View.OnClickListener backArrowListener, DetailActionListener actionListener,
                              LayerActiveSwitchListener activeLayerListener){
         mItems = items;
@@ -166,11 +167,11 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         this.mItems = mItems;
     }
 
-    public RecyclerViewClickListener getmListener() {
+    public DetailLayerClickListener getmListener() {
         return mListener;
     }
 
-    public void setmListener(RecyclerViewClickListener mListener) {
+    public void setmListener(DetailLayerClickListener mListener) {
         this.mListener = mListener;
     }
 }

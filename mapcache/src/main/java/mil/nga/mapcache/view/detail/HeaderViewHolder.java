@@ -51,6 +51,9 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      */
     private Button detailButton, renameButton, shareButton, copyButton, deleteButton;
 
+    /**
+     * A shared action listener to use on the buttons for detail, rename, share, copy, and delete
+     */
     private DetailActionListener actionListener;
 
 

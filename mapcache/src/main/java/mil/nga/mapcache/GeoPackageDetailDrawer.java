@@ -36,12 +36,14 @@ import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.view.LayerSwitchListener;
 import mil.nga.mapcache.view.LayerViewAdapter;
 import mil.nga.mapcache.view.LayerViewObject;
 import mil.nga.mapcache.listeners.RecyclerViewClickListener;
+import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.GeometryType;
 
@@ -425,13 +427,13 @@ public class GeoPackageDetailDrawer extends Fragment implements
      */
     private void createLayerListView(){
         layers.clear();
-        RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
+        DetailLayerClickListener layerListener = new DetailLayerClickListener() {
             @Override
-            public void onClick(View view, int position, String name) {
+            public void onClick(DetailPageLayerObject layerObject) {
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
                 transaction.setCustomAnimations(R.anim.slide_in_from_right, 0, 0, R.anim.slide_out_to_right);
-                LayerDetailFragment layerDetailView = LayerDetailFragment.newInstance(geoPackageName, name);
+                LayerDetailFragment layerDetailView = LayerDetailFragment.newInstance(geoPackageName, layerObject.getName());
                 transaction.replace(R.id.layout_gp_detail, layerDetailView, "layerDetail");
                 transaction.addToBackStack("layerDetail");  // if written, this transaction will be added to backstack
                 transaction.commit();

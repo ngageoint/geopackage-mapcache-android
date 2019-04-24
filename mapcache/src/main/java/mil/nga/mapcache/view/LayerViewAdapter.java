@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 
 /**
@@ -30,7 +31,7 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
     /**
      * Click listener to give to each ViewHolder
      */
-    private RecyclerViewClickListener mListener;
+    private DetailLayerClickListener mListener;
 
     /**
      * Listener for each layer's switch (to activate the layer)
@@ -40,7 +41,7 @@ public class LayerViewAdapter extends RecyclerView.Adapter<LayerViewHolder> {
 
     Context context;
 
-    public LayerViewAdapter(List<LayerViewObject> list, Context context, RecyclerViewClickListener listener, LayerSwitchListener switchListener){
+    public LayerViewAdapter(List<LayerViewObject> list, Context context, DetailLayerClickListener listener, LayerSwitchListener switchListener){
         this.layers = list;
         this.context = context;
         this.mListener = listener;

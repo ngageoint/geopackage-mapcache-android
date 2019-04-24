@@ -165,6 +165,7 @@ import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -181,6 +182,8 @@ import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 import mil.nga.mapcache.view.detail.DetailActionUtil;
 import mil.nga.mapcache.view.detail.DetailPageAdapter;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
+import mil.nga.mapcache.view.detail.DetailPageLayerObject;
+import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -766,6 +769,17 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
+     * Sets the main RecyclerView to show the details for a selected layer from the GeoPackage
+     * detail page
+     * @param layerAdapter - A prepopulated adapter to populate with a layer's detail
+     */
+    private void populateRecyclerWithLayerDetail(LayerPageAdapter layerAdapter){
+        if(layerAdapter != null){
+            geoPackageRecycler.setAdapter(layerAdapter);
+        }
+    }
+
+    /**
      * Populate the top level GeoPackage recyclerview with GeoPackage names
      */
     private void createGeoPackageRecycler(){
@@ -831,10 +845,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void createGeoPackageDetailAdapter(GeoPackageDatabase db){
         // Listener for clicking on Layer
-        RecyclerViewClickListener layerListener = new RecyclerViewClickListener() {
+        DetailLayerClickListener layerListener = new DetailLayerClickListener() {
             @Override
-            public void onClick(View view, int position, String name) {
-                Log.i("click", "clicked a layer");
+            public void onClick(DetailPageLayerObject layerObject) {
+                Log.i("click", "clicked a layer: " + layerObject.getName());
+                createGeoPackageLayerDetailAdapter(layerObject);
             }
         };
 
@@ -875,6 +890,16 @@ public class GeoPackageMapFragment extends Fragment implements
         DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener,
                 detailBackListener, detailActionListener, activeLayerListener);
         populateRecyclerWithDetail(detailAdapter);
+    }
+
+
+    /**
+     * Create a view adapter to populate the RecyclerView with a Layer detail view (used when
+     * clicking a Layer row from the GP Detail page)
+     */
+    private void createGeoPackageLayerDetailAdapter(DetailPageLayerObject layerObject){
+        LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject);
+        populateRecyclerWithLayerDetail(layerAdapter);
     }
 
 

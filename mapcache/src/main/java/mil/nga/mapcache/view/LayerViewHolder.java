@@ -8,6 +8,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
@@ -46,7 +47,7 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
     /**
      * Click listener for clicking on the layer and opening a Layer view
      */
-    private RecyclerViewClickListener mListener;
+    private DetailLayerClickListener mListener;
 
     /**
      * Click listener to be attached to the layer switch
@@ -62,10 +63,10 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
     /**
      * Constructor
      * @param itemView View being created
-     * @param listener Listener for clicking on a layer and opening a layer detail view
+     * @param listener DetailLayerClickListener for clicking on a layer and opening a layer detail view
      * @param switchListener Listener for clicking an active switch
      */
-    public LayerViewHolder(View itemView, RecyclerViewClickListener listener, LayerActiveSwitchListener switchListener){
+    public LayerViewHolder(View itemView, DetailLayerClickListener listener, LayerActiveSwitchListener switchListener){
         super(itemView);
         title = (TextView) itemView.findViewById(R.id.layer_label);
         icon = (ImageView) itemView.findViewById(R.id.layer_icon);
@@ -133,6 +134,6 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
      */
     @Override
     public void onClick(View view) {
-        mListener.onClick(view, getAdapterPosition(), title.getText().toString());
+        mListener.onClick(layerObject);
     }
 }

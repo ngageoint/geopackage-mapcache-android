@@ -30,11 +30,17 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private DetailPageLayerObject mLayerObject;
 
     /**
+     * Click listener for the back button in the header
+     */
+    private View.OnClickListener mBackArrowListener;
+
+    /**
      * Constructor
      * @param layerObject DetailPageLayerObject
      */
-    public LayerPageAdapter(DetailPageLayerObject layerObject){
+    public LayerPageAdapter(DetailPageLayerObject layerObject, View.OnClickListener backArrowListener){
         mLayerObject = layerObject;
+        mBackArrowListener = backArrowListener;
     }
 
 
@@ -48,7 +54,7 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_layer_detail, parent, false);
-        return new LayerDetailViewHolder(view);
+        return new LayerDetailViewHolder(view, mBackArrowListener);
     }
 
     /**

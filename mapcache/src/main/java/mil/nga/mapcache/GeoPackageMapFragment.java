@@ -581,6 +581,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private GeoPackageAdapter geoPackageRecyclerAdapter;
 
     /**
+     * Adapter for showing a GeoPackage detail page
+     */
+    private DetailPageAdapter detailPageAdapter;
+
+    /**
      * Util class for opening dialogs to respond to the GeoPackage detail view buttons
      */
     private DetailActionUtil detailButtonUtil;
@@ -760,11 +765,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Sets the main RecyclerView to show the details for a selected GeoPackage
-     * @param detailAdapter - A prepopulated adapter to power a RecyclerView for GeoPackage detail
      */
-    private void populateRecyclerWithDetail(DetailPageAdapter detailAdapter){
-        if(detailAdapter != null) {
-            geoPackageRecycler.setAdapter(detailAdapter);
+    private void populateRecyclerWithDetail(){
+        if(detailPageAdapter != null) {
+            geoPackageRecycler.setAdapter(detailPageAdapter);
         }
     }
 
@@ -889,7 +893,8 @@ public class GeoPackageMapFragment extends Fragment implements
 
         DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener,
                 detailBackListener, detailActionListener, activeLayerListener);
-        populateRecyclerWithDetail(detailAdapter);
+        detailPageAdapter = detailAdapter;
+        populateRecyclerWithDetail();
     }
 
 
@@ -898,7 +903,17 @@ public class GeoPackageMapFragment extends Fragment implements
      * clicking a Layer row from the GP Detail page)
      */
     private void createGeoPackageLayerDetailAdapter(DetailPageLayerObject layerObject){
-        LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject);
+
+        // Click listener for the back arrow on the layer page.  Resets the RecyclerView to
+        // show the previous GeoPackage Detail view
+        View.OnClickListener detailBackListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                populateRecyclerWithDetail();
+            }
+        };
+
+        LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject, detailBackListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 

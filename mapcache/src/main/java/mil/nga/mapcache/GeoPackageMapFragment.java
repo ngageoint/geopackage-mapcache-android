@@ -1170,6 +1170,7 @@ public class GeoPackageMapFragment extends Fragment implements
             geoPackageRecycler.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
             emptyViewIcon.setVisibility(View.GONE);
+            getStartedView.setVisibility(View.GONE);
         }
     }
 

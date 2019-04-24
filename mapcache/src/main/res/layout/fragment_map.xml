@@ -367,6 +367,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/add"
         android:visibility="visible"
+        app:rippleColor="@color/nga_accent_light"
         app:layout_anchor="@id/fragment_map_view_ui"
         app:layout_anchorGravity="bottom|right|end" />
 
@@ -438,18 +439,6 @@
                         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
                     <!--horizontal line-->
-                    <!--<View-->
-                        <!--android:layout_width="fill_parent"-->
-                        <!--android:layout_height="1dp"-->
-                        <!--android:layout_marginBottom="8dp"-->
-                        <!--android:layout_marginTop="8dp"-->
-                        <!--android:background="@color/horizontal_line" />-->
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/geopackage_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
-
 
                     <!--Image and text for when the geopackage list is empty-->
                     <ImageView

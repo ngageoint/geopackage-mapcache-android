@@ -913,7 +913,17 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
-        LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject, detailBackListener);
+        // Listener for clicking on Layer's active switch.  Sends the table and active state to the
+        // repository to be stored in the active tables list
+        LayerActiveSwitchListener activeLayerListener = new LayerActiveSwitchListener() {
+            @Override
+            public void onClick(boolean active, GeoPackageTable table) {
+                geoPackageViewModel.setLayerActive(table);
+            }
+        };
+
+        LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
+                activeLayerListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 

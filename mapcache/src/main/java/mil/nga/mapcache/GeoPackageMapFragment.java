@@ -1059,6 +1059,14 @@ public class GeoPackageMapFragment extends Fragment implements
         // Return the DB to repopuplate recycler
         // send background task to delete from manager in repository
 
+
+
+        // TODO: instead of waiting for a GeoPackageDatabase to come back from the repository, and
+        // recreating the adapter, see if you can just update the detailAdapter when the active
+        // layers live data is updated
+
+
+
         // First remove it from the active layers
         geoPackageViewModel.removeActiveLayer(gpName, layerName);
         // Ask the repository to delete the layer

@@ -277,7 +277,9 @@ public class GeoPackageDatabases {
         GeoPackageDatabase database = databases.get(databaseName);
         if (database != null) {
             GeoPackageTable table = database.getTableByName(tableName);
-            removeTable(table);
+            if(table != null) {
+                removeTable(table);
+            }
         }
     }
 

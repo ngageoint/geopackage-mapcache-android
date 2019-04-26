@@ -38,6 +38,13 @@ public interface OnDialogButtonClickListener {
     void onCopyGP(String gpName, String newName);
 
     /**
+     * Delete a layer from a GeoPackage
+     * @param gpName GeoPackage name
+     * @param layerName Layer name to delete
+     */
+    void onDeleteLayer(String gpName, String layerName);
+
+    /**
      * Cancel button
      */
     void onCancelButtonClicked();

@@ -6,6 +6,8 @@ import androidx.appcompat.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import java.io.File;
@@ -128,6 +130,35 @@ public class GeoPackageRepository {
         }
     }
 
+    /**
+     * Gets the GeoPackageDatabase object by name from the geos list
+     * @param gpName Name of the Database to find
+     * @return A GeoPackageDatabaseObject or null
+     */
+    public GeoPackageDatabase getDatabaseByName(String gpName){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            return currentGeos.getDatabase(gpName);
+        }
+        return null;
+    }
+
+    /**
+     * Remove the given layer from the open geos list
+     * @param geoPackageName Name of the GeoPackage containing the layer
+     * @param layerName Name of the layer to remove
+     * @return true if it was found and removed
+     */
+    public boolean removeLayerFromGeos(String geoPackageName, String layerName){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.removeTable(geoPackageName, layerName);
+            geos.postValue(currentGeos);
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * Active GeoPackage Layers --------------
@@ -164,6 +195,22 @@ public class GeoPackageRepository {
         GeoPackageDatabases currentActive = active.getValue();
         if(currentActive != null) {
             currentActive.removeDatabase(geoPackageName, false);
+            active.postValue(currentActive);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Remove the given layer from the active table list
+     * @param geoPackageName Name of the GeoPackage containing the layer
+     * @param layerName Name of the layer to set to inactive
+     * @return true if it was found and removed
+     */
+    public boolean removeActiveLayer(String geoPackageName, String layerName){
+        GeoPackageDatabases currentActive = active.getValue();
+        if(currentActive != null) {
+            currentActive.removeTable(geoPackageName, layerName);
             active.postValue(currentActive);
             return true;
         }
@@ -383,10 +430,12 @@ public class GeoPackageRepository {
     }
 
     /**
-     * Delete a layer from a geopackage
+     * Delete a layer from a geopackage in both the manager and make sure it's removed from the
+     * geos list
      */
     public boolean removeLayerFromGeo(String geoPackageName, String layerName) {
         try {
+            removeLayerFromGeos(geoPackageName, layerName);
             GeoPackage geo = manager.open(geoPackageName);
             if (geo != null) {
                 geo.deleteTable(layerName);

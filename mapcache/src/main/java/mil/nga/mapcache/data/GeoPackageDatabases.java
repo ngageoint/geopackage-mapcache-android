@@ -252,9 +252,11 @@ public class GeoPackageDatabases {
             }
             if (!preserveOverlays && table.getType() == GeoPackageTableType.FEATURE) {
                 List<GeoPackageFeatureOverlayTable> deleteFeatureOverlays = new ArrayList<GeoPackageFeatureOverlayTable>();
+                int count = 0;
                 for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
                     if (featureOverlay.getFeatureTable().equals(table.getName())) {
                         deleteFeatureOverlays.add(featureOverlay);
+                        count++;
                     }
                 }
                 for (GeoPackageFeatureOverlayTable featureOverlay : deleteFeatureOverlays) {
@@ -262,6 +264,20 @@ public class GeoPackageDatabases {
                 }
             }
             setModified(true);
+        }
+    }
+
+    /**
+     * Remove a table by name
+     *
+     * @param databaseName name of the GeoPackage database to remove the table from
+     * @param tableName Name of the table to remove
+     */
+    public void removeTable(String databaseName, String tableName) {
+        GeoPackageDatabase database = databases.get(databaseName);
+        if (database != null) {
+            GeoPackageTable table = database.getTableByName(tableName);
+            removeTable(table);
         }
     }
 

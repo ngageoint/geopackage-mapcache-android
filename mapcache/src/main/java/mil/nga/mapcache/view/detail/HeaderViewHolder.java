@@ -102,7 +102,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         detailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionListener.onClick(view, DetailActionListener.DETAIL_GP, textName.getText().toString());
+                actionListener.onClick(view, DetailActionListener.DETAIL_GP, textName.getText().toString(), "");
             }
         });
 
@@ -111,7 +111,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         renameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionListener.onClick(view, DetailActionListener.RENAME_GP, textName.getText().toString());
+                actionListener.onClick(view, DetailActionListener.RENAME_GP, textName.getText().toString(), "");
             }
         });
 
@@ -120,7 +120,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionListener.onClick(view, DetailActionListener.SHARE_GP, textName.getText().toString());
+                actionListener.onClick(view, DetailActionListener.SHARE_GP, textName.getText().toString(), "");
             }
         });
 
@@ -129,7 +129,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         copyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionListener.onClick(view, DetailActionListener.COPY_GP, textName.getText().toString());
+                actionListener.onClick(view, DetailActionListener.COPY_GP, textName.getText().toString(), "");
             }
         });
 
@@ -138,7 +138,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionListener.onClick(view, DetailActionListener.DELETE_GP, textName.getText().toString());
+                actionListener.onClick(view, DetailActionListener.DELETE_GP, textName.getText().toString(), "");
             }
         });
     }

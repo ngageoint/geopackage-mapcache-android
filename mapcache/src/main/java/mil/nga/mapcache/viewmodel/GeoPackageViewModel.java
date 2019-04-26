@@ -3,6 +3,8 @@ package mil.nga.mapcache.viewmodel;
 import android.app.Activity;
 import androidx.appcompat.app.AlertDialog;
 import android.app.Application;
+import android.util.Log;
+
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -173,6 +175,16 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     * Search for the layer name in the GeoPackage and return true if it's found and deleted
+     * @param geoPackageName Name of the GeoPackage to remove the active layer from
+     * @param layerName Name of the layer to remove
+     * @return true if the layer was found and deleted
+     */
+    public boolean removeActiveLayer(String geoPackageName, String layerName){
+        return repository.removeActiveLayer(geoPackageName, layerName);
+    }
+
+    /**
      * Remove all active tables
      */
     public void clearAllActive(){
@@ -301,12 +313,13 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     /**
      * Remove the given layer from a geopackage
      */
-    public boolean removeLayerFromGeo(String geoPackageName, String layerName){
+    public GeoPackageDatabase removeLayerFromGeo(String geoPackageName, String layerName){
         if(repository.removeLayerFromGeo(geoPackageName, layerName)) {
+            GeoPackageDatabase db = repository.getDatabaseByName(geoPackageName);
             regenerateGeoPackageTableList();
-            return true;
+            return db;
         }
-        return false;
+        return null;
     }
 
     /**

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-    <integer name="map_max_features_default">5000</integer>
+    <integer name="map_max_features_default">1000</integer>
     <integer name="map_update_thread_pool_size">0</integer>
     <integer name="map_update_thread_pool_finish_wait">10000</integer>
     <integer name="map_features_zoom_padding_percentage">10</integer>

@@ -259,6 +259,22 @@ public class GeoPackageDatabase {
     }
 
     /**
+     * find a table by name
+     * @param table Name of the table to find
+     * @return GeoPackageTable object if it's found
+     */
+    public GeoPackageTable getTableByName(String table) {
+        if(features.containsKey(table)){
+            return features.get(table);
+        } else if(tiles.containsKey(table)){
+            return tiles.get(table);
+        } else if(featureOverlays.containsKey(table)){
+            return featureOverlays.get(table);
+        }
+        return null;
+    }
+
+    /**
      * Empty if no active tile or feature tables
      *
      * @return

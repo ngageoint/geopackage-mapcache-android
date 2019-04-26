@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.detail;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -14,7 +15,7 @@ import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 
 /**
  * Util class to launch dialogs and return click listeners for the action buttons in the GeoPackage
- * detail header view
+ * detail header view and Layer detail view delete button
  */
 public class DetailActionUtil {
     /**
@@ -158,6 +159,44 @@ public class DetailActionUtil {
                 .setPositiveButton("Delete", (dialog, which)->{
                     dialog.dismiss();
                     listener.onDeleteGP(gpName);
+                })
+
+                .setNegativeButton(context.getString(R.string.button_cancel_label),
+                        (dialog, which)->{
+                            dialog.dismiss();
+                            listener.onCancelButtonClicked();
+                        }).create();
+
+        deleteDialog.show();
+    }
+
+    /**
+     * A Delete dialog for deleting a layer from a GeoPackage (called from the Layer Detail page)
+     * @param context Context for opening dialog
+     * @param gpName GeoPackage name
+     * @param layerName Layer name to delete
+     * @param listener Click listener to callback to the mapfragment
+     */
+    public void openDeleteLayerDialog(Context context, String gpName, String layerName,
+                                      final OnDialogButtonClickListener listener){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View alertView = inflater.inflate(R.layout.basic_label_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Delete this Layer?");
+        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        actionLabel.setText(layerName);
+        actionLabel.setVisibility(View.INVISIBLE);
+
+        AlertDialog deleteDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setIcon(context.getResources().getDrawable(R.drawable.material_delete))
+                .setPositiveButton("Delete", (dialog, which)->{
+                    dialog.dismiss();
+                    listener.onDeleteLayer(gpName, layerName);
                 })
 
                 .setNegativeButton(context.getString(R.string.button_cancel_label),

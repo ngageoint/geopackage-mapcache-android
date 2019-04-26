@@ -852,7 +852,6 @@ public class GeoPackageMapFragment extends Fragment implements
         DetailLayerClickListener layerListener = new DetailLayerClickListener() {
             @Override
             public void onClick(DetailPageLayerObject layerObject) {
-                Log.i("click", "clicked a layer: " + layerObject.getName());
                 createGeoPackageLayerDetailAdapter(layerObject);
             }
         };
@@ -867,10 +866,11 @@ public class GeoPackageMapFragment extends Fragment implements
         };
 
         // Listener to forward a button click on the detail header to the appropriate dialog function
+        // Note: Layer name will be empty string for the GeoPackage detail page
         DetailActionListener detailActionListener = new DetailActionListener(){
             @Override
-            public void onClick(View view, int actionType, String gpName) {
-                    openActionDialog(gpName, actionType);
+            public void onClick(View view, int actionType, String gpName, String layerName) {
+                    openActionDialog(gpName, layerName, actionType);
             }
         };
 
@@ -891,9 +891,8 @@ public class GeoPackageMapFragment extends Fragment implements
         detailList.add(detailHeader);
         detailList.addAll(db.getLayerObjects());
 
-        DetailPageAdapter detailAdapter = new DetailPageAdapter(detailList, layerListener,
+        detailPageAdapter = new DetailPageAdapter(detailList, layerListener,
                 detailBackListener, detailActionListener, activeLayerListener);
-        detailPageAdapter = detailAdapter;
         populateRecyclerWithDetail();
     }
 
@@ -922,8 +921,16 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+        // Listener to forward a button click layer detail page to the appropriate dialog function
+        DetailActionListener detailActionListener = new DetailActionListener(){
+            @Override
+            public void onClick(View view, int actionType, String gpName, String layerName) {
+                openActionDialog(gpName, layerName, actionType);
+            }
+        };
+
         LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
-                activeLayerListener);
+                activeLayerListener, detailActionListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 
@@ -935,9 +942,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Ask the DetailButtonUtil to open a dialog to complete the action related to the button
      * that was clicked
      * @param gpName GeoPackage name
+     * @param layerName Name of the layer to delete (will be empty string for anything but
+     *                  DELETE_LAYER action
      * @param actionType ActionType enum
      */
-    private void openActionDialog(String gpName, int actionType){
+    private void openActionDialog(String gpName, String layerName, int actionType){
         if(actionType == DetailActionListener.DETAIL_GP){
             detailButtonUtil.openDetailDialog(getActivity(), gpName, this);
         } else if(actionType == DetailActionListener.RENAME_GP){
@@ -948,6 +957,8 @@ public class GeoPackageMapFragment extends Fragment implements
             detailButtonUtil.openCopyDialog(getActivity(), gpName, this);
         } else if(actionType == DetailActionListener.DELETE_GP){
             detailButtonUtil.openDeleteDialog(getActivity(), gpName, this);
+        } else if(actionType == DetailActionListener.DELETE_LAYER){
+            detailButtonUtil.openDeleteLayerDialog(getActivity(), gpName, layerName, this);
         }
     }
 
@@ -1029,9 +1040,31 @@ public class GeoPackageMapFragment extends Fragment implements
     public void onDeleteGP(String gpName) {
         // remove any active layers drawn on map
         geoPackageViewModel.removeActiveTableLayers(gpName);
-        // Delete the geopackage
+        // Delete the geopackage and take us back to the GeoPackage list
         if(geoPackageViewModel.deleteGeoPackage(gpName)){
             populateRecyclerWithGeoPackages();
+        }
+    }
+
+    /**
+     * Ask the viewModel to remove the given layer name from the given GeoPackage name
+     * @param gpName GeoPackage name
+     * @param layerName Layer name to delete
+     */
+    @Override
+    public void onDeleteLayer(String gpName, String layerName){
+        //TODO:
+        // Remove from active layers
+        // Mark it for delete
+        // Return the DB to repopuplate recycler
+        // send background task to delete from manager in repository
+
+        // First remove it from the active layers
+        geoPackageViewModel.removeActiveLayer(gpName, layerName);
+        // Ask the repository to delete the layer
+        GeoPackageDatabase db = geoPackageViewModel.removeLayerFromGeo(gpName, layerName);
+        if(db != null){
+            createGeoPackageDetailAdapter(db);
         }
     }
 

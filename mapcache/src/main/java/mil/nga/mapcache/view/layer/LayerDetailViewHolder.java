@@ -12,6 +12,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
@@ -60,6 +61,11 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     private TextView descriptionText;
 
+    /**
+     * Text button for deleting the layer
+     */
+    private TextView mLayerDelete;
+
 
     /**
      * DetailPageLayerObject containing details for the selected layer
@@ -70,6 +76,11 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      * Click listener to be attached to the layer switch
      */
     private LayerActiveSwitchListener mSwitchListener;
+
+    /**
+     * Click listener for the delete button
+     */
+    private DetailActionListener mDetailActionListener;
 
     /**
      * Tells this ViewHolder if it should ignore state changes on the switch (used for setting
@@ -83,7 +94,8 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      * @param view view to inflate
      */
     public LayerDetailViewHolder(View view, View.OnClickListener backListener,
-                                 LayerActiveSwitchListener activeLayerListener){
+                                 LayerActiveSwitchListener activeLayerListener,
+                                 DetailActionListener detailActionListener){
         super(view);
         nameText = (TextView) view.findViewById(R.id.layerName);
         backArrow = (ImageButton) itemView.findViewById(R.id.layerPageBackButton);
@@ -94,7 +106,10 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         layerTypeIcon = (ImageView) view.findViewById(R.id.layer_type_icon);
         descriptionText = (TextView) view.findViewById(R.id.text_description);
         layerOn = (Switch) view.findViewById(R.id.enableSwitch);
+        mLayerDelete = view.findViewById(R.id.layerDelete);
         mSwitchListener = activeLayerListener;
+        mDetailActionListener = detailActionListener;
+        setDeleteListener();
         setLayerSwitchListener();
     }
 
@@ -118,6 +133,19 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             layerTypeIcon.setImageResource(R.drawable.material_tile);
             layerCountText.setText(tile.getCount() + "");
         }
+    }
+
+    /**
+     * Sets up the click listener for the delete button
+     */
+    private void setDeleteListener(){
+        mLayerDelete.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                mDetailActionListener.onClick(view, DetailActionListener.DELETE_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+            }
+        });
     }
 
     /**

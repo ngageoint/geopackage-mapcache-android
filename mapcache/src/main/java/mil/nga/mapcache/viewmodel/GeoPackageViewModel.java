@@ -383,7 +383,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         }
         if(repository.setGeoPackageName(oldName, newName)) {
             regenerateGeoPackageTableList();
-            renameActiveGeoPackages(oldName, newName);
             return true;
         }
         return false;

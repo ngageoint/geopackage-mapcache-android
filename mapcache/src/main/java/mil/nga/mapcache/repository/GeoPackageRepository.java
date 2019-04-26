@@ -243,6 +243,11 @@ public class GeoPackageRepository {
     }
 
     public boolean setGeoPackageName(String oldName, String newName) {
+        // Rename the GeoPackage in the active list first
+        GeoPackageDatabases currentActive = active.getValue();
+        if(currentActive != null) {
+            currentActive.renameDatabase(oldName, newName);
+        }
         return manager.rename(oldName, newName);
     }
 

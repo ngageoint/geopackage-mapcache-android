@@ -238,7 +238,7 @@ public class GeoPackageRepository {
     public void clearAllActive(){
         GeoPackageDatabases currentActive = active.getValue();
         if(currentActive != null) {
-            currentActive.getDatabases().clear();
+            currentActive.clearAllDatabases();
             active.postValue(currentActive);
         }
         GeoPackageDatabases currentGeos = geos.getValue();

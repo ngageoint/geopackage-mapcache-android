@@ -267,6 +267,7 @@ public class GeoPackageDatabases {
         for(GeoPackageDatabase db : getDatabases()){
             setDatabaseLayersActive(activeState, db.getDatabase());
         }
+        setModified(true);
     }
 
     /**
@@ -278,6 +279,15 @@ public class GeoPackageDatabases {
             if(db.getDatabase().equalsIgnoreCase(geoPackageName)){
                 db.setTableActiveState(activeState, layerName);
             }
+        }
+    }
+
+    /**
+     * Remove all databases from the list and save
+     */
+    public void clearAllDatabases(){
+        for(GeoPackageDatabase db : getDatabases()){
+            removeDatabase(db.getDatabase(), false);
         }
     }
 

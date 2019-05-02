@@ -9,18 +9,19 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.LayerViewHolder;
-import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 
 /**
  * This adapter will power the RecyclerView to hold details of a selected GeoPackage.  It will
  * populate 2 types of views:
- *  - first will be a DetailPageHeader, which contains basic info about the geopackage (Name, size,
+ *  - One DetailPageHeader, which contains basic info about the geopackage (Name, size,
  *      number of layers)
- *  - all others will be DetailPageLayer rows, which will be a row for every layer name in the
+ *  - Multiple DetailPageLayer rows, which will be a row for every layer name in the
  *      geopackage.
  */
 public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -51,6 +52,11 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private LayerActiveSwitchListener mLayerSwitchListener;
 
     /**
+     * GeoPackageDatabase object that this Adapter was created with
+     */
+    private GeoPackageDatabase mGeoPackageDatabase;
+
+    /**
      * Two types of objects to be inflated, Headers and Rows
      */
     private final int HEADER = 0, LAYER = 1;
@@ -63,12 +69,13 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      */
     public DetailPageAdapter(List<Object> items, DetailLayerClickListener listener,
                              View.OnClickListener backArrowListener, DetailActionListener actionListener,
-                             LayerActiveSwitchListener activeLayerListener){
+                             LayerActiveSwitchListener activeLayerListener, GeoPackageDatabase db){
         mItems = items;
         mListener = listener;
         mBackArrowListener = backArrowListener;
         mActionListener = actionListener;
         mLayerSwitchListener = activeLayerListener;
+        mGeoPackageDatabase = db;
     }
 
 
@@ -155,6 +162,77 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         return -1;
     }
 
+    /**
+     * Finds the geopackage name from the header object in the mItems list
+     * @return Name of the geopackage currently populated in this adapter
+     */
+    private String getGeoPackageName(){
+        if(!mItems.isEmpty()){
+            if(mItems.get(0) instanceof DetailPageHeaderObject){
+                DetailPageHeaderObject header = (DetailPageHeaderObject)mItems.get(0);
+                return header.getGeopackageName();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Sets every row to inactive state
+     */
+    public void clearActive(){
+        int position = 0;
+        for (Object detailLayer : mItems) {
+            if (detailLayer instanceof DetailPageLayerObject) {
+                DetailPageLayerObject layer = (DetailPageLayerObject) detailLayer;
+                layer.setChecked(false);
+                notifyItemChanged(position);
+            }
+            position++;
+        }
+    }
+
+
+    /**
+     * Updates the mItems list to set DetailPageLayerObjects to active if they're found in the given list.  Then
+     * calls the adapter's notify method to update the row.  This is done when a user changes the
+     * active state on a layer, or the clear all active button
+     * @param active List of tables that should be set to active
+     */
+    public void updateActiveTables(GeoPackageDatabases active){
+        if(active.isEmpty()){
+            clearActive();
+        }
+        if(getGeoPackageName() != null) {
+            GeoPackageDatabase db = active.getDatabase(getGeoPackageName());
+            if(db != null){
+                int position = 0;
+
+                for(Object detailLayer : mItems) {
+                    if (detailLayer instanceof DetailPageLayerObject) {
+                        DetailPageLayerObject layer = (DetailPageLayerObject) detailLayer;
+                        layer.setChecked(false);
+                        if(db.getAllTableNames().contains(layer.getName())){
+                            layer.setChecked(true);
+                        }
+                        notifyItemChanged(position);
+                    }
+                    position++;
+                }
+            } else{
+                // set all to null
+                int position = 0;
+                for (Object detailLayer : mItems) {
+                    if (detailLayer instanceof DetailPageLayerObject) {
+                        DetailPageLayerObject layer = (DetailPageLayerObject) detailLayer;
+                        layer.setChecked(false);
+                        notifyItemChanged(position);
+                    }
+                    position++;
+                }
+            }
+        }
+    }
+
 
     /**
      * Getters and setters
@@ -173,5 +251,13 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public void setmListener(DetailLayerClickListener mListener) {
         this.mListener = mListener;
+    }
+
+    public GeoPackageDatabase getmGeoPackageDatabase() {
+        return mGeoPackageDatabase;
+    }
+
+    public void setmGeoPackageDatabase(GeoPackageDatabase mGeoPackageDatabase) {
+        this.mGeoPackageDatabase = mGeoPackageDatabase;
     }
 }

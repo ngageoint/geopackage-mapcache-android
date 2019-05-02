@@ -136,7 +136,7 @@ public class GeoPackageDetailView extends Fragment implements
         }
 
         // Create and populate the RecyclerView's adapter
-        DetailPageAdapter adapter = new DetailPageAdapter(items, null, null, null, null);
+        DetailPageAdapter adapter = new DetailPageAdapter(items, null, null, null, null, null);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 

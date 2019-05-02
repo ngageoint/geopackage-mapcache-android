@@ -32,6 +32,7 @@ import android.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
@@ -800,6 +801,22 @@ public class GeoPackageMapFragment extends Fragment implements
         // Create the adapter and set it for the recyclerview
         geoPackageRecyclerAdapter = new GeoPackageAdapter(geoClickListener);
         populateRecyclerWithGeoPackages();
+
+        // TODO: use the below touch helper to make a delete on swipe function
+//        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+//            @Override
+//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+//                return false;
+//            }
+//
+//            // Called when a user swipes left or right on a ViewHolder
+//            @Override
+//            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+//                // Here is where you'll implement swipe to delete
+//                int position = viewHolder.getAdapterPosition();
+//                Log.i("position", "position: " + position);
+//            }
+//        }).attachToRecyclerView(geoPackageRecycler);
     }
 
     /**
@@ -828,6 +845,12 @@ public class GeoPackageMapFragment extends Fragment implements
             active = newTables;
             geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
+
+            // if the detail page has been used, send the updated active list for it to update itself
+            if(detailPageAdapter != null){
+                detailPageAdapter.updateActiveTables(active);
+            }
+
             // Update the map
             if(newTables.isEmpty()){
                 if(map != null){
@@ -889,10 +912,10 @@ public class GeoPackageMapFragment extends Fragment implements
         DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
         List<Object> detailList = new ArrayList<>();
         detailList.add(detailHeader);
-        detailList.addAll(db.getLayerObjects());
+        detailList.addAll(db.getLayerObjects(active.getDatabase(db.getDatabase())));
 
         detailPageAdapter = new DetailPageAdapter(detailList, layerListener,
-                detailBackListener, detailActionListener, activeLayerListener);
+                detailBackListener, detailActionListener, activeLayerListener, db);
         populateRecyclerWithDetail();
     }
 

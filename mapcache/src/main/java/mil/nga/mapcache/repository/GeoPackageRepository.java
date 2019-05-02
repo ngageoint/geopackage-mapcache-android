@@ -183,6 +183,13 @@ public class GeoPackageRepository {
             }
             active.postValue(currentActive);
         }
+
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.setTableActive(table);
+            geos.postValue(currentGeos);
+        }
+
         return false;
     }
 
@@ -196,9 +203,13 @@ public class GeoPackageRepository {
         if(currentActive != null) {
             currentActive.removeDatabase(geoPackageName, false);
             active.postValue(currentActive);
-            return true;
         }
-        return false;
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.setDatabaseLayersActive(false, geoPackageName);
+            geos.postValue(currentGeos);
+        }
+        return true;
     }
 
     /**
@@ -212,9 +223,13 @@ public class GeoPackageRepository {
         if(currentActive != null) {
             currentActive.removeTable(geoPackageName, layerName);
             active.postValue(currentActive);
-            return true;
         }
-        return false;
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.setLayerActive(false, geoPackageName, layerName);
+            geos.postValue(currentGeos);
+        }
+        return true;
     }
 
     /**
@@ -225,6 +240,11 @@ public class GeoPackageRepository {
         if(currentActive != null) {
             currentActive.getDatabases().clear();
             active.postValue(currentActive);
+        }
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.setAllDatabaseLayersActive(false);
+            geos.postValue(currentGeos);
         }
     }
 

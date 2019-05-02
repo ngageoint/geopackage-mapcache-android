@@ -275,6 +275,52 @@ public class GeoPackageDatabase {
     }
 
     /**
+     * Get a list of all GeoPackageTables in this geopackage
+     * @return List<GeoPackageTable> of all tables
+     */
+    public List<String> getAllTableNames(){
+        List<String> names = new ArrayList<>();
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            names.add(feature.getName());
+        }
+        for(GeoPackageTileTable tile : getTiles()){
+            names.add(tile.getName());
+        }
+        return names;
+    }
+
+    /**
+     * Sets every table to the given active state
+     * @param activeState boolean for active or inactive
+     */
+    public void setAllTablesActiveState(boolean activeState){
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            feature.setActive(activeState);
+        }
+        for(GeoPackageTileTable tile : getTiles()){
+            tile.setActive(activeState);
+        }
+        setActiveTables(activeState);
+    }
+
+    /**
+     * Sets the given table to the given active state
+     * @param activeState boolean for active or inactive
+     */
+    public void setTableActiveState(boolean activeState, String tableName){
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            if(feature.getName().equalsIgnoreCase(tableName)) {
+                feature.setActive(activeState);
+            }
+        }
+        for(GeoPackageTileTable tile : getTiles()){
+            if(tile.getName().equalsIgnoreCase(tableName)) {
+                tile.setActive(activeState);
+            }
+        }
+    }
+
+    /**
      * Empty if no active tile or feature tables
      *
      * @return
@@ -303,12 +349,18 @@ public class GeoPackageDatabase {
      * Create a list of DetailPageLayerObjects for every table in this GeoPackage
      * @return List<DetailPageLayerObject>
      */
-    public List<DetailPageLayerObject> getLayerObjects(){
+    public List<DetailPageLayerObject> getLayerObjects(GeoPackageDatabase active){
         List<DetailPageLayerObject> list = new ArrayList<>(getFeatureCount() + getTileCount());
         for(GeoPackageTileTable tile : getTiles()){
+            if(active != null) {
+                tile.setActive(active.exists(tile));
+            }
             list.add(new DetailPageLayerObject(tile.getName(), database, tile.isActive(), tile));
         }
         for(GeoPackageFeatureTable feature : getFeatures()){
+            if(active != null) {
+                feature.setActive(active.exists(feature));
+            }
             list.add(new DetailPageLayerObject(feature.getName(), database, feature.isActive(), feature));
         }
         return list;

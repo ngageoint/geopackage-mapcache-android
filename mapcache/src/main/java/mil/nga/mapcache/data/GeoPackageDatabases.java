@@ -236,6 +236,52 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Sets the has active tables flag of the database
+     * @param table table containing the active state
+     */
+    public void setTableActive(GeoPackageTable table){
+        GeoPackageDatabase database = databases.get(table.getDatabase());
+        if (database != null) {
+            database.setActiveTables(table.isActive());
+            setModified(true);
+        }
+    }
+
+    /**
+     * Sets all tables in the given database to the given active state
+     * @param activeState active or inactve
+     * @param geoPackageName name of the database to set table active state
+     */
+    public void setDatabaseLayersActive(boolean activeState, String geoPackageName){
+        GeoPackageDatabase database = databases.get(geoPackageName);
+        if (database != null) {
+            database.setAllTablesActiveState(activeState);
+        }
+    }
+
+    /**
+     * Set all layers in every geopackage to the given active state
+     * @param activeState active or inactive
+     */
+    public void setAllDatabaseLayersActive(boolean activeState){
+        for(GeoPackageDatabase db : getDatabases()){
+            setDatabaseLayersActive(activeState, db.getDatabase());
+        }
+    }
+
+    /**
+     * Set a layer in the given geopackage to the active state
+     * @param activeState active or inactive
+     */
+    public void setLayerActive(boolean activeState, String geoPackageName, String layerName){
+        for(GeoPackageDatabase db : getDatabases()){
+            if(db.getDatabase().equalsIgnoreCase(geoPackageName)){
+                db.setTableActiveState(activeState, layerName);
+            }
+        }
+    }
+
+    /**
      * Remove a table
      *
      * @param table

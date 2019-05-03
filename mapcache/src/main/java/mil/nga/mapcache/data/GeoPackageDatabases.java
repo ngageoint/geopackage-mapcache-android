@@ -283,12 +283,12 @@ public class GeoPackageDatabases {
     }
 
     /**
-     * Remove all databases from the list and save
+     * Remove all databases from the list and preference file
      */
     public void clearAllDatabases(){
-        for(GeoPackageDatabase db : getDatabases()){
-            removeDatabase(db.getDatabase(), false);
-        }
+        getDatabases().clear();
+        removeAllDatabasesFromPreferences();
+        setModified(true);
     }
 
     /**
@@ -476,6 +476,16 @@ public class GeoPackageDatabases {
             deleteTableFiles(database);
         }
 
+        editor.commit();
+    }
+
+    /**
+     * Remove all databases from the preferences file
+     */
+    private void removeAllDatabasesFromPreferences(){
+        Editor editor = settings.edit();
+        Set<String> emptyDatabases = new HashSet<String>();
+        editor.putStringSet(databasePreference, emptyDatabases);
         editor.commit();
     }
 

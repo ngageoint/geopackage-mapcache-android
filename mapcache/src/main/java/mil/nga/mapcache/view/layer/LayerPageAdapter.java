@@ -9,6 +9,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
@@ -83,6 +85,25 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         LayerDetailViewHolder viewHolder = (LayerDetailViewHolder)holder;
         viewHolder.setData(mLayerObject);
+    }
+
+    /**
+     * Takes the list of active GeoPackageDatabases and modifies the active state if found
+     * @param active populated GeoPackageDatabases object with active layers
+     */
+    public void updateActiveTables(GeoPackageDatabases active){
+        GeoPackageDatabase db = active.getDatabase(mLayerObject.getGeoPackageName());
+        if(db != null){
+            List<String> allTables = db.getAllTableNames();
+            if(allTables.contains(mLayerObject.getName())){
+                mLayerObject.setChecked(true);
+            } else{
+                mLayerObject.setChecked(false);
+            }
+        } else {
+            mLayerObject.setChecked(false);
+        }
+        notifyItemChanged(0);
     }
 
     /**

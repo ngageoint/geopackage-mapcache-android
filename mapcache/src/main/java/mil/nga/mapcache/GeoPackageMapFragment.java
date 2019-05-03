@@ -631,6 +631,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private ImportTask importTask;
 
+    /**
+     * Adapter for the LayerDetailView in the Recycler
+     */
+    private LayerPageAdapter layerAdapter;
+
 
     /**
      * Constructor
@@ -851,6 +856,11 @@ public class GeoPackageMapFragment extends Fragment implements
                 detailPageAdapter.updateActiveTables(active);
             }
 
+            // if the layer detail page has been created, send the updated active list for it to update itself
+            if(layerAdapter != null){
+                layerAdapter.updateActiveTables(active);
+            }
+
             // Update the map
             if(newTables.isEmpty()){
                 if(map != null){
@@ -952,7 +962,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
-        LayerPageAdapter layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
+        layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
                 activeLayerListener, detailActionListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }

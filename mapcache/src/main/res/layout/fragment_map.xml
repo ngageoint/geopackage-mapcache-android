@@ -371,6 +371,18 @@
         app:layout_anchor="@id/fragment_map_view_ui"
         app:layout_anchorGravity="bottom|right|end" />
 
+    <!--Floating action button for new layers -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/layer_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:src="@drawable/material_tile_add"
+        android:visibility="gone"
+        app:rippleColor="@color/nga_accent_light"
+        app:layout_anchor="@id/fragment_map_view_ui"
+        app:layout_anchorGravity="bottom|right|end" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"

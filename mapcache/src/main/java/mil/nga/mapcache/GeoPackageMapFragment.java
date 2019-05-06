@@ -627,6 +627,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private FloatingActionButton fab;
 
     /**
+     * Floating Action Button for new layers
+     */
+    private FloatingActionButton layerFab;
+
+    /**
      * Task for importing a geopackage
      */
     private ImportTask importTask;
@@ -684,12 +689,15 @@ public class GeoPackageMapFragment extends Fragment implements
         // Util class for launching dialogs when clicking buttons on GeoPackage detail page
         detailButtonUtil = new DetailActionUtil(getActivity());
 
+        // Floating action button
+        layerFab = view.findViewById(R.id.layer_fab);
+        fab = view.findViewById(R.id.bottom_sheet_fab);
+        setFLoatingActionButton();
+        setNewLayerFab();
+
         // Create the GeoPackage recycler view
         createGeoPackageRecycler();
         subscribeGeoPackageRecycler();
-
-        // Floating action button
-        setFLoatingActionButton();
 
         // Show disclaimer
         showDisclaimer();
@@ -766,6 +774,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * Sets the main RecyclerView to show the list of GeoPackages by setting the adapter
      */
     private void populateRecyclerWithGeoPackages(){
+        layerFab.hide();
+        fab.show();
         geoPackageRecycler.setAdapter(geoPackageRecyclerAdapter);
     }
 
@@ -773,6 +783,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * Sets the main RecyclerView to show the details for a selected GeoPackage
      */
     private void populateRecyclerWithDetail(){
+        layerFab.show();
+        fab.hide();
         if(detailPageAdapter != null) {
             geoPackageRecycler.setAdapter(detailPageAdapter);
         }
@@ -784,6 +796,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param layerAdapter - A prepopulated adapter to populate with a layer's detail
      */
     private void populateRecyclerWithLayerDetail(LayerPageAdapter layerAdapter){
+        layerFab.hide();
+        fab.hide();
         if(layerAdapter != null){
             geoPackageRecycler.setAdapter(layerAdapter);
         }
@@ -1257,14 +1271,24 @@ public class GeoPackageMapFragment extends Fragment implements
      * Set Floating action button to open the create new geopackage wizard
      */
     private void setFLoatingActionButton(){
-        fab = view.findViewById(R.id.bottom_sheet_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 createNewWizard();
             }
         });
+    }
 
+    /**
+     * Set Floating action button to create new layers
+     */
+    private void setNewLayerFab(){
+        layerFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //newLayerWizard();
+            }
+        });
     }
 
 

@@ -856,6 +856,11 @@ public class GeoPackageMapFragment extends Fragment implements
                 geoPackageRecyclerAdapter.insertToEnd(db);
             }
             geoPackageRecyclerAdapter.notifyDataSetChanged();
+
+            // Make sure the detail page is repopulated in case a new layer is added
+            if(detailPageAdapter != null){
+                detailPageAdapter.updateAllTables(newGeos, active);
+            }
         });
 
         // Observe Active Tables - used to determine which layers are enabled.  Update main list
@@ -895,52 +900,54 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param db - GeoPackageDatabase object of the GP that we're going to create the view for
      */
     private void createGeoPackageDetailAdapter(GeoPackageDatabase db){
-        // Listener for clicking on Layer
-        DetailLayerClickListener layerListener = new DetailLayerClickListener() {
-            @Override
-            public void onClick(DetailPageLayerObject layerObject) {
-                createGeoPackageLayerDetailAdapter(layerObject);
-            }
-        };
+        if(db != null) {
+            // Listener for clicking on Layer
+            DetailLayerClickListener layerListener = new DetailLayerClickListener() {
+                @Override
+                public void onClick(DetailPageLayerObject layerObject) {
+                    createGeoPackageLayerDetailAdapter(layerObject);
+                }
+            };
 
-        // Listener for clicking on Layer's active switch.  Sends the table and active state to the
-        // repository to be stored in the active tables list
-        LayerActiveSwitchListener activeLayerListener = new LayerActiveSwitchListener() {
-            @Override
-            public void onClick(boolean active, GeoPackageTable table) {
-                geoPackageViewModel.setLayerActive(table);
-            }
-        };
+            // Listener for clicking on Layer's active switch.  Sends the table and active state to the
+            // repository to be stored in the active tables list
+            LayerActiveSwitchListener activeLayerListener = new LayerActiveSwitchListener() {
+                @Override
+                public void onClick(boolean active, GeoPackageTable table) {
+                    geoPackageViewModel.setLayerActive(table);
+                }
+            };
 
-        // Listener to forward a button click on the detail header to the appropriate dialog function
-        // Note: Layer name will be empty string for the GeoPackage detail page
-        DetailActionListener detailActionListener = new DetailActionListener(){
-            @Override
-            public void onClick(View view, int actionType, String gpName, String layerName) {
+            // Listener to forward a button click on the detail header to the appropriate dialog function
+            // Note: Layer name will be empty string for the GeoPackage detail page
+            DetailActionListener detailActionListener = new DetailActionListener() {
+                @Override
+                public void onClick(View view, int actionType, String gpName, String layerName) {
                     openActionDialog(gpName, layerName, actionType);
-            }
-        };
+                }
+            };
 
-        // Click listener for the back arrow on the detail header.  Resets the RecyclerView to
-        // show GeoPackages
-        View.OnClickListener detailBackListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                populateRecyclerWithGeoPackages();
-            }
-        };
+            // Click listener for the back arrow on the detail header.  Resets the RecyclerView to
+            // show GeoPackages
+            View.OnClickListener detailBackListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    populateRecyclerWithGeoPackages();
+                }
+            };
 
-        // Generate a list to pass to the adapter.  Should contain:
-        // - A heaader: DetailPageHeaderObject
-        // - N number of DetailPageLayerObject objects generated from the GeoPackageDatabase object
-        DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
-        List<Object> detailList = new ArrayList<>();
-        detailList.add(detailHeader);
-        detailList.addAll(db.getLayerObjects(active.getDatabase(db.getDatabase())));
+            // Generate a list to pass to the adapter.  Should contain:
+            // - A heaader: DetailPageHeaderObject
+            // - N number of DetailPageLayerObject objects generated from the GeoPackageDatabase object
+            DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
+            List<Object> detailList = new ArrayList<>();
+            detailList.add(detailHeader);
+            detailList.addAll(db.getLayerObjects(active.getDatabase(db.getDatabase())));
 
-        detailPageAdapter = new DetailPageAdapter(detailList, layerListener,
-                detailBackListener, detailActionListener, activeLayerListener, db);
-        populateRecyclerWithDetail();
+            detailPageAdapter = new DetailPageAdapter(detailList, layerListener,
+                    detailBackListener, detailActionListener, activeLayerListener, db);
+            populateRecyclerWithDetail();
+        }
     }
 
 
@@ -1286,7 +1293,7 @@ public class GeoPackageMapFragment extends Fragment implements
         layerFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //newLayerWizard();
+                newLayerWizard();
             }
         });
     }
@@ -1539,6 +1546,158 @@ public class GeoPackageMapFragment extends Fragment implements
                             }
                         });
 
+        dialog.show();
+    }
+
+
+    /**
+     * Pop up dialog for creating a new feature or tile layer from the geopackage detail view FAB
+     */
+    public void newLayerWizard(){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.new_layer_wizard, null);
+        // Logo and title
+        ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
+        closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+        TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
+        titleText.setText("New GeoPackage Layer");
+
+        // Initial dialog asking for create or import
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView);
+        final AlertDialog alertDialog = dialog.create();
+
+        // Click listener for close button
+        closeLogo.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        // Listener for create features
+        TextView createFeature = (TextView) alertView.findViewById(R.id.create_feature);
+        createFeature.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                createFeatureOption();
+                alertDialog.dismiss();
+            }
+        });
+
+        // Listener for create tiles
+        TextView createTile = (TextView) alertView.findViewById(R.id.create_tile);
+        createTile.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                //createTileOption();
+                alertDialog.dismiss();
+            }
+        });
+
+
+        alertDialog.show();
+    }
+
+
+
+    /**
+     * Create feature layer menu
+     */
+    private void createFeatureOption(){
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View createFeaturesView = inflater.inflate(R.layout.create_features,
+                null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        dialog.setView(createFeaturesView);
+
+        final EditText nameInput = (EditText) createFeaturesView
+                .findViewById(R.id.create_features_name_input);
+        final EditText minLatInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_min_latitude_input);
+        final EditText maxLatInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_max_latitude_input);
+        final EditText minLonInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_min_longitude_input);
+        final EditText maxLonInput = (EditText) createFeaturesView
+                .findViewById(R.id.bounding_box_max_longitude_input);
+        final TextView preloadedLocationsButton = (TextView) createFeaturesView
+                .findViewById(R.id.bounding_box_preloaded);
+        final Spinner geometryTypeSpinner = (Spinner) createFeaturesView
+                .findViewById(R.id.create_features_geometry_type);
+
+        GeoPackageUtils
+                .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                        maxLatInput, minLonInput, maxLonInput,
+                        preloadedLocationsButton);
+
+        dialog.setPositiveButton(
+                getString(R.string.geopackage_create_features_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        try {
+
+                            String tableName = nameInput.getText().toString();
+                            if (tableName == null || tableName.isEmpty()) {
+                                throw new GeoPackageException(
+                                        getString(R.string.create_features_name_label)
+                                                + " is required");
+                            }
+                            double minLat = Double.valueOf(minLatInput
+                                    .getText().toString());
+                            double maxLat = Double.valueOf(maxLatInput
+                                    .getText().toString());
+                            double minLon = Double.valueOf(minLonInput
+                                    .getText().toString());
+                            double maxLon = Double.valueOf(maxLonInput
+                                    .getText().toString());
+
+                            if (minLat > maxLat) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_latitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_latitude_label));
+                            }
+
+                            if (minLon > maxLon) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_longitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_longitude_label));
+                            }
+
+                            BoundingBox boundingBox = new BoundingBox(minLon,
+                                    minLat, maxLon, maxLat);
+
+                            GeometryType geometryType = GeometryType
+                                    .fromName(geometryTypeSpinner
+                                            .getSelectedItem().toString());
+                            String geoName = detailPageAdapter.getGeoPackageName();
+                            if(geoName != null){
+                                geoPackageViewModel.createFeatureTable(geoName, boundingBox, geometryType, tableName);
+                            }
+
+
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.geopackage_create_features_label),
+                                            e.getMessage());
+                        }
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
         dialog.show();
     }
 

@@ -122,7 +122,22 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mLayerObject;
     }
 
+    /**
+     * Set the layer object for populating data
+     * @param mLayerObject
+     */
     public void setmLayerObject(DetailPageLayerObject mLayerObject) {
         this.mLayerObject = mLayerObject;
+    }
+
+    /**
+     * Get the name of the GeoPackage currently populating the view
+     * @return
+     */
+    public String getGeoPackageName(){
+        if(mLayerObject != null){
+            return mLayerObject.getGeoPackageName();
+        }
+        return null;
     }
 }

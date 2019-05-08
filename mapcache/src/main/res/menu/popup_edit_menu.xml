@@ -14,6 +14,7 @@
         android:id="@+id/features"
         android:title="Edit Features"
         android:icon="@drawable/material_feature"
+        android:visible="false"
         app:showAsAction="never"
         />
 
@@ -21,6 +22,8 @@
         android:id="@+id/boundingBox"
         android:title="Load Tiles"
         android:icon="@drawable/ic_collections_black_24dp"
+        android:visible="false"
+
         app:showAsAction="never"/>
 
     <item

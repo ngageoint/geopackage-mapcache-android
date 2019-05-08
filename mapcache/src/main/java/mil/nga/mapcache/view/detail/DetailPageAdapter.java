@@ -166,7 +166,7 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * Finds the geopackage name from the header object in the mItems list
      * @return Name of the geopackage currently populated in this adapter
      */
-    private String getGeoPackageName(){
+    public String getGeoPackageName(){
         if(!mItems.isEmpty()){
             if(mItems.get(0) instanceof DetailPageHeaderObject){
                 DetailPageHeaderObject header = (DetailPageHeaderObject)mItems.get(0);
@@ -229,6 +229,26 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     }
                     position++;
                 }
+            }
+        }
+    }
+
+
+    /**
+     * Takes a new list of GeoPackages, and a list of active GeoPackages and updates the list of
+     * tables with the new data
+     * @param newGeos GeoPackageDatabases object with latest GeoPackage data
+     * @param active
+     */
+    public void updateAllTables(GeoPackageDatabases newGeos, GeoPackageDatabases active){
+        for(GeoPackageDatabase newDb : newGeos.getDatabases()){
+            if(newDb.getDatabase().equalsIgnoreCase(getGeoPackageName())){
+                GeoPackageDatabase activeDb = active.getDatabase(getGeoPackageName());
+                    List<DetailPageLayerObject> newLayers = newDb.getLayerObjects(activeDb);
+                    mItems.clear();
+                    mItems.add(new DetailPageHeaderObject(newDb));
+                    mItems.addAll(newLayers);
+                    this.notifyDataSetChanged();
             }
         }
     }

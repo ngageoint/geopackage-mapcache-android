@@ -56,6 +56,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -547,9 +548,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Views to show "no geopackages found" message when the list is empty
      */
-    private TextView emptyView;
     private TextView getStartedView;
-    private ImageView emptyViewIcon;
+    private LinearLayout emptyViewHolder;
 
     /**
      * Progress dialog for network operations
@@ -848,7 +848,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Observe list of GeoPackages
         geoPackageViewModel.getGeos().observe(this, newGeos ->{
             // Set the visibility of the 'no geopackages found' message
-            setListVisibility(newGeos.isEmpty());
+            setListVisibility(newGeos.getDatabases().isEmpty());
             // If not empty, repopulate the list
             geoPackageRecyclerAdapter.clear();
             geoPackageRecyclerAdapter.insertDefaultHeader();
@@ -1304,9 +1304,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * recycler view being empty
      */
     private void setListVisibility(boolean empty){
-        emptyView = (TextView) view.findViewById(R.id.empty_view);
-        emptyViewIcon = (ImageView) view.findViewById(R.id.empty_view_icon);
-        getStartedView = (TextView) view.findViewById(R.id.get_started);
+        emptyViewHolder = (LinearLayout) view.findViewById(R.id.empty_list_holder);
+        getStartedView = (TextView) view.findViewById(R.id.geo_get_started);
 
         // Give the get started message a listener
         getStartedView.setOnClickListener(new View.OnClickListener() {
@@ -1318,14 +1317,11 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Set the visibility
         if(empty){
-            emptyView.setVisibility(View.VISIBLE);
-            emptyViewIcon.setVisibility(View.VISIBLE);
-            getStartedView.setVisibility(View.VISIBLE);
+            emptyViewHolder.setVisibility(View.VISIBLE);
         } else{
+            emptyViewHolder.setVisibility(View.GONE);
             geoPackageRecycler.setVisibility(View.VISIBLE);
-            emptyView.setVisibility(View.GONE);
-            emptyViewIcon.setVisibility(View.GONE);
-            getStartedView.setVisibility(View.GONE);
+
         }
     }
 
@@ -3351,7 +3347,8 @@ public class GeoPackageMapFragment extends Fragment implements
                     break;
                 }
 
-                GeoPackage geoPackage = geoPackages.getOrOpen(database.getDatabase(), false);
+                try {
+                    GeoPackage geoPackage = geoPackages.getOrOpen(database.getDatabase(), false);
 
                 if (geoPackage != null) {
 
@@ -3413,6 +3410,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
                 } else {
                     active.removeDatabase(database.getDatabase(), false);
+                }
+                } catch (Exception e){
+                    Log.i("Error", "Error opening geopackage: " + database.getDatabase());
                 }
             }
 

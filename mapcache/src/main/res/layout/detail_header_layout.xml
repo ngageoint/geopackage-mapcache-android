@@ -135,4 +135,42 @@
             android:drawableTop="@drawable/material_delete"
             android:text="Delete" />
     </LinearLayout>
+
+    <!--Layers label, and enable all button-->
+    <LinearLayout
+        android:id="@+id/header_layer_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/text_layers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/layers_label"
+            android:textAppearance="@style/textAppearanceSubtitle1"
+            android:textStyle="bold"
+            android:layout_gravity="bottom|left"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/allLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:gravity="right"
+            android:layout_weight="1"
+            android:text="Enable all"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+        <Switch
+            android:id="@+id/allSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:paddingLeft="8dp"/>
+
+    </LinearLayout>
 </LinearLayout>

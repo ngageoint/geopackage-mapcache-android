@@ -369,33 +369,33 @@
         android:paddingTop="32dp"
         android:paddingBottom="32dp">
 
-    <!--Image and text for when the geopackage list is empty-->
-    <ImageView
-        android:id="@+id/geo_empty_view_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center|center_vertical"
-        android:layout_gravity="center|center_vertical"
-        android:paddingTop="16dp"
-        android:background="@drawable/material_info" />
+        <!--Image and text for when the geopackage list is empty-->
+        <ImageView
+            android:id="@+id/geo_empty_view_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center|center_vertical"
+            android:layout_gravity="center|center_vertical"
+            android:paddingTop="16dp"
+            android:background="@drawable/material_info" />
 
-    <TextView
-        android:id="@+id/geo_empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:paddingTop="8dp"
-        android:text="@string/no_packages_text" />
+        <TextView
+            android:id="@+id/geo_empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:text="@string/no_packages_text" />
 
-    <TextView
-        android:id="@+id/geo_get_started"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:paddingTop="16dp"
-        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-        android:textColor="@color/nga_primary_light"
-        android:text="Get Started" />
+        <TextView
+            android:id="@+id/geo_get_started"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingTop="16dp"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:textColor="@color/nga_primary_light"
+            android:text="Get Started" />
     </LinearLayout>
 
     <!--Floating action button for new Geopackage-->

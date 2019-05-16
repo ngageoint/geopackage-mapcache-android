@@ -25,20 +25,25 @@ import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
+import mil.nga.geopackage.extension.scale.TileScaling;
+import mil.nga.geopackage.extension.scale.TileTableScaling;
 import mil.nga.geopackage.factory.GeoPackageFactory;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.ProjectionConstants;
+import mil.nga.sf.proj.ProjectionFactory;
 
 /**
  *  Repository to provide access to stored GeoPackages.  Most of the data in the app is powered by
@@ -597,6 +602,34 @@ public class GeoPackageRepository {
             geoPackage.close();
         }
         return false;
+    }
+
+    /**
+     * Create a tile table in the given GeoPackage
+     * @return
+     */
+    public boolean createTileTable(String gpName, BoundingBox boundingBox, long epsg, String tableName, TileScaling scaling){
+        GeoPackage geoPackage = manager.open(gpName);
+        try {
+            // Create the srs if needed
+            SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
+            SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
+            // Create the tile table
+            mil.nga.sf.proj.Projection projection = ProjectionFactory.getProjection(epsg);
+            BoundingBox bbox = LoadTilesTask.transform(boundingBox, projection);
+            geoPackage.createTileTableWithMetadata(
+                    tableName, bbox, srs.getSrsId(),
+                    bbox, srs.getSrsId());
+
+            TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tableName);
+            tileTableScaling.createOrUpdate(scaling);
+        } catch (Exception e) {
+            Log.i("Exception", e.toString());
+            return false;
+        } finally {
+            geoPackage.close();
+        }
+        return true;
     }
 
     /**

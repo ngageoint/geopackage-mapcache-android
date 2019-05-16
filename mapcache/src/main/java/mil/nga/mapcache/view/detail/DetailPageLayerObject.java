@@ -1,6 +1,8 @@
 package mil.nga.mapcache.view.detail;
 
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 
 /**
@@ -29,6 +31,11 @@ public class DetailPageLayerObject {
         this.geoPackageName = geoPackageName;
         this.checked = checked;
         this.table = table;
+        if(table instanceof GeoPackageFeatureTable){
+            this.iconType = R.drawable.material_tile;
+        } else{
+            this.iconType = R.drawable.material_feature;
+        }
     }
 
 

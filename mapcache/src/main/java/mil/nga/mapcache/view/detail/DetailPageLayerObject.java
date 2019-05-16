@@ -32,9 +32,9 @@ public class DetailPageLayerObject {
         this.checked = checked;
         this.table = table;
         if(table instanceof GeoPackageFeatureTable){
-            this.iconType = R.drawable.material_tile;
-        } else{
             this.iconType = R.drawable.material_feature;
+        } else{
+            this.iconType = R.drawable.material_tile;
         }
     }
 

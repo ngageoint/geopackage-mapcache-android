@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.provider.Settings;
 import androidx.annotation.NonNull;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -113,6 +114,7 @@ import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
@@ -810,6 +812,8 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackageRecycler = (RecyclerView) view.findViewById(R.id.recycler_geopackages);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         geoPackageRecycler.setLayoutManager(layoutManager);
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
+//        behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
         GeoPackageClickListener geoClickListener = new GeoPackageClickListener() {
             @Override
@@ -1587,7 +1591,10 @@ public class GeoPackageMapFragment extends Fragment implements
         createTile.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                //createTileOption();
+                String geoName = detailPageAdapter.getGeoPackageName();
+                if(geoName != null) {
+                    createTilesOption(geoName);
+                }
                 alertDialog.dismiss();
             }
         });
@@ -1674,7 +1681,13 @@ public class GeoPackageMapFragment extends Fragment implements
                                             .getSelectedItem().toString());
                             String geoName = detailPageAdapter.getGeoPackageName();
                             if(geoName != null){
-                                geoPackageViewModel.createFeatureTable(geoName, boundingBox, geometryType, tableName);
+                                if(!geoPackageViewModel.createFeatureTable(geoName, boundingBox, geometryType, tableName)){
+                                    GeoPackageUtils
+                                            .showMessage(
+                                                    getActivity(),
+                                                    getString(R.string.geopackage_create_features_label),
+                                                    "There was a problem generating a tile table");
+                                }
                             }
 
 
@@ -1695,6 +1708,168 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                 });
         dialog.show();
+    }
+
+
+
+
+    /**
+     * Create tiles option
+     *
+     * @param database
+     */
+    private void createTilesOption(final String database) {
+
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View createTilesView = inflater.inflate(R.layout.create_tiles, null);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+        dialog.setView(createTilesView);
+
+        final EditText nameInput = (EditText) createTilesView
+                .findViewById(R.id.create_tiles_name_input);
+        final EditText urlInput = (EditText) createTilesView
+                .findViewById(R.id.load_tiles_url_input);
+        final EditText epsgInput = (EditText) createTilesView
+                .findViewById(R.id.load_tiles_epsg_input);
+        final Button preloadedUrlsButton = (Button) createTilesView
+                .findViewById(R.id.load_tiles_preloaded);
+        final EditText minZoomInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_min_zoom_input);
+        final EditText maxZoomInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_zoom_input);
+        final TextView maxFeaturesLabel = (TextView) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_label);
+        final EditText maxFeaturesInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_max_features_input);
+        final Spinner compressFormatInput = (Spinner) createTilesView
+                .findViewById(R.id.generate_tiles_compress_format);
+        final EditText compressQualityInput = (EditText) createTilesView
+                .findViewById(R.id.generate_tiles_compress_quality);
+        final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
+                .findViewById(R.id.generate_tiles_type_google_radio_button);
+        final EditText minLatInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_min_latitude_input);
+        final EditText maxLatInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_max_latitude_input);
+        final EditText minLonInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_min_longitude_input);
+        final EditText maxLonInput = (EditText) createTilesView
+                .findViewById(R.id.bounding_box_max_longitude_input);
+        final TextView preloadedLocationsButton = (TextView) createTilesView
+                .findViewById(R.id.bounding_box_preloaded);
+        final Spinner tileScalingInput = (Spinner) createTilesView
+                .findViewById(R.id.tile_scaling_type);
+        final EditText tileScalingZoomOutInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_out_input);
+        final EditText tileScalingZoomInInput = (EditText) createTilesView
+                .findViewById(R.id.tile_scaling_zoom_in_input);
+
+        GeoPackageUtils
+                .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                        maxLatInput, minLonInput, maxLonInput,
+                        preloadedLocationsButton);
+
+        GeoPackageUtils.prepareTileLoadInputs(getActivity(), minZoomInput,
+                maxZoomInput, preloadedUrlsButton, nameInput, urlInput, epsgInput,
+                compressFormatInput, compressQualityInput, true,
+                maxFeaturesLabel, maxFeaturesInput, false, false,
+                tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
+
+        dialog.setPositiveButton(
+                getString(R.string.geopackage_create_tiles_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        try {
+
+                            String tableName = nameInput.getText().toString();
+                            if (tableName == null || tableName.isEmpty()) {
+                                throw new GeoPackageException(
+                                        getString(R.string.create_tiles_name_label)
+                                                + " is required");
+                            }
+                            String tileUrl = urlInput.getText().toString();
+                            long epsg = Long.valueOf(epsgInput.getText().toString());
+                            int minZoom = Integer.valueOf(minZoomInput
+                                    .getText().toString());
+                            int maxZoom = Integer.valueOf(maxZoomInput
+                                    .getText().toString());
+                            double minLat = Double.valueOf(minLatInput
+                                    .getText().toString());
+                            double maxLat = Double.valueOf(maxLatInput
+                                    .getText().toString());
+                            double minLon = Double.valueOf(minLonInput
+                                    .getText().toString());
+                            double maxLon = Double.valueOf(maxLonInput
+                                    .getText().toString());
+
+                            if (minLat > maxLat) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_latitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_latitude_label));
+                            }
+
+                            if (minLon > maxLon) {
+                                throw new GeoPackageException(
+                                        getString(R.string.bounding_box_min_longitude_label)
+                                                + " can not be larger than "
+                                                + getString(R.string.bounding_box_max_longitude_label));
+                            }
+
+                            CompressFormat compressFormat = null;
+                            Integer compressQuality = null;
+                            if (compressFormatInput.getSelectedItemPosition() > 0) {
+                                compressFormat = CompressFormat
+                                        .valueOf(compressFormatInput
+                                                .getSelectedItem().toString());
+                                compressQuality = Integer
+                                        .valueOf(compressQualityInput.getText()
+                                                .toString());
+                            }
+
+                            boolean googleTiles = googleTilesRadioButton
+                                    .isChecked();
+
+                            BoundingBox boundingBox = new BoundingBox(minLon,
+                                    minLat, maxLon, maxLat);
+
+                            TileScaling scaling = GeoPackageUtils.getTileScaling(tileScalingInput, tileScalingZoomOutInput, tileScalingZoomInInput);
+
+                            // If not importing tiles, just create the table
+                            if (tileUrl == null || tileUrl.isEmpty()) {
+                                geoPackageViewModel.createTileTable(database, boundingBox, epsg, tableName, scaling);
+                            } else {
+                                // Load tiles
+                                LoadTilesTask.loadTiles(getActivity(),
+                                        GeoPackageMapFragment.this, active,
+                                        database, tableName, tileUrl, minZoom,
+                                        maxZoom, compressFormat,
+                                        compressQuality, googleTiles,
+                                        boundingBox, scaling,
+                                        ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
+                                geoPackageViewModel.regenerateGeoPackageTableList();
+                            }
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.geopackage_create_tiles_label),
+                                            e.getMessage());
+                        }
+                    }
+                }).setNegativeButton(getString(R.string.button_cancel_label),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        dialog.show();
+
     }
 
 

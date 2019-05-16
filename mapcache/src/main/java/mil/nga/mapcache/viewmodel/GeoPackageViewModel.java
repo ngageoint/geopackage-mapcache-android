@@ -22,6 +22,7 @@ import java.util.List;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.core.contents.Contents;
+import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -609,6 +610,16 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
             return true;
         }
         return false;
+    }
+
+    /**
+     * Create tile table in the given GeoPackage
+     * @return
+     */
+    public boolean createTileTable(String gpName, BoundingBox boundingBox, long epsg, String tableName, TileScaling scaling){
+        repository.createTileTable(gpName, boundingBox, epsg, tableName, scaling);
+        regenerateGeoPackageTableList();
+        return true;
     }
 
 

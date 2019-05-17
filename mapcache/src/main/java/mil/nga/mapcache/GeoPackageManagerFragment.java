@@ -1592,7 +1592,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     info.append("\nPrimary Key: ").append(
                             userColumn.isPrimaryKey());
                 }
-                info.append("\nType: ").append(userColumn.getTypeName());
+                info.append("\nType: ").append(userColumn.getType());
             }
 
         } catch (GeoPackageException e) {

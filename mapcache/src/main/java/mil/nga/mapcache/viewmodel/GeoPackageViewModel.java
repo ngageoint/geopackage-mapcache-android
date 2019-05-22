@@ -169,6 +169,16 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     * Sets all the layers active in the given geopackage
+     * @param db GeoPackageDatabase to add
+     * @param active should all layers be active or inactive
+     * @return true if all layers are enabled
+     */
+    public boolean setAllLayersActive(boolean active, GeoPackageDatabase db){
+        return repository.setAllLayersActive(active, db);
+    }
+
+    /**
      * Remove all active layers for the given database
      */
     public boolean removeActiveTableLayers(String geoPackageName){

@@ -13,6 +13,7 @@ import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
+import mil.nga.mapcache.listeners.EnableAllLayersListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.LayerViewHolder;
 
@@ -52,6 +53,11 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private LayerActiveSwitchListener mLayerSwitchListener;
 
     /**
+     * Click listener for clicking the enable all layers switch
+     */
+    private EnableAllLayersListener mEnableAllListener;
+
+    /**
      * GeoPackageDatabase object that this Adapter was created with
      */
     private GeoPackageDatabase mGeoPackageDatabase;
@@ -69,12 +75,14 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      */
     public DetailPageAdapter(List<Object> items, DetailLayerClickListener listener,
                              View.OnClickListener backArrowListener, DetailActionListener actionListener,
-                             LayerActiveSwitchListener activeLayerListener, GeoPackageDatabase db){
+                             LayerActiveSwitchListener activeLayerListener,
+                             EnableAllLayersListener enableAllListener, GeoPackageDatabase db){
         mItems = items;
         mListener = listener;
         mBackArrowListener = backArrowListener;
         mActionListener = actionListener;
         mLayerSwitchListener = activeLayerListener;
+        mEnableAllListener = enableAllListener;
         mGeoPackageDatabase = db;
     }
 
@@ -91,7 +99,8 @@ public class DetailPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         switch(viewType) {
             case HEADER:
                 View headerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.detail_header_layout, viewGroup, false);
-                return new HeaderViewHolder(headerView, mBackArrowListener, mActionListener);
+                return new HeaderViewHolder(headerView, mBackArrowListener, mActionListener,
+                                            mEnableAllListener, mGeoPackageDatabase);
             case LAYER:
                 View layerView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layer_row_layout, viewGroup, false);
                 return new LayerViewHolder(layerView, mListener, mLayerSwitchListener);

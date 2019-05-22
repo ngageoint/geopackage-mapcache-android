@@ -194,8 +194,7 @@ public class GeoPackageRepository {
             currentGeos.setTableActive(table);
             geos.postValue(currentGeos);
         }
-
-        return false;
+        return true;
     }
 
     /**
@@ -251,6 +250,41 @@ public class GeoPackageRepository {
             currentGeos.setAllDatabaseLayersActive(false);
             geos.postValue(currentGeos);
         }
+    }
+
+
+
+    /**
+     * Set all layers active in the given geopackage
+     * @param db GeoPackageDatabase object to add
+     * @param enable should all layers be active or inactive
+     * @return true if all layers are now active
+     */
+    public boolean setAllLayersActive(boolean enable, GeoPackageDatabase db){
+        GeoPackageDatabases currentActive = active.getValue();
+        GeoPackageDatabases currentGeos = geos.getValue();
+
+        if(enable) {
+            if (currentActive != null) {
+                currentActive.addAll(db);
+            }
+            if(currentGeos != null) {
+                currentGeos.addAll(db);
+            }
+        }else{
+            if (currentActive != null) {
+                // the active list needs the tables removed
+                currentActive.removeDatabase(db.getDatabase(), false);
+            }
+            if(currentGeos != null) {
+                // The current list needs them set to false
+                currentGeos.setDatabaseLayersActive(false, db.getDatabase());
+            }
+        }
+        active.postValue(currentActive);
+        geos.postValue(currentGeos);
+
+        return true;
     }
 
 

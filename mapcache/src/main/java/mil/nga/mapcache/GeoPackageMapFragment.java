@@ -170,6 +170,7 @@ import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
+import mil.nga.mapcache.listeners.EnableAllLayersListener;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -922,6 +923,14 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             };
 
+            // Listener for clicking the enable all switch for enabling all layers
+            EnableAllLayersListener enableAllListener = new EnableAllLayersListener() {
+                @Override
+                public void onClick(boolean active, GeoPackageDatabase db) {
+                    geoPackageViewModel.setAllLayersActive(active, db);
+                }
+            };
+
             // Listener to forward a button click on the detail header to the appropriate dialog function
             // Note: Layer name will be empty string for the GeoPackage detail page
             DetailActionListener detailActionListener = new DetailActionListener() {
@@ -949,7 +958,7 @@ public class GeoPackageMapFragment extends Fragment implements
             detailList.addAll(db.getLayerObjects(active.getDatabase(db.getDatabase())));
 
             detailPageAdapter = new DetailPageAdapter(detailList, layerListener,
-                    detailBackListener, detailActionListener, activeLayerListener, db);
+                    detailBackListener, detailActionListener, activeLayerListener, enableAllListener, db);
             populateRecyclerWithDetail();
         }
     }

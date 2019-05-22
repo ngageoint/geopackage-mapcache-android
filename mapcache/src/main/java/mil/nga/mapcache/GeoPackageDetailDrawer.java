@@ -133,7 +133,7 @@ public class GeoPackageDetailDrawer extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_geo_package_detail_drawer, container, false);
-        allLayers = (Switch)  view.findViewById(R.id.allSwitch);
+        allLayers = (Switch)  view.findViewById(R.id.header_all_switch);
 
         // Set listener for leaving this view
         backArrow = view.findViewById(R.id.detailPageBackButton);

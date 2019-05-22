@@ -166,7 +166,7 @@
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
         <Switch
-            android:id="@+id/allSwitch"
+            android:id="@+id/header_all_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

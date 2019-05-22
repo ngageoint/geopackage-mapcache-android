@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.detail;
 
 import mil.nga.mapcache.data.GeoPackageDatabase;
+import mil.nga.mapcache.data.GeoPackageTable;
 
 /**
  * Holds values for the Header of the GeoPackage Detail View's recyclerview.  Contains: GeoPackage
@@ -28,6 +29,11 @@ public class DetailPageHeaderObject {
      */
     private int tileCount;
 
+    /**
+     * Are all layers of this gp set to active
+     */
+    private boolean allActive;
+
 
     /**
      * Constructor
@@ -38,6 +44,7 @@ public class DetailPageHeaderObject {
         geopackageName = gp.getDatabase();
         featureCount = gp.getFeatureCount();
         tileCount = gp.getTileCount();
+        allActive = gp.isEveryTableActive();
     }
 
 
@@ -45,6 +52,15 @@ public class DetailPageHeaderObject {
     /**
      * Getters and setters
      */
+
+    public boolean isAllActive() {
+        return allActive;
+    }
+
+    public void setAllActive(boolean allActive) {
+        this.allActive = allActive;
+    }
+
     public String getGeopackageName() {
         return geopackageName;
     }

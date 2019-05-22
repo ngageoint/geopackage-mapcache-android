@@ -4,11 +4,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.listeners.DetailActionListener;
+import mil.nga.mapcache.listeners.EnableAllLayersListener;
+import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 
 
 /**
@@ -47,6 +52,11 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
     private TextView textTiles;
 
     /**
+     * Enable all switch
+     */
+    private Switch enableAllSwitch;
+
+    /**
      * Action buttons for detail, rename, share, copy, and delete GeoPackage
      */
     private Button detailButton, renameButton, shareButton, copyButton, deleteButton;
@@ -56,6 +66,22 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      */
     private DetailActionListener actionListener;
 
+    /**
+     * Click listener for clicking the enable all layers switch
+     */
+    private EnableAllLayersListener mEnableAllListener;
+
+    /**
+     * Hold on to the DB instance used to populate this view
+     */
+    private GeoPackageDatabase mDb;
+
+    /**
+     * Tells this ViewHolder if it should ignore state changes on the switch (used for setting
+     * the switch state)
+     */
+    private boolean ignoreStateChange;
+
 
     /**
      * Constructor
@@ -64,15 +90,19 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      *                     list of GeoPackages again
      */
     public HeaderViewHolder(View itemView, View.OnClickListener backListener,
-                            DetailActionListener actionListener) {
+                            DetailActionListener actionListener, EnableAllLayersListener enableAllListener,
+                            GeoPackageDatabase db) {
         super(itemView);
         textName = (TextView) itemView.findViewById(R.id.headerTitle);
         textSize = (TextView) itemView.findViewById(R.id.headerSize);
         textFeatures = (TextView) itemView.findViewById(R.id.header_text_features);
         textTiles = (TextView) itemView.findViewById(R.id.header_text_tiles);
         backArrow = (ImageButton) itemView.findViewById(R.id.detailPageBackButton);
+        enableAllSwitch = (Switch) itemView.findViewById(R.id.header_all_switch);
         backArrow.setOnClickListener(backListener);
         this.actionListener = actionListener;
+        mEnableAllListener = enableAllListener;
+        mDb = db;
         setActionButtonListeners();
     }
 
@@ -87,6 +117,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
             textSize.setText(header.getSize());
             textFeatures.setText(pluralize(header.getFeatureCount(), "Feature"));
             textTiles.setText(pluralize(header.getTileCount(), "Tile"));
+            setCheckedStatus(header.isAllActive());
         } else{
             textName.setText("No header text given");
             textSize.setText("-");
@@ -141,6 +172,35 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
                 actionListener.onClick(view, DetailActionListener.DELETE_GP, textName.getText().toString(), "");
             }
         });
+
+        // Enable all switch
+        enableAllSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(!ignoreStateChange) {
+                    mEnableAllListener.onClick(b, mDb);
+                }
+            }
+        });
+    }
+
+    /**
+     * Set the checked status of the enable all switch
+     * @param checked
+     */
+    private void setCheckedStatus(boolean checked){
+        setIgnoreStateChange(true);
+        enableAllSwitch.setChecked(checked);
+        setIgnoreStateChange(false);
+    }
+
+    /**
+     * Set ignore state to tell the active switch listener to ignore a state change.  Used to set
+     * the active status without triggering a live data update
+     * @param ignore
+     */
+    public void setIgnoreStateChange(boolean ignore){
+        ignoreStateChange = ignore;
     }
 
     /**

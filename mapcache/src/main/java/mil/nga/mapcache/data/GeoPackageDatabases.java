@@ -215,6 +215,23 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Add the given database to the list of databases.
+     * @param db GeoPackageDatabase
+     */
+    public void addAll(GeoPackageDatabase db){
+        if(databases.containsKey(db.getDatabase())){
+            databases.remove(db.getDatabase());
+        }
+
+        for(GeoPackageTable table : db.getAllTables()){
+            addTable(table, true);
+        }
+        // Make sure to set the db size
+        databases.get(db.getDatabase()).setSize(db.getSize());
+        setModified(true);
+    }
+
+    /**
      * Add a GeoPackageDatabase with no tables
      * @param dbName
      */

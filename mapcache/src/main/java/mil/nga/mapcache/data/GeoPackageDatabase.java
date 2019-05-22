@@ -290,6 +290,35 @@ public class GeoPackageDatabase {
     }
 
     /**
+     * Return a list of all GeoPackage tables
+     * @return list of all geopackage tables regardless of type
+     */
+    public List<GeoPackageTable> getAllTables(){
+        List<GeoPackageTable> allTables = new ArrayList<>();
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            allTables.add(feature);
+        }
+        for(GeoPackageTileTable tile : getTiles()){
+            allTables.add(tile);
+        }
+        return allTables;
+    }
+
+    /**
+     * Returns true if every table in this geopackage is set to active
+     * @return
+     */
+    public boolean isEveryTableActive(){
+        boolean allActive = true;
+        for(GeoPackageTable table : getAllTables()){
+            if(!table.isActive()){
+                allActive = false;
+            }
+        }
+        return allActive;
+    }
+
+    /**
      * Sets every table to the given active state
      * @param activeState boolean for active or inactive
      */

@@ -377,6 +377,7 @@
             android:gravity="center|center_vertical"
             android:layout_gravity="center|center_vertical"
             android:paddingTop="16dp"
+            android:visibility="gone"
             android:background="@drawable/material_info" />
 
         <TextView

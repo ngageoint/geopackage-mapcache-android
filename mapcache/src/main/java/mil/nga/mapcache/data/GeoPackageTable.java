@@ -35,6 +35,11 @@ public abstract class GeoPackageTable implements Serializable {
     public boolean active = false;
 
     /**
+     * String description of the table
+     */
+    public String description;
+
+    /**
      * Constructor
      *
      * @param database
@@ -45,6 +50,14 @@ public abstract class GeoPackageTable implements Serializable {
         this.database = database;
         this.name = name;
         this.count = count;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public abstract GeoPackageTableType getType();

@@ -361,16 +361,19 @@ public class GeoPackageRepository {
                                 int count = featureDao.count();
 
                                 GeometryType geometryType = null;
+                                String description = "";
                                 try {
                                     Contents contents = contentsDao.queryForId(tableName);
                                     GeometryColumns geometryColumns = contents
                                             .getGeometryColumns();
                                     geometryType = geometryColumns.getGeometryType();
+                                    description = contents.getDescription();
                                 } catch (Exception e) {
                                 }
 
                                 GeoPackageTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
+                                table.setDescription(description);
                                 table.setActive(active.getValue().exists(table));
                                 tables.add(table);
                                 // Update simple list of layer names
@@ -394,6 +397,7 @@ public class GeoPackageRepository {
                                 int count = tileDao.count();
                                 GeoPackageTable table = new GeoPackageTileTable(database,
                                         tableName, count);
+                                table.setDescription("An image layer with " + count + " tiles");
                                 table.setActive(active.getValue().exists(table));
                                 tables.add(table);
                                 // Update simple list of layer names

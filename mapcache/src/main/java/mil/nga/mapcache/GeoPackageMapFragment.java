@@ -1331,6 +1331,8 @@ public class GeoPackageMapFragment extends Fragment implements
         // Set the visibility
         if(empty){
             emptyViewHolder.setVisibility(View.VISIBLE);
+            BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
+            behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else{
             emptyViewHolder.setVisibility(View.GONE);
             geoPackageRecycler.setVisibility(View.VISIBLE);

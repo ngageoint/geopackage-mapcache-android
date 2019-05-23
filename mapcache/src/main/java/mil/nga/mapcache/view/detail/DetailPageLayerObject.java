@@ -1,5 +1,7 @@
 package mil.nga.mapcache.view.detail;
 
+import android.text.TextUtils;
+
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
@@ -21,6 +23,8 @@ public class DetailPageLayerObject {
     private String geoPackageName;
     // GeoPackageTable object
     private GeoPackageTable table;
+    // Description
+    private String description;
 
     /**
      * Constructor
@@ -31,6 +35,7 @@ public class DetailPageLayerObject {
         this.geoPackageName = geoPackageName;
         this.checked = checked;
         this.table = table;
+        this.description = table.getDescription();
         if(table instanceof GeoPackageFeatureTable){
             this.iconType = R.drawable.material_feature;
         } else{
@@ -38,10 +43,18 @@ public class DetailPageLayerObject {
         }
     }
 
-
     /**
      * Getters and setters
      */
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public int getIconType() {
         return iconType;
     }

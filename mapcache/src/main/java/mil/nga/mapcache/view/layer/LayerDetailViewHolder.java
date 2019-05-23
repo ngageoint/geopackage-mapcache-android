@@ -119,6 +119,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     public void setData(DetailPageLayerObject layerObject){
         mLayerObject = layerObject;
         nameText.setText(mLayerObject.getName());
+        descriptionText.setText(mLayerObject.getDescription());
         setCheckedStatus(layerObject.isChecked());
         if(layerObject.getTable() instanceof GeoPackageFeatureTable){
             GeoPackageFeatureTable feature = (GeoPackageFeatureTable)layerObject.getTable();

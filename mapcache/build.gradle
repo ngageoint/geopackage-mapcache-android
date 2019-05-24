@@ -50,7 +50,7 @@ task androidAppVersion {
 
 dependencies {
     api 'androidx.appcompat:appcompat:1.0.2'
-    api 'mil.nga.geopackage.map:geopackage-android-map:3.2.1' // comment out to build locally
+    api 'mil.nga.geopackage.map:geopackage-android-map:3.3.0' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'androidx.multidex:multidex:2.0.1'
     testImplementation 'androidx.multidex:multidex:2.0.1'

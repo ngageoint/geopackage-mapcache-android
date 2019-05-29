@@ -7,6 +7,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 ## 1.24 (TBD)
 
 * geopackage-android-map version 3.3.0
+* Rename and Copy table options
 * gradle plugin updated to 3.4.0
 * gradle version 5.1.1
 

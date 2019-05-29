@@ -8,7 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * geopackage-android-map version 3.3.0
 * Rename and Copy table options
-* gradle plugin updated to 3.4.0
+* gradle plugin updated to 3.4.1
 * gradle version 5.1.1
 
 ## [1.23](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.23) (04-02-2019)

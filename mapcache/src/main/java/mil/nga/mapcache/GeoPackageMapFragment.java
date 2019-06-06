@@ -38,9 +38,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -61,6 +63,7 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -234,6 +237,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Active GeoPackages
      */
     private GeoPackageDatabases active;
+
+    /**
+     * All GeoPackages
+     */
+    private GeoPackageDatabases allGeos;
 
     /**
      * Google map
@@ -679,6 +687,7 @@ public class GeoPackageMapFragment extends Fragment implements
         view = inflater.inflate(R.layout.fragment_map, container, false);
         getMapFragment().getMapAsync(this);
 
+
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
@@ -852,6 +861,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void subscribeGeoPackageRecycler(){
         // Observe list of GeoPackages
         geoPackageViewModel.getGeos().observe(this, newGeos ->{
+            allGeos = newGeos;
             // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.getDatabases().isEmpty());
             // If not empty, repopulate the list
@@ -874,6 +884,12 @@ public class GeoPackageMapFragment extends Fragment implements
             active = newTables;
             geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
+
+            int totalGeoFeatures = allGeos.getAllActiveFeaturesCount();
+            int totalFeatures = active.getAllFeaturesCount();
+            if(totalGeoFeatures > getMaxFeatures()){
+                //showMaxFeaturesExceeded();
+            }
 
             // if the detail page has been used, send the updated active list for it to update itself
             if(detailPageAdapter != null){
@@ -1436,6 +1452,50 @@ public class GeoPackageMapFragment extends Fragment implements
             alertDialog.show();
         }
 
+    }
+
+
+
+    /**
+     * Show a warning that the user has selected more features than the current max features setting
+     */
+    private void showMaxFeaturesExceeded(){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_info);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Max Features Exceeded");
+
+        // Alert message
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setVisibility(View.GONE);
+        TextView message = (TextView) alertView.findViewById(R.id.alert_description);
+        message.setText("The amount of features in the selected active layers exceeds the max features setting.  Some items will not be drawn on the map.");
+        message.setVisibility(View.VISIBLE);
+
+        final EditText input = new EditText(getActivity());
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setPositiveButton(getString(R.string.button_ok_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                dialog.cancel();
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                dialog.cancel();
+                            }
+                        });
+
+        dialog.show();
     }
 
 
@@ -3232,6 +3292,7 @@ public class GeoPackageMapFragment extends Fragment implements
         descText.setVisibility(View.VISIBLE);
         // Set input to current max features value
         final EditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
         final String maxFeatures = String.valueOf(getMaxFeatures());
         input.setText(maxFeatures);
         input.setHint(maxFeatures);

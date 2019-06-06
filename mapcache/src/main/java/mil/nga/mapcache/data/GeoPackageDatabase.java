@@ -107,6 +107,30 @@ public class GeoPackageDatabase {
     }
 
     /**
+     * Get the total number of features in all feature tables
+     */
+    public int getTotalFeatureCount(){
+        int totalCount = 0;
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            totalCount += feature.getCount();
+        }
+        return totalCount;
+    }
+
+    /**
+     * Get the total number of active features in all feature tables
+     */
+    public int getTotalActiveFeatureCount(){
+        int totalCount = 0;
+        for(GeoPackageFeatureTable feature : getFeatures()){
+            if(feature.isActive()) {
+                totalCount += feature.getCount();
+            }
+        }
+        return totalCount;
+    }
+
+    /**
      * Get the tile tables
      *
      * @return

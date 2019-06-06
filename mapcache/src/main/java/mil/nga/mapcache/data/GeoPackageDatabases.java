@@ -395,6 +395,28 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Get the total number of all features in all databases
+     */
+    public int getAllFeaturesCount(){
+        int totalFeatures = 0;
+        for(GeoPackageDatabase db : getDatabases()){
+            totalFeatures += db.getTotalFeatureCount();
+        }
+        return totalFeatures;
+    }
+
+    /**
+     * Get the total number of all active features in all databases
+     */
+    public int getAllActiveFeaturesCount(){
+        int totalFeatures = 0;
+        for(GeoPackageDatabase db : getDatabases()){
+            totalFeatures += db.getTotalActiveFeatureCount();
+        }
+        return totalFeatures;
+    }
+
+    /**
      * Remove a database
      *
      * @param database

@@ -72,6 +72,8 @@ public class PreferencesActivity extends AppCompatActivity implements
         private Preference darkMap;
         // Preference for making the zoom icons visible
         private Preference zoomIcons;
+        // Preference for showing the warning message when max features is exceeded
+        private Preference maxFeatureWarning;
 
         /**
          * Build from a preferences file instead of a layout

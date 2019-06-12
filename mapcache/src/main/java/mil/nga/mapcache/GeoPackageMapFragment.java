@@ -232,6 +232,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private static final String SETTINGS_ZOOM_KEY = "zoom_icons";
 
+    /**
+     * Key for max features warning message
+     */
+    private static final String MAX_FEATURES_MESSAGE_KEY = "max_features_warning";
+
 
     /**
      * Active GeoPackages
@@ -652,6 +657,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private LayerPageAdapter layerAdapter;
 
+    /**
+     * Boolean for if we should show the max feature warning
+     */
+    private boolean displayMaxFeatureWarning = true;
+
 
     /**
      * Constructor
@@ -741,6 +751,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getDefaultSharedPreferences(getActivity());
         boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
+        displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
+
 
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
@@ -885,10 +897,11 @@ public class GeoPackageMapFragment extends Fragment implements
             geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
 
-            int totalGeoFeatures = allGeos.getAllActiveFeaturesCount();
+            // Get the total number of active features and the max features setting
             int totalFeatures = active.getAllFeaturesCount();
-            if(totalGeoFeatures > getMaxFeatures()){
-                //showMaxFeaturesExceeded();
+            int maxFeatureSetting = getMaxFeatures();
+            if(totalFeatures > maxFeatureSetting){
+                showMaxFeaturesExceeded();
             }
 
             // if the detail page has been used, send the updated active list for it to update itself
@@ -1460,42 +1473,49 @@ public class GeoPackageMapFragment extends Fragment implements
      * Show a warning that the user has selected more features than the current max features setting
      */
     private void showMaxFeaturesExceeded(){
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
-        // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_info);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-        titleText.setText("Max Features Exceeded");
+        // First check the settings to see if they disabled the message
+        if(displayMaxFeatureWarning) {
 
-        // Alert message
-        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
-        inputName.setVisibility(View.GONE);
-        TextView message = (TextView) alertView.findViewById(R.id.alert_description);
-        message.setText("The amount of features in the selected active layers exceeds the max features setting.  Some items will not be drawn on the map.");
-        message.setVisibility(View.VISIBLE);
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+            // Logo and title
+            ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+            alertLogo.setBackgroundResource(R.drawable.material_info);
+            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            titleText.setText("Max Features Exceeded");
 
-        final EditText input = new EditText(getActivity());
+            // Alert message
+            final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+            inputName.setVisibility(View.GONE);
+            TextView message = (TextView) alertView.findViewById(R.id.alert_description);
+            message.setText(R.string.max_features_message);
+            message.setVisibility(View.VISIBLE);
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setView(alertView)
-                .setPositiveButton(getString(R.string.button_ok_label),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                dialog.cancel();
-                            }
-                        })
-                .setNegativeButton(getString(R.string.button_cancel_label),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                dialog.cancel();
-                            }
-                        });
+            CheckBox dontShowAgain = (CheckBox) alertView.findViewById(R.id.warn_again);
+            dontShowAgain.setVisibility(View.VISIBLE);
 
-        dialog.show();
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView)
+                    .setPositiveButton(getString(R.string.button_ok_label),
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int whichButton) {
+                                    if(dontShowAgain.isChecked()){
+                                        // Update the preference for showing this message in the future
+                                        SharedPreferences settings = PreferenceManager
+                                                .getDefaultSharedPreferences(getActivity());
+                                        SharedPreferences.Editor editor = settings.edit();
+                                        editor.putBoolean(MAX_FEATURES_MESSAGE_KEY, !dontShowAgain.isChecked());
+                                        editor.commit();
+                                        settingsUpdate();
+                                    }
+                                    dialog.cancel();
+                                }
+                            });
+
+            dialog.show();
+        }
     }
 
 

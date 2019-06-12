@@ -293,10 +293,13 @@
     <string name="layers_label">Layers</string>
     <string name="geopackage_detail_page">GeoPackage Detail</string>
     <string name="layer_detail_page">Layer Detail</string>
+    <string name="max_features_message">The amount of features in the selected active layers exceeds the max features setting.  Some items will not be drawn on the map.\n\nUpdate the Max Features setting in the edit icon on the map if needed.</string>
 
     <!--preferences-->
     <string name="dark_map_key">dark_map</string>
     <string name="zoom_icons_key">zoom_icons</string>
+    <string name="maxFeatureWarningPref">maxFeatureWarningPref</string>
+
 
 
     <!--about page-->

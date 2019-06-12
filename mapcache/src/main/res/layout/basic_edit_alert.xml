@@ -53,7 +53,7 @@
 
     <!--Don't show again-->
     <CheckBox
-        android:id="@+id/features_warning_checkbox"
+        android:id="@+id/warn_again"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"

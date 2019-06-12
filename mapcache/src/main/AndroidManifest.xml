@@ -107,6 +107,9 @@
             android:name=".preferences.PrivacyPolicyActivity"
             android:label="@string/title_activity_privacy_policy" />
         <activity
+            android:name=".preferences.DisclaimerActivity"
+            android:label="@string/title_activity_disclaimer" />
+        <activity
             android:name=".tutorial.TutorialActivity"
             android:label="@string/title_activity_tutorial"></activity>
     </application>

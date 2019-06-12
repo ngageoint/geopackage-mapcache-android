@@ -41,6 +41,14 @@
                 android:targetClass="mil.nga.mapcache.preferences.PrivacyPolicyActivity"
                 android:targetPackage="@string/applicationId"/>
         </Preference>
+        <Preference
+            app:key="disclaimer"
+            app:title="Disclaimer" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="mil.nga.mapcache.preferences.DisclaimerActivity"
+                android:targetPackage="@string/applicationId"/>
+        </Preference>
         <!--<Preference-->
             <!--app:key="tutorial"-->
             <!--app:title="Tutorial" >-->

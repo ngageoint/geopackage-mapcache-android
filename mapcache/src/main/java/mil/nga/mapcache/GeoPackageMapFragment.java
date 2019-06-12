@@ -1244,6 +1244,11 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
+        int totalFeatures = active.getAllFeaturesCount();
+        if(totalFeatures == 0){
+            MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
+            zoomToActive.setEnabled(false);
+        }
         pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {

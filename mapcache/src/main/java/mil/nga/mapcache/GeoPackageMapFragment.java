@@ -54,6 +54,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.URLUtil;
 import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -1875,6 +1876,8 @@ public class GeoPackageMapFragment extends Fragment implements
                     Toast.makeText(getActivity(), "URL must not be blank", Toast.LENGTH_SHORT).show();
                 } else if(geoPackageViewModel.tableExistsInGeoPackage(geopackageName, layerName)) {
                     Toast.makeText(getActivity(), "Layer name already exists", Toast.LENGTH_SHORT).show();
+                } else if(!URLUtil.isValidUrl(layerUrl)){
+                    Toast.makeText(getActivity(), "URL is not valid", Toast.LENGTH_SHORT).show();
                 } else{
                     alertDialog.dismiss();
                     drawTileBoundingBox(geopackageName, layerName, layerUrl);
@@ -1989,55 +1992,61 @@ public class GeoPackageMapFragment extends Fragment implements
         drawButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-
-                try{
-                // Get values ready for creating the layer
-                RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
-                long epsg = Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString());
-                RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
-                String tileFormat = selectedFormat.getText().toString();
-                boolean googleTiles = false;
-                if(tileFormat.equalsIgnoreCase("google")){
-                    googleTiles = true;
-                }
                 int minZoom = Integer.valueOf(minSpinner.getSelectedItem().toString());
                 int maxZoom = Integer.valueOf(maxSpinner.getSelectedItem().toString());
-                CompressFormat compressFormat = null;
-                Integer compressQuality = 100;
-                TileScaling scaling = null;
-                double minLat = 90.0;
-                double minLon = 180.0;
-                double maxLat = -90.0;
-                double maxLon = -180.0;
-                for (LatLng point : boundingBox.getPoints()) {
-                    minLat = Math.min(minLat, point.latitude);
-                    minLon = Math.min(minLon, point.longitude);
-                    maxLat = Math.max(maxLat, point.latitude);
-                    maxLon = Math.max(maxLon, point.longitude);
+
+                if(minZoom >= maxZoom){
+                    Toast.makeText(getActivity(), "Min zoom must be less than max zoom", Toast.LENGTH_SHORT).show();
+                } else {
+
+                    try {
+                        // Get values ready for creating the layer
+                        RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
+                        long epsg = Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString());
+                        RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
+                        String tileFormat = selectedFormat.getText().toString();
+                        boolean googleTiles = false;
+                        if (tileFormat.equalsIgnoreCase("google")) {
+                            googleTiles = true;
+                        }
+
+                        CompressFormat compressFormat = null;
+                        Integer compressQuality = 100;
+                        TileScaling scaling = null;
+                        double minLat = 90.0;
+                        double minLon = 180.0;
+                        double maxLat = -90.0;
+                        double maxLon = -180.0;
+                        for (LatLng point : boundingBox.getPoints()) {
+                            minLat = Math.min(minLat, point.latitude);
+                            minLon = Math.min(minLon, point.longitude);
+                            maxLat = Math.max(maxLat, point.latitude);
+                            maxLon = Math.max(maxLon, point.longitude);
+                        }
+                        BoundingBox boundingBox = new BoundingBox(minLon,
+                                minLat, maxLon, maxLat);
+
+
+                        // Load tiles
+                        LoadTilesTask.loadTiles(getActivity(),
+                                GeoPackageMapFragment.this, active,
+                                geopackageName, layerName, url, minZoom,
+                                maxZoom, compressFormat,
+                                compressQuality, googleTiles,
+                                boundingBox, scaling,
+                                ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
+                        geoPackageViewModel.regenerateGeoPackageTableList();
+
+                    } catch (Exception e) {
+                        GeoPackageUtils
+                                .showMessage(
+                                        getActivity(),
+                                        getString(R.string.geopackage_create_tiles_label),
+                                        "Error creating tile layer: \n\n" + e.getMessage());
+                    }
+                    alertDialog.dismiss();
+                    clearBoundingBox();
                 }
-                BoundingBox boundingBox = new BoundingBox(minLon,
-                        minLat, maxLon, maxLat);
-
-
-                // Load tiles
-                LoadTilesTask.loadTiles(getActivity(),
-                        GeoPackageMapFragment.this, active,
-                        geopackageName, layerName, url, minZoom,
-                        maxZoom, compressFormat,
-                        compressQuality, googleTiles,
-                        boundingBox, scaling,
-                        ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
-                geoPackageViewModel.regenerateGeoPackageTableList();
-
-                } catch (Exception e) {
-                    GeoPackageUtils
-                            .showMessage(
-                                    getActivity(),
-                                    getString(R.string.geopackage_create_tiles_label),
-                                    "Error creating tile layer: \n\n" + e.getMessage());
-                }
-                alertDialog.dismiss();
-                clearBoundingBox();
 
             }
         });

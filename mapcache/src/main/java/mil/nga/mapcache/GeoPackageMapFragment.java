@@ -1860,7 +1860,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     Toast.makeText(getActivity(), "Layer name must not be blank", Toast.LENGTH_SHORT).show();
                 } else if(layerUrl.isEmpty() || layerUrl.trim().length() == 0) {
                     Toast.makeText(getActivity(), "URL must not be blank", Toast.LENGTH_SHORT).show();
-                }else {
+                } else if(geoPackageViewModel.tableExistsInGeoPackage(geopackageName, layerName)) {
+                    Toast.makeText(getActivity(), "Layer name already exists", Toast.LENGTH_SHORT).show();
+                } else{
                     alertDialog.dismiss();
                     drawTileBoundingBox(geopackageName, layerName, layerUrl);
                 }

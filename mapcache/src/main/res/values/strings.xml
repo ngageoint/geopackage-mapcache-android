@@ -286,6 +286,8 @@
     <string name="nav_bar_map">Map</string>
     <string name="hint_name">Name</string>
     <string name="hint_url">URL</string>
+    <string name="hint_tile_url">Tile Server URL</string>
+
     <string name="example_geopackages"><font color='#009688'>Example GeoPackages</font></string>
     <string name="err_msg_invalid">is not valid</string>
     <string name="no_packages_text">No GeoPackage files found</string>
@@ -294,6 +296,35 @@
     <string name="geopackage_detail_page">GeoPackage Detail</string>
     <string name="layer_detail_page">Layer Detail</string>
     <string name="max_features_message">The amount of features in the selected active layers exceeds the max features setting.  Some items will not be drawn on the map.\n\nUpdate the Max Features setting in the edit icon on the map if needed.</string>
+    <string name="default_tile_url">http://osm.geointservices.io/osm_tiles/{z}/{x}/{y}.png</string>
+    <string name="draw_layer_instruction">Tap and drag to draw a bounding box.  You can drag again to redraw.</string>
+    <string name="draw_layer_continue">Continue</string>
+    <string-array name="zoom_levels">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>21</item>
+    </string-array>
+
+
 
     <!--preferences-->
     <string name="dark_map_key">dark_map</string>

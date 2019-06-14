@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- logo and title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="16dp">
+        <ImageView
+            android:id="@+id/final_layer_close_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/ic_clear_grey_800_24dp" />
+        <TextView
+            android:id="@+id/final_layer_title"
+            style="@style/Base.TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/alert_logo"
+            android:layout_marginLeft="16dp"
+            android:layout_toRightOf="@+id/alert_logo"
+            android:text="Create Tile Layer" />
+    </LinearLayout>
+
+
+    <!--Name and tile url-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_marginLeft="16dp">-->
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@color/grey_blue_secondary"-->
+            <!--android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
+            <!--android:text="GeoPackage"/>-->
+        <!--<TextView-->
+            <!--android:id="@+id/final_geo_name"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:paddingTop="4dp"-->
+            <!--android:textAppearance="@style/textAppearanceBody1MediumDarkBlue"-->
+            <!--android:text="geopackage"/>-->
+    <!--</LinearLayout>-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:layout_marginLeft="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:textColor="@color/grey_blue_secondary"
+            android:text="Layer Name"/>
+        <TextView
+            android:id="@+id/final_tile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/textAppearanceBody1MediumDarkBlue"
+            android:text="Name"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_blue_secondary"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Tile URL"/>
+        <TextView
+            android:id="@+id/final_tile_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/textAppearanceBody1MediumDarkBlue"
+            android:maxLines="3"
+            android:text="URL"/>
+    </LinearLayout>
+
+
+    <!--Min zoom spinner-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_blue_secondary"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Min Zoom Level"/>
+        <Spinner
+            android:id="@+id/min_zoom_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+    <!--Min zoom spinner-->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_blue_secondary"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Max Zoom Level"/>
+        <Spinner
+            android:id="@+id/max_zoom_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+    <!--Finish button-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/create_tile_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_margin="16dp"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+        android:text="Create Layer"
+        android:textAlignment="center">
+
+    </com.google.android.material.button.MaterialButton>
+
+</LinearLayout>

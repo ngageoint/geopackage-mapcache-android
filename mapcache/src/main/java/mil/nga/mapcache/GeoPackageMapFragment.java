@@ -10,7 +10,9 @@ import android.provider.Settings;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.Fragment;
@@ -51,6 +53,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -1340,7 +1343,11 @@ public class GeoPackageMapFragment extends Fragment implements
         layerFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                newLayerWizard();
+//                newLayerWizard();
+                String geoName = detailPageAdapter.getGeoPackageName();
+                if(geoName != null) {
+                    newTileLayerWizard(geoName);
+                }
             }
         });
     }
@@ -1804,6 +1811,203 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                 });
         dialog.show();
+    }
+
+
+    /**
+     * Launches a wizard to create a new tile layer in the given geopackage
+     * @param geopackageName
+     */
+    private void newTileLayerWizard(final String geopackageName){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View alertView = inflater.inflate(R.layout.new_tile_layer_wizard, null);
+        // Logo and title
+        ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
+        closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+        TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
+        titleText.setText("Create Tile Layer");
+
+        // Name and url
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.new_tile_name_text);
+        final TextInputEditText inputUrl = (TextInputEditText) alertView.findViewById(R.id.new_tile_url);
+        inputUrl.setText(R.string.default_tile_url);
+        final MaterialButton drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
+
+        // Open the dialog
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(alertView);
+        final AlertDialog alertDialog = dialog.create();
+
+        // Click listener for close button
+        closeLogo.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        // Listener for the draw button
+        drawButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                String layerName = inputName.getText().toString();
+                String layerUrl = inputUrl.getText().toString();
+                if(layerName.isEmpty() || layerName.trim().length() == 0){
+                    Toast.makeText(getActivity(), "Layer name must not be blank", Toast.LENGTH_SHORT).show();
+                } else if(layerUrl.isEmpty() || layerUrl.trim().length() == 0) {
+                    Toast.makeText(getActivity(), "URL must not be blank", Toast.LENGTH_SHORT).show();
+                }else {
+                    alertDialog.dismiss();
+                    drawTileBoundingBox(geopackageName, layerName, layerUrl);
+                }
+            }
+        });
+
+        alertDialog.show();
+    }
+
+
+    /**
+     * Show a message for the user to draw a bounding box on the map.  use results to create a tile layer
+     * @param geopackageName geopackage name for the new layer
+     * @param layerName name of the new layer
+     * @param url url to get the tiles from
+     */
+    private void drawTileBoundingBox(String geopackageName, String layerName, String url){
+        layerFab.hide();
+        // shrink bottom sheet
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
+        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
+        // show message for how to draw the box
+        final Snackbar snackBar = Snackbar.make(view, R.string.draw_layer_instruction, Snackbar.LENGTH_INDEFINITE);
+        snackBar.setAction(R.string.draw_layer_continue, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (boundingBox == null) {
+                    Toast toast = Toast.makeText(getActivity(), "You must draw a bounding box first", Toast.LENGTH_LONG);
+                    toast.show();
+                    boundingBoxMode = false;
+                } else {
+                    boundingBoxMode = false;
+                    // continue to create layer
+                    createTileFinal(geopackageName, layerName, url);
+                }
+                layerFab.show();
+            }
+        });
+        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout)snackBar.getView();
+        layout.setMinimumHeight(300);
+        snackBar.show();
+
+        // Draw the box
+        boundingBoxMode = true;
+    }
+
+
+    /**
+     * Final step for creating a tile layer after the bounding box has been drawn
+     * @param geopackageName geopackage name for the new layer
+     * @param layerName name of the new layer
+     * @param url url to get the tiles from
+     */
+    private void createTileFinal(String geopackageName, String layerName, String url){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        View tileView = inflater.inflate(R.layout.new_tile_layer_final, null);
+        ImageView closeLogo = (ImageView) tileView.findViewById(R.id.final_layer_close_logo);
+
+        // Set the spinner values for zoom levels
+        Spinner minSpinner = (Spinner)tileView.findViewById(R.id.min_zoom_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.zoom_levels, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        minSpinner.setAdapter(adapter);
+        Spinner maxSpinner = (Spinner)tileView.findViewById(R.id.max_zoom_spinner);
+        ArrayAdapter<CharSequence> maxAdapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.zoom_levels, android.R.layout.simple_spinner_item);
+        maxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        maxSpinner.setAdapter(maxAdapter);
+        maxSpinner.setSelection(maxAdapter.getPosition("5"));
+
+        // Name and url
+//        TextView finalGeoName = (TextView) tileView.findViewById(R.id.final_geo_name);
+//        finalGeoName.setText(geopackageName);
+        TextView finalName = (TextView) tileView.findViewById(R.id.final_tile_name);
+        finalName.setText(layerName);
+        TextView finalUrl = (TextView) tileView.findViewById(R.id.final_tile_url);
+        finalUrl.setText(url);
+
+        // finish button
+        final MaterialButton drawButton = (MaterialButton) tileView.findViewById(R.id.create_tile_button);
+
+        // Open the dialog
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setView(tileView);
+        final AlertDialog alertDialog = dialog.create();
+
+        // Click listener for close button
+        closeLogo.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+                clearBoundingBox();
+
+            }
+        });
+
+        // Click listener for finish button
+        drawButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                try{
+                // Get values ready for creating the layer
+                long epsg = 3857;
+                int minZoom = Integer.valueOf(minSpinner.getSelectedItem().toString());
+                int maxZoom = Integer.valueOf(maxSpinner.getSelectedItem().toString());
+                CompressFormat compressFormat = null;
+                Integer compressQuality = 100;
+                boolean googleTiles = false;
+                TileScaling scaling = null;
+                double minLat = 90.0;
+                double minLon = 180.0;
+                double maxLat = -90.0;
+                double maxLon = -180.0;
+                for (LatLng point : boundingBox.getPoints()) {
+                    minLat = Math.min(minLat, point.latitude);
+                    minLon = Math.min(minLon, point.longitude);
+                    maxLat = Math.max(maxLat, point.latitude);
+                    maxLon = Math.max(maxLon, point.longitude);
+                }
+                BoundingBox boundingBox = new BoundingBox(minLon,
+                        minLat, maxLon, maxLat);
+
+
+                // Load tiles
+                LoadTilesTask.loadTiles(getActivity(),
+                        GeoPackageMapFragment.this, active,
+                        geopackageName, layerName, url, minZoom,
+                        maxZoom, compressFormat,
+                        compressQuality, googleTiles,
+                        boundingBox, scaling,
+                        ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
+                geoPackageViewModel.regenerateGeoPackageTableList();
+
+                } catch (Exception e) {
+                    GeoPackageUtils
+                            .showMessage(
+                                    getActivity(),
+                                    getString(R.string.geopackage_create_tiles_label),
+                                    "Error creating tile layer: \n\n" + e.getMessage());
+                }
+                alertDialog.dismiss();
+                clearBoundingBox();
+
+            }
+        });
+        alertDialog.show();
     }
 
 

@@ -67,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
-        android:text="Tiles"
+        android:text="Tile layers"
         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
 
@@ -76,7 +76,7 @@
         android:id="@+id/header_text_features"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Features"
+        android:text="Feature layers"
         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
 

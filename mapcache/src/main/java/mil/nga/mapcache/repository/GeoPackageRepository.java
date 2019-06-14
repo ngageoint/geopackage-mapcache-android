@@ -123,6 +123,14 @@ public class GeoPackageRepository {
     }
 
     /**
+     * Returns true of the given table name exists in the given geopackage name
+     */
+    public boolean tableExistsInGeoPackage(String geoName, String tableName){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        return currentGeos.exists(geoName, tableName);
+    }
+
+    /**
      * Finds the given database in the stored list and sets the size field
      * @param databaseName - name of the geopackage to find
      * @param size - size of the geopackage in string format

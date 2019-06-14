@@ -147,6 +147,13 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return count;
     }
 
+    /**
+     * Returns true if the given table name exists in the given geopackage name
+     */
+    public boolean tableExistsInGeoPackage(String geoName, String tableName){
+        return repository.tableExistsInGeoPackage(geoName, tableName);
+    }
+
 
 
 

@@ -138,6 +138,22 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Searches all table types to find out if a table exists in a geopackage
+     */
+    public boolean exists(String database, String table){
+        if(exists(database, table, GeoPackageTableType.FEATURE)){
+            return true;
+        }
+        if(exists(database, table, GeoPackageTableType.TILE)){
+            return true;
+        }
+        if(exists(database, table, GeoPackageTableType.FEATURE_OVERLAY)){
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Get feature overlays for the database
      *
      * @param databaseName

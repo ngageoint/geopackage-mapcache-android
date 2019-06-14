@@ -3616,6 +3616,9 @@ public class GeoPackageMapFragment extends Fragment implements
                                     editor.putInt(MAX_FEATURES_KEY, maxFeature);
                                     editor.commit();
                                     updateInBackground(false, true);
+                                    if(maxFeature > 10000){
+                                        maxFeatureWarning(maxFeature);
+                                    }
                                 }
                             }
                         })
@@ -3627,7 +3630,39 @@ public class GeoPackageMapFragment extends Fragment implements
                             }
                         });
 
-        dialog.show();
+        AlertDialog alert = dialog.create();
+
+        // Listener to make sure there's always a value in the input before submitting
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                int length = charSequence.length();
+                alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(length > 0);
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        alert.show();
+    }
+
+    /**
+     * Makes a warning popup to alert the user that the max features setting is high
+     */
+    public void maxFeatureWarning(int setting){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.max_feature_size_warning)
+                .setTitle("Warning")
+                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        // Create the AlertDialog object and return it
+        builder.show();
     }
 
     /**

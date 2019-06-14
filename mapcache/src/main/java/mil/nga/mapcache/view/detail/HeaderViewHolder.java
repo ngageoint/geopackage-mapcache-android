@@ -115,8 +115,8 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
             header = (DetailPageHeaderObject) data;
             textName.setText(header.getGeopackageName());
             textSize.setText(header.getSize());
-            textFeatures.setText(pluralize(header.getFeatureCount(), "Feature"));
-            textTiles.setText(pluralize(header.getTileCount(), "Tile"));
+            textFeatures.setText(pluralize(header.getFeatureCount(), "Feature layer"));
+            textTiles.setText(pluralize(header.getTileCount(), "Tile layer"));
             setCheckedStatus(header.isAllActive());
         } else{
             textName.setText("No header text given");

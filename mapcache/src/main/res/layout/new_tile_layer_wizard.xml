@@ -75,7 +75,7 @@
             android:layout_marginBottom="16dp"
             android:textColor="@color/nga_primary_light"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:text="Use default OSM server" />
+            android:text="Load default OSM URL" />
 
         <!-- continue button -->
         <com.google.android.material.button.MaterialButton

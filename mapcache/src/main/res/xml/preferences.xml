@@ -20,6 +20,13 @@
             android:title="Show max features warning"
             android:defaultValue="true"
             android:key="max_features_warning" />
+
+        <EditTextPreference
+            android:title="Configure default tile server URL"
+            android:summary="Used when creating tile layers"
+            android:defaultValue="@string/default_tile_url"
+            android:key="default_tile_url" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

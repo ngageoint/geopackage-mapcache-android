@@ -86,18 +86,22 @@
         android:text="Example GeoPackages" />
 
 
-    <!--<TextView-->
-        <!--android:id="@+id/import_url_web1"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="10dp"-->
-        <!--android:text="@string/preloaded_ogc_examples" />-->
-    <!--<TextView-->
-        <!--android:id="@+id/import_url_web2"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="10dp"-->
-        <!--android:text="@string/preloaded_nga_examples"/>-->
+    <TextView
+        android:id="@+id/import_url_web1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        style="@style/textAppearanceSubtitle2_light_heavy"
+        android:textColor="@color/nga_primary_light"
+        android:text="@string/preloaded_ogc_examples" />
+    <TextView
+        android:id="@+id/import_url_web2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        style="@style/textAppearanceSubtitle2_light_heavy"
+        android:textColor="@color/nga_primary_light"
+        android:text="@string/preloaded_nga_examples"/>
 
     <!--<LinearLayout-->
         <!--android:layout_width="match_parent"-->

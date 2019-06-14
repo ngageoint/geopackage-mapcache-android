@@ -65,6 +65,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -187,6 +188,7 @@ import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.DetailActionListener;
+import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.view.GeoPackageViewAdapter;
@@ -1943,6 +1945,16 @@ public class GeoPackageMapFragment extends Fragment implements
         // finish button
         final MaterialButton drawButton = (MaterialButton) tileView.findViewById(R.id.create_tile_button);
 
+        // Advanced options
+        ImageButton advancedExpand = (ImageButton) tileView.findViewById(R.id.advanced_expand_button);
+        View advancedView = (View)tileView.findViewById(R.id.advanceLayout);
+        advancedExpand.setOnClickListener((view)->{
+            toggleSection(advancedExpand, advancedView);
+        });
+        RadioGroup srsGroup = (RadioGroup) tileView.findViewById(R.id.srsGroup);
+        RadioGroup tileFormatGroup = (RadioGroup) tileView.findViewById(R.id.tileFormatGroup);
+
+
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(tileView);
@@ -1965,12 +1977,18 @@ public class GeoPackageMapFragment extends Fragment implements
 
                 try{
                 // Get values ready for creating the layer
-                long epsg = 3857;
+                RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
+                long epsg = Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString());
+                RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
+                String tileFormat = selectedFormat.getText().toString();
+                boolean googleTiles = false;
+                if(tileFormat.equalsIgnoreCase("google")){
+                    googleTiles = true;
+                }
                 int minZoom = Integer.valueOf(minSpinner.getSelectedItem().toString());
                 int maxZoom = Integer.valueOf(maxSpinner.getSelectedItem().toString());
                 CompressFormat compressFormat = null;
                 Integer compressQuality = 100;
-                boolean googleTiles = false;
                 TileScaling scaling = null;
                 double minLat = 90.0;
                 double minLon = 180.0;
@@ -2009,6 +2027,34 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
         alertDialog.show();
+    }
+
+
+    /**
+     * Toggle for showing / hiding a view (used in the advanced section of create tile menu)
+     * @param bt
+     * @param lyt
+     */
+    private void toggleSection(View bt, final View lyt) {
+        boolean show = toggleArrow(bt);
+        if (show) {
+            ViewAnimation.expand(lyt, new ViewAnimation.AnimListener() {
+                @Override
+                public void onFinish() {
+                }
+            });
+        } else {
+            ViewAnimation.collapse(lyt);
+        }
+    }
+    public boolean toggleArrow(View view) {
+        if (view.getRotation() == 0) {
+            view.animate().setDuration(200).rotation(180);
+            return true;
+        } else {
+            view.animate().setDuration(200).rotation(0);
+            return false;
+        }
     }
 
 

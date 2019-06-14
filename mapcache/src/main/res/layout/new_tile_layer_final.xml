@@ -54,7 +54,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingTop="8dp"
-        android:layout_marginLeft="16dp">
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -74,6 +75,7 @@
         android:orientation="vertical"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginRight="16dp"
         android:layout_marginLeft="16dp">
         <TextView
             android:layout_width="wrap_content"
@@ -91,45 +93,141 @@
     </LinearLayout>
 
 
-    <!--Min zoom spinner-->
+    <!--Min and max zoom-->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_margin="16dp">
-        <TextView
+
+        <!--Min zoom spinner-->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_blue_secondary"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:text="Min Zoom Level"/>
-        <Spinner
-            android:id="@+id/min_zoom_spinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:orientation="vertical"
+            android:layout_marginRight="32dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey_blue_secondary"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:text="Min Zoom Level"/>
+            <Spinner
+                android:id="@+id/min_zoom_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!--Max zoom spinner-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey_blue_secondary"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:text="Max Zoom Level"/>
+            <Spinner
+                android:id="@+id/max_zoom_spinner"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
     </LinearLayout>
 
-
-    <!--Min zoom spinner-->
+    <!--Advanced options expansion panel-->
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="16dp"
+        android:layout_marginLeft="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Advanced options"
+            android:textColor="@color/grey_blue_secondary"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
+
+        <ImageButton
+            android:id="@+id/advanced_expand_button"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_keyboard_arrow_down_black_24dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/advanceLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp">
+        android:paddingTop="16dp"
+        android:visibility="gone">
+
+        <!--SRS-->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/grey_blue_secondary"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:text="Max Zoom Level"/>
-        <Spinner
-            android:id="@+id/max_zoom_spinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:text="Spatial Reference System"/>
+        <RadioGroup
+            android:id="@+id/srsGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/srs3857"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+            <RadioButton
+                android:id="@+id/srs3857"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="32dp"
+                android:text="EPSG 3857"/>
+            <RadioButton
+                android:id="@+id/srs4326"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EPSG 4326"/>
+        </RadioGroup>
 
+        <!--Tile format-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/grey_blue_secondary"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Tile Format"/>
+        <RadioGroup
+            android:id="@+id/tileFormatGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/google"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/google"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="32dp"
+                android:text="Standard"/>
+            <RadioButton
+                android:id="@+id/geopackage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GeoPackage"/>
+        </RadioGroup>
+
+    </LinearLayout>
 
     <!--Finish button-->
     <com.google.android.material.button.MaterialButton

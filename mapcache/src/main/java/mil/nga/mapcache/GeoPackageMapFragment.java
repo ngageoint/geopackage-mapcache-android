@@ -1835,7 +1835,10 @@ public class GeoPackageMapFragment extends Fragment implements
         // Name and url
         final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.new_tile_name_text);
         final TextInputEditText inputUrl = (TextInputEditText) alertView.findViewById(R.id.new_tile_url);
-        inputUrl.setText(R.string.default_tile_url);
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        String defaultTileUrl = settings.getString("default_tile_url", getResources().getString(R.string.default_tile_url));
+        inputUrl.setText(defaultTileUrl);
         final MaterialButton drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
 
         // Default url

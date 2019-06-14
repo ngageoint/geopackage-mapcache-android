@@ -94,6 +94,7 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 
 import org.locationtech.proj4j.units.Units;
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -1836,6 +1837,15 @@ public class GeoPackageMapFragment extends Fragment implements
         final TextInputEditText inputUrl = (TextInputEditText) alertView.findViewById(R.id.new_tile_url);
         inputUrl.setText(R.string.default_tile_url);
         final MaterialButton drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
+
+        // Default url
+        TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
+        defaultText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                inputUrl.setText(R.string.default_tile_url);
+            }
+        });
 
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)

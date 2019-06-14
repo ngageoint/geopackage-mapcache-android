@@ -65,6 +65,18 @@
                 android:hint="@string/hint_tile_url" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:id="@+id/default_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/draw_tile_box_button"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/nga_primary_light"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Use default OSM server" />
+
         <!-- continue button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/draw_tile_box_button"

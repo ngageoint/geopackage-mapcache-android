@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:textAppearance="@style/textAppearanceSubtitle2_light"
-                android:text="App Version 2.0.0"/>
+                android:text="@string/app_version"/>
 
             <TextView
                 android:id="@+id/mapcache_release_date"
@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:textAppearance="@style/textAppearanceSubtitle2_light"
-                android:text="Released April 2019"/>
+                android:text="@string/app_release_date"/>
         </LinearLayout>
     </LinearLayout>
 

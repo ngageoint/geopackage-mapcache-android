@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
+    <string name="app_version">Version 2.0.1</string>
+    <string name="app_release_date">Released June 2019</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>

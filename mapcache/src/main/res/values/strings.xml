@@ -341,7 +341,7 @@
     <string name="mapcache_github_url">&lt;a href=https://github.com/ngageoint/geopackage-mapcache-android>MapCache on GitHub&lt;/a></string>
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
-    <string name="release_notes">Release Notes:\n \t - Added Matomo for metrics\n\t - Added release notes section</string>
+    <string name="release_notes">Release Notes:\n \t - Added Matomo for metrics\n\t - Added release notes section\n\t - Fix about page scrolling</string>
 
 
     <!--disclaimer-->

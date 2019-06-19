@@ -4,18 +4,26 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.FragmentTransaction;
+
+import android.app.Application;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.Settings;
 import android.view.MenuItem;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
+import org.matomo.sdk.Matomo;
+import org.matomo.sdk.Tracker;
+import org.matomo.sdk.TrackerBuilder;
+import org.matomo.sdk.extra.MatomoApplication;
+import org.matomo.sdk.extra.TrackHelper;
+
 import mil.nga.mapcache.io.MapCacheFileUtils;
-import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
  * Main Activity
@@ -89,14 +97,11 @@ public class MainActivity extends AppCompatActivity { //,
      */
 //    private GeoPackageManagerFragment managerFragment;
 
-    private GeoPackageViewModel geoPackageViewModel;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        geoPackageViewModel = ViewModelProviders.of(this).get(GeoPackageViewModel.class);
 
         // Set the content view
         setContentView(R.layout.activity_main);
@@ -159,6 +164,21 @@ public class MainActivity extends AppCompatActivity { //,
         if (uri != null) {
             handleIntentUri(uri, intent);
         }
+
+        /**
+         * Use Matomo to track when users open the app
+         */
+        String siteUrl = getString(R.string.matomo_url);
+        int siteId = getResources().getInteger(R.integer.matomo_site_id);
+        String userId = Settings.Secure.getString(getBaseContext().getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+        Tracker matomoTracker = TrackerBuilder.createDefault(siteUrl,
+                siteId).build(Matomo.getInstance(getApplicationContext()));
+        matomoTracker.setUserId(userId);
+        TrackHelper.track().screen("/Main Activity").title("App Opened").dimension(1, BuildConfig.VERSION_NAME).dimension(2, String.valueOf(BuildConfig.VERSION_CODE)).with(matomoTracker);
+        // Depricated
+//        TrackHelper.track().screen("/Main Activity").title("App Opened").variable(1,
+//                "VersionName", BuildConfig.VERSION_NAME).variable(2, "VersionCode", String.valueOf(BuildConfig.VERSION_CODE)).with(matomoTracker);
     }
 
 

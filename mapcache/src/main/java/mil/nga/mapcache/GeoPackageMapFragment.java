@@ -1623,7 +1623,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)
-                .setPositiveButton(getString(R.string.button_ok_label),
+                .setPositiveButton(getString(R.string.button_create_label),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
@@ -1646,7 +1646,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 }
                             }
                         })
-                .setNegativeButton(getString(R.string.button_cancel_label),
+                .setNegativeButton(getString(R.string.button_discard_label),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {
@@ -3603,7 +3603,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)
-                .setPositiveButton(getString(R.string.button_ok_label),
+                .setPositiveButton(getString(R.string.button_save_label),
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int whichButton) {

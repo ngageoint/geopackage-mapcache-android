@@ -202,7 +202,11 @@
     <string name="edit_features_shape_add_points_label">Add Points</string>
     <string name="edit_features_shape_add_hole_label">Add Hole</string>
     <string name="button_ok_label">OK</string>
+    <string name="button_create_label">Create</string>
+    <string name="button_discard_label">Discard</string>
     <string name="button_cancel_label">Cancel</string>
+    <string name="button_save_label">Save</string>
+
 
     <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>
     <string name="preloaded_nga_examples"><a href="http://github.com/ngageoint/GeoPackage/tree/master/docs/examples">NGA Sample Data</a></string>

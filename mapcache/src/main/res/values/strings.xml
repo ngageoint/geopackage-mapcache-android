@@ -334,7 +334,7 @@
     <string name="maxFeatureWarningPref">maxFeatureWarningPref</string>
 
     <!--matomo-->
-    <string name="matomo_url">https://gasmetrics.nga.mil/piwik/matomo.php</string>
+    <string name="matomo_url">https://gasmetrics.nga.mil/piwik/</string>
 
     <!--about page-->
     <string name="about_mapcache">The GeoPackage MapCache app was developed as part of the GeoPackage Libraries by the National Geospatial-Intelligence Agency (NGA) in collaboration with BIT Systems.\n\nGeoPackage MapCache is an app for Android that utilizes and demonstrates the functionality in GeoPackage Android. The GeoPackage SDK is an Android library implementation of the Open Geospatial Consortium GeoPackage spec. The app and SDK are listed as OGC GeoPackage Implementations by the National Geospatial-Intelligence Agency.\n\nThe MapCache app provides read and write access to GeoPackage files, including features and tiles. Features are visualized and editable on the map. Tiles are visualized on the map and can be loaded from a tile provider or WMS url.</string>

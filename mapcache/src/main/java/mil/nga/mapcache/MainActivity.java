@@ -1,5 +1,6 @@
 package mil.nga.mapcache;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.fragment.app.FragmentManager;
 import androidx.appcompat.app.ActionBar;
@@ -17,11 +18,17 @@ import android.view.MenuItem;
 
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
-import org.matomo.sdk.Matomo;
-import org.matomo.sdk.Tracker;
-import org.matomo.sdk.TrackerBuilder;
-import org.matomo.sdk.extra.MatomoApplication;
-import org.matomo.sdk.extra.TrackHelper;
+//import org.matomo.sdk.Matomo;
+//import org.matomo.sdk.TrackMe;
+//import org.matomo.sdk.Tracker;
+//import org.matomo.sdk.TrackerBuilder;
+//import org.matomo.sdk.extra.MatomoApplication;
+//import org.matomo.sdk.extra.TrackHelper;
+
+import org.piwik.sdk.Piwik;
+import org.piwik.sdk.Tracker;
+import org.piwik.sdk.TrackerConfig;
+import org.piwik.sdk.extra.TrackHelper;
 
 import mil.nga.mapcache.io.MapCacheFileUtils;
 
@@ -170,15 +177,12 @@ public class MainActivity extends AppCompatActivity { //,
          */
         String siteUrl = getString(R.string.matomo_url);
         int siteId = getResources().getInteger(R.integer.matomo_site_id);
-        String userId = Settings.Secure.getString(getBaseContext().getContentResolver(),
+        Tracker piwik = Piwik.getInstance(getApplicationContext()).newTracker(new TrackerConfig(siteUrl, siteId, "MapCacheTracker"));
+        String androidId = Settings.Secure.getString(getBaseContext().getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-        Tracker matomoTracker = TrackerBuilder.createDefault(siteUrl,
-                siteId).build(Matomo.getInstance(getApplicationContext()));
-        matomoTracker.setUserId(userId);
-        TrackHelper.track().screen("/Main Activity").title("App Opened").dimension(1, BuildConfig.VERSION_NAME).dimension(2, String.valueOf(BuildConfig.VERSION_CODE)).with(matomoTracker);
-        // Depricated
-//        TrackHelper.track().screen("/Main Activity").title("App Opened").variable(1,
-//                "VersionName", BuildConfig.VERSION_NAME).variable(2, "VersionCode", String.valueOf(BuildConfig.VERSION_CODE)).with(matomoTracker);
+        TrackHelper.track().screen("/Main Activity").title("App Opened").with(piwik);
+        piwik.dispatch();
+
     }
 
 

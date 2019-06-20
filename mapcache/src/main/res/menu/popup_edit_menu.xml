@@ -6,13 +6,13 @@
 
     <item
         android:id="@+id/zoomToActive"
-        android:title="Zoom to Active"
+        android:title="Zoom to active"
         android:icon="@drawable/ic_aspect_ratio_black_24dp"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/features"
-        android:title="Edit Features"
+        android:title="Edit features"
         android:icon="@drawable/material_feature"
         android:visible="false"
         app:showAsAction="never"
@@ -20,7 +20,7 @@
 
     <item
         android:id="@+id/boundingBox"
-        android:title="Load Tiles"
+        android:title="Load tiles"
         android:icon="@drawable/ic_collections_black_24dp"
         android:visible="false"
 
@@ -28,13 +28,19 @@
 
     <item
         android:id="@+id/maxFeatures"
-        android:title="Set Max Features"
+        android:title="Set max features"
         android:icon="@drawable/ic_remove_red_eye_black_24dp"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/clearAllActive"
-        android:title="Clear All Active"
+        android:title="Clear all active"
         android:icon="@drawable/ic_layers_clear_black_24dp"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/showMyLocation"
+        android:title="Show my location"
+        android:icon="@drawable/ic_my_location_black_24dp"
         app:showAsAction="never"/>
 </menu>

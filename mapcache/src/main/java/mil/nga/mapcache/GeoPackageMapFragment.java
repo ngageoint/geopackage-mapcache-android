@@ -5,10 +5,17 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.provider.Settings;
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -670,6 +677,17 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private boolean displayMaxFeatureWarning = true;
 
+    /**
+     * Location provider for getting current location
+     */
+    private FusedLocationProviderClient fusedLocationClient;
+
+    /**
+     * Menu item in the edit features popup for show/hide location
+     */
+    private MenuItem showHideOption;
+
+
 
     /**
      * Constructor
@@ -715,6 +733,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Set listeners for icons on map
         setIconListeners();
+
+        // Set up loaciton provider
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
         // Util class for launching dialogs when clicking buttons on GeoPackage detail page
         detailButtonUtil = new DetailActionUtil(getActivity());
@@ -1252,6 +1273,15 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
+
+        // Set text for show/hide my location based on current visibility
+        showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
+        if(visible){
+            showHideOption.setTitle("Hide my location");
+        } else{
+            showHideOption.setTitle("Show my location");
+        }
+
         int totalFeatures = active.getAllFeaturesCount();
         if(totalFeatures == 0){
             MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
@@ -1299,6 +1329,9 @@ public class GeoPackageMapFragment extends Fragment implements
                         clearAllActive();
                         return true;
 
+                    case R.id.showMyLocation:
+                        showMyLocation();
+                        return true;
                 }
 
                 return true;
@@ -1325,6 +1358,28 @@ public class GeoPackageMapFragment extends Fragment implements
     public void zoomOut(){
         if (map == null) return;
         map.animateCamera(CameraUpdateFactory.zoomOut());
+    }
+
+    /**
+     * Toggles the "show my location" setting.  Turns the location on / off, then zooms
+     */
+    private void showMyLocation(){
+        onHiddenChanged(visible);
+        zoomToMyLocation();
+    }
+
+    /**
+     * Gets current location from fused location provider and zooms to that location
+     */
+    private void zoomToMyLocation(){
+        fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
+                }
+            }
+        });
     }
 
 
@@ -3308,6 +3363,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (map != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.setMyLocationEnabled(visible);
             updated = true;
+            map.getUiSettings().setMyLocationButtonEnabled(false);
         }
         return updated;
     }

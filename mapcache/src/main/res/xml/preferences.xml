@@ -28,6 +28,8 @@
         <EditTextPreference
             android:title="Configure default tile server URL"
             android:summary="Used when creating tile layers"
+            android:positiveButtonText="Save"
+            android:negativeButtonText="Discard"
             android:defaultValue="@string/default_tile_url"
             android:key="default_tile_url" />
 

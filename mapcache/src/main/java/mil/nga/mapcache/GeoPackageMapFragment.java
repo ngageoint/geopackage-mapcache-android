@@ -2699,7 +2699,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Keep track of the current zoom level
         String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
-        int zoom = (int) MapUtils.getCurrentZoom(map);
+        float zoom = MapUtils.getCurrentZoom(map);
 
         zoomLevelText.setText("Zoom Level " + zoom);
         map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {

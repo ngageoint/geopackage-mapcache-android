@@ -407,6 +407,8 @@ public class GeoPackageRepository {
                                         tableName, count);
                                 table.setDescription("An image layer with " + count + " tiles");
                                 table.setActive(active.getValue().exists(table));
+                                ((GeoPackageTileTable) table).setMaxZoom(tileDao.getMaxZoom());
+                                ((GeoPackageTileTable) table).setMinZoom(tileDao.getMinZoom());
                                 tables.add(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());

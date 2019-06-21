@@ -19,7 +19,7 @@
     </padding>
 
     <solid
-        android:color="@color/nga_primary_bright_partial"/>
+        android:color="@color/white"/>
 
 
 </shape>

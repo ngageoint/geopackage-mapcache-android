@@ -1383,6 +1383,13 @@ public class GeoPackageMapFragment extends Fragment implements
      * Gets current location from fused location provider and zooms to that location
      */
     private void zoomToMyLocation(){
+
+        // Verify permissions first
+        if ( ContextCompat.checkSelfPermission( getContext(), Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions( getActivity(), new String[] {  Manifest.permission.ACCESS_FINE_LOCATION  },
+                    MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+
         fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {

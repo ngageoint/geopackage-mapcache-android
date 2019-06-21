@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -1971,28 +1972,42 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // show message for how to draw the box
         final Snackbar snackBar = Snackbar.make(view, R.string.draw_layer_instruction, Snackbar.LENGTH_INDEFINITE);
-        snackBar.setAction(R.string.draw_layer_continue, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (boundingBox == null) {
-                    Toast toast = Toast.makeText(getActivity(), "You must draw a bounding box first", Toast.LENGTH_LONG);
-                    toast.show();
-                    boundingBoxMode = false;
-                    setZoomLevelVisible(false);
 
-                } else {
-                    boundingBoxMode = false;
-                    setZoomLevelVisible(false);
-                    // continue to create layer
-                    createTileFinal(geopackageName, layerName, url);
-                }
-                layerFab.show();
+        // Snackbar click listeners close by default every time.  Instead, give an empty click listener
+        // and use a callback to determine if they've drawn a bounding box first
+        snackBar.setAction("Continue", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {}
+        });
+        snackBar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            @Override
+            public void onShown(Snackbar transientBottomBar) {
+                super.onShown(transientBottomBar);
+
+                transientBottomBar.getView().findViewById(R.id.snackbar_action).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (boundingBox == null) {
+                            // If they didn't draw a bounding box, don't let the snackbar close
+                            Toast toast = Toast.makeText(getActivity(), "You must draw a bounding box first", Toast.LENGTH_SHORT);
+                            toast.getView().setBackgroundResource(R.drawable.rounded_rectangle_background);
+                            toast.show();
+                        } else {
+                            boundingBoxMode = false;
+                            setZoomLevelVisible(false);
+                            snackBar.dismiss();
+                            layerFab.show();
+                            // continue to create layer
+                            createTileFinal(geopackageName, layerName, url);
+                        }
+                    }
+                });
             }
         });
+
         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout)snackBar.getView();
         layout.setMinimumHeight(300);
         snackBar.show();
-
         // Draw the box
         boundingBoxMode = true;
     }

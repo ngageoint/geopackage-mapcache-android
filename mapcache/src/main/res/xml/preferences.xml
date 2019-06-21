@@ -13,6 +13,10 @@
             app:title="Show one touch zoom icons"/>
 
         <SwitchPreferenceCompat
+            app:key="@string/zoom_level_key"
+            app:title="Show current zoom level"/>
+
+        <SwitchPreferenceCompat
             app:key="@string/dark_map_key"
             app:title="Use dark map"/>
 

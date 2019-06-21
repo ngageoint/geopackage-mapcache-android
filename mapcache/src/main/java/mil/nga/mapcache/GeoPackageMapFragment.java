@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
@@ -240,6 +241,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Key for zoom icons being visible from shared preferences
      */
     private static final String SETTINGS_ZOOM_KEY = "zoom_icons";
+
+    /**
+     * Key for the current zoom level being visible
+     */
+    private static final String SETTINGS_ZOOM_LEVEL_KEY = "zoom_level";
 
     /**
      * Key for max features warning message
@@ -647,6 +653,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private ImageButton zoomOutButton;
 
     /**
+     * Zoom level label
+     */
+    private TextView zoomLevelText;
+
+    /**
      * Floating Action Button for creating geopackages
      */
     private FloatingActionButton fab;
@@ -774,11 +785,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getDefaultSharedPreferences(getActivity());
         boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
+        boolean zoomLevelVisible = settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
         displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
-
 
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
+        setZoomLevelVisible(zoomLevelVisible);
     }
 
 
@@ -1470,6 +1482,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 zoomIn();
             }
         });
+
+        zoomLevelText = (TextView) view.findViewById(R.id.zoomLevelText);
 
         zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
         zoomOutButton.setOnClickListener(new View.OnClickListener() {
@@ -2645,7 +2659,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getDefaultSharedPreferences(getActivity());
         int mapType = settings.getInt(MAP_TYPE_KEY, 1);
         map.setMapType(mapType);
-
         map.setOnMapLongClickListener(this);
         map.setOnMapClickListener(this);
         map.setOnMarkerClickListener(this);
@@ -2658,6 +2671,23 @@ public class GeoPackageMapFragment extends Fragment implements
             public void onMapLoaded() {
                 updateInBackground(true);
                 mapLoaded = true;
+            }
+        });
+
+        // For some reason on start, the map has zoom level set to 2.  But it's actually at 3.
+        // Just set it to 3 off the bat
+        map.moveCamera(CameraUpdateFactory.zoomTo(3));
+
+        // Keep track of the current zoom level
+        String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
+        int zoom = (int) MapUtils.getCurrentZoom(map);
+
+        zoomLevelText.setText("Zoom Level " + zoom);
+        map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
+                zoomLevelText.setText("Zoom Level " + zoomFormatted);
             }
         });
 
@@ -2690,6 +2720,17 @@ public class GeoPackageMapFragment extends Fragment implements
         } else{
             zoomInButton.setVisibility(View.INVISIBLE);
             zoomOutButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    /**
+     * Make the current zoom level visible as a text field in the top of the map
+     */
+    private void setZoomLevelVisible(boolean zoomVisible){
+        if(zoomVisible){
+            zoomLevelText.setVisibility(View.VISIBLE);
+        } else{
+            zoomLevelText.setVisibility(View.GONE);
         }
     }
 

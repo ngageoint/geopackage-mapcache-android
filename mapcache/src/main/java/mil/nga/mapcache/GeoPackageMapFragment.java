@@ -1289,8 +1289,8 @@ public class GeoPackageMapFragment extends Fragment implements
             showHideOption.setTitle("Show my location");
         }
 
-        int totalFeatures = active.getAllFeaturesCount();
-        if(totalFeatures == 0){
+        int totalFeaturesAndTiles = active.getAllFeaturesAndTilesCount();
+        if(totalFeaturesAndTiles == 0){
             MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
             zoomToActive.setEnabled(false);
         }

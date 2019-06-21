@@ -422,6 +422,27 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Get the total number of all tiles in all databases
+     */
+    public int getAllTilesCount(){
+        int totalTiles = 0;
+        for(GeoPackageDatabase db : getDatabases()){
+            totalTiles += db.getTotalTileCount();
+        }
+        return totalTiles;
+    }
+
+    /**
+     * Get the total number of featres and tiles in all databases
+     */
+    public int getAllFeaturesAndTilesCount(){
+        int totalActive = 0;
+        totalActive = getAllFeaturesCount();
+        totalActive += getAllTilesCount();
+        return totalActive;
+    }
+
+    /**
      * Get the total number of all active features in all databases
      */
     public int getAllActiveFeaturesCount(){

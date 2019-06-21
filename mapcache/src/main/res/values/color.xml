@@ -60,6 +60,9 @@
     <color name="nga_warning">#A12D0F</color>
     <color name="nga_warning_light">#E6D0CB</color>
 
+    <color name="nga_primary_bright_partial">#C4FFFFFF</color>
+
+
 
 
 </resources>

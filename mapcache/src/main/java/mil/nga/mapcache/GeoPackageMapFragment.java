@@ -1964,6 +1964,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void drawTileBoundingBox(String geopackageName, String layerName, String url){
         layerFab.hide();
+        setZoomLevelVisible(true);
         // shrink bottom sheet
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -1977,8 +1978,11 @@ public class GeoPackageMapFragment extends Fragment implements
                     Toast toast = Toast.makeText(getActivity(), "You must draw a bounding box first", Toast.LENGTH_LONG);
                     toast.show();
                     boundingBoxMode = false;
+                    setZoomLevelVisible(false);
+
                 } else {
                     boundingBoxMode = false;
+                    setZoomLevelVisible(false);
                     // continue to create layer
                     createTileFinal(geopackageName, layerName, url);
                 }

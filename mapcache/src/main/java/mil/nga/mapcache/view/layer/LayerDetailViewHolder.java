@@ -7,6 +7,8 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import androidx.recyclerview.widget.RecyclerView;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
@@ -62,6 +64,16 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     private TextView descriptionText;
 
     /**
+     * Min zoom label
+     */
+    private TextView zoomLabel;
+
+    /**
+     * Min zoom text
+     */
+    private TextView zoomText;
+
+    /**
      * Text button for deleting the layer
      */
     private TextView mLayerDelete;
@@ -107,6 +119,8 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         descriptionText = (TextView) view.findViewById(R.id.text_description);
         layerOn = (Switch) view.findViewById(R.id.enableSwitch);
         mLayerDelete = view.findViewById(R.id.layerDelete);
+        zoomLabel = view.findViewById(R.id.layerZoomLabel);
+        zoomText = view.findViewById(R.id.textMinZoom);
         mSwitchListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
         setDeleteListener();
@@ -119,7 +133,9 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     public void setData(DetailPageLayerObject layerObject){
         mLayerObject = layerObject;
         nameText.setText(mLayerObject.getName());
-        descriptionText.setText(mLayerObject.getDescription());
+        if(!mLayerObject.getDescription().isEmpty()) {
+            descriptionText.setText(mLayerObject.getDescription());
+        }
         setCheckedStatus(layerObject.isChecked());
         if(layerObject.getTable() instanceof GeoPackageFeatureTable){
             GeoPackageFeatureTable feature = (GeoPackageFeatureTable)layerObject.getTable();
@@ -133,6 +149,11 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             layerCountLbl.setText("Tiles");
             layerTypeIcon.setImageResource(R.drawable.material_tile);
             layerCountText.setText(tile.getCount() + "");
+            if(tile.getMinZoom() >= 0 && tile.getMaxZoom() >= 0) {
+                zoomLabel.setVisibility(View.VISIBLE);
+                zoomText.setVisibility(View.VISIBLE);
+                zoomText.setText(tile.getMinZoom() + "-" + tile.getMaxZoom());
+            }
         }
     }
 

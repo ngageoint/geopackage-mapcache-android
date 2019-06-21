@@ -15,6 +15,16 @@ public class GeoPackageTileTable extends GeoPackageTable implements Serializable
     private static final long serialVersionUID = 1;
 
     /**
+     * Max zoom
+     */
+    private long maxZoom = -1;
+
+    /**
+     * Min zoom
+     */
+    private long minZoom = -1;
+
+    /**
      * Create a new tile table
      *
      * @param database database name
@@ -31,4 +41,19 @@ public class GeoPackageTileTable extends GeoPackageTable implements Serializable
         return GeoPackageTableType.TILE;
     }
 
+    public long getMaxZoom() {
+        return maxZoom;
+    }
+
+    public void setMaxZoom(long maxZoom) {
+        this.maxZoom = maxZoom;
+    }
+
+    public long getMinZoom() {
+        return minZoom;
+    }
+
+    public void setMinZoom(long minZoom) {
+        this.minZoom = minZoom;
+    }
 }

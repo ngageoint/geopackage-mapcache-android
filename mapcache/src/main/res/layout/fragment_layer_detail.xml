@@ -134,6 +134,28 @@
                     android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
 
 
+                <!--Zoom levels-->
+                <TextView
+                    android:id="@+id/layerZoomLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/layerTileCount"
+                    android:paddingTop="8dp"
+                    android:textColor="@color/grey_blue_secondary"
+                    android:text="Zoom Levels"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/textMinZoom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/layerZoomLabel"
+                    android:text="n/a"
+                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue"
+                    android:visibility="gone"/>
+
+
 
                 <!--Enable / Disable switch-->
                 <TextView
@@ -160,7 +182,7 @@
                     android:id="@+id/layerDescriptionLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/layerTileCount"
+                    android:layout_below="@+id/textMinZoom"
                     android:paddingTop="8dp"
                     android:textColor="@color/grey_blue_secondary"
                     android:text="Description"
@@ -171,7 +193,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerDescriptionLabel"
-                    android:text="Layer Description"
+                    android:text="None"
                     android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
 
 

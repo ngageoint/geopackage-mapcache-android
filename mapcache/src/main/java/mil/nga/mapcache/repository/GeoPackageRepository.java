@@ -454,6 +454,8 @@ public class GeoPackageRepository {
                     databaseTables.add(tables);
                     addTablesToDatabases(tables);
 //                    geoAdapter.insertToEnd(tables);
+                    // Set the size field of the database in our stored list
+                    setGeoSize(database, manager.readableSize(database));
                 } else {
                     // On exception, check the integrity of the database and delete if not valid
                     if (!manager.validateIntegrity(database) && manager.delete(database)) {
@@ -480,8 +482,6 @@ public class GeoPackageRepository {
                         errorMessage.append(exception.getMessage());
                     }
                 }
-                // Set the size field of the database in our stored list
-                setGeoSize(database, manager.readableSize(database));
             }
         }
         // Make sure to still post the value of Geos if it's empty

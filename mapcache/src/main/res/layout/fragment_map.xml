@@ -42,63 +42,60 @@
             android:text="Zoom level"/>
     </androidx.cardview.widget.CardView>
 
-    <ImageButton
-        android:id="@+id/editFeaturesIcon"
 
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="12dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/edit_icon"
-        android:onClick="openEditMenu"/>
+        android:layout_marginTop="12dp">
 
-    <ImageButton
-        android:id="@+id/mapTypeIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="62dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/map_layers_circle"
-        android:onClick="openMapSelect"/>
+        <ImageButton
+            android:id="@+id/editFeaturesIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/edit_icon"
+            android:onClick="openEditMenu"/>
 
-    <ImageButton
-        android:id="@+id/settingsIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="112dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/settings_icon" />
+        <ImageButton
+            android:id="@+id/mapTypeIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/map_layers_circle"
+            android:onClick="openMapSelect"/>
 
-    <ImageButton
-        android:id="@+id/zoomInIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="162dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/plus_icon" />
+        <ImageButton
+            android:id="@+id/settingsIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/settings_icon" />
 
-    <ImageButton
-        android:id="@+id/zoomOutIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="212dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/minus_icon" />
+        <ImageButton
+            android:id="@+id/zoomInIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/plus_icon" />
+
+        <ImageButton
+            android:id="@+id/zoomOutIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/minus_icon" />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/mapLoadTilesButtons"

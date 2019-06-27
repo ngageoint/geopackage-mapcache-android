@@ -231,20 +231,23 @@ public class GeoPackageDatabases {
     }
 
     /**
-     * Add the given database to the list of databases.
+     * Add the given database to the list of databases.  Only if it has tables
      * @param db GeoPackageDatabase
      */
     public void addAll(GeoPackageDatabase db){
-        if(databases.containsKey(db.getDatabase())){
-            databases.remove(db.getDatabase());
-        }
+        if(db.getTableCount() > 0) {
+            if (databases.containsKey(db.getDatabase())) {
+                databases.remove(db.getDatabase());
+            }
 
-        for(GeoPackageTable table : db.getAllTables()){
-            addTable(table, true);
+            for (GeoPackageTable table : db.getAllTables()) {
+                addTable(table, true);
+            }
+            // Make sure to set the db size
+            databases.get(db.getDatabase()).setSize(db.getSize());
+            databases.get(db.getDatabase()).setActiveTables(true);
+            setModified(true);
         }
-        // Make sure to set the db size
-        databases.get(db.getDatabase()).setSize(db.getSize());
-        setModified(true);
     }
 
     /**

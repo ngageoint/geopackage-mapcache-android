@@ -56,6 +56,11 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
     private GeoPackageDatabase mDatabase;
 
     /**
+     * Active state of the geopackage
+     */
+    private boolean active;
+
+    /**
      * Constructor
      * @param itemView View to attach
      * @param listener Click listener for clicking on a GeoPackage row
@@ -78,6 +83,7 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
      * Set the background color of the side isle based on the active state
      */
     public void setActiveColor(boolean active){
+        this.active = active;
         if(active){
             activeLayout.setBackgroundColor(res.getColor(R.color.nga_accent_light));
         } else{
@@ -167,5 +173,21 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
 
     public void setmListener(GeoPackageClickListener mListener) {
         this.mListener = mListener;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public GeoPackageDatabase getmDatabase() {
+        return mDatabase;
+    }
+
+    public void setmDatabase(GeoPackageDatabase mDatabase) {
+        this.mDatabase = mDatabase;
     }
 }

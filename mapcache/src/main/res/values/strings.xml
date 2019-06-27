@@ -347,6 +347,7 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">Release Notes - 2.0.2\n \t
+        - New swipe to enable all gp layers\n\t
         - Improved file error handling\n\t
         - Improved tile draw wizard\n\t
         - Added zoom level indicator\n\t

@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.Uri;
 import android.provider.Settings;
@@ -41,6 +43,7 @@ import android.preference.PreferenceManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
@@ -193,6 +196,7 @@ import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.DetailActionListener;
+import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
@@ -883,21 +887,16 @@ public class GeoPackageMapFragment extends Fragment implements
         geoPackageRecyclerAdapter = new GeoPackageAdapter(geoClickListener);
         populateRecyclerWithGeoPackages();
 
-        // TODO: use the below touch helper to make a delete on swipe function
-//        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-//            @Override
-//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-//                return false;
-//            }
-//
-//            // Called when a user swipes left or right on a ViewHolder
-//            @Override
-//            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
-//                // Here is where you'll implement swipe to delete
-//                int position = viewHolder.getAdapterPosition();
-//                Log.i("position", "position: " + position);
-//            }
-//        }).attachToRecyclerView(geoPackageRecycler);
+
+        // Listener for swiping a geopackage to the right to enable/disable all layers
+        EnableAllLayersListener gpSwipeListener = new EnableAllLayersListener() {
+            @Override
+            public void onClick(boolean active, GeoPackageDatabase db) {
+                geoPackageViewModel.setAllLayersActive(active, db);
+            }
+        };
+        SwipeController controller = new SwipeController(getContext(), gpSwipeListener);
+        controller.getTouchHelper().attachToRecyclerView(geoPackageRecycler);
     }
 
     /**

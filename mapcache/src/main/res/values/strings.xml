@@ -246,6 +246,7 @@
         <item>http://osm.geointservices.io/osm_tiles_pc/{z}/{x}/{y}.png</item>
         <item>http://a.tile.openstreetmap.org/{z}/{x}/{y}.png</item>
         <item>http://nowcoast.noaa.gov/arcgis/rest/services/nowcoast/sat_meteo_imagery_time/MapServer/export?transparent=true&amp;format=png&amp;bbox={minLon},{minLat},{maxLon},{maxLat}&amp;bboxSR=3857&amp;imageSR=3857&amp;size=256,256&amp;f=image</item>
+        <item>http://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/%7Bz%7D/%7By%7D/%7Bx%7D.png</item>
     </string-array>
     <integer-array name="preloaded_tile_url_min_zoom">
         <item>0</item>

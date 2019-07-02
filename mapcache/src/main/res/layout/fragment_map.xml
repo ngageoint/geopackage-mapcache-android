@@ -355,12 +355,6 @@
         android:background="@drawable/shape_gradient_top_shadow"
         app:layout_anchor="@id/recycler_geopackages" />
 
-    <View
-        android:id="@+id/topBorder"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_anchor="@id/recycler_geopackages" />
 
     <!--A recycler view to hold our list of Geopackages.  This will hold our GeoPackages,
         GeoPackage detail view, and Layer view.  It will be repopulated based on user action -->

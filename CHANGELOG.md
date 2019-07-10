@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.24 (TBD)
+## [1.24](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.24) (07-10-2019)
 
 * geopackage-android-map version 3.3.0
 * Rename and Copy table options

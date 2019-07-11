@@ -4,6 +4,11 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -15,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
+import mil.nga.mapcache.utils.ViewAnimation;
 
 /**
  *  Adapter to power the main RecyclerView containing our GeoPackages.  Creates a list with 2
@@ -46,6 +52,10 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static final int GEOPACKAGE_HEADER = 1;
     private static final int GEOPACKAGE_ITEM = 2;
 
+    /**
+     * Context
+     */
+    Context context;
 
     /**
      * Constructor
@@ -75,7 +85,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context context = parent.getContext();
+        context = parent.getContext();
         RecyclerView.ViewHolder holder;
         if(viewType == GEOPACKAGE_HEADER){
             View v = LayoutInflater.from(context).inflate(R.layout.geopackage_list_header_layout, parent, false);
@@ -129,6 +139,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             if(mGeoPackages.get(position) instanceof GeoPackageDatabase) {
                 // The ViewHolder knows how to populate itself when given a GeoPackageDatabase object
                 viewHolder.setData((GeoPackageDatabase)mGeoPackages.get(position));
+//                ViewAnimation.setSlideInFromLeftAnimation(viewHolder.itemView, 200);
             }
         }
     }

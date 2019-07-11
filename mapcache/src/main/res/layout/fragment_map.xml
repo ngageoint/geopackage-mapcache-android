@@ -427,6 +427,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/material_tile_add"
         android:visibility="gone"
+        app:backgroundTint="@color/nga_accent_primary_dark"
         app:rippleColor="@color/nga_accent_light"
         app:layout_anchor="@id/fragment_map_view_ui"
         app:layout_anchorGravity="bottom|right|end" />

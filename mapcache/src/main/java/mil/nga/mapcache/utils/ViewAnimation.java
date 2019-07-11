@@ -2,8 +2,13 @@ package mil.nga.mapcache.utils;
 
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
+
+import mil.nga.mapcache.R;
 
 public class ViewAnimation {
 
@@ -80,5 +85,52 @@ public class ViewAnimation {
     public interface AnimListener {
         void onFinish();
     }
+
+    /**
+     * Assign a "slide in from left" animation to the given view
+     * @param view The view which we want to slide
+     * @param duration the duration of the animation in milliseconds
+     */
+    public static void setSlideInFromLeftAnimation(View view, long duration){
+        Animation slide = AnimationUtils.loadAnimation(view.getContext(), R.anim.slide_in_from_left);
+        slide.setDuration(duration);
+        view.startAnimation(slide);
+    }
+
+    /**
+     * Assign a "slide in from right" animation to the given view
+     * @param view The view which we want to slide
+     * @param duration the duration of the animation in milliseconds
+     */
+    public static void setSlideInFromRightAnimation(View view, long duration){
+        Animation slide = AnimationUtils.loadAnimation(view.getContext(), R.anim.slide_in_from_right);
+        slide.setDuration(duration);
+        view.startAnimation(slide);
+    }
+
+    /**
+     * Assign a "fade in" animation to the given view
+     * @param view the view to animate
+     * @param duration duration of the animation
+     */
+    public static void setFadeInAnimatiom(View view, long duration){
+        AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+        anim.setDuration(duration);
+        view.startAnimation(anim);
+    }
+
+    /**
+     * Assign a "scale in to full size" animation to the given view
+     * @param view the view to animate
+     * @param duration duration of the animation
+     */
+    public static void setScaleAnimatiom(View view, long duration){
+        ScaleAnimation anim = new ScaleAnimation(0.0f, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        anim.setDuration(duration);
+        view.startAnimation(anim);
+    }
+
+
+
 
 }

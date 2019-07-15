@@ -7,6 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.viewpager2.widget.ViewPager2;
 import mil.nga.mapcache.R;
 
 /**
@@ -26,6 +30,13 @@ public class TutorialFragment extends PreferenceFragmentCompat {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         tutorialView = inflater.inflate(R.layout.fragment_tutorial, container, false);
+        ViewPager2 viewPager = tutorialView.findViewById(R.id.view_pager);
+        List<String> pages = new ArrayList<>();
+        pages.add("first");
+        pages.add("Second");
+        pages.add("third");
+        TutorialAdapter tutorialAdapter = new TutorialAdapter(getContext(), pages);
+        viewPager.setAdapter(tutorialAdapter);
         return tutorialView;
     }
 }

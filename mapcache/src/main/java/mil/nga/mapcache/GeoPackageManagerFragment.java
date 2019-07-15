@@ -51,6 +51,11 @@ import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import org.locationtech.proj4j.units.Units;
@@ -1462,6 +1467,8 @@ public class GeoPackageManagerFragment extends Fragment implements
         switch (table.getType()) {
 
             case FEATURE:
+                adapter.add(getString(R.string.geopackage_table_rename_label));
+                adapter.add(getString(R.string.geopackage_table_copy_label));
                 adapter.add(getString(R.string.geopackage_table_index_features_label));
                 adapter.add(getString(R.string.geopackage_table_create_feature_tiles_label));
                 adapter.add(getString(R.string.geopackage_table_add_feature_overlay_label));
@@ -1469,6 +1476,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                 break;
 
             case TILE:
+                adapter.add(getString(R.string.geopackage_table_rename_label));
+                adapter.add(getString(R.string.geopackage_table_copy_label));
                 adapter.add(getString(R.string.geopackage_table_tiles_load_label));
                 adapter.add(getString(R.string.geopackage_table_link_label));
                 break;
@@ -1520,15 +1529,31 @@ public class GeoPackageManagerFragment extends Fragment implements
                         case 3:
                             switch (table.getType()) {
                                 case FEATURE:
+                                case TILE:
+                                    renameTableOption(table);
+                                    break;
+                            }
+
+                            break;
+                        case 4:
+                            switch (table.getType()) {
+                                case FEATURE:
+                                case TILE:
+                                    copyTableOption(table);
+                                    break;
+                            }
+                            break;
+                        case 5:
+                            switch (table.getType()) {
+                                case FEATURE:
                                     indexFeaturesOption(table);
                                     break;
                                 case TILE:
                                     loadTilesTableOption(table);
                                     break;
                             }
-
                             break;
-                        case 4:
+                        case 6:
                             switch (table.getType()) {
                                 case FEATURE:
                                     createFeatureTilesTableOption(table);
@@ -1538,14 +1563,14 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     break;
                             }
                             break;
-                        case 5:
+                        case 7:
                             switch (table.getType()) {
                                 case FEATURE:
                                     addFeatureOverlayTableOption(table);
                                     break;
                             }
                             break;
-                        case 6:
+                        case 8:
                             switch (table.getType()) {
                                 case FEATURE:
                                     linkTableOption(table);
@@ -1689,7 +1714,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     info.append("\nPrimary Key: ").append(
                             userColumn.isPrimaryKey());
                 }
-                info.append("\nType: ").append(userColumn.getTypeName());
+                info.append("\nType: ").append(userColumn.getType());
             }
 
         } catch (GeoPackageException e) {
@@ -2189,6 +2214,113 @@ public class GeoPackageManagerFragment extends Fragment implements
                             }
                         }).create();
         deleteDialog.show();
+    }
+
+    /**
+     * Rename table option
+     *
+     * @param table
+     */
+    private void renameTableOption(final GeoPackageTable table) {
+
+        final EditText input = new EditText(getActivity());
+        input.setText(table.getName());
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.geopackage_rename_label) + " " + table.getName())
+                .setView(input)
+                .setPositiveButton(getString(R.string.button_ok_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                String value = input.getText().toString();
+                                if (value != null && !value.isEmpty() && !value.equalsIgnoreCase(table.getName())) {
+                                    try {
+                                        active.removeTable(table);
+                                        GeoPackage geoPackage = manager.open(table
+                                                .getDatabase());
+                                        try {
+                                            geoPackage.renameTable(table.getName(), value);
+                                        } catch (Exception e) {
+                                            GeoPackageUtils.showMessage(getActivity(),
+                                                    "Rename " + table.getDatabase()
+                                                            + " " + table.getName()
+                                                            + " Table", e.getMessage());
+                                        } finally{
+                                            geoPackage.close();
+                                        }
+                                        update();
+                                    } catch (Exception e) {
+                                        GeoPackageUtils.showMessage(
+                                                getActivity(), "Rename "
+                                                        + table.getName(), e.getMessage());
+                                    }
+                                }
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                dialog.cancel();
+                            }
+                        });
+
+        dialog.show();
+
+    }
+
+    /**
+     * Copy table option
+     *
+     * @param table
+     */
+    private void copyTableOption(final GeoPackageTable table) {
+
+        final EditText input = new EditText(getActivity());
+        input.setText(table.getName() + "_copy");
+
+        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                .setTitle(getString(R.string.geopackage_copy_label) + " " + table.getName())
+                .setView(input)
+                .setPositiveButton(getString(R.string.button_ok_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                String value = input.getText().toString();
+                                if (value != null && !value.isEmpty() && !value.equalsIgnoreCase(table.getName())) {
+                                    try {
+                                        GeoPackage geoPackage = manager.open(table
+                                                .getDatabase());
+                                        try {
+                                            geoPackage.copyTable(table.getName(), value);
+                                        } catch (Exception e) {
+                                            GeoPackageUtils.showMessage(getActivity(),
+                                                    "Copy " + table.getDatabase()
+                                                            + " " + table.getName()
+                                                            + " Table", e.getMessage());
+                                        } finally{
+                                            geoPackage.close();
+                                        }
+                                        update();
+                                    } catch (Exception e) {
+                                        GeoPackageUtils.showMessage(
+                                                getActivity(), "Copy "
+                                                        + table.getName(), e.getMessage());
+                                    }
+                                }
+                            }
+                        })
+                .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int whichButton) {
+                                dialog.cancel();
+                            }
+                        });
+
+        dialog.show();
+
     }
 
     /**

@@ -27,6 +27,7 @@ import mil.nga.mapcache.utils.ViewAnimation;
  *  possible row types:
  *    - GeoPackageHeader - header object to populate top of the view
  *    - GeoPackageViewHolder - a row item to hold an individual GeoPackage
+ *    - GeoPackageFooter - a footer object to show a swipe hint
  *
  *    This should be populated from the GeoPackageMapFragment
  *
@@ -51,6 +52,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      */
     private static final int GEOPACKAGE_HEADER = 1;
     private static final int GEOPACKAGE_ITEM = 2;
+    private static final int GEOPACKAGE_FOOTER = 3;
 
     /**
      * Context
@@ -90,9 +92,12 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if(viewType == GEOPACKAGE_HEADER){
             View v = LayoutInflater.from(context).inflate(R.layout.geopackage_list_header_layout, parent, false);
             holder = new GeoPackageHeaderViewHolder(v);
-        } else{
+        } else if(viewType == GEOPACKAGE_ITEM){
             View v = LayoutInflater.from(context).inflate(R.layout.row_layout, parent, false);
             holder = new GeoPackageViewHolder(v, mListener);
+        } else{
+            View v = LayoutInflater.from(context).inflate(R.layout.drag_hint_card, parent, false);
+            holder = new GeoPackageFooterViewHolder(v);
         }
         return holder;
     }
@@ -108,6 +113,8 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             bindHeader(holder, position);
         } else if(holder instanceof GeoPackageViewHolder){
             bindRow(holder, position);
+        } else if(holder instanceof  GeoPackageFooterViewHolder){
+            bindFooter(holder, position);
         }
     }
 
@@ -120,6 +127,17 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if(holder instanceof GeoPackageHeaderViewHolder){
             GeoPackageHeaderViewHolder viewHolder = (GeoPackageHeaderViewHolder)holder;
                 viewHolder.getTitle().setText("GeoPackages");
+        }
+    }
+
+    /**
+     * Bind the footer object of a geopackage view
+     * @param holder - GeoPackageFooterViewHolder
+     * @param position - position to bind (should be 0)
+     */
+    private void bindFooter(RecyclerView.ViewHolder holder, int position){
+        if(holder instanceof GeoPackageFooterViewHolder){
+            GeoPackageFooterViewHolder viewHolder = (GeoPackageFooterViewHolder)holder;
         }
     }
 
@@ -156,6 +174,8 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             return GEOPACKAGE_ITEM;
         } else if(mGeoPackages.get(position) instanceof String){
             return GEOPACKAGE_HEADER;
+        } else if(mGeoPackages.get(position) instanceof Integer){
+            return GEOPACKAGE_FOOTER;
         }
         return -1;
     }
@@ -186,6 +206,14 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         if(mGeoPackages.isEmpty()){
             mGeoPackages.add("Header");
         }
+    }
+
+    /**
+     * Insert an object to represent the last row, which will show a hint to drag geopackages
+     * to enable all layers
+     */
+    public void insertDefaultFooter(){
+        mGeoPackages.add(0);
     }
 
     /**
@@ -277,4 +305,17 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             this.title = title;
         }
     }
+
+
+    /**
+     * View holder for the bottom card to show swipe action
+     * -----------------------------------------------------------------------------------
+     */
+    public class GeoPackageFooterViewHolder extends RecyclerView.ViewHolder{
+
+        public GeoPackageFooterViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
+
 }

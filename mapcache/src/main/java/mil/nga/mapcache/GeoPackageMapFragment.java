@@ -917,6 +917,7 @@ public class GeoPackageMapFragment extends Fragment implements
             for(GeoPackageDatabase db : newGeos.getDatabases()){
                 geoPackageRecyclerAdapter.insertToEnd(db);
             }
+            geoPackageRecyclerAdapter.insertDefaultFooter();
             geoPackageRecyclerAdapter.notifyDataSetChanged();
 
             // Make sure the detail page is repopulated in case a new layer is added

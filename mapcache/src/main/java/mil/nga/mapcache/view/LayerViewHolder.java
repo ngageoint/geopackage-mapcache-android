@@ -17,7 +17,7 @@ import mil.nga.mapcache.view.detail.DetailPageLayerObject;
  *  ViewHolder to show a GeoPackage layer name and icon corresponding to the layer type
  */
 
-public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+public class LayerViewHolder extends RecyclerView.ViewHolder{
 
     /**
      * Layer name
@@ -61,6 +61,11 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
     private boolean ignoreStateChange;
 
     /**
+     * Click listener for opening the layer detail view
+     */
+    private View.OnClickListener layerClick;
+
+    /**
      * Constructor
      * @param itemView View being created
      * @param listener DetailLayerClickListener for clicking on a layer and opening a layer detail view
@@ -71,12 +76,22 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
         title = (TextView) itemView.findViewById(R.id.layer_label);
         icon = (ImageView) itemView.findViewById(R.id.layer_icon);
         layerOn = (Switch) itemView.findViewById(R.id.simpleSwitch);
-
         mSwitchListener = switchListener;
         mListener = listener;
-        itemView.setClickable(true);
-        itemView.setOnClickListener(this);
         setLayerSwitchListener();
+
+        // Set the click listener to open a layer detail view (we don't want a user to accidently
+        // open the detail page when trying to activate a switch)
+        layerClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onClick(layerObject);
+            }
+        };
+        title.setOnClickListener(layerClick);
+        icon.setOnClickListener(layerClick);
+        //        itemView.setClickable(true);
+        //itemView.setOnClickListener(this);
     }
 
     /**
@@ -128,12 +143,4 @@ public class LayerViewHolder extends RecyclerView.ViewHolder implements View.OnC
         });
     }
 
-    /**
-     * Click listener for clicking on this layer row
-     * @param view Clicked view
-     */
-    @Override
-    public void onClick(View view) {
-        mListener.onClick(layerObject);
-    }
 }

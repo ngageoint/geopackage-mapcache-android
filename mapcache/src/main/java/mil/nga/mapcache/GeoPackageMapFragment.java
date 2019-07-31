@@ -121,6 +121,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -1907,15 +1908,39 @@ public class GeoPackageMapFragment extends Fragment implements
         closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
         TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
         titleText.setText("Create Tile Layer");
+        final MaterialButton drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
 
-        // Name and url
+        // Validate name to have only alphanumeric chars because of sqlite errors
         final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.new_tile_name_text);
+        inputName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String givenName = inputName.getText().toString();
+                drawButton.setEnabled(true);
+
+                if(givenName.isEmpty()){
+                    inputName.setError("Name is required");
+                    drawButton.setEnabled(false);
+                } else {
+                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
+                    if (!allowed) {
+                        inputName.setError("Names must be alphanumeric only");
+                        drawButton.setEnabled(false);
+                    }
+                }
+            }
+        });
+
         final TextInputEditText inputUrl = (TextInputEditText) alertView.findViewById(R.id.new_tile_url);
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         String defaultTileUrl = settings.getString("default_tile_url", getResources().getString(R.string.default_tile_url));
         inputUrl.setText(defaultTileUrl);
-        final MaterialButton drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
 
         // Default url
         TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);

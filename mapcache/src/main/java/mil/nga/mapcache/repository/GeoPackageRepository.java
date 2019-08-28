@@ -529,10 +529,18 @@ public class GeoPackageRepository {
     /**
      * Rename a layer in a geopackage
      */
-    public boolean renameLayer(String tableName, String gpName, String newName) {
-        // find table by name
-        // change table identifier field
-        return false;
+    public boolean renameLayer(String geoPackageName, String layerName, String newLayerName){
+        try {
+            GeoPackage geo = manager.open(geoPackageName);
+            if (geo != null) {
+                geo.renameTable(layerName, newLayerName);
+                geo.close();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -547,6 +555,23 @@ public class GeoPackageRepository {
      */
     public boolean copyGeoPackage(String geoPackageName, String newName) {
         return manager.copy(geoPackageName, newName);
+    }
+
+    /**
+     * Copy a layer by name
+     */
+    public boolean copyLayer(String geoPackageName, String layerName, String newLayerName) {
+        try {
+            GeoPackage geo = manager.open(geoPackageName);
+            if (geo != null) {
+                geo.copyTable(layerName, newLayerName);
+                geo.close();
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**

@@ -81,6 +81,44 @@ public class DetailActionUtil {
         alertDialog.show();
     }
 
+    /**
+     * Open a dialog for renaming a Layer inside a GeoPackage
+     * @param context Context for opening dialog
+     * @param gpName GeoPackage name
+     * @param layerName Current layer name
+     * @param listener Click listener to callback to the mapfragment
+     */
+    public void openRenameLayerDialog(Context context, String gpName, String layerName,
+                                 final OnDialogButtonClickListener listener){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_edit);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Rename Layer");
+        // Current Layer name
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setHint(layerName);
+        inputName.setText(layerName);
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
+        dialogBuilder.setView(alertView);
+        dialogBuilder.setPositiveButton("Rename", (dialog, which)->{
+            String newName = inputName.getText().toString();
+            if (newName != null && !newName.isEmpty() && !newName.equals(layerName)) {
+                dialog.dismiss();
+                listener.onRenameLayer(gpName, layerName, newName);
+            }
+        });
+        dialogBuilder.setNegativeButton(context.getString(R.string.button_cancel_label), (dialog, which)->{
+            dialog.dismiss();
+        });
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.show();
+    }
+
 
     /**
      * return to a share dialog action (no dialog needed)
@@ -130,6 +168,46 @@ public class DetailActionUtil {
                         (dialog, which)->{
                             dialog.dismiss();
                 });
+        copyDialog.show();
+    }
+
+    /**
+     * Open a dialog for copying a Layer inside a geopackage
+     * @param context Context for opening dialog
+     * @param gpName GeoPackage name
+     * @param layerName Layer to copy
+     * @param listener Click listener to callback to the mapfragment
+     */
+    public void openCopyLayerDialog(Context context, String gpName, String layerName,
+                               final OnDialogButtonClickListener listener){
+        // Create Alert window with basic input text layout
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+        // Logo and title
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        alertLogo.setBackgroundResource(R.drawable.material_copy);
+        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        titleText.setText("Copy Layer");
+
+        final TextInputEditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        input.setText(layerName + context.getString(R.string.geopackage_copy_suffix));
+        input.setHint("New layer name");
+
+        AlertDialog.Builder copyDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .setPositiveButton("Copy", (dialog, which)->{
+                    String newName = input.getText().toString();
+                    if (newName != null && !newName.isEmpty()
+                            && !newName.equals(gpName)) {
+                        dialog.dismiss();
+                        listener.onCopyLayer(gpName, layerName, newName);
+                    }
+                })
+
+                .setNegativeButton(context.getString(R.string.button_cancel_label),
+                        (dialog, which)->{
+                            dialog.dismiss();
+                        });
         copyDialog.show();
     }
 

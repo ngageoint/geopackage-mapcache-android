@@ -45,6 +45,21 @@ public interface OnDialogButtonClickListener {
     void onDeleteLayer(String gpName, String layerName);
 
     /**
+     * Rename a layer in a GeoPackage
+     * @param gpName GeoPackage name
+     * @param layerName Current layer name
+     * @param newLayerName New layer name
+     */
+    void onRenameLayer(String gpName, String layerName, String newLayerName);
+
+    /**
+     * Copy a layer in a GeoPackage
+     * @param gpName GeoPackage name
+     * @param layerName Layer name to copy
+     */
+    void onCopyLayer(String gpName, String oldLayer, String layerName);
+
+    /**
      * Cancel button
      */
     void onCancelButtonClicked();

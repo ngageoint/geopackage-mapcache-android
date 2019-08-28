@@ -3,6 +3,7 @@ package mil.nga.mapcache.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -407,6 +408,20 @@ public class GeoPackageDatabase {
      */
     public void setActiveTables(boolean activeTables) {
         this.activeTables = activeTables;
+    }
+
+    /**
+     * Create a single DetailPageLayerObject out of the given geopackage and layer name
+     * return null if it doesn't exist
+     */
+    public DetailPageLayerObject getLayerObject(GeoPackageDatabase active, String geoPackage, String layer){
+        Iterator<DetailPageLayerObject> detailIterator = getLayerObjects(active).iterator();
+        while(detailIterator.hasNext()){
+            DetailPageLayerObject obj = detailIterator.next();
+            if(obj.equals(geoPackage, layer))
+                return obj;
+        }
+        return null;
     }
 
     /**

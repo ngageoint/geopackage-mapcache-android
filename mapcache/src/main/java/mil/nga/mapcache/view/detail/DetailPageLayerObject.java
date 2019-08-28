@@ -44,6 +44,14 @@ public class DetailPageLayerObject {
     }
 
     /**
+     * Match based on GeoPackage name and Layer name
+     */
+    public boolean equals(String geoPackageName, String layerName){
+        return getGeoPackageName().equalsIgnoreCase(geoPackageName) &&
+           getName().equalsIgnoreCase(layerName);
+    }
+
+    /**
      * Getters and setters
      */
 

@@ -296,16 +296,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return false;
     }
 
-//    /**
-//     * Rename the given layer in the geopackage
-//     */
-//    public boolean renameLayer(String layerName, String geoPackageName, String newName){
-//        if(repository.renameLayer(geoPackageName, layerName, newName)) {
-//            regenerateGeoPackageTableList();
-//            return true;
-//        }
-//        return false;
-//    }
 
 
     /**
@@ -333,6 +323,18 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      */
     public GeoPackageDatabase removeLayerFromGeo(String geoPackageName, String layerName){
         if(repository.removeLayerFromGeo(geoPackageName, layerName)) {
+            GeoPackageDatabase db = repository.getDatabaseByName(geoPackageName);
+            regenerateGeoPackageTableList();
+            return db;
+        }
+        return null;
+    }
+
+    /**
+     * Rename a layer in a geopackage
+     */
+    public GeoPackageDatabase renameLayer(String geoPackageName, String layerName, String newLayerName){
+        if(repository.renameLayer(geoPackageName, layerName, newLayerName)){
             GeoPackageDatabase db = repository.getDatabaseByName(geoPackageName);
             regenerateGeoPackageTableList();
             return db;
@@ -505,6 +507,17 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      */
     public boolean copyGeoPackage(String geoPackageName, String newName){
         if(repository.copyGeoPackage(geoPackageName, newName)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Copy a layer and regenerate the list of GeoPackages
+     */
+    public boolean copyLayer(String geoPackageName, String currentLayer, String newLayerName){
+        if(repository.copyLayer(geoPackageName, currentLayer, newLayerName)){
             regenerateGeoPackageTableList();
             return true;
         }

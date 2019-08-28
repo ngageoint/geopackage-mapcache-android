@@ -1062,8 +1062,24 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+        // Listener for renaming a layer
+        DetailActionListener renameLayerListener = new DetailActionListener(){
+            @Override
+            public void onClick(View view, int actionType, String gpName, String layerName) {
+                openActionDialog(gpName, layerName, actionType);
+            }
+        };
+
+        // Listener for copying a layer
+        DetailActionListener copyLayerListener = new DetailActionListener() {
+            @Override
+            public void onClick(View view, int actionType, String gpName, String layerName) {
+                openActionDialog(gpName, layerName, actionType);
+            }
+        };
+
         layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
-                activeLayerListener, detailActionListener);
+                activeLayerListener, detailActionListener, renameLayerListener, copyLayerListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 
@@ -1092,6 +1108,10 @@ public class GeoPackageMapFragment extends Fragment implements
             detailButtonUtil.openDeleteDialog(getActivity(), gpName, this);
         } else if(actionType == DetailActionListener.DELETE_LAYER){
             detailButtonUtil.openDeleteLayerDialog(getActivity(), gpName, layerName, this);
+        } else if(actionType == DetailActionListener.RENAME_LAYER){
+            detailButtonUtil.openRenameLayerDialog(getActivity(), gpName, layerName, this);
+        } else if(actionType == DetailActionListener.COPY_LAYER){
+            detailButtonUtil.openCopyLayerDialog(getActivity(), gpName, layerName, this);
         }
     }
 
@@ -1206,6 +1226,47 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageDatabase db = geoPackageViewModel.removeLayerFromGeo(gpName, layerName);
         if(db != null){
             createGeoPackageDetailAdapter(db);
+        }
+    }
+
+    /**
+     * Ask the viewmodel to rename a layer in the given geopackage
+     */
+    public void onRenameLayer(String gpName, String layerName, String newLayerName){
+        // First remove it from the active layers
+        geoPackageViewModel.removeActiveLayer(gpName, layerName);
+        GeoPackageDatabase db = geoPackageViewModel.renameLayer(gpName, layerName, newLayerName);
+        if(db != null){
+
+            //TODO: Don't generate the layer detail object out of the returned object from rename layer,
+            // Instead go find it again in the current geos list and generate it
+            GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
+
+//            createGeoPackageDetailAdapter(db);
+            DetailPageLayerObject newLayerObject = newDb.getLayerObject(active.getDatabase(gpName), gpName, newLayerName);
+            if(newLayerObject != null)
+                createGeoPackageLayerDetailAdapter(newLayerObject);
+        }
+    }
+
+    /**
+     * Ask the viewmodel to copy a layer in a given geopackage
+     */
+    public void onCopyLayer(String gpName, String oldLayer, String newLayerName){
+        Log.i("click", "Copy Layer");
+        try {
+            if (geoPackageViewModel.copyLayer(gpName, oldLayer, newLayerName)) {
+//                populateRecyclerWithGeoPackages();
+                Toast.makeText(getActivity(), "Layer copied", Toast.LENGTH_SHORT).show();
+
+            }else{
+                GeoPackageUtils.showMessage(getActivity(),
+                        getString(R.string.geopackage_copy_label),"Copy from "
+                                + gpName + " to " + newLayerName + " was not successful");
+            }
+        } catch (Exception e) {
+            GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_copy_label),
+                    e.getMessage());
         }
     }
 

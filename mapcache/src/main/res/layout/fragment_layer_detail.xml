@@ -11,9 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical">
@@ -63,7 +61,7 @@
 
 
 
-            <!--Layer type and delete button-->
+            <!--Layer type label -->
             <RelativeLayout
                 android:id="@+id/typeAndDelete"
                 android:layout_width="fill_parent"
@@ -71,7 +69,7 @@
                 android:orientation="horizontal"
                 android:paddingRight="24dp"
                 android:paddingLeft="24dp"
-                android:paddingBottom="16dp">
+                android:paddingBottom="8dp">
 
                 <ImageView
                     android:id="@+id/layer_type_icon"
@@ -88,24 +86,64 @@
                     android:layout_toRightOf="@+id/layer_type_icon"
                     android:paddingLeft="8dp"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
-
-                <TextView
-                    android:id="@+id/layerDelete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:text="Delete"
-                    android:textStyle="bold"
-                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-                    android:textColor="@color/nga_warning" />
-                    <!--make it a button-->
-                    <!--android:background="@color/nga_warning_light"-->
-                    <!--android:paddingVertical="8dp"-->
-                    <!--android:paddingHorizontal="16dp"-->
-
             </RelativeLayout>
 
 
+            <!--Layer action buttons: rename, copy, delete-->
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingRight="8dp"
+            android:paddingLeft="8dp"
+            android:paddingBottom="8dp">
+
+
+            <Button
+                android:id="@+id/layerRenameButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:text="Rename"
+                android:textColor="@color/nga_primary_primary_dark"
+                android:textStyle="bold"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:backgroundTint="@color/nga_primary_bright"
+                />
+
+            <Button
+                android:id="@+id/layerCopyButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:text="Copy"
+                android:textColor="@color/nga_primary_primary_dark"
+                android:textStyle="bold"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:backgroundTint="@color/nga_primary_bright"
+                />
+
+            <Button
+                android:id="@+id/layerDeleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="8dp"
+                android:textAlignment="center"
+                android:text="Delete"
+                android:textStyle="bold"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:textColor="@color/nga_warning"
+                android:backgroundTint="@color/nga_warning_light"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp"
+                />
+        </LinearLayout>
 
 
 
@@ -203,83 +241,6 @@
 
 
             </RelativeLayout>
-
-
-
-
-            <!--&lt;!&ndash; Icon row: info, rename, share, copy, delete &ndash;&gt;-->
-            <!--<LinearLayout-->
-                <!--android:id="@+id/LinearLayout01"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginBottom="8dp"-->
-                <!--android:layout_marginTop="16dp"-->
-                <!--android:gravity="center"-->
-                <!--android:orientation="horizontal"-->
-                <!--android:paddingRight="@dimen/activity_horizontal_margin">-->
-
-                <!--<Button-->
-                    <!--android:id="@+id/layer_rename"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:background="@drawable/ripple"-->
-                    <!--android:drawableTop="@drawable/material_edit"-->
-                    <!--android:text="Edit" />-->
-                <!--&lt;!&ndash;android:background="@android:color/transparent"&ndash;&gt;-->
-
-
-
-                <!--<Button-->
-                    <!--android:id="@+id/layer_enable"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:background="@drawable/ripple"-->
-                    <!--android:drawableTop="@drawable/ic_check_box_black_24dp"-->
-                    <!--android:text="Enable" />-->
-
-                <!--<Button-->
-                    <!--android:id="@+id/layer_share"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:background="@drawable/ripple"-->
-                    <!--android:drawableTop="@drawable/material_info"-->
-                    <!--android:text="Details" />-->
-
-                <!--<Button-->
-                    <!--android:id="@+id/layer_delete"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_weight="1"-->
-                    <!--android:background="@drawable/ripple"-->
-                    <!--android:drawableTop="@drawable/material_delete"-->
-                    <!--android:text="Delete" />-->
-            <!--</LinearLayout>-->
-
-            <!--<View-->
-                <!--style="@style/Divider"-->
-                <!--android:layout_marginBottom="16dp" />-->
-
-
-            <!--<TextView-->
-                <!--android:id="@+id/text_number_items"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
-                <!--android:paddingBottom="8dp"-->
-                <!--android:text="Tiles: "-->
-                <!--android:textAppearance="@style/textAppearanceSubtitle2" />-->
-
-            <!--<TextView-->
-                <!--android:id="@+id/text_description"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:paddingLeft="@dimen/activity_horizontal_margin"-->
-                <!--android:text="Description: "-->
-                <!--android:textAppearance="@style/textAppearanceSubtitle2" />-->
-
 
         </LinearLayout>
 

@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.layer;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -78,6 +79,15 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     private TextView mLayerDelete;
 
+    /**
+     * Text button for renaming a layer
+     */
+    private Button mLayerRename;
+
+    /**
+     * Text button for copying a layer
+     */
+    private Button mLayerCopy;
 
     /**
      * DetailPageLayerObject containing details for the selected layer
@@ -95,6 +105,16 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     private DetailActionListener mDetailActionListener;
 
     /**
+     * Click listener for the rename layer button
+     */
+    private DetailActionListener mRenameLayerListener;
+
+    /**
+     * Click listener for the copy button
+     */
+    private DetailActionListener mCopyLayerListener;
+
+    /**
      * Tells this ViewHolder if it should ignore state changes on the switch (used for setting
      * the switch state)
      */
@@ -107,7 +127,9 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     public LayerDetailViewHolder(View view, View.OnClickListener backListener,
                                  LayerActiveSwitchListener activeLayerListener,
-                                 DetailActionListener detailActionListener){
+                                 DetailActionListener detailActionListener,
+                                 DetailActionListener renameLayerListener,
+                                 DetailActionListener copyLayerListener){
         super(view);
         nameText = (TextView) view.findViewById(R.id.layerName);
         backArrow = (ImageButton) itemView.findViewById(R.id.layerPageBackButton);
@@ -118,12 +140,18 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         layerTypeIcon = (ImageView) view.findViewById(R.id.layer_type_icon);
         descriptionText = (TextView) view.findViewById(R.id.text_description);
         layerOn = (Switch) view.findViewById(R.id.enableSwitch);
-        mLayerDelete = view.findViewById(R.id.layerDelete);
+        mLayerDelete = view.findViewById(R.id.layerDeleteButton);
+        mLayerRename = view.findViewById(R.id.layerRenameButton);
+        mLayerCopy = view.findViewById(R.id.layerCopyButton);
         zoomLabel = view.findViewById(R.id.layerZoomLabel);
         zoomText = view.findViewById(R.id.textMinZoom);
         mSwitchListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
+        mRenameLayerListener = renameLayerListener;
+        mCopyLayerListener = copyLayerListener;
         setDeleteListener();
+        setRenameListener();
+        setCopyListener();
         setLayerSwitchListener();
     }
 
@@ -158,7 +186,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     }
 
     /**
-     * Sets up the click listener for the delete button
+     * Click listener for the delete button
      */
     private void setDeleteListener(){
         mLayerDelete.setOnClickListener(new View.OnClickListener(){
@@ -166,6 +194,30 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             @Override
             public void onClick(View view) {
                 mDetailActionListener.onClick(view, DetailActionListener.DELETE_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+            }
+        });
+    }
+
+    /**
+     * Click listener for the rename layer button
+     */
+    private void setRenameListener(){
+        mLayerRename.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mRenameLayerListener.onClick(view, DetailActionListener.RENAME_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+            }
+        });
+    }
+
+    /**
+     * Click listener for the copy layer button
+     */
+    private void setCopyListener(){
+        mLayerCopy.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mCopyLayerListener.onClick(view, DetailActionListener.COPY_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
     }

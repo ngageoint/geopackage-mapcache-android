@@ -197,19 +197,19 @@ public class LayerDetailFragment extends Fragment {
 //                renameLayerOption(selectedLayer.getName());
 //            }
 //        });
-        TextView deleteText = (TextView) view.findViewById(R.id.layerDelete);
-        deleteText.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                deleteLayerOption();
-            }
-        });
-        layerOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                toggleEnabled(b);
-            }
-        });
+//        TextView deleteText = (TextView) view.findViewById(R.id.layerDelete);
+//        deleteText.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                deleteLayerOption();
+//            }
+//        });
+//        layerOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//                toggleEnabled(b);
+//            }
+//        });
 //        Button enableToggle = (Button) view.findViewById(R.id.layer_enable);
 //        enableToggle.setOnClickListener(new View.OnClickListener(){
 //            @Override

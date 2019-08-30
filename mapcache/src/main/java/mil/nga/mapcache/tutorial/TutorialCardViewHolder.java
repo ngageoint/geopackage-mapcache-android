@@ -1,13 +1,12 @@
 package mil.nga.mapcache.tutorial;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
 import mil.nga.mapcache.R;
 
 public class TutorialCardViewHolder extends RecyclerView.ViewHolder {

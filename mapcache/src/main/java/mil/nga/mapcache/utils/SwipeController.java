@@ -6,13 +6,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
 import mil.nga.mapcache.view.GeoPackageViewHolder;

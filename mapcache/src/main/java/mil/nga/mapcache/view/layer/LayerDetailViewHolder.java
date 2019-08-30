@@ -8,12 +8,10 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import androidx.recyclerview.widget.RecyclerView;
+
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
-import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;

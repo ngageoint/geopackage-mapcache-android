@@ -2,18 +2,15 @@ package mil.nga.mapcache.preferences;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.core.app.NavUtils;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceScreen;
-
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
 import mil.nga.mapcache.R;
 

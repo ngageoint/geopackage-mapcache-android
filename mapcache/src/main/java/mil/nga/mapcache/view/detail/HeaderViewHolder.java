@@ -1,7 +1,5 @@
 package mil.nga.mapcache.view.detail;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -9,11 +7,12 @@ import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
-import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 
 
 /**

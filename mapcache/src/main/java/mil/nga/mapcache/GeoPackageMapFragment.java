@@ -4,30 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.drawable.ColorDrawable;
-import android.location.Location;
-import android.net.Uri;
-import android.provider.Settings;
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
@@ -35,18 +14,14 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.recyclerview.widget.RecyclerView;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -77,6 +52,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
@@ -99,9 +86,16 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.locationtech.proj4j.units.Units;
-import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -131,7 +125,6 @@ import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.core.contents.Contents;
 import mil.nga.geopackage.core.contents.ContentsDao;
 import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.scale.TileScaling;
 import mil.nga.geopackage.extension.scale.TileTableScaling;
@@ -186,23 +179,21 @@ import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
+import mil.nga.mapcache.listeners.GeoPackageClickListener;
+import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
+import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
-import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
-import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
-import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
-import mil.nga.mapcache.listeners.GeoPackageClickListener;
-import mil.nga.mapcache.view.GeoPackageViewAdapter;
-import mil.nga.mapcache.listeners.RecyclerViewClickListener;
 import mil.nga.mapcache.view.detail.DetailActionUtil;
 import mil.nga.mapcache.view.detail.DetailPageAdapter;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
@@ -578,11 +569,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private RecyclerView geoPackageRecyclerView;
 
     /**
-     * view adapter for the recycler view
-     */
-    private GeoPackageViewAdapter geoAdapter;
-
-    /**
      * Views to show "no geopackages found" message when the list is empty
      */
     private TextView getStartedView;
@@ -797,36 +783,6 @@ public class GeoPackageMapFragment extends Fragment implements
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
-    }
-
-
-
-
-
-    /**
-     * When the main activity gets a DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE,
-     * it forwards the request here.  This will search through our open fragments for the currently
-     * open GeoPackageDetailDrawer fragment (there can only be one open at a time) and tell it to
-     * execute a share task
-     * @param requestCode Activity request code
-     * @param permissions Requested permissions
-     * @param grantResults Result of the request
-     */
-    public void giveSharePermissions(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
-        if (requestCode == MainActivity.DETAIL_FRAGMENT_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE) {
-            if (permissions[0].equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Find the open GeoPackage Detail fragment, and share it
-                List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
-                if (fragments != null) {
-                    for (Fragment fragment : fragments) {
-                        if(fragment instanceof GeoPackageDetailDrawer) {
-                            ((GeoPackageDetailDrawer) fragment).shareGeopackage();
-                        }
-                    }
-                }
-            }
-        }
     }
 
 

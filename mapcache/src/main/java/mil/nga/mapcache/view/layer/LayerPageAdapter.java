@@ -4,10 +4,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
+
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -20,7 +21,7 @@ import mil.nga.mapcache.view.detail.DetailPageLayerObject;
  * page.  It will populate the following:
  *  Back arrow and Layer Name
  *  Layer type and icon
- *  Delete button
+ *  Delete, copy, and rename buttons
  *  Number of features
  *  Description
  *  Enable/Disable switch

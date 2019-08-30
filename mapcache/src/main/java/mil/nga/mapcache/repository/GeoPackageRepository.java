@@ -1,20 +1,19 @@
 package mil.nga.mapcache.repository;
 
 import android.app.Activity;
-import androidx.lifecycle.MutableLiveData;
-import androidx.appcompat.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +32,6 @@ import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.schema.TableColumnKey;
 import mil.nga.geopackage.tiles.user.TileDao;
-import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;

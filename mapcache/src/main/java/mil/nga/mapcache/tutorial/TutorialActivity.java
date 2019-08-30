@@ -1,8 +1,9 @@
 package mil.nga.mapcache.tutorial;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
 

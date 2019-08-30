@@ -1,7 +1,5 @@
 package mil.nga.mapcache.listeners;
 
-import android.view.View;
-
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
 /**

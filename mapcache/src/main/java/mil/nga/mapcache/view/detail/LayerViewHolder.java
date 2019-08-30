@@ -1,17 +1,16 @@
-package mil.nga.mapcache.view;
+package mil.nga.mapcache.view.detail;
 
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
-import mil.nga.mapcache.listeners.RecyclerViewClickListener;
-import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
 /**
  *  ViewHolder to show a GeoPackage layer name and icon corresponding to the layer type

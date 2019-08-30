@@ -1,8 +1,5 @@
 package mil.nga.mapcache.view.detail;
 
-import android.text.TextUtils;
-
-import mil.nga.geopackage.GeoPackage;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;

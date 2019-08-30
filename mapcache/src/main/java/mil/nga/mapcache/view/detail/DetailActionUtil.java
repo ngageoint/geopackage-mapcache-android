@@ -1,15 +1,15 @@
 package mil.nga.mapcache.view.detail;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.material.textfield.TextInputEditText;
 
-import androidx.appcompat.app.AlertDialog;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 

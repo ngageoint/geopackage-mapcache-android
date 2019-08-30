@@ -1,10 +1,11 @@
 package mil.nga.mapcache.view.detail;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
@@ -15,7 +16,6 @@ import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
-import mil.nga.mapcache.view.LayerViewHolder;
 
 /**
  * This adapter will power the RecyclerView to hold details of a selected GeoPackage.  It will

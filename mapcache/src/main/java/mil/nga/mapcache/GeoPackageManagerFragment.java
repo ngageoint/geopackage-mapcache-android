@@ -4,8 +4,6 @@ import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.fragment.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -22,16 +20,6 @@ import android.os.Environment;
 import android.os.PowerManager;
 import android.provider.DocumentsContract.Document;
 import android.provider.Settings;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.text.InputFilter;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -52,10 +40,18 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import org.locationtech.proj4j.units.Units;
@@ -111,10 +107,9 @@ import mil.nga.mapcache.filter.InputFilterMinMax;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.io.MapCacheFileUtils;
+import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
-import mil.nga.mapcache.listeners.GeoPackageClickListener;
-import mil.nga.mapcache.view.GeoPackageViewAdapter;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.proj.Projection;
@@ -217,11 +212,6 @@ public class GeoPackageManagerFragment extends Fragment implements
     private TextView emptyView;
 
     /**
-     * view adapter for the recycler view
-     */
-    private GeoPackageViewAdapter geoAdapter;
-
-    /**
      * main view
      */
     private View v;
@@ -295,17 +285,15 @@ public class GeoPackageManagerFragment extends Fragment implements
         GeoPackageClickListener listener = new GeoPackageClickListener() {
             @Override
             public void onClick(View view, int position, GeoPackageDatabase name) {
-                Intent detailIntent = new Intent(v.getContext(), GeoPackageDetail.class);
-                String geoPackageName = databases.get(position);
-                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
-
-                startActivity(detailIntent);
-                update();
+//                Intent detailIntent = new Intent(v.getContext(), GeoPackageDetail.class);
+//                String geoPackageName = databases.get(position);
+//                detailIntent.putExtra(GEO_PACKAGE_DETAIL, geoPackageName);
+//
+//                startActivity(detailIntent);
+//                update();
             }
         };
         geoPackageRecyclerView = (RecyclerView) v.findViewById(R.id.listings_view);
-        geoAdapter = new GeoPackageViewAdapter(v.getContext(), listener);
-        geoPackageRecyclerView.setAdapter(geoAdapter);
         geoPackageRecyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
 
         geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
@@ -415,7 +403,7 @@ public class GeoPackageManagerFragment extends Fragment implements
      */
     private void updateWithCurrentDatabaseList() {
         databaseTables.clear();
-        geoAdapter.clear();
+//        geoAdapter.clear();
         StringBuilder errorMessage = new StringBuilder();
         Iterator<String> databasesIterator = databases.iterator();
         while (databasesIterator.hasNext()) {
@@ -516,7 +504,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                 if (exceptions.isEmpty()) {
                     databaseTables.add(tables);
-                    geoAdapter.insertToEnd(tables);
+//                    geoAdapter.insertToEnd(tables);
                 } else {
 
                     // On exception, check the integrity of the database and delete if not valid
@@ -524,7 +512,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                         databasesIterator.remove();
                     } else {
                         databaseTables.add(tables);
-                        geoAdapter.insertToEnd(tables);
+//                        geoAdapter.insertToEnd(tables);
                     }
 
                     if (errorMessage.length() > 0) {
@@ -553,7 +541,7 @@ public class GeoPackageManagerFragment extends Fragment implements
 //        geoPackageViewModel.generateGeoPackageList();
 //        geoPackageViewModel.init();
         adapter.notifyDataSetChanged();
-        geoAdapter.notifyDataSetChanged();
+//        geoAdapter.notifyDataSetChanged();
     }
 
     /**

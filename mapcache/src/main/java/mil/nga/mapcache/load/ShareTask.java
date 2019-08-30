@@ -2,14 +2,14 @@ package mil.nga.mapcache.load;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import androidx.fragment.app.FragmentActivity;
+
 import androidx.core.content.FileProvider;
-import androidx.core.app.*;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
 
 import java.io.File;
 import java.io.IOException;

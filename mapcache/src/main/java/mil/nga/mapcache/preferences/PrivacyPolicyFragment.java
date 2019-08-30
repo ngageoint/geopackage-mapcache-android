@@ -1,12 +1,11 @@
 package mil.nga.mapcache.preferences;
 
 import android.os.Bundle;
-
-import androidx.preference.PreferenceFragmentCompat;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.preference.PreferenceFragmentCompat;
 
 import mil.nga.mapcache.R;
 

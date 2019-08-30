@@ -1,7 +1,6 @@
 package mil.nga.mapcache.view.detail;
 
 import mil.nga.mapcache.data.GeoPackageDatabase;
-import mil.nga.mapcache.data.GeoPackageTable;
 
 /**
  * Holds values for the Header of the GeoPackage Detail View's recyclerview.  Contains: GeoPackage

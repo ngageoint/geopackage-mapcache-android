@@ -1,16 +1,16 @@
 package mil.nga.mapcache.tutorial;
 
 import android.os.Bundle;
-
-import androidx.preference.PreferenceFragmentCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.viewpager2.widget.ViewPager2;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.viewpager2.widget.ViewPager2;
 import mil.nga.mapcache.R;
 
 /**

@@ -86,14 +86,6 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity
-            android:name=".GeoPackageDetail"
-            android:label="@string/activity_geo_package_detail"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="mil.nga.mapcache.MainActivity" />
-        </activity>
-        <activity
             android:name=".preferences.PreferencesActivity"
             android:label="@string/title_activity_preferences">
             <meta-data

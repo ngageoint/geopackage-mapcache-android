@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.preference.PreferenceFragmentCompat;
+
 import mil.nga.mapcache.R;
 
 public class DisclaimerFragment extends PreferenceFragmentCompat {

@@ -1,9 +1,9 @@
 package mil.nga.mapcache.preferences;
 
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.MenuItem;
 
 import mil.nga.mapcache.R;
 

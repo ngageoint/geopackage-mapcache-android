@@ -1,14 +1,19 @@
 package mil.nga.mapcache.view.detail;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.textfield.TextInputEditText;
+
+import java.util.regex.Pattern;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
@@ -116,6 +121,32 @@ public class DetailActionUtil {
             dialog.dismiss();
         });
         AlertDialog alertDialog = dialogBuilder.create();
+
+        // Validate the input before allowing the rename to happen
+        inputName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String givenName = inputName.getText().toString();
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+
+                if(givenName.isEmpty()){
+                    inputName.setError("Name is required");
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                } else {
+                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
+                    if (!allowed) {
+                        inputName.setError("Names must be alphanumeric only");
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    }
+                }
+            }
+        });
+
         alertDialog.show();
     }
 
@@ -208,7 +239,34 @@ public class DetailActionUtil {
                         (dialog, which)->{
                             dialog.dismiss();
                         });
-        copyDialog.show();
+        AlertDialog alertDialog = copyDialog.create();
+
+
+        // Validate the input before allowing the rename to happen
+        input.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String givenName = input.getText().toString();
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+
+                if(givenName.isEmpty()){
+                    input.setError("Name is required");
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                } else {
+                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
+                    if (!allowed) {
+                        input.setError("Names must be alphanumeric only");
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    }
+                }
+            }
+        });
+        alertDialog.show();
     }
 
     /**

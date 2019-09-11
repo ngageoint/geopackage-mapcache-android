@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.regex.Pattern;
@@ -83,6 +84,32 @@ public class DetailActionUtil {
             dialog.dismiss();
         });
         AlertDialog alertDialog = dialogBuilder.create();
+
+        // Validate the input before allowing the rename to happen
+        inputName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String givenName = inputName.getText().toString();
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+
+                if(givenName.isEmpty()){
+                    inputName.setError("Name is required");
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                } else {
+                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
+                    if (!allowed) {
+                        inputName.setError("Names must be alphanumeric only");
+                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    }
+                }
+            }
+        });
+
         alertDialog.show();
     }
 

@@ -61,7 +61,7 @@ dependencies {
     api 'mil.nga.geopackage.map:geopackage-android-map:3.3.0' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.viewpager2:viewpager2:1.0.0-alpha06'
     testImplementation 'androidx.multidex:multidex:2.0.1'

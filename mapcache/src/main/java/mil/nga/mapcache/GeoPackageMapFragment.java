@@ -28,6 +28,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -1988,13 +1989,17 @@ public class GeoPackageMapFragment extends Fragment implements
                 String layerName = inputName.getText().toString();
                 String layerUrl = inputUrl.getText().toString();
                 if(layerName.isEmpty() || layerName.trim().length() == 0){
-                    Toast.makeText(getActivity(), "Layer name must not be blank", Toast.LENGTH_SHORT).show();
+                    inputName.setError("Layer name must not be blank");
+                    drawButton.setEnabled(false);
                 } else if(layerUrl.isEmpty() || layerUrl.trim().length() == 0) {
-                    Toast.makeText(getActivity(), "URL must not be blank", Toast.LENGTH_SHORT).show();
+                    inputUrl.setError("URL must not be blank");
+                    drawButton.setEnabled(false);
                 } else if(geoPackageViewModel.tableExistsInGeoPackage(geopackageName, layerName)) {
-                    Toast.makeText(getActivity(), "Layer name already exists", Toast.LENGTH_SHORT).show();
+                    inputName.setError("Layer name already exists");
+                    drawButton.setEnabled(false);
                 } else if(!URLUtil.isValidUrl(layerUrl)){
-                    Toast.makeText(getActivity(), "URL is not valid", Toast.LENGTH_SHORT).show();
+                    inputUrl.setError("URL is not valid");
+                    drawButton.setEnabled(false);
                 } else{
                     alertDialog.dismiss();
                     drawTileBoundingBox(geopackageName, layerName, layerUrl);

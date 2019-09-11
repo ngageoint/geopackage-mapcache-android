@@ -100,13 +100,14 @@ public class DetailActionUtil {
                 if(givenName.isEmpty()){
                     inputName.setError("Name is required");
                     alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                } else {
-                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
-                    if (!allowed) {
-                        inputName.setError("Names must be alphanumeric only");
-                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    }
                 }
+//                else {
+//                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
+//                    if (!allowed) {
+//                        inputName.setError("Names must be alphanumeric only");
+//                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+//                    }
+//                }
             }
         });
 
@@ -207,14 +208,14 @@ public class DetailActionUtil {
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText("Copy GeoPackage");
 
-        final TextInputEditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
-        input.setText(gpName + context.getString(R.string.geopackage_copy_suffix));
-        input.setHint("GeoPackage Name");
+        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        inputName.setText(gpName + context.getString(R.string.geopackage_copy_suffix));
+        inputName.setHint("GeoPackage Name");
 
-        AlertDialog.Builder copyDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+        AlertDialog.Builder copyDialogBuilder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)
                 .setPositiveButton("Copy", (dialog, which)->{
-                            String newName = input.getText().toString();
+                            String newName = inputName.getText().toString();
                             if (newName != null && !newName.isEmpty()
                                     && !newName.equals(gpName)) {
                                 dialog.dismiss();
@@ -226,7 +227,33 @@ public class DetailActionUtil {
                         (dialog, which)->{
                             dialog.dismiss();
                 });
-        copyDialog.show();
+        AlertDialog alertDialog = copyDialogBuilder.create();
+
+//        // Validate the input before allowing the rename to happen
+//        inputName.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+//            @Override
+//            public void afterTextChanged(Editable editable) {}
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                String givenName = inputName.getText().toString();
+//                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+//
+//                if(givenName.isEmpty()){
+//                    inputName.setError("Name is required");
+//                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+//                } else {
+//                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
+//                    if (!allowed) {
+//                        inputName.setError("Names must be alphanumeric only");
+//                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+//                    }
+//                }
+//            }
+//        });
+        alertDialog.show();
     }
 
     /**

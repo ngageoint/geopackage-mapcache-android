@@ -1960,6 +1960,24 @@ public class GeoPackageMapFragment extends Fragment implements
         String defaultTileUrl = settings.getString("default_tile_url", getResources().getString(R.string.default_tile_url));
         inputUrl.setText(defaultTileUrl);
 
+        inputUrl.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String givenUrl = inputUrl.getText().toString();
+                drawButton.setEnabled(true);
+
+                if(givenUrl.isEmpty()){
+                    inputUrl.setError("Name is required");
+                    drawButton.setEnabled(false);
+                }
+            }
+        });
+
         // Default url
         TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
         defaultText.setOnClickListener(new View.OnClickListener() {

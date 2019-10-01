@@ -33,6 +33,17 @@
             </intent-filter>
             <!-- GeoPackages in file browsers -->
             <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.OPENABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="*" />
+                <data android:host="*" />
+                <data android:mimeType="application/octet-stream" />
+                <data android:pathPattern=".*\\.gpkg" />
+                <data android:pathPattern=".*\\.gpkx" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.SEND" />
 
@@ -52,15 +63,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:scheme="content" />
-                <data android:mimeType="application/octet-stream" />
-            </intent-filter>
-            <!-- GeoPackages in Google Drive or sends from other apps -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="application/octet-stream" />
             </intent-filter>
         </activity>

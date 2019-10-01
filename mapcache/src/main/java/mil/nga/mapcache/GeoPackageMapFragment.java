@@ -2443,7 +2443,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         try {
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-            chooseFile.setType("*/*");
+            chooseFile.setType("application/octet-stream");
             Intent intent = Intent.createChooser(chooseFile,
                     "Choose a GeoPackage file");
             startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);

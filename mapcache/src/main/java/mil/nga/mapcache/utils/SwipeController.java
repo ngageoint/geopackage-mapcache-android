@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Vibrator;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -55,6 +56,16 @@ public class SwipeController {
      */
     Context context;
 
+    /**
+     * Lets us know when the user has swiped far enough to perform the enable/disable
+     */
+    private boolean reachedFullSwipe = false;
+
+    /**
+     * Screen vibrator
+     */
+    private Vibrator vibrator;
+
 
     /**
      * Constructor
@@ -65,6 +76,8 @@ public class SwipeController {
         activateListener = activeListener;
         this.context = context;
         background = new ColorDrawable(context.getResources().getColor(R.color.nga_accent_primary));
+        vibrator = (Vibrator) context.getSystemService(
+                Context.VIBRATOR_SERVICE);
     }
 
     public ItemTouchHelper getTouchHelper(){
@@ -107,16 +120,36 @@ public class SwipeController {
              */
             @Override
             public void onChildDraw (Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive){
-                widestSwipe = dX;
+                // Keep track of how far the user has swiped (only while their finger is still on the screen)
+                if(isCurrentlyActive) {
+                    widestSwipe = dX;
+                    // The first time they reach a full swipe, vibrate
+                    if(reachedFullSwipe == false && widestSwipe >= buttonWidth){
+                        reachedFullSwipe = true;
+                        vibrator.vibrate(context.getResources().getInteger(
+                                R.integer.map_tiles_long_click_vibrate));
+                    }
+                }
+
                 // Only draw if they're swiping a geopackage on the main recycler
                 if(viewHolder instanceof GeoPackageViewHolder) {
                     GeoPackageViewHolder holder = (GeoPackageViewHolder)viewHolder;
                     String activeLabel = "Enable";
                     if(holder.isActive()){
                         activeLabel = "Disable";
-                        background.setColor(context.getResources().getColor(R.color.grey_blue_secondary));
+                        // Color lighter before they reach a full swipe, then use a solid color
+                        if(widestSwipe > buttonWidth) {
+                            background.setColor(context.getResources().getColor(R.color.grey_blue_secondary));
+                        } else{
+                            background.setColor(context.getResources().getColor(R.color.grey_blue_secondary_light));
+                        }
                     } else {
-                        background.setColor(context.getResources().getColor(R.color.nga_accent_primary));
+                        if(widestSwipe > buttonWidth) {
+                            background.setColor(context.getResources().getColor(R.color.nga_accent_primary));
+                        } else{
+                            background.setColor(context.getResources().getColor(R.color.nga_accent_bright));
+
+                        }
                     }
                     if(holder.getmDatabase().getTableCount() == 0){
                         activeLabel = "No layers";
@@ -161,13 +194,15 @@ public class SwipeController {
             public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder){
                 // Only run the enable/disable command if the user swiped enough to show the full
                 // message button.  If partial swipe, just do nothing
-                if(widestSwipe > 1.0) {
+                if(widestSwipe > buttonWidth) {
                     if (viewHolder instanceof GeoPackageViewHolder) {
                         GeoPackageViewHolder holder = (GeoPackageViewHolder) viewHolder;
                         boolean newActiveValue = !holder.isActive();
                         activateListener.onClick(newActiveValue, holder.getmDatabase());
                         holder.getmDatabase().setAllTablesActiveState(newActiveValue);
                         super.clearView(recyclerView, viewHolder);
+                        widestSwipe = 0;
+                        reachedFullSwipe = false;
                     }
                 }
             }

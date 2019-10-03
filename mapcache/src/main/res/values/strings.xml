@@ -305,7 +305,7 @@
     <string name="layer_detail_page">Layer Detail</string>
     <string name="max_features_message">The amount of features in the selected active layers exceeds the max features setting.  Some items will not be drawn on the map.\n\nUpdate the Max Features setting in the edit icon on the map if needed.</string>
     <string name="default_tile_url">https://osm.gs.mil/tiles/default/{z}/{x}/{y}.png</string>
-    <string name="draw_layer_instruction">Tap and drag to draw a bounding box.  You can drag again to redraw.</string>
+    <string name="draw_layer_instruction">Position the map to download map tiles within the highlighted area</string>
     <string name="draw_layer_continue">Continue</string>
     <string-array name="zoom_levels">
         <item>0</item>

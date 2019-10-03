@@ -28,7 +28,6 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -685,6 +684,12 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private MenuItem showHideOption;
 
+    /**
+     * A view that acts as a transparent box.  Used for laying on top of a map for the user to
+     * draw a bounding box
+     */
+    private View transBox;
+
 
 
     /**
@@ -784,6 +789,16 @@ public class GeoPackageMapFragment extends Fragment implements
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
+    }
+
+    /**
+     * Get the boolean value for the zoom level indicator setting
+     */
+    private boolean isZoomLevelVisible(){
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        return settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
+
     }
 
 
@@ -1918,6 +1933,10 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param geopackageName
      */
     private void newTileLayerWizard(final String geopackageName){
+
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
+        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
         // Create Alert window with basic input text layout
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View alertView = inflater.inflate(R.layout.new_tile_layer_wizard, null);
@@ -2042,8 +2061,13 @@ public class GeoPackageMapFragment extends Fragment implements
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
+        // Draw a default bounding box (make sure start and end corner are currently set
+        transBox = getLayoutInflater().inflate(R.layout.transparent_box_view, null);
+        touch.addView(transBox);
+
         // show message for how to draw the box
-        final Snackbar snackBar = Snackbar.make(view, R.string.draw_layer_instruction, Snackbar.LENGTH_INDEFINITE);
+        final Snackbar snackBar = Snackbar.make(transBox, R.string.draw_layer_instruction, Snackbar.LENGTH_INDEFINITE);
+        View view = snackBar.getView();
 
         // Snackbar click listeners close by default every time.  Instead, give an empty click listener
         // and use a callback to determine if they've drawn a bounding box first
@@ -2055,23 +2079,26 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void onShown(Snackbar transientBottomBar) {
                 super.onShown(transientBottomBar);
-
                 transientBottomBar.getView().findViewById(R.id.snackbar_action).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (boundingBox == null) {
-                            // If they didn't draw a bounding box, don't let the snackbar close
-                            Toast toast = Toast.makeText(getActivity(), "You must draw a bounding box first", Toast.LENGTH_SHORT);
-                            toast.getView().setBackgroundResource(R.drawable.rounded_rectangle_background);
-                            toast.show();
-                        } else {
-                            boundingBoxMode = false;
+                        View transBoxView = (View) transBox.findViewById(R.id.transparent_measurement);
+                        Point point = new Point(transBoxView.getLeft(), transBoxView.getTop());
+                        boundingBoxStartCorner = map.getProjection().fromScreenLocation(point);
+
+                        Point endPoint = new Point(transBoxView.getRight(), transBoxView.getBottom());
+                        boundingBoxEndCorner = map.getProjection().fromScreenLocation(endPoint);
+
+                        boolean drawBoundingBox = drawBoundingBox();
+
+                        if(!isZoomLevelVisible()) {
                             setZoomLevelVisible(false);
-                            snackBar.dismiss();
-                            layerFab.show();
-                            // continue to create layer
-                            createTileFinal(geopackageName, layerName, url);
                         }
+                        snackBar.dismiss();
+                        layerFab.show();
+                        touch.removeView(transBox);
+                        // continue to create layer
+                        createTileFinal(geopackageName, layerName, url);
                     }
                 });
             }
@@ -2080,8 +2107,8 @@ public class GeoPackageMapFragment extends Fragment implements
         Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout)snackBar.getView();
         layout.setMinimumHeight(300);
         snackBar.show();
-        // Draw the box
-        boundingBoxMode = true;
+        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
     }
 
 
@@ -2755,6 +2782,7 @@ public class GeoPackageMapFragment extends Fragment implements
         map.setOnMarkerClickListener(this);
         map.setOnMarkerDragListener(this);
         map.setOnCameraIdleListener(this);
+        map.getUiSettings().setRotateGesturesEnabled(false);
         //map.getUiSettings().setZoomControlsEnabled(true);
 
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -5333,6 +5361,25 @@ public class GeoPackageMapFragment extends Fragment implements
                 map.addTileOverlay(overlayOptions);
             }
         });
+    }
+
+    /**
+     * Draw a bounding box with boundingBoxStartCorner and boundingBoxEndCorner
+     */
+    public boolean drawBoundingBox(){
+        PolygonOptions polygonOptions = new PolygonOptions();
+        polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_color));
+        polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_fill_color));
+        List<LatLng> points = getPolygonPoints(boundingBoxStartCorner,
+                boundingBoxEndCorner);
+        polygonOptions.addAll(points);
+        boundingBox = map.addPolygon(polygonOptions);
+        setDrawing(true);
+        if (boundingBoxClearButton != null) {
+            boundingBoxClearButton
+                    .setImageResource(R.drawable.cancel_changes_active);
+        }
+        return true;
     }
 
     /**

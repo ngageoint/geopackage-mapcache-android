@@ -30,5 +30,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--<TextView-->
+        <!--android:id="@+id/textView2"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="108dp"-->
+        <!--android:background="@color/black"-->
+        <!--android:text="TextView"-->
+        <!--app:layout_constraintTop_toBottomOf="@+id/transparent_box" />-->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

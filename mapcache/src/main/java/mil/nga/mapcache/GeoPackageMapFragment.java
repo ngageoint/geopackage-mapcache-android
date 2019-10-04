@@ -3853,8 +3853,22 @@ public class GeoPackageMapFragment extends Fragment implements
             }
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Prevent users from setting to less than 1, or greater than 1 million
+                alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
                 int length = charSequence.length();
-                alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(length > 0);
+                int highestMaxFeatures = 1000000;
+                if(length < 1) {
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                } else if(length > String.valueOf(highestMaxFeatures).length()){
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    input.setError("Cannot set max features higher than " + highestMaxFeatures);
+                } else {
+                    int maxFeature = Integer.parseInt(charSequence.toString());
+                    if (maxFeature > highestMaxFeatures) {
+                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        input.setError("Cannot set max features higher than " + highestMaxFeatures);
+                    }
+                }
             }
             @Override
             public void afterTextChanged(Editable editable) {

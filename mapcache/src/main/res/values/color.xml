@@ -46,14 +46,10 @@
     <color name="grey_blue_secondary">#778490</color>
     <color name="grey_blue_secondary_light">#9CABB9</color>
 
-
+    <!--transparent-->
     <color name="trans_grey">#65000000</color>
+    <color name="trans_dark_grey">#CD000000</color>
     <color name="trans_blue">#652E9BD3</color>
-
-
-
-
-
 
 
     <!-- NGA specific colors -->

@@ -11,16 +11,20 @@
             <!--type="mil.nga.mapcache.viewmodel.GeoPackageViewModel" />-->
     <!--</data>-->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    android:id="@+id/map_view_holder"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true" >
 
+    <!--Map view has a margin of 105 to let it be slightly past the peek hight of the drawer-->
     <fragment
         android:id="@+id/fragment_map_view_ui"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
+        android:layout_marginBottom="105dp"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
     <!--Text to show current zoom level-->
@@ -416,7 +420,7 @@
         android:src="@drawable/add"
         android:visibility="visible"
         app:rippleColor="@color/nga_accent_light"
-        app:layout_anchor="@id/fragment_map_view_ui"
+        app:layout_anchor="@id/map_view_holder"
         app:layout_anchorGravity="bottom|right|end" />
 
     <!--Floating action button for new layers -->
@@ -427,122 +431,123 @@
         android:layout_margin="16dp"
         android:src="@drawable/material_tile_add"
         android:visibility="gone"
-        app:backgroundTint="@color/nga_accent_primary_dark"
+        app:backgroundTint="@color/nga_accent_primary"
         app:rippleColor="@color/nga_accent_light"
-        app:layout_anchor="@id/fragment_map_view_ui"
+        app:layout_anchor="@id/map_view_holder"
         app:layout_anchorGravity="bottom|right|end" />
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/gradient_vertical"
-        android:elevation="4dp"
-        android:fillViewport="true"
-        app:behavior_peekHeight="1dp"
-        app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_hideable="false">
-        <!--To add gradient: android:background="@drawable/gradient_vertical-->
-        <!--Different layout idea: only expand to show current content and no further:-->
-        <!--android:layout_height="wrap_content"-->
+    <!--<androidx.core.widget.NestedScrollView-->
+        <!--android:id="@+id/bottom_sheet"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@drawable/gradient_vertical"-->
+        <!--android:elevation="4dp"-->
         <!--android:fillViewport="true"-->
-        <!--for colored angled gradient:         android:background="@drawable/gradient_angle"-->
+        <!--app:behavior_peekHeight="1dp"-->
+        <!--android:visibility="gone"-->
+        <!--app:layout_behavior="@string/bottom_sheet_behavior"-->
+        <!--app:behavior_hideable="false">-->
+        <!--&lt;!&ndash;To add gradient: android:background="@drawable/gradient_vertical&ndash;&gt;-->
+        <!--&lt;!&ndash;Different layout idea: only expand to show current content and no further:&ndash;&gt;-->
+        <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+        <!--&lt;!&ndash;android:fillViewport="true"&ndash;&gt;-->
+        <!--&lt;!&ndash;for colored angled gradient:         android:background="@drawable/gradient_angle"&ndash;&gt;-->
 
 
 
-        <FrameLayout
-            android:id="@+id/fragmentOutterContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <!--<FrameLayout-->
+            <!--android:id="@+id/fragmentOutterContainer"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent">-->
 
 
-            <FrameLayout
-                android:id="@+id/fragmentContainer"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp">
+            <!--<FrameLayout-->
+                <!--android:id="@+id/fragmentContainer"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:paddingLeft="8dp"-->
+                <!--android:paddingRight="8dp">-->
 
-                <!--use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page-->
-                <!--<com.google.android.material.floatingactionbutton.FloatingActionButton-->
-                    <!--android:id="@+id/bottom_sheet_fab"-->
-                    <!--android:layout_width="wrap_content"-->
+                <!--&lt;!&ndash;use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page&ndash;&gt;-->
+                <!--&lt;!&ndash;<com.google.android.material.floatingactionbutton.FloatingActionButton&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:id="@+id/bottom_sheet_fab"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_gravity="right"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_margin="4dp"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:src="@drawable/add"&ndash;&gt;-->
+                    <!--&lt;!&ndash;app:layout_anchor="@id/fragmentContainer" />&ndash;&gt;-->
+
+
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/mapScrollLayout"-->
+                    <!--android:layout_width="match_parent"-->
                     <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_gravity="right"-->
-                    <!--android:layout_margin="4dp"-->
-                    <!--android:src="@drawable/add"-->
-                    <!--app:layout_anchor="@id/fragmentContainer" />-->
+                    <!--android:orientation="vertical">-->
 
+                    <!--&lt;!&ndash;Small tab to indicate drag window    &ndash;&gt;-->
+                    <!--<View-->
+                        <!--android:layout_width="30dp"-->
+                        <!--android:layout_height="1dp"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_marginBottom="4dp"-->
+                        <!--android:layout_marginTop="8dp"-->
+                        <!--android:background="@color/horizontal_line"/>-->
+                        <!--&lt;!&ndash;android:background="@color/horizontal_line" />&ndash;&gt;-->
 
-                <LinearLayout
-                    android:id="@+id/mapScrollLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    <!--&lt;!&ndash;Title&ndash;&gt;-->
+                    <!--<androidx.appcompat.widget.AppCompatTextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="GeoPackages"-->
+                        <!--android:layout_marginBottom="8dp"-->
+                        <!--android:paddingLeft="4dp"-->
+                        <!--android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />-->
 
-                    <!--Small tab to indicate drag window    -->
-                    <View
-                        android:layout_width="30dp"
-                        android:layout_height="1dp"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="4dp"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/horizontal_line"/>
-                        <!--android:background="@color/horizontal_line" />-->
-
-                    <!--Title-->
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="GeoPackages"
-                        android:layout_marginBottom="8dp"
-                        android:paddingLeft="4dp"
-                        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
-
-                    <!--horizontal line-->
+                    <!--&lt;!&ndash;horizontal line&ndash;&gt;-->
 
 
 
 
 
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/enabledDatabase"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent" />
-
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/activeDatabases"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent" />
-
-
-                    <!--GeoPackage detail fragment-->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <FrameLayout
-                            android:id="@+id/detail_container"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="0" />
-
-                        <!--<fragment-->
-                        <!--android:id="@+id/fragment_geo_detail"-->
-                        <!--android:name="mil.nga.mapcache.GeoPackageDetailDrawer"-->
-                        <!--android:layout_width="match_parent"-->
+                    <!--<androidx.appcompat.widget.AppCompatTextView-->
+                        <!--android:id="@+id/enabledDatabase"-->
+                        <!--android:layout_width="wrap_content"-->
                         <!--android:layout_height="match_parent" />-->
-                    </LinearLayout>
+
+                    <!--<androidx.appcompat.widget.AppCompatTextView-->
+                        <!--android:id="@+id/activeDatabases"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="match_parent" />-->
 
 
-                </LinearLayout>
-            </FrameLayout>
-        </FrameLayout>
+                    <!--&lt;!&ndash;GeoPackage detail fragment&ndash;&gt;-->
+                    <!--<LinearLayout-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="0dp"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:orientation="vertical">-->
+
+                        <!--<FrameLayout-->
+                            <!--android:id="@+id/detail_container"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:layout_weight="0" />-->
+
+                        <!--&lt;!&ndash;<fragment&ndash;&gt;-->
+                        <!--&lt;!&ndash;android:id="@+id/fragment_geo_detail"&ndash;&gt;-->
+                        <!--&lt;!&ndash;android:name="mil.nga.mapcache.GeoPackageDetailDrawer"&ndash;&gt;-->
+                        <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+                        <!--&lt;!&ndash;android:layout_height="match_parent" />&ndash;&gt;-->
+                    <!--</LinearLayout>-->
 
 
-    </androidx.core.widget.NestedScrollView>
+                <!--</LinearLayout>-->
+            <!--</FrameLayout>-->
+        <!--</FrameLayout>-->
+
+
+    <!--</androidx.core.widget.NestedScrollView>-->
 
 
     <!--Settings view-->

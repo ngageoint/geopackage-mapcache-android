@@ -71,6 +71,8 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -726,7 +728,6 @@ public class GeoPackageMapFragment extends Fragment implements
         view = inflater.inflate(R.layout.fragment_map, container, false);
         getMapFragment().getMapAsync(this);
 
-
         touch = new TouchableMap(getActivity());
         touch.addView(view);
 
@@ -755,6 +756,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Show disclaimer
         showDisclaimer();
+
+        // Draw a transparent box.  used for downloading a new tile layer
+        // NOTE: This view is invisible by default
+        transBox = getLayoutInflater().inflate(R.layout.transparent_box_view, null);
 
         return touch;
     }
@@ -2055,60 +2060,47 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param url url to get the tiles from
      */
     private void drawTileBoundingBox(String geopackageName, String layerName, String url){
-        layerFab.hide();
-        setZoomLevelVisible(true);
-        // shrink bottom sheet
+        // prepare the screen by shrinking bottom sheet, hide fab, show zoom level
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        layerFab.hide();
+        setZoomLevelVisible(true);
 
-        // Draw a default bounding box (make sure start and end corner are currently set
-        transBox = getLayoutInflater().inflate(R.layout.transparent_box_view, null);
+        // Make sure the transparent box is visible, and add it to the mapview
+        transBox.setVisibility(View.VISIBLE);
         touch.addView(transBox);
 
-        // show message for how to draw the box
-        final Snackbar snackBar = Snackbar.make(transBox, R.string.draw_layer_instruction, Snackbar.LENGTH_INDEFINITE);
-        View view = snackBar.getView();
-
-        // Snackbar click listeners close by default every time.  Instead, give an empty click listener
-        // and use a callback to determine if they've drawn a bounding box first
-        snackBar.setAction("Continue", new View.OnClickListener() {
+        // Cancel
+        Button cancelTile = (Button)transBox.findViewById(R.id.tile_area_select_cancel);
+        cancelTile.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {}
-        });
-        snackBar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
-            @Override
-            public void onShown(Snackbar transientBottomBar) {
-                super.onShown(transientBottomBar);
-                transientBottomBar.getView().findViewById(R.id.snackbar_action).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        View transBoxView = (View) transBox.findViewById(R.id.transparent_measurement);
-                        Point point = new Point(transBoxView.getLeft(), transBoxView.getTop());
-                        boundingBoxStartCorner = map.getProjection().fromScreenLocation(point);
-
-                        Point endPoint = new Point(transBoxView.getRight(), transBoxView.getBottom());
-                        boundingBoxEndCorner = map.getProjection().fromScreenLocation(endPoint);
-
-                        boolean drawBoundingBox = drawBoundingBox();
-
-                        if(!isZoomLevelVisible()) {
-                            setZoomLevelVisible(false);
-                        }
-                        snackBar.dismiss();
-                        layerFab.show();
-                        touch.removeView(transBox);
-                        // continue to create layer
-                        createTileFinal(geopackageName, layerName, url);
-                    }
-                });
+            public void onClick(View view) {
+                // Remove transparent box and show the floating action button again
+                touch.removeView(transBox);
+                layerFab.show();
             }
         });
 
-        Snackbar.SnackbarLayout layout = (Snackbar.SnackbarLayout)snackBar.getView();
-        layout.setMinimumHeight(300);
-        snackBar.show();
-        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-
+        // Next
+        Button tileDrawNext = (Button)transBox.findViewById(R.id.tile_area_select_next);
+        tileDrawNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View transBoxView = (View) transBox.findViewById(R.id.transparent_measurement);
+                Point point = new Point(transBoxView.getLeft(), transBoxView.getTop());
+                boundingBoxStartCorner = map.getProjection().fromScreenLocation(point);
+                Point endPoint = new Point(transBoxView.getRight(), transBoxView.getBottom());
+                boundingBoxEndCorner = map.getProjection().fromScreenLocation(endPoint);
+                boolean drawBoundingBox = drawBoundingBox();
+                if(!isZoomLevelVisible()) {
+                    setZoomLevelVisible(false);
+                }
+                layerFab.show();
+                touch.removeView(transBox);
+                // continue to create layer
+                createTileFinal(geopackageName, layerName, url);
+            }
+        });
     }
 
 
@@ -2138,8 +2130,6 @@ public class GeoPackageMapFragment extends Fragment implements
         maxSpinner.setSelection(maxAdapter.getPosition("5"));
 
         // Name and url
-//        TextView finalGeoName = (TextView) tileView.findViewById(R.id.final_geo_name);
-//        finalGeoName.setText(geopackageName);
         TextView finalName = (TextView) tileView.findViewById(R.id.final_tile_name);
         finalName.setText(layerName);
         TextView finalUrl = (TextView) tileView.findViewById(R.id.final_tile_url);
@@ -2157,13 +2147,12 @@ public class GeoPackageMapFragment extends Fragment implements
         RadioGroup srsGroup = (RadioGroup) tileView.findViewById(R.id.srsGroup);
         RadioGroup tileFormatGroup = (RadioGroup) tileView.findViewById(R.id.tileFormatGroup);
 
-
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(tileView);
         final AlertDialog alertDialog = dialog.create();
 
-        // Click listener for close button
+        // close button
         closeLogo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -2173,7 +2162,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        // Click listener for finish button
+        // finish button
         drawButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -2793,8 +2782,6 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        // For some reason on start, the map has zoom level set to 2.  But it's actually at 3.
-        // Just set it to 3 off the bat
         map.moveCamera(CameraUpdateFactory.zoomTo(3));
 
         // Keep track of the current zoom level

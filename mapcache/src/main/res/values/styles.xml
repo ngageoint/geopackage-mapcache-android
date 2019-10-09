@@ -43,6 +43,12 @@
     </style>
 
 
+    <!--Theme for making primary colors the nga accent colors-->
+    <style name="AccentTheme" parent="AppBaseTheme">
+        <item name="colorAccent">@color/nga_accent_primary_dark</item>
+    </style>
+
+
 
     <!-- Material.io font styles:
          https://material.io/develop/android/theming/typography/

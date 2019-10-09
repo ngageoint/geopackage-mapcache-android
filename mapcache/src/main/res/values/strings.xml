@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.0.3</string>
+    <string name="app_version">Version 2.0.4</string>
     <string name="app_release_date">Released Oct 2019</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
@@ -349,6 +349,10 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
+        Release Notes - 2.0.4\n \t
+        - New tile layer redesign\n\t
+        - Enable higher zoom levels\n\t
+        \n
         Release Notes - 2.0.3\n \t
         - New draw feature for creating layers\n\t
         - Filter file types for import\n\t

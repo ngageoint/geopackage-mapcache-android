@@ -11,42 +11,17 @@ Software source code previously released under an open source license and then m
 
 ### Android App ###
 
-[Download the latest APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/latest)
+<a href='https://play.google.com/store/apps/details?id=mil.nga.mapcache'>
+    <img src="https://github.com/ngageoint/GeoPackage/raw/master/docs/images/google-play-badge.png" height=50>
+</a>
+
+[Download the latest Legacy APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.24)
 
 ### About ###
 
 [GeoPackage MapCache](http://ngageoint.github.io/geopackage-mapcache-android/) is a [GeoPackage Library](http://ngageoint.github.io/GeoPackage/) app for Android that utilizes and demonstrates the functionality in [GeoPackage Android](https://github.com/ngageoint/geopackage-android) and [GeoPackage Android Map](https://github.com/ngageoint/geopackage-android-map).  The GeoPackage SDKs are Android library implementations of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/). The app and SDK are listed as [OGC GeoPackage Implementations](http://www.geopackage.org/#implementations_nga) by the National Geospatial-Intelligence Agency.
 
 The MapCache app provides read and write access to GeoPackage files, including features and tiles. Features are visualized and editable on the map. Tiles are visualized on the map and can be loaded from a tile provider or WMS url.
-
-### Screen Shots ###
-
-Manager View with GeoPackages linked at Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/#sampledata)
-
-* [Technology Test Data Set](http://www.geopackage.org/data/gdal_sample.gpkg)
-* [ERDC Whitehorse Tiles](https://portal.opengeospatial.org/files/63156)
-
-![Screenshot 1](screenshots/screenshot1.jpg)
-
-Haiti Polygon Features
-
-![Screenshot 2](screenshots/screenshot2.jpg)
-
-Belgium Point Features
-
-![Screenshot 3](screenshots/screenshot3.jpg)
-
-Editing Haiti Features with [OpenStreetMap](http://www.openstreetmap.org) tiles
-
-![Screenshot 4](screenshots/screenshot4.jpg)
-
-[nowCOAST](http://nowcoast.noaa.gov) tiles
-
-![Screenshot 5](screenshots/screenshot5.jpg)
-
-[Whitehorse](https://portal.opengeospatial.org/files/63156) tiles
-
-![Screenshot 6](screenshots/screenshot6.jpg)
 
 ### Build ###
 
@@ -70,30 +45,3 @@ In your `gradle.properties`, add your API Key (replacing the example keys)
 RELEASE_MAPS_MAPCACHE_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
 DEBUG_MAPS_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
 ```
-
-### Icons ###
-
-GeoPackage Icon is from Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/).
-
-App Icons are from [Material Design Icons on GitHub](https://github.com/google/material-design-icons) or generated at [Android Asset Studio](http://romannurik.github.io/AndroidAssetStudio).
-
-#### Map Button Colors ####
-* Grey: #989898
-* Yellow: #ffff00
-* Green: #00ff00
-* Red: #f44336
-
-#### Map Button Padding ####
-* ic_shape_draw: 30%
-* ic_shape_hole_draw: 30%
-* ic_shape_edit: 50%
-
-### Dependencies ###
-
-#### Remote ####
-
-* [GeoPackage Android Map](https://github.com/ngageoint/geopackage-android-map) (The MIT License (MIT)) - GeoPackage Library
-
-#### Embedded ####
-
-* [aFileChooser](https://github.com/iPaulPro/aFileChooser) (Apache License, Version 2.0) - Uri Paths using modified FileUtils

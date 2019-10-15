@@ -2209,7 +2209,6 @@ public class GeoPackageMapFragment extends Fragment implements
                                 compressQuality, googleTiles,
                                 boundingBox, scaling,
                                 ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
-                        geoPackageViewModel.regenerateGeoPackageTableList();
 
                     } catch (Exception e) {
                         GeoPackageUtils
@@ -7174,6 +7173,9 @@ public class GeoPackageMapFragment extends Fragment implements
      * When loading tiles is finished
      */
     private void loadTilesFinished() {
+        // Make sure the geopackage source is being repopulated to get the new layer
+        geoPackageViewModel.regenerateGeoPackageTableList();
+
         if (active.isModified()) {
             updateInBackground(false);
             if (boundingBox != null) {

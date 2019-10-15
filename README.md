@@ -30,23 +30,23 @@ The MapCache app provides read and write access to GeoPackage files, including f
 
 GeoPackage with a tile layer
 
-![Screenshot 1](screenshots/screen1.png)
+<img src="screenshots/screen1.png" width="30%">
 
 List of GeoPackages with 2 enabled
 
-![Screenshot 2](screenshots/screen2.png)
+<img src="screenshots/screen2.png" width="30%">
 
 A GeoPackage with tiles and features enabled on the map
 
-![Screenshot 3](screenshots/screen3.png)
+<img src="screenshots/screen3.png" width="30%">
 
 Downloading tiles for a new layer
 
-![Screenshot 4](screenshots/screen4.png)
+<img src="screenshots/screen4.png" width="30%">
 
 A Tile layer detail view
 
-![Screenshot 5](screenshots/screen5.png)
+<img src="screenshots/screen5.png" width="30%">
 
 ### Build ###
 

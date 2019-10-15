@@ -23,9 +23,6 @@ Software source code previously released under an open source license and then m
 
 The MapCache app provides read and write access to GeoPackage files, including features and tiles. Features are visualized and editable on the map. Tiles are visualized on the map and can be loaded from a tile provider or WMS url.
 
-* [Technology Test Data Set](http://www.geopackage.org/data/gdal_sample.gpkg)
-* [ERDC Whitehorse Tiles](https://portal.opengeospatial.org/files/63156)
-
 ### Screenshots ###
 
 GeoPackage with a tile layer

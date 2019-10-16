@@ -320,12 +320,15 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     protected String doInBackground(String... params) {
         try {
             int count = tileGenerator.generateTiles();
+            if(count == 0){
+                return "No tiles were generated for your new layer.  This could be an issue with your tile URL or the tile server.  Please verify the server URL and try again.";
+            }
             if (count > 0) {
                 active.setModified(true);
             }
             if (count < max && !(tileGenerator instanceof FeatureTileGenerator)) {
                 return "Fewer tiles were generated than expected. Expected: "
-                        + max + ", Actual: " + count;
+                        + max + ", Actual: " + count + ".  This is likely an issue with the tile server or a slow / intermittent network connection.";
             }
         } catch (final Exception e) {
             return e.toString();

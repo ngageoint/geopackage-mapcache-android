@@ -159,7 +159,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     public void setData(DetailPageLayerObject layerObject){
         mLayerObject = layerObject;
         nameText.setText(mLayerObject.getName());
-        if(!mLayerObject.getDescription().isEmpty()) {
+        if(mLayerObject.getDescription() != null && !mLayerObject.getDescription().isEmpty()) {
             descriptionText.setText(mLayerObject.getDescription());
         }
         setCheckedStatus(layerObject.isChecked());

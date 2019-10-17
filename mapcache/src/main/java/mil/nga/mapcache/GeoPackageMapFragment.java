@@ -200,6 +200,7 @@ import mil.nga.mapcache.view.detail.DetailActionUtil;
 import mil.nga.mapcache.view.detail.DetailPageAdapter;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
+import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
@@ -2129,6 +2130,9 @@ public class GeoPackageMapFragment extends Fragment implements
         maxSpinner.setAdapter(maxAdapter);
         maxSpinner.setSelection(maxAdapter.getPosition("5"));
 
+        // Set a listener to adjust min and max when selections are made
+        NewLayerUtil.setZoomLevelSyncListener(minSpinner, maxSpinner);
+
         // Name and url
         TextView finalName = (TextView) tileView.findViewById(R.id.final_tile_name);
         finalName.setText(layerName);
@@ -2169,8 +2173,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 int minZoom = Integer.valueOf(minSpinner.getSelectedItem().toString());
                 int maxZoom = Integer.valueOf(maxSpinner.getSelectedItem().toString());
 
-                if(minZoom >= maxZoom){
-                    Toast.makeText(getActivity(), "Min zoom must be less than max zoom", Toast.LENGTH_SHORT).show();
+                if(minZoom > maxZoom){
+                    Toast.makeText(getActivity(), "Min zoom can't be more than max zoom", Toast.LENGTH_SHORT).show();
                 } else {
 
                     try {

@@ -203,6 +203,8 @@ public class SwipeController {
                         super.clearView(recyclerView, viewHolder);
                         widestSwipe = 0;
                         reachedFullSwipe = false;
+//                        ViewAnimation.setBounceAnimatiom(holder.itemView, 1000);
+//                        holder.animate();
                     }
                 }
             }

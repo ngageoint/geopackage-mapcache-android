@@ -2,9 +2,12 @@ package mil.nga.mapcache.utils;
 
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 
@@ -128,6 +131,32 @@ public class ViewAnimation {
         ScaleAnimation anim = new ScaleAnimation(0.0f, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         anim.setDuration(duration);
         view.startAnimation(anim);
+    }
+
+    /**
+     * Assign a "scale to 120% and back bounce + fade out and in" animation to the given view
+     * @param view the view to animate
+     * @param duration duration of the animation
+     */
+    public static void setBounceAnimatiom(View view, long duration){
+        ScaleAnimation grow = new ScaleAnimation(1.0f, 1.2f, 1.0f, 1.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        grow.setDuration(duration);
+        ScaleAnimation shrink = new ScaleAnimation(1.0f, 0.8f, 1.0f, 0.8f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        shrink.setDuration(duration);
+        shrink.setStartOffset(duration);
+
+        // Fade out then repeat to fade back in
+        AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.3f);
+        fadeOut.setInterpolator(new DecelerateInterpolator()); //and this
+        fadeOut.setDuration(100);
+        fadeOut.setRepeatMode(Animation.REVERSE);
+        fadeOut.setRepeatCount(1);
+
+        AnimationSet set = new AnimationSet(false);
+        set.addAnimation(grow);
+        set.addAnimation(shrink);
+        set.addAnimation(fadeOut);
+        view.startAnimation(set);
     }
 
 

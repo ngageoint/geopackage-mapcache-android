@@ -34,9 +34,9 @@ public class DetailPageLayerObject {
         this.table = table;
         this.description = table.getDescription();
         if(table instanceof GeoPackageFeatureTable){
-            this.iconType = R.drawable.material_feature;
+            this.iconType = R.drawable.polygon_colored;
         } else{
-            this.iconType = R.drawable.material_tile;
+            this.iconType = R.drawable.colored_layers;
         }
     }
 

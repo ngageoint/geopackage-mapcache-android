@@ -2066,10 +2066,12 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param url url to get the tiles from
      */
     private void drawTileBoundingBox(String geopackageName, String layerName, String url){
-        // prepare the screen by shrinking bottom sheet, hide fab, show zoom level
+        // prepare the screen by shrinking bottom sheet, hide fab and map buttons, show zoom level
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         layerFab.hide();
+        editFeaturesButton.setVisibility(View.INVISIBLE);
+        settingsIcon.setVisibility(View.INVISIBLE);
         setZoomLevelVisible(true);
 
         // Make sure the transparent box is visible, and add it to the mapview
@@ -2081,9 +2083,11 @@ public class GeoPackageMapFragment extends Fragment implements
         cancelTile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Remove transparent box and show the floating action button again
+                // Remove transparent box and show the fab and map buttons again
                 touch.removeView(transBox);
                 layerFab.show();
+                editFeaturesButton.setVisibility(View.VISIBLE);
+                settingsIcon.setVisibility(View.VISIBLE);
             }
         });
 
@@ -2102,6 +2106,8 @@ public class GeoPackageMapFragment extends Fragment implements
                     setZoomLevelVisible(false);
                 }
                 layerFab.show();
+                editFeaturesButton.setVisibility(View.VISIBLE);
+                settingsIcon.setVisibility(View.VISIBLE);
                 touch.removeView(transBox);
                 // continue to create layer
                 createTileFinal(geopackageName, layerName, url);

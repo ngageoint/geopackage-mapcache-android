@@ -89,8 +89,7 @@ public class LayerViewHolder extends RecyclerView.ViewHolder{
         };
         title.setOnClickListener(layerClick);
         icon.setOnClickListener(layerClick);
-        //        itemView.setClickable(true);
-        //itemView.setOnClickListener(this);
+
     }
 
     /**

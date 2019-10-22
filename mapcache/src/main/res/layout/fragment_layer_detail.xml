@@ -36,8 +36,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:paddingLeft="16dp"
-                android:paddingBottom="16dp"
-                android:paddingTop="8dp">
+                android:paddingBottom="0dp">
 
                 <ImageButton
                     android:id="@+id/layerPageBackButton"
@@ -45,12 +44,16 @@
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
                     android:paddingRight="16dp"
+                    android:paddingBottom="16dp"
+                    android:paddingTop="8dp"
                     android:src="@drawable/ic_arrow_back_black_24dp" />
 
                 <TextView
                     android:id="@+id/layerName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingBottom="16dp"
+                    android:paddingTop="8dp"
                     android:textStyle="bold"
                     android:text="@string/layer_detail_page"
                     android:textAppearance="@style/textAppearanceSubtitle1Heavy" />

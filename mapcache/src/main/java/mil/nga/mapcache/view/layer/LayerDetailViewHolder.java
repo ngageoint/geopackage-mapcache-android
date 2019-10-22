@@ -167,13 +167,13 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             GeoPackageFeatureTable feature = (GeoPackageFeatureTable)layerObject.getTable();
             layerTypeText.setText("Feature Layer");
             layerCountLbl.setText("Features");
-            layerTypeIcon.setImageResource(R.drawable.material_feature);
+            layerTypeIcon.setImageResource(R.drawable.polygon_colored);
             layerCountText.setText(feature.getCount() + "");
         } else if(layerObject.getTable() instanceof GeoPackageTileTable){
             GeoPackageTileTable tile = (GeoPackageTileTable)layerObject.getTable();
             layerTypeText.setText("Tile Layer");
             layerCountLbl.setText("Tiles");
-            layerTypeIcon.setImageResource(R.drawable.material_tile);
+            layerTypeIcon.setImageResource(R.drawable.colored_layers);
             layerCountText.setText(tile.getCount() + "");
             if(tile.getMinZoom() >= 0 && tile.getMaxZoom() >= 0) {
                 zoomLabel.setVisibility(View.VISIBLE);

@@ -114,6 +114,17 @@ public class ViewAnimation {
     }
 
     /**
+     * Assign a "slide out to right" animation to the given view
+     * @param view The view which we want to slide
+     * @param duration the duration of the animation in milliseconds
+     */
+    public static void setSlideOutToRightAnimation(View view, long duration){
+        Animation slide = AnimationUtils.loadAnimation(view.getContext(), R.anim.slide_out_to_right);
+        slide.setDuration(duration);
+        view.startAnimation(slide);
+    }
+
+    /**
      * Assign a "fade in" animation to the given view
      * @param view the view to animate
      * @param duration duration of the animation
@@ -171,6 +182,41 @@ public class ViewAnimation {
         ScaleAnimation anim = new ScaleAnimation(0.0f, 1.0f, 0.0f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         anim.setDuration(duration);
         view.startAnimation(anim);
+    }
+
+    /**
+     * Assign a fade and slide in animation to the given view
+     * @param view the view to animate
+     * @param duration duration of the animation
+     */
+    public static void fadeInFromRight(View view, long duration){
+        ObjectAnimator slide = ObjectAnimator.ofFloat(view, View.TRANSLATION_X, 180, 0);
+        slide.setDuration(duration);
+
+        ObjectAnimator fade = ObjectAnimator.ofFloat(view, View.ALPHA, 0, 1);
+        fade.setDuration(duration);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playTogether(slide, fade);
+        set.start();
+    }
+
+    /**
+     * Assign a bounce animation from right to left
+     */
+    public static void bounceRightToLeft(View view, long duration){
+        ObjectAnimator slide = ObjectAnimator.ofFloat(view, View.TRANSLATION_X, 180, -50);
+        slide.setDuration(duration);
+
+        ObjectAnimator slide2 = ObjectAnimator.ofFloat(view, View.TRANSLATION_X, -50, 80);
+        slide2.setDuration(duration);
+
+        ObjectAnimator slide3 = ObjectAnimator.ofFloat(view, View.TRANSLATION_X, 80, 0);
+        slide3.setDuration(duration);
+
+        AnimatorSet set = new AnimatorSet();
+        set.playSequentially(slide, slide2, slide3);
+        set.start();
     }
 
     /**

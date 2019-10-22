@@ -15,6 +15,7 @@ import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
+import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 
 /**
@@ -151,6 +152,8 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         setRenameListener();
         setCopyListener();
         setLayerSwitchListener();
+        ViewAnimation.fadeInFromRight(itemView, 200);
+
     }
 
     /**

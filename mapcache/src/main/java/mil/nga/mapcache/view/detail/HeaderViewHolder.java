@@ -13,6 +13,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
+import mil.nga.mapcache.utils.ViewAnimation;
 
 
 /**
@@ -81,6 +82,11 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
      */
     private boolean ignoreStateChange;
 
+    /**
+     * Main view containing the entire header
+     */
+    private View detailHeaderMain;
+
 
     /**
      * Constructor
@@ -92,6 +98,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
                             DetailActionListener actionListener, EnableAllLayersListener enableAllListener,
                             GeoPackageDatabase db) {
         super(itemView);
+        detailHeaderMain = (View)itemView.findViewById(R.id.detailHeaderMain);
         textName = (TextView) itemView.findViewById(R.id.headerTitle);
         textSize = (TextView) itemView.findViewById(R.id.headerSize);
         textFeatures = (TextView) itemView.findViewById(R.id.header_text_features);
@@ -103,6 +110,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         mEnableAllListener = enableAllListener;
         mDb = db;
         setActionButtonListeners();
+        ViewAnimation.setSlideInFromRightAnimation(detailHeaderMain, 200);
     }
 
     /**

@@ -35,8 +35,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.URLUtil;
 import android.widget.AdapterView;
@@ -61,8 +59,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -75,8 +71,6 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMapLongClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -96,8 +90,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -1939,6 +1931,24 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
+     * Animate and hide the map buttons and new layer FAB during new layer wizard
+     */
+    private void hideMapIcons(){
+        ViewAnimation.rotateFadeOut(editFeaturesButton, 200);
+        ViewAnimation.rotateFadeOut(settingsIcon, 200);
+        layerFab.hide();
+    }
+
+    /**
+     * Animate and show the map buttons and new layer FAB during new layer wizard
+     */
+    private void showMapIcons(){
+        ViewAnimation.rotateFadeIn(editFeaturesButton, 200);
+        ViewAnimation.rotateFadeIn(settingsIcon, 200);
+        layerFab.show();
+    }
+
+    /**
      * Launches a wizard to create a new tile layer in the given geopackage
      * @param geopackageName
      */
@@ -2069,9 +2079,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // prepare the screen by shrinking bottom sheet, hide fab and map buttons, show zoom level
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-        layerFab.hide();
-        editFeaturesButton.setVisibility(View.INVISIBLE);
-        settingsIcon.setVisibility(View.INVISIBLE);
+        hideMapIcons();
         setZoomLevelVisible(true);
 
         // Make sure the transparent box is visible, and add it to the mapview
@@ -2085,9 +2093,7 @@ public class GeoPackageMapFragment extends Fragment implements
             public void onClick(View view) {
                 // Remove transparent box and show the fab and map buttons again
                 touch.removeView(transBox);
-                layerFab.show();
-                editFeaturesButton.setVisibility(View.VISIBLE);
-                settingsIcon.setVisibility(View.VISIBLE);
+                showMapIcons();
             }
         });
 
@@ -2105,9 +2111,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 if(!isZoomLevelVisible()) {
                     setZoomLevelVisible(false);
                 }
-                layerFab.show();
-                editFeaturesButton.setVisibility(View.VISIBLE);
-                settingsIcon.setVisibility(View.VISIBLE);
+                showMapIcons();
                 touch.removeView(transBox);
                 // continue to create layer
                 createTileFinal(geopackageName, layerName, url);

@@ -1,5 +1,7 @@
 package mil.nga.mapcache.utils;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
@@ -120,6 +122,44 @@ public class ViewAnimation {
         AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(duration);
         view.startAnimation(anim);
+    }
+
+    /**
+     * Assign a rotate + fade out animation to the given view and stay invisible when done
+     * @param view the view to animate
+     * @param duration duration of the animation
+     */
+    public static void rotateFadeOut(View view, long duration){
+        // Fade out
+        ObjectAnimator fadeAnim = ObjectAnimator.ofFloat(view, View.ALPHA, 1, 0);
+        fadeAnim.setDuration(duration);
+
+        // Rotate
+        ObjectAnimator rotateAnim = ObjectAnimator.ofFloat(view, View.ROTATION, 0, 180);
+        rotateAnim.setDuration(duration);
+
+        AnimatorSet set1 = new AnimatorSet();
+        set1.playTogether(fadeAnim, rotateAnim);
+        set1.start();
+    }
+
+    /**
+     * Assign a rotate + fade in animation to the given view and stay visible when done
+     * @param view the view to animate
+     * @param duration duration of the animation
+     */
+    public static void rotateFadeIn(View view, long duration){
+        // Fade in
+        ObjectAnimator fadeAnim = ObjectAnimator.ofFloat(view, View.ALPHA, 0, 1);
+        fadeAnim.setDuration(duration);
+
+        // Rotate
+        ObjectAnimator rotateAnim = ObjectAnimator.ofFloat(view, View.ROTATION, 180, 0);
+        rotateAnim.setDuration(duration);
+
+        AnimatorSet set1 = new AnimatorSet();
+        set1.playTogether(fadeAnim, rotateAnim);
+        set1.start();
     }
 
     /**

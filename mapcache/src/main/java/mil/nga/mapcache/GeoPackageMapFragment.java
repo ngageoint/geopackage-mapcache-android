@@ -1028,7 +1028,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
-        // Listener to forward a button click layer detail page to the appropriate dialog function
+        // (Delete) Listener to forward a button click layer detail page to the appropriate dialog function
         DetailActionListener detailActionListener = new DetailActionListener(){
             @Override
             public void onClick(View view, int actionType, String gpName, String layerName) {
@@ -1193,6 +1193,9 @@ public class GeoPackageMapFragment extends Fragment implements
         // layers live data is updated
 
 
+        // Get current geopackage database object in case removing layer deletes the last layer of the gp
+        GeoPackageDatabase currentDb = geoPackageViewModel.getGeoByName(gpName);
+        GeoPackageTable removableTable = currentDb.getTableByName(layerName);
 
         // First remove it from the active layers
         geoPackageViewModel.removeActiveLayer(gpName, layerName);
@@ -1200,6 +1203,14 @@ public class GeoPackageMapFragment extends Fragment implements
         GeoPackageDatabase db = geoPackageViewModel.removeLayerFromGeo(gpName, layerName);
         if(db != null){
             createGeoPackageDetailAdapter(db);
+        } else{
+            // If the layer that was deleted was the last one in the geopackage, the remove layer
+            // method will return null.  In that case, use our original DB object with the deleted
+            // layer to populate the detail adapter view
+            if(currentDb != null && removableTable != null) {
+                currentDb.remove(removableTable);
+                createGeoPackageDetailAdapter(currentDb);
+            }
         }
     }
 

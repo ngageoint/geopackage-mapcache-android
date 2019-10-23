@@ -338,6 +338,10 @@ public class GeoPackageDatabases {
         if (database != null) {
             database.remove(table);
             removeTableFromPreferences(table);
+            if (database.isEmpty()) {
+                databases.remove(database.getDatabase());
+                removeDatabaseFromPreferences(database.getDatabase(), preserveOverlays);
+            }
             if (!preserveOverlays && table.getType() == GeoPackageTableType.FEATURE) {
                 List<GeoPackageFeatureOverlayTable> deleteFeatureOverlays = new ArrayList<GeoPackageFeatureOverlayTable>();
                 int count = 0;

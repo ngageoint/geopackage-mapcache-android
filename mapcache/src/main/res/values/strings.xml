@@ -339,6 +339,8 @@
     <string name="zoom_icons_key">zoom_icons</string>
     <string name="zoom_level_key">zoom_level</string>
     <string name="maxFeatureWarningPref">maxFeatureWarningPref</string>
+    <string name="ignore_high_features">ignore_high_features</string>
+
 
     <!--matomo-->
     <string name="matomo_url">https://gasmetrics.nga.mil/piwik/</string>

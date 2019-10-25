@@ -3846,7 +3846,10 @@ public class GeoPackageMapFragment extends Fragment implements
                                     editor.putInt(MAX_FEATURES_KEY, maxFeature);
                                     editor.commit();
                                     updateInBackground(false, true);
-                                    if(maxFeature > 10000){
+                                    // ignoreHighFeatures will tell if the user previously checked the
+                                    // 'do not show this warning again' checkbox last time
+                                    boolean ignoreHighFeatures = settings.getBoolean(String.valueOf(R.string.ignore_high_features), false);
+                                    if(maxFeature > 10000 && !ignoreHighFeatures){
                                         maxFeatureWarning(maxFeature);
                                     }
                                 }
@@ -3897,11 +3900,20 @@ public class GeoPackageMapFragment extends Fragment implements
      * Makes a warning popup to alert the user that the max features setting is high
      */
     public void maxFeatureWarning(int setting){
+        View checkBoxView = View.inflate(getContext(), R.layout.checkbox, null);
+        CheckBox checkBox = checkBoxView.findViewById(R.id.showHighFeatureBox);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.max_feature_size_warning)
+                .setView(checkBoxView)
                 .setTitle("Warning")
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        if(checkBox.isChecked()){
+                            // If they check the 'do not show again' box, save that setting
+                            SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                            settings.edit().putBoolean(String.valueOf(R.string.ignore_high_features), true).commit();
+                        }
                         dialog.cancel();
                     }
                 });

@@ -15,72 +15,127 @@
         android:layout_height="match_parent"
         android:orientation="horizontal"
         android:layout_marginTop="24dp"
-        android:layout_marginBottom="16dp">
-
-        <ImageView
-            android:id="@+id/close_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/ic_clear_grey_800_24dp" />
+        android:layout_marginBottom="16dp"
+        android:gravity="center_horizontal"
+        >
 
         <TextView
             android:id="@+id/alert_title"
             style="@style/Base.TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/alert_logo"
-            android:layout_marginLeft="16dp"
-            android:layout_toRightOf="@+id/alert_logo"
             android:text="New GeoPackage" />
+
     </LinearLayout>
 
-        <!--<View style="@style/Divider"-->
-            <!--android:layout_marginBottom="16dp"-->
-            <!--/>-->
+
+        <!--Divider line-->
+        <View style="@style/Divider"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="4dp"
+            />
 
         <!--Create new-->
-        <TextView
-            android:id="@+id/wizard_create"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:layout_width="wrap_content"
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/new_wizard_create_card"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:paddingBottom="16dp"
-            android:paddingTop="16dp"
-            android:paddingRight="16dp"
-            android:background="@drawable/ripple"
-            android:text="Create New"
-            android:textColor="@color/nga_primary_light"/>
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="16dp"
+            card_view:contentPaddingTop="16dp"
+            card_view:contentPaddingBottom="16dp"
+            card_view:contentPaddingLeft="8dp"
+            card_view:cardElevation="4dp"
+            card_view:cardCornerRadius="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/wizard_create_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/material_add"/>
+                <TextView
+                    android:id="@+id/new_wizard_create"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:layout_toRightOf="@+id/wizard_create_icon"
+                    android:text="Create New"
+                    android:textAppearance="@style/textAppearanceBody1Medium"
+                    android:textColor="@color/nga_primary_light"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-        <!--import from url-->
-        <TextView
-            android:id="@+id/wizard_import"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:paddingBottom="16dp"
-            android:paddingTop="16dp"
-            android:paddingRight="16dp"
-            android:background="@drawable/ripple"
-            android:text="Import from URL"
-            android:textColor="@color/nga_primary_light"/>
 
-        <!--import from file-->
-        <TextView
-            android:id="@+id/wizard_import_file"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:layout_width="wrap_content"
+        <!--Download from url-->
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/new_wizard_download_card"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:paddingBottom="24dp"
-            android:paddingTop="16dp"
-            android:paddingRight="16dp"
-            android:background="@drawable/ripple"
-            android:text="Import from file"
-            android:textColor="@color/nga_primary_light"/>
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="16dp"
+            card_view:contentPaddingTop="16dp"
+            card_view:contentPaddingBottom="16dp"
+            card_view:contentPaddingLeft="8dp"
+            card_view:cardElevation="4dp"
+            card_view:cardCornerRadius="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/wizard_download_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/import_export_dark"/>
+            <TextView
+                android:id="@+id/new_wizard_download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:text="Download from URL"
+                android:textAppearance="@style/textAppearanceBody1Medium"
+                android:textColor="@color/nga_primary_light"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <!--Import from file-->
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/new_wizard_file_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="16dp"
+            card_view:contentPaddingTop="16dp"
+            card_view:contentPaddingBottom="16dp"
+            card_view:contentPaddingLeft="8dp"
+            card_view:cardElevation="4dp"
+            card_view:cardCornerRadius="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/wizard_import_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/material_copy"/>
+            <TextView
+                android:id="@+id/new_wizard_file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:text="Import from File"
+                android:textAppearance="@style/textAppearanceBody1Medium"
+                android:textColor="@color/nga_primary_light"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
     </LinearLayout>
 

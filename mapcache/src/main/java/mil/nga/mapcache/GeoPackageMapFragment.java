@@ -54,6 +54,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -1668,9 +1669,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Create Alert window with basic input text layout
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
-        // Logo and title
-        ImageView closeLogo = (ImageView) alertView.findViewById(R.id.close_logo);
-        closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+        // title
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText("New GeoPackage");
 
@@ -1680,7 +1679,7 @@ public class GeoPackageMapFragment extends Fragment implements
         final AlertDialog alertDialog = dialog.create();
 
         // Click listener for "Create New"
-        ((TextView) alertView.findViewById(R.id.wizard_create))
+        alertView.findViewById(R.id.new_wizard_create_card)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1690,7 +1689,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 });
 
         // Click listener for "Import URL"
-        ((TextView) alertView.findViewById(R.id.wizard_import))
+        alertView.findViewById(R.id.new_wizard_download_card)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1700,7 +1699,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 });
 
         // Click listener for "Import from file"
-        ((TextView) alertView.findViewById(R.id.wizard_import_file))
+        alertView.findViewById(R.id.new_wizard_file_card)
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -1709,13 +1708,6 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                 });
 
-        // Click listener for close button
-        closeLogo.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
         alertDialog.show();
     }
 

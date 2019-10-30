@@ -54,8 +54,10 @@
                 android:layout_height="match_parent">
                 <ImageView
                     android:id="@+id/wizard_create_icon"
-                    android:layout_width="wrap_content"
+                    android:layout_width="24dp"
                     android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
                     android:layout_gravity="center"
                     android:src="@drawable/material_add_box"/>
                 <TextView
@@ -90,10 +92,12 @@
                 android:layout_height="match_parent">
             <ImageView
                 android:id="@+id/wizard_download_icon"
-                android:layout_width="wrap_content"
+                android:layout_width="32dp"
                 android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
                 android:layout_gravity="center"
-                android:src="@drawable/material_cloud"/>
+                android:src="@drawable/material_cloud" />
             <TextView
                 android:id="@+id/new_wizard_download"
                 android:layout_width="wrap_content"
@@ -125,8 +129,10 @@
                 android:layout_height="match_parent">
             <ImageView
                 android:id="@+id/wizard_import_icon"
-                android:layout_width="wrap_content"
+                android:layout_width="24dp"
                 android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
                 android:layout_gravity="center"
                 android:src="@drawable/material_description"/>
             <TextView

@@ -131,7 +131,7 @@
     <string name="geopackage_export_label">Export</string>
     <string name="geopackage_share_label">Share</string>
     <string name="geopackage_share_copy_message">Preparing internal GeoPackage for sharing</string>
-    <string name="geopackage_import_label">Import</string>
+    <string name="geopackage_import_label">Download</string>
     <string name="geopackage_create_label">Create</string>
     <string name="geopackage_create_features_label">Create Features</string>
     <string name="geopackage_create_tiles_label">Create Tiles</string>

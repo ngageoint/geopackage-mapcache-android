@@ -17,7 +17,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/import_export_dark" />
+        android:layout_gravity="center"
+        android:src="@drawable/material_cloud" />
 
         <TextView
             android:id="@+id/textView1"
@@ -25,9 +26,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/import_export"
-            android:layout_marginLeft="36dp"
+            android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/import_export"
-            android:text="Import from URL" />
+            android:text="Download from URL" />
     </LinearLayout>
 
     <!--Name-->

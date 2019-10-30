@@ -1725,7 +1725,7 @@ public class GeoPackageMapFragment extends Fragment implements
         View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
         // Logo and title
         ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_add);
+        alertLogo.setBackgroundResource(R.drawable.material_add_box);
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText("Create GeoPackage");
         // GeoPackage name

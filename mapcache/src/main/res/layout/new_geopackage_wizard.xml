@@ -46,7 +46,7 @@
             android:layout_marginBottom="16dp"
             card_view:contentPaddingTop="16dp"
             card_view:contentPaddingBottom="16dp"
-            card_view:contentPaddingLeft="8dp"
+            card_view:contentPaddingLeft="16dp"
             card_view:cardElevation="4dp"
             card_view:cardCornerRadius="4dp">
             <LinearLayout
@@ -56,12 +56,13 @@
                     android:id="@+id/wizard_create_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/material_add"/>
+                    android:layout_gravity="center"
+                    android:src="@drawable/material_add_box"/>
                 <TextView
                     android:id="@+id/new_wizard_create"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="6dp"
+                    android:padding="16dp"
                     android:layout_toRightOf="@+id/wizard_create_icon"
                     android:text="Create New"
                     android:textAppearance="@style/textAppearanceBody1Medium"
@@ -81,7 +82,7 @@
             android:layout_marginBottom="16dp"
             card_view:contentPaddingTop="16dp"
             card_view:contentPaddingBottom="16dp"
-            card_view:contentPaddingLeft="8dp"
+            card_view:contentPaddingLeft="16dp"
             card_view:cardElevation="4dp"
             card_view:cardCornerRadius="4dp">
             <LinearLayout
@@ -91,12 +92,13 @@
                 android:id="@+id/wizard_download_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/import_export_dark"/>
+                android:layout_gravity="center"
+                android:src="@drawable/material_cloud"/>
             <TextView
                 android:id="@+id/new_wizard_download"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="6dp"
+                android:padding="16dp"
                 android:text="Download from URL"
                 android:textAppearance="@style/textAppearanceBody1Medium"
                 android:textColor="@color/nga_primary_light"/>
@@ -115,7 +117,7 @@
             android:layout_marginBottom="16dp"
             card_view:contentPaddingTop="16dp"
             card_view:contentPaddingBottom="16dp"
-            card_view:contentPaddingLeft="8dp"
+            card_view:contentPaddingLeft="16dp"
             card_view:cardElevation="4dp"
             card_view:cardCornerRadius="4dp">
             <LinearLayout
@@ -125,12 +127,13 @@
                 android:id="@+id/wizard_import_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/material_copy"/>
+                android:layout_gravity="center"
+                android:src="@drawable/material_description"/>
             <TextView
                 android:id="@+id/new_wizard_file"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="6dp"
+                android:padding="16dp"
                 android:text="Import from File"
                 android:textAppearance="@style/textAppearanceBody1Medium"
                 android:textColor="@color/nga_primary_light"/>

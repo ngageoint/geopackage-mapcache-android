@@ -1669,6 +1669,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Create Alert window with basic input text layout
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
+        ViewAnimation.setScaleAnimatiom(alertView, 200);
         // title
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText("New GeoPackage");

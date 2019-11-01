@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.0.5</string>
-    <string name="app_release_date">Released Oct 2019</string>
+    <string name="app_version">Version 2.0.6</string>
+    <string name="app_release_date">Released Nov 2019</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -351,6 +351,10 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
+        Release Notes - 2.0.6\n \t
+        - UI updates\n\t
+        - Performance improvements\n\t
+        \n
         Release Notes - 2.0.5\n \t
         - Bug fixes\n\t
         - UI updates\n\t
@@ -365,13 +369,6 @@
         - Filter file types for import\n\t
         - Bug fixes\n\t
         \n
-        Release Notes - 2.0.2\n \t
-        - New swipe to enable all gp layers\n\t
-        - Improved file error handling\n\t
-        - Improved tile draw wizard\n\t
-        - Added zoom level indicator\n\t
-        - Updated icons for smaller screens\n\t
-        - Added show my location feature\n\t
         </string>
 
 

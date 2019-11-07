@@ -164,7 +164,8 @@ public class GeoPackageRepository {
         GeoPackageDatabases currentGeos = geos.getValue();
         if(currentGeos != null) {
             currentGeos.removeTable(geoPackageName, layerName);
-            geos.postValue(currentGeos);
+            regenerateTableList();
+//            geos.postValue(currentGeos);
             return true;
         }
         return false;

@@ -24,6 +24,7 @@ import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.repository.GeoPackageRepository;
 import mil.nga.sf.GeometryType;
 
@@ -315,12 +316,15 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Remove the given layer from a geopackage
+     * Remove the given layer from a geopackage, then call the callback after the geopackage lists
+     * have been updated
      */
-    public GeoPackageDatabase removeLayerFromGeo(String geoPackageName, String layerName){
+    public GeoPackageDatabase removeLayerFromGeo(String geoPackageName, String layerName,
+                                                 GeoPackageModifier callback){
         if(repository.removeLayerFromGeo(geoPackageName, layerName)) {
             GeoPackageDatabase db = repository.getDatabaseByName(geoPackageName);
             regenerateGeoPackageTableList();
+            callback.onLayerDeleted(geoPackageName);
             return db;
         }
         return null;

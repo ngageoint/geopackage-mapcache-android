@@ -190,6 +190,7 @@ import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
+import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
@@ -217,7 +218,8 @@ import mil.nga.sf.util.GeometryPrinter;
  */
 public class GeoPackageMapFragment extends Fragment implements
         OnMapReadyCallback, OnMapLongClickListener, OnMapClickListener, OnMarkerClickListener,
-        OnMarkerDragListener, ILoadTilesTask, IIndexerTask, OnCameraIdleListener, OnDialogButtonClickListener {
+        OnMarkerDragListener, ILoadTilesTask, IIndexerTask, OnCameraIdleListener, OnDialogButtonClickListener,
+        GeoPackageModifier {
 
     /**
      * Max features key for saving to preferences
@@ -1181,38 +1183,41 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onDeleteLayer(String gpName, String layerName){
-        //TODO:
-        // Remove from active layers
-        // Mark it for delete
-        // Return the DB to repopuplate recycler
-        // send background task to delete from manager in repository
-
-
-
-        // TODO: instead of waiting for a GeoPackageDatabase to come back from the repository, and
-        // recreating the adapter, see if you can just update the detailAdapter when the active
-        // layers live data is updated
-
-
-        // Get current geopackage database object in case removing layer deletes the last layer of the gp
-        GeoPackageDatabase currentDb = geoPackageViewModel.getGeoByName(gpName);
-        GeoPackageTable removableTable = currentDb.getTableByName(layerName);
-
         // First remove it from the active layers
         geoPackageViewModel.removeActiveLayer(gpName, layerName);
         // Ask the repository to delete the layer
-        GeoPackageDatabase db = geoPackageViewModel.removeLayerFromGeo(gpName, layerName);
-        if(db != null){
-            createGeoPackageDetailAdapter(db);
-        } else{
-            // If the layer that was deleted was the last one in the geopackage, the remove layer
-            // method will return null.  In that case, use our original DB object with the deleted
-            // layer to populate the detail adapter view
-            if(currentDb != null && removableTable != null) {
-                currentDb.remove(removableTable);
-                createGeoPackageDetailAdapter(currentDb);
-            }
-        }
+        GeoPackageDatabase db = geoPackageViewModel.removeLayerFromGeo(gpName, layerName,
+                GeoPackageMapFragment.this);
+
+
+        // We used to hold a temporary copy of the GP so that we don't have to wait for the delete
+        // to finish.  now with the callback we don't have to do that anymore
+
+//        // Get current geopackage database object in case removing layer deletes the last layer of the gp
+//        GeoPackageDatabase currentDb = geoPackageViewModel.getGeoByName(gpName);
+//        GeoPackageTable removableTable = currentDb.getTableByName(layerName);
+
+//        if(db != null){
+//            createGeoPackageDetailAdapter(db);
+//        } else{
+//            // If the layer that was deleted was the last one in the geopackage, the remove layer
+//            // method will return null.  In that case, use our original DB object with the deleted
+//            // layer to populate the detail adapter view
+//            if(currentDb != null && removableTable != null) {
+//                currentDb.remove(removableTable);
+//                createGeoPackageDetailAdapter(currentDb);
+//            }
+//        }
+    }
+
+    /**
+     * Callback after onDeleteLayer asks the viewModel to delete the layer
+     * @param geoPackageName
+     */
+    @Override
+    public void onLayerDeleted(String geoPackageName){
+        GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(geoPackageName);
+        createGeoPackageDetailAdapter(newDb);
     }
 
     /**

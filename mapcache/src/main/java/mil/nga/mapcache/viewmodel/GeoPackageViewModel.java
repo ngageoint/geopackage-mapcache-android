@@ -179,7 +179,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * @return true if all layers are enabled
      */
     public boolean setAllLayersActive(boolean active, GeoPackageDatabase db){
-        return repository.setAllLayersActive(active, db);
+        return repository.setAllLayersActive(active, getGeoByName(db.getDatabase()));
     }
 
     /**

@@ -41,12 +41,11 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-//import com.ianhanniballake.localstorage.LocalStorageProvider;
-
 import java.io.File;
 import java.io.FileFilter;
 import java.text.DecimalFormat;
-import java.util.Comparator;
+
+//import com.ianhanniballake.localstorage.LocalStorageProvider;
 
 /**
  * @version 2009-07-03
@@ -585,20 +584,6 @@ public class FileUtils {
         }
         return bm;
     }
-
-    /**
-     * File and folder comparator. TODO Expose sorting option method
-     *
-     * @author paulburke
-     */
-    public static Comparator<File> sComparator = new Comparator<File>() {
-        @Override
-        public int compare(File f1, File f2) {
-            // Sort alphabetically by lower case, which is much cleaner
-            return f1.getName().toLowerCase().compareTo(
-                    f2.getName().toLowerCase());
-        }
-    };
 
     /**
      * File (not directories) filter.

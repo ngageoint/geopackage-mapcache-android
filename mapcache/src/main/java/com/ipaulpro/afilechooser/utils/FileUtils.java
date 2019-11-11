@@ -44,7 +44,6 @@ import android.webkit.MimeTypeMap;
 import java.io.File;
 import java.io.FileFilter;
 import java.text.DecimalFormat;
-import java.util.Comparator;
 
 //import com.ianhanniballake.localstorage.LocalStorageProvider;
 
@@ -227,9 +226,38 @@ public class FileUtils {
      */
     public static String getDataColumn(Context context, Uri uri, String selection,
             String[] selectionArgs) {
+        return getColumn(context, uri, MediaStore.Files.FileColumns.DATA, selection, selectionArgs);
+    }
+
+    /**
+     * Get the value of the display name for this Uri
+     *
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     * @author paulburke
+     */
+    public static String getDisplayNameColumn(Context context, Uri uri, String selection,
+                                        String[] selectionArgs) {
+        return getColumn(context, uri, DocumentsContract.Document.COLUMN_DISPLAY_NAME, selection, selectionArgs);
+    }
+
+    /**
+     * Get the value of the column for this Uri
+     *
+     * @param context The context.
+     * @param columnn The column.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
+     * @param selectionArgs (Optional) Selection arguments used in the query.
+     * @return The value of the _data column, which is typically a file path.
+     */
+    public static String getColumn(Context context, Uri uri, String column, String selection,
+                                       String[] selectionArgs) {
 
         Cursor cursor = null;
-        final String column = "_data";
         final String[] projection = {
                 column
         };
@@ -245,7 +273,7 @@ public class FileUtils {
                 return cursor.getString(column_index);
             }
         } catch (Exception e) {
-            Log.w(TAG, "Error getting data column", e);
+            Log.w(TAG, "Error getting " + column + " column", e);
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -348,10 +376,35 @@ public class FileUtils {
                     return id.substring(rawPrefix.length());
                 }
 
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                try {
+                    String[] contentUriPrefixesToTry = new String[]{
+                            "content://downloads/public_downloads",
+                            "content://downloads/my_downloads",
+                            "content://downloads/all_downloads"
+                    };
 
-                return getDataColumn(context, contentUri, null, null);
+
+                    for (String contentUriPrefix : contentUriPrefixesToTry) {
+                        Uri contentUri = ContentUris.withAppendedId(Uri.parse(contentUriPrefix), Long.valueOf(id));
+                        try {
+                            String path = getDataColumn(context, contentUri, null, null);
+                            if (path != null) {
+                                return path;
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                }catch(NumberFormatException e){
+                }
+
+                String displayName = getDisplayNameColumn(context, uri, null, null);
+                if(displayName != null){
+                    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), displayName);
+                    if(file.exists()){
+                        return file.getAbsolutePath();
+                    }
+                }
+
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
@@ -531,21 +584,6 @@ public class FileUtils {
         }
         return bm;
     }
-
-    /**
-     * File and folder comparator. TODO Expose sorting option method
-     *
-     * @author paulburke
-     */
-    public static Comparator<File> sComparator = new Comparator<File>() {
-        @Override
-        public int compare(File f1, File f2) {
-            // Sort alphabetically by lower case, which is much cleaner
-            return f1.getName().compareToIgnoreCase(f2.getName());
-//            return f1.getName().toLowerCase().compareTo(
-//                    f2.getName().toLowerCase());
-        }
-    };
 
     /**
      * File (not directories) filter.

@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.25 (Legacy) (TBD)
+## 1.25 - Legacy (TBD)
 
 * compile SDK version 29
 * geopackage-android-map version 3.3.1

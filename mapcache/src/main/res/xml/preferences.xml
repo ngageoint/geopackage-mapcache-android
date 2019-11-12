@@ -34,6 +34,15 @@
             android:defaultValue="@string/default_tile_url"
             android:key="default_tile_url" />
 
+        <Preference
+            app:key="urls"
+            app:title="Saved Tile URLs" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="mil.nga.mapcache.preferences.TileUrlActivity"
+                android:targetPackage="@string/applicationId"/>
+        </Preference>
+
     </PreferenceCategory>
 
     <PreferenceCategory

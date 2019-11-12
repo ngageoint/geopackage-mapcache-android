@@ -99,6 +99,9 @@
             android:name=".preferences.AboutMapcacheActivity"
             android:label="@string/title_activity_about_mapcache" />
         <activity
+            android:name=".preferences.TileUrlActivity"
+            android:label="@string/title_activity_saved_tile_urls" />
+        <activity
             android:name=".preferences.PrivacyPolicyActivity"
             android:label="@string/title_activity_privacy_policy" />
         <activity

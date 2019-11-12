@@ -395,10 +395,10 @@
     <string name="max_feature_size_warning">Setting Max Features to more than a few thousand can result in delayed drawing performance on the map.  For best results, we recommend staying below 5,000.</string>
 
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_preferences">PreferencesActivity</string>
     <string name="title_activity_about_mapcache">AboutMapcacheActivity</string>
+    <string name="title_activity_saved_tile_urls">TileUrlActivity</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_disclaimer">DisclaimerActivity</string>
     <string name="title_activity_privacy_policy">PrivacyPolicyActivity</string>

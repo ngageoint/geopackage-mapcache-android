@@ -3,12 +3,16 @@ package mil.nga.mapcache.preferences;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -17,10 +21,14 @@ import android.widget.TextView;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.ViewAnimation;
 
 /**
  *  Fragment giving the user a way to modify a saved list of URLs, which will be used in the create
@@ -40,10 +48,10 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      * Shared preferences
      */
     private SharedPreferences prefs;
-    /**
-     * Clear all URLs
-     */
-    private Button clearButton;
+//    /**
+//     * Clear all URLs
+//     */
+//    private Button clearButton;
     /**
      * Add new URL from the inputText field to the shared prefs
      */
@@ -52,6 +60,10 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      * Layout to hold a reference to all saved URLs
      */
     private LinearLayout labelHolder;
+    /**
+     * Delete selected text
+     */
+    private TextView deleteSelected;
 
     /**
      * Create the parent view and set up listeners
@@ -65,9 +77,11 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                              Bundle savedInstanceState) {
         urlView = inflater.inflate(R.layout.fragment_saved_tile_urls, container, false);
         inputText = urlView.findViewById(R.id.new_url);
-        clearButton = urlView.findViewById(R.id.clear_all);
+//        clearButton = urlView.findViewById(R.id.clear_all);
         addButton = urlView.findViewById(R.id.add_url);
+        addButton.setEnabled(false);
         labelHolder = urlView.findViewById(R.id.item_list_layout);
+        deleteSelected = urlView.findViewById(R.id.delete_selected_urls);
         prefs = getPreferenceManager().getSharedPreferences();
         setButtonListeners();
         setInitialPrefLabels();
@@ -152,14 +166,53 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 }
             }
         });
-        clearButton.setOnClickListener(new View.OnClickListener() {
+//        clearButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                HashSet<String> blankSet = new HashSet<>();
+//                saveSet(blankSet);
+//                // Remove all views from the Linear Layout holding the labels
+//                if(labelHolder.getChildCount() > 0)
+//                    labelHolder.removeAllViews();
+//            }
+//        });
+        deleteSelected.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                HashSet<String> blankSet = new HashSet<>();
-                saveSet(blankSet);
-                // Remove all views from the Linear Layout holding the labels
-                if(labelHolder.getChildCount() > 0)
-                    labelHolder.removeAllViews();
+                // Keep track of rows that need to be deleted
+                HashMap<String, LinearLayout> deleteViews = new HashMap<>();
+                // Find rows that are checked and note the row number
+                for (int i = 0; i < labelHolder.getChildCount(); i++) {
+                    LinearLayout itemRow = (LinearLayout)labelHolder.getChildAt(i);
+                    if(isItemRowChecked(itemRow)){
+                        deleteViews.put(getRowText(itemRow), itemRow);
+                    }
+                }
+                // Delete all checked rows
+                Iterator it = deleteViews.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry pair = (Map.Entry) it.next();
+                    if(removeStringFromSet(pair.getKey().toString())){
+                        labelHolder.removeView((LinearLayout)pair.getValue());
+                    }
+                }
+            }
+        });
+        inputText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String url = inputText.getText().toString();
+                if(url.isEmpty()){
+                    addButton.setEnabled(false);
+                } else{
+                    addButton.setEnabled(true);
+                }
+
             }
         });
     }
@@ -179,22 +232,9 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         itemRow.setGravity(Gravity.CENTER);
         itemRow.setPadding(0,0,0, 32);
 
-        // Create delete button
-        ImageButton deleteButton = new ImageButton(getContext());
-        deleteButton.setImageResource(R.drawable.ic_close_black_24dp);
-        deleteButton.setBackgroundColor(Color.TRANSPARENT);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.rightMargin = 32;
-        deleteButton.setLayoutParams(params);
-        deleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(removeStringFromSet(rowName)) {
-                    deleteRow(itemRow);
-                }
-            }
-        });
+        // Create checkbox
+        CheckBox check = new CheckBox(getContext());
+        check.setPadding(16,0,64,0);
 
         // Create text
         TextView nameText = new TextView(getContext());
@@ -204,9 +244,42 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 LinearLayout.LayoutParams.WRAP_CONTENT));
 
         // Add everything
-        itemRow.addView(deleteButton);
+//        itemRow.addView(deleteButton);
+        itemRow.addView(check);
         itemRow.addView(nameText);
+        ViewAnimation.setSlideInFromRightAnimation(itemRow, 250);
         labelHolder.addView(itemRow);
+    }
+
+    /**
+     * Find the checkbox in the item row and tell us if it's checked
+     * @param itemRow linearLayout containing a checkbox
+     * @return true if the checkbox is checked
+     */
+    private boolean isItemRowChecked(LinearLayout itemRow){
+        for (int i = 0; i < itemRow.getChildCount(); i++) {
+            if(itemRow.getChildAt(i) instanceof CheckBox){
+                CheckBox check = (CheckBox) itemRow.getChildAt(i);
+                return check.isChecked();
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get the URL string from a row
+     * @param itemRow linear layout containing a checkbox and text field
+     * @return text from the text field
+     */
+    private String getRowText(LinearLayout itemRow){
+        for (int i = 0; i < itemRow.getChildCount(); i++) {
+            if (itemRow.getChildAt(i) instanceof TextView && !(itemRow.getChildAt(i) instanceof CheckBox)) {
+                TextView urlText = (TextView)itemRow.getChildAt(i);
+                String text = urlText.getText().toString();
+                return text;
+            }
+        }
+        return null;
     }
 
     /**

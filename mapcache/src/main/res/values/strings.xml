@@ -340,6 +340,8 @@
     <string name="zoom_level_key">zoom_level</string>
     <string name="maxFeatureWarningPref">maxFeatureWarningPref</string>
     <string name="ignore_high_features">ignore_high_features</string>
+    <string name="saved_url_message">Save tile URLs here for easy access when creating new layers</string>
+
 
 
     <!--matomo-->

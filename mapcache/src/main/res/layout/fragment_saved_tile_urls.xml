@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
-            android:text="Add preferred URLs to this list for easy access"/>
+            android:text="@string/saved_url_message"/>
 
         <EditText
             android:id="@+id/new_url"
@@ -24,45 +24,79 @@
             android:hint="New URL"
             />
 
-        <LinearLayout
-            android:id="@+id/btn_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:padding="16dp">
+        <!--<LinearLayout-->
+            <!--android:id="@+id/btn_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:gravity="center"-->
+            <!--android:padding="16dp">-->
 
-            <Button
-                android:id="@+id/clear_all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1.0"
-                android:text="Clear All"/>
+            <!--<Button-->
+                <!--android:id="@+id/clear_all"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1.0"-->
+                <!--android:text="Clear All"/>-->
 
             <Button
                 android:id="@+id/add_url"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.0"
+                android:layout_marginRight="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginBottom="16dp"
                 android:text="Add URL"/>
 
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <View style="@style/Divider"
+            android:layout_marginBottom="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="16dp"
-            android:text="Saved URLs" />
+            />
+
+        <!--</LinearLayout>-->
 
         <LinearLayout
-            android:id="@+id/item_list_layout"
-            android:layout_margin="16dp"
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginLeft="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:layout_weight="1"
+                android:text="Saved URLs" />
+
+            <TextView
+                android:id="@+id/delete_selected_urls"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_weight="1"
+                android:text="Delete Selected"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:textColor="@color/nga_warning"/>
 
         </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/scrollview_choices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:fadeScrollbars="false">
+
+            <LinearLayout
+                android:id="@+id/item_list_layout"
+                android:layout_margin="16dp"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 

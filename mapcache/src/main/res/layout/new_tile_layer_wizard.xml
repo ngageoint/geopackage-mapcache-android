@@ -82,7 +82,7 @@
             android:paddingRight="16dp"
             android:textColor="@color/nga_accent_primary_dark"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:text="Load default OSM URL" />
+            android:text="Choose from saved URLs" />
 
         <!-- continue button -->
         <com.google.android.material.button.MaterialButton

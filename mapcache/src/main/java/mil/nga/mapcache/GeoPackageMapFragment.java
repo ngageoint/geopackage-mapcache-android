@@ -2026,13 +2026,28 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        // Default url
+        // Show a menu to choose from saved urls
         TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
         defaultText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                inputUrl.setText(R.string.default_tile_url);
-                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+//                inputUrl.setText(R.string.default_tile_url);
+//                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+
+                Set<String> existing = settings.getStringSet("list", new HashSet<String>());
+                String[] urlChoices = existing.toArray(new String[existing.size()]);
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Choose Tile URL");
+                builder.setItems(urlChoices, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        inputUrl.setText(urlChoices[which]);
+                        inputUrl.setError(null);
+                        ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+                    }
+                });
+                builder.show();
             }
         });
 

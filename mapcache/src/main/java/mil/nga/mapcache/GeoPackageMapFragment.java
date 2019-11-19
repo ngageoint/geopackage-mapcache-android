@@ -2039,15 +2039,18 @@ public class GeoPackageMapFragment extends Fragment implements
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Choose Tile URL");
-
-                builder.setItems(urlChoices, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        inputUrl.setText(urlChoices[which]);
-                        inputUrl.setError(null);
-                        ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-                    }
-                });
+                if(urlChoices.length > 0) {
+                    builder.setItems(urlChoices, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            inputUrl.setText(urlChoices[which]);
+                            inputUrl.setError(null);
+                            ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+                        }
+                    });
+                } else {
+                    builder.setMessage(getString(R.string.no_saved_urls_message));
+                }
                 builder.show();
             }
         });

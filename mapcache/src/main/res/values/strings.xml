@@ -135,6 +135,7 @@
     <string name="geopackage_create_label">Create</string>
     <string name="geopackage_create_features_label">Create Features</string>
     <string name="geopackage_create_tiles_label">Create Tiles</string>
+    <string name="no_saved_urls_message">You have not saved any tile URLs yet.  This can be done in preferences -> saved tile urls.</string>
     <string name="table_image_description">Table Type</string>
     <string name="geopackage_table_view_label">View</string>
     <string name="geopackage_table_edit_label">Edit</string>

@@ -94,7 +94,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      * @return Set of type String
      */
     private Set<String> getStringSet(Set<String> defaultVal) {
-        return this.prefs.getStringSet("list", defaultVal);
+        return this.prefs.getStringSet(getString(R.string.geopackage_create_tiles_label), defaultVal);
     }
 
     /**
@@ -104,7 +104,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      */
     private boolean saveSet(Set<String> set){
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putStringSet("list", set);
+        editor.putStringSet(getString(R.string.geopackage_create_tiles_label), set);
         return editor.commit();
     }
 

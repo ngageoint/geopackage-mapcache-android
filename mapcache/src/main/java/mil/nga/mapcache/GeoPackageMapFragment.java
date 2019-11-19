@@ -2034,11 +2034,12 @@ public class GeoPackageMapFragment extends Fragment implements
 //                inputUrl.setText(R.string.default_tile_url);
 //                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
 
-                Set<String> existing = settings.getStringSet("list", new HashSet<String>());
+                Set<String> existing = settings.getStringSet(getString(R.string.geopackage_create_tiles_label), new HashSet<String>());
                 String[] urlChoices = existing.toArray(new String[existing.size()]);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Choose Tile URL");
+
                 builder.setItems(urlChoices, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

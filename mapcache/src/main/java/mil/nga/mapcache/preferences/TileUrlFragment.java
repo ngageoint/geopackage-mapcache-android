@@ -13,11 +13,13 @@ import android.view.ViewGroup;
 import android.view.ViewManager;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -166,16 +168,6 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 }
             }
         });
-//        clearButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                HashSet<String> blankSet = new HashSet<>();
-//                saveSet(blankSet);
-//                // Remove all views from the Linear Layout holding the labels
-//                if(labelHolder.getChildCount() > 0)
-//                    labelHolder.removeAllViews();
-//            }
-//        });
         deleteSelected.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -196,6 +188,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                         labelHolder.removeView((LinearLayout)pair.getValue());
                     }
                 }
+                setDeleteSelected();
             }
         });
         inputText.addTextChangedListener(new TextWatcher() {
@@ -235,6 +228,12 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         // Create checkbox
         CheckBox check = new CheckBox(getContext());
         check.setPadding(16,0,64,0);
+        check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                setDeleteSelected();
+            }
+        });
 
         // Create text
         TextView nameText = new TextView(getContext());
@@ -264,6 +263,32 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
             }
         }
         return false;
+    }
+
+    /**
+     * Return true if any rows are checked
+     */
+    private boolean isAnyRowChecked(){
+        for (int i = 0; i < labelHolder.getChildCount(); i++) {
+            LinearLayout itemRow = (LinearLayout)labelHolder.getChildAt(i);
+            if(isItemRowChecked(itemRow)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sets the delete selected text to active if any rows are checked, else it's disabled
+     */
+    private void setDeleteSelected(){
+        if(isAnyRowChecked()){
+            deleteSelected.setEnabled(true);
+            deleteSelected.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_warning));
+        } else {
+            deleteSelected.setEnabled(false);
+            deleteSelected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black50));
+        }
     }
 
     /**

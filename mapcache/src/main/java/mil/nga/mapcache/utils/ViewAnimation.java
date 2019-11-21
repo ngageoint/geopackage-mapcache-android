@@ -3,6 +3,7 @@ package mil.nga.mapcache.utils;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
@@ -133,6 +134,34 @@ public class ViewAnimation {
         AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
         anim.setDuration(duration);
         view.startAnimation(anim);
+    }
+
+    /**
+     * Fade out the given view, then remove it from the parent
+     * @param view the view to animate
+     * @param parent the container viewgroup to remove the view from
+     * @param duration duration of the animation
+     * @return ViewGroup the given parent with the view removed
+     */
+    public static ViewGroup fadeOutAndRemove(View view, ViewGroup parent, long duration){
+        AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+        anim.setDuration(duration);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                parent.removeView(view);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        view.startAnimation(anim);
+        return parent;
     }
 
     /**

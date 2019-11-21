@@ -185,7 +185,8 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 while (it.hasNext()) {
                     Map.Entry pair = (Map.Entry) it.next();
                     if(removeStringFromSet(pair.getKey().toString())){
-                        labelHolder.removeView((LinearLayout)pair.getValue());
+//                        labelHolder.removeView((LinearLayout)pair.getValue());
+                        labelHolder = (LinearLayout)ViewAnimation.fadeOutAndRemove((LinearLayout)pair.getValue(), labelHolder, 250);
                     }
                 }
                 setDeleteSelected();

@@ -52,21 +52,32 @@
             android:layout_marginLeft="16dp"
             android:orientation="horizontal">
             <TextView
+                android:id="@+id/selected_urls_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="left"
                 android:layout_weight="1"
                 android:textAppearance="@style/textAppearanceSubtitle1Heavy"
                 android:text="Saved URLs" />
+<!--            <TextView-->
+<!--                android:id="@+id/delete_selected_urls"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:gravity="right"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="Delete Selected"-->
+<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
+<!--                android:textColor="@color/black50"/>-->
             <TextView
-                android:id="@+id/delete_selected_urls"
+                android:id="@+id/edit_mode_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:layout_weight="1"
-                android:text="Delete Selected"
+                android:text="Edit"
                 android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-                android:textColor="@color/black50"/>
+                android:padding="16dp"
+                android:textColor="@color/nga_warning"/>
         </LinearLayout>
 
         <ScrollView

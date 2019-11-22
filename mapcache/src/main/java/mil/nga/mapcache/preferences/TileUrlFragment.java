@@ -47,6 +47,10 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      */
     private EditText inputText;
     /**
+     * Selected URL label
+     */
+    private TextView selectedLabel;
+    /**
      * Shared preferences
      */
     private SharedPreferences prefs;
@@ -65,7 +69,15 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
     /**
      * Delete selected text
      */
-    private TextView deleteSelected;
+//    private TextView deleteSelected;
+    /**
+     * Edit mode button
+     */
+    private TextView editModeText;
+    /**
+     * Tracks the state of delete visibility
+     */
+    private boolean editMode = false;
 
     /**
      * Create the parent view and set up listeners
@@ -83,7 +95,9 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         addButton = urlView.findViewById(R.id.add_url);
         addButton.setEnabled(false);
         labelHolder = urlView.findViewById(R.id.item_list_layout);
-        deleteSelected = urlView.findViewById(R.id.delete_selected_urls);
+//        deleteSelected = urlView.findViewById(R.id.delete_selected_urls);
+        editModeText = urlView.findViewById(R.id.edit_mode_label);
+        selectedLabel = urlView.findViewById(R.id.selected_urls_label);
         prefs = getPreferenceManager().getSharedPreferences();
         setButtonListeners();
         setInitialPrefLabels();
@@ -168,30 +182,30 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 }
             }
         });
-        deleteSelected.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // Keep track of rows that need to be deleted
-                HashMap<String, LinearLayout> deleteViews = new HashMap<>();
-                // Find rows that are checked and note the row number
-                for (int i = 0; i < labelHolder.getChildCount(); i++) {
-                    LinearLayout itemRow = (LinearLayout)labelHolder.getChildAt(i);
-                    if(isItemRowChecked(itemRow)){
-                        deleteViews.put(getRowText(itemRow), itemRow);
-                    }
-                }
-                // Delete all checked rows
-                Iterator it = deleteViews.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry pair = (Map.Entry) it.next();
-                    if(removeStringFromSet(pair.getKey().toString())){
-//                        labelHolder.removeView((LinearLayout)pair.getValue());
-                        labelHolder = (LinearLayout)ViewAnimation.fadeOutAndRemove((LinearLayout)pair.getValue(), labelHolder, 250);
-                    }
-                }
-                setDeleteSelected();
-            }
-        });
+//        deleteSelected.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                // Keep track of rows that need to be deleted
+//                HashMap<String, LinearLayout> deleteViews = new HashMap<>();
+//                // Find rows that are checked and note the row number
+//                for (int i = 0; i < labelHolder.getChildCount(); i++) {
+//                    LinearLayout itemRow = (LinearLayout)labelHolder.getChildAt(i);
+//                    if(isItemRowChecked(itemRow)){
+//                        deleteViews.put(getRowText(itemRow), itemRow);
+//                    }
+//                }
+//                // Delete all checked rows
+//                Iterator it = deleteViews.entrySet().iterator();
+//                while (it.hasNext()) {
+//                    Map.Entry pair = (Map.Entry) it.next();
+//                    if(removeStringFromSet(pair.getKey().toString())){
+////                        labelHolder.removeView((LinearLayout)pair.getValue());
+//                        labelHolder = (LinearLayout)ViewAnimation.fadeOutAndRemove((LinearLayout)pair.getValue(), labelHolder, 250);
+//                    }
+//                }
+//                setDeleteSelected();
+//            }
+//        });
         inputText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -209,6 +223,39 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
 
             }
         });
+        editModeText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showEditButtons();
+            }
+        });
+    }
+
+    /**
+     * Shows or hides all the delete buttons next to each row of URLs
+     */
+    private void showEditButtons(){
+        for (int i = 0; i < labelHolder.getChildCount(); i++) {
+            LinearLayout itemRow = (LinearLayout) labelHolder.getChildAt(i);
+            for (int j = 0; j < itemRow.getChildCount(); j++) {
+                if(itemRow.getChildAt(j) instanceof Button){
+                    Button deleteButton = (Button) itemRow.getChildAt(j);
+                    if(!editMode) {
+                        deleteButton.setVisibility(View.VISIBLE);
+                    } else {
+                        deleteButton.setVisibility(View.GONE);
+                    }
+                }
+            }
+        }
+        editMode = !editMode;
+        if(editMode){
+            editModeText.setText("Done");
+            editModeText.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
+        } else {
+            editModeText.setText("Edit");
+            editModeText.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_warning));
+        }
     }
 
     /**
@@ -226,26 +273,40 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         itemRow.setGravity(Gravity.CENTER);
         itemRow.setPadding(0,0,0, 32);
 
+        Button deleteButton = new Button(getContext());
+        deleteButton.setText("delete");
+        deleteButton.setVisibility(View.GONE);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(removeStringFromSet(text)){
+                    labelHolder = (LinearLayout)ViewAnimation.fadeOutAndRemove(itemRow, labelHolder, 250);
+                }
+            }
+        });
+
         // Create checkbox
         CheckBox check = new CheckBox(getContext());
         check.setPadding(16,0,64,0);
         check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                setDeleteSelected();
+//                setDeleteSelected();
             }
         });
 
         // Create text
         TextView nameText = new TextView(getContext());
         nameText.setText(text);
-        nameText.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams textLayout = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        textLayout.setMargins(16, 16, 16, 16);
+        nameText.setLayoutParams(textLayout);
 
         // Add everything
-//        itemRow.addView(deleteButton);
-        itemRow.addView(check);
+        itemRow.addView(deleteButton);
+//        itemRow.addView(check);
         itemRow.addView(nameText);
         ViewAnimation.setSlideInFromRightAnimation(itemRow, 250);
         labelHolder.addView(itemRow);
@@ -279,18 +340,18 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         return false;
     }
 
-    /**
-     * Sets the delete selected text to active if any rows are checked, else it's disabled
-     */
-    private void setDeleteSelected(){
-        if(isAnyRowChecked()){
-            deleteSelected.setEnabled(true);
-            deleteSelected.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_warning));
-        } else {
-            deleteSelected.setEnabled(false);
-            deleteSelected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black50));
-        }
-    }
+//    /**
+//     * Sets the delete selected text to active if any rows are checked, else it's disabled
+//     */
+//    private void setDeleteSelected(){
+//        if(isAnyRowChecked()){
+//            deleteSelected.setEnabled(true);
+//            deleteSelected.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_warning));
+//        } else {
+//            deleteSelected.setEnabled(false);
+//            deleteSelected.setTextColor(ContextCompat.getColor(getActivity(), R.color.black50));
+//        }
+//    }
 
     /**
      * Get the URL string from a row

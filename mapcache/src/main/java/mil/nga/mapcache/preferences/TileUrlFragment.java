@@ -2,6 +2,7 @@ package mil.nga.mapcache.preferences;
 
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -238,8 +240,8 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         for (int i = 0; i < labelHolder.getChildCount(); i++) {
             LinearLayout itemRow = (LinearLayout) labelHolder.getChildAt(i);
             for (int j = 0; j < itemRow.getChildCount(); j++) {
-                if(itemRow.getChildAt(j) instanceof Button){
-                    Button deleteButton = (Button) itemRow.getChildAt(j);
+                if(itemRow.getChildAt(j) instanceof ImageButton){
+                    ImageButton deleteButton = (ImageButton) itemRow.getChildAt(j);
                     if(!editMode) {
                         deleteButton.setVisibility(View.VISIBLE);
                     } else {
@@ -273,9 +275,11 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         itemRow.setGravity(Gravity.CENTER);
         itemRow.setPadding(0,0,0, 32);
 
-        Button deleteButton = new Button(getContext());
-        deleteButton.setText("delete");
+        ImageButton deleteButton = new ImageButton(getContext());
+        deleteButton.setImageResource(R.drawable.cancel_changes_active);
+        deleteButton.setBackground(null);
         deleteButton.setVisibility(View.GONE);
+        itemRow.setPadding(0,0,0, 0);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

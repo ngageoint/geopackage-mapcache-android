@@ -124,11 +124,11 @@
                 android:text="@string/generate_tiles_type_geopackage_label" />
 
             <RadioButton
-                android:id="@+id/generate_tiles_type_google_radio_button"
+                android:id="@+id/generate_tiles_type_xyz_radio_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/generate_tiles_type_google_label" />
+                android:text="@string/generate_tiles_type_xyz_label" />
         </RadioGroup>
 
         <include

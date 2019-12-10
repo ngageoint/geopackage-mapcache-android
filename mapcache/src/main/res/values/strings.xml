@@ -64,7 +64,7 @@
     <string name="generate_tiles_compress_quality_label">Compress Quality: </string>
     <string name="generate_tiles_type_label">Tile Format:</string>
     <string name="generate_tiles_type_geopackage_label">GeoPackage</string>
-    <string name="generate_tiles_type_google_label">Google</string>
+    <string name="generate_tiles_type_xyz_label">XYZ</string>
     <string name="tile_scaling_type_label">Tile Scaling: </string>
     <string name="tile_scaling_type_prompt">Tile Scaling</string>
     <array name="tile_scaling_types">

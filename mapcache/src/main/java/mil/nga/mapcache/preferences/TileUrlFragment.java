@@ -180,6 +180,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 Set<String> existing = getStringSet(new HashSet<String>());
                 boolean saved = addStringToSet(existing, newUrl);
                 if(saved){
+                    showEditButtons();
                     addUrlView(newUrl);
                 }
             }

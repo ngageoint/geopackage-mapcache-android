@@ -180,7 +180,9 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 Set<String> existing = getStringSet(new HashSet<String>());
                 boolean saved = addStringToSet(existing, newUrl);
                 if(saved){
-                    showEditButtons();
+                    if(editMode){
+                        showEditButtons();
+                    }
                     addUrlView(newUrl);
                 }
             }
@@ -274,13 +276,13 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.HORIZONTAL));
         itemRow.setGravity(Gravity.CENTER);
-        itemRow.setPadding(0,0,0, 32);
+        itemRow.setPadding(0,48,0, 48);
 
         ImageButton deleteButton = new ImageButton(getContext());
         deleteButton.setImageResource(R.drawable.cancel_changes_active);
         deleteButton.setBackground(null);
         deleteButton.setVisibility(View.GONE);
-        itemRow.setPadding(0,0,0, 0);
+        deleteButton.setPadding(0,0,32, 0);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -307,7 +309,9 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT);
         textLayout.setMargins(16, 16, 16, 16);
+        textLayout.gravity = Gravity.CENTER;
         nameText.setLayoutParams(textLayout);
+        nameText.setTextAppearance(getContext(), R.style.textAppearanceSubtitle1);
 
         // Add everything
         itemRow.addView(deleteButton);

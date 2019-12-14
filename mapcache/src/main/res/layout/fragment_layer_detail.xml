@@ -54,6 +54,7 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="16dp"
                     android:paddingTop="8dp"
+                    android:paddingRight="16dp"
                     android:textStyle="bold"
                     android:text="@string/layer_detail_page"
                     android:textAppearance="@style/textAppearanceSubtitle1Heavy" />

@@ -45,8 +45,6 @@
         android:id="@+id/RelativeLayout01"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:paddingBottom="16dp"
-        android:paddingTop="16dp"
         android:layout_alignParentLeft="true">
 
     <!--Layer type icon-->
@@ -63,10 +61,14 @@
     <!--Layer name-->
     <TextView
         android:id="@+id/layer_label"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="layer"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         android:paddingLeft="16dp"
+        android:paddingRight="0dp"
+        android:layout_marginRight="88dp"
         android:layout_gravity="bottom|start"
         android:layout_toRightOf="@id/layer_icon"
         android:layout_centerVertical="true"
@@ -78,10 +80,12 @@
         android:id="@+id/simpleSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
         android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
         android:paddingRight="16dp"
-        android:gravity="end"/>
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:gravity="center_vertical"/>
     </RelativeLayout>
 
 

@@ -74,6 +74,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="right"
                 android:layout_weight="1"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp"
+                android:paddingLeft="16dp"
                 android:text="Edit"
                 android:textAppearance="@style/textAppearanceSubtitle1Heavy"
                 android:textColor="@color/nga_warning"/>
@@ -88,7 +91,6 @@
             <!-- All urls from shared prefs will be inserted in the below linear layout -->
             <LinearLayout
                 android:id="@+id/item_list_layout"
-                android:layout_marginTop="16dp"
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">

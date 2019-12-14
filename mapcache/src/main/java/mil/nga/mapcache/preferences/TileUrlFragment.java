@@ -276,13 +276,15 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.HORIZONTAL));
         itemRow.setGravity(Gravity.CENTER);
-        itemRow.setPadding(0,48,0, 48);
+//        itemRow.setPadding(0,48,0, 48);
+//        itemRow.setBackground(getResources().getDrawable(R.drawable.delete_bg));
+
 
         ImageButton deleteButton = new ImageButton(getContext());
         deleteButton.setImageResource(R.drawable.delete_forever);
         deleteButton.setBackground(null);
         deleteButton.setVisibility(View.GONE);
-        deleteButton.setPadding(0,0,32, 0);
+        deleteButton.setPadding(48,48,48, 48);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -311,6 +313,8 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         textLayout.setMargins(16, 16, 16, 16);
         textLayout.gravity = Gravity.CENTER;
         nameText.setLayoutParams(textLayout);
+        nameText.setPadding(32,32,32, 32);
+
         nameText.setTextAppearance(getContext(), R.style.textAppearanceSubtitle1);
 
         // Add everything

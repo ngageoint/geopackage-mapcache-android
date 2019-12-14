@@ -279,7 +279,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         itemRow.setPadding(0,48,0, 48);
 
         ImageButton deleteButton = new ImageButton(getContext());
-        deleteButton.setImageResource(R.drawable.cancel_changes_active);
+        deleteButton.setImageResource(R.drawable.delete_forever);
         deleteButton.setBackground(null);
         deleteButton.setVisibility(View.GONE);
         deleteButton.setPadding(0,0,32, 0);

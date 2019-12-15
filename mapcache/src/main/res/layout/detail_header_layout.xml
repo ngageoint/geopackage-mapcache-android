@@ -135,7 +135,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/ripple"
-            android:drawableTop="@drawable/material_delete"
+            android:drawableTop="@drawable/material_delete_forever"
             android:text="Delete" />
     </LinearLayout>
 

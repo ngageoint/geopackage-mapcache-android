@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_launcher" >
+        android:src="@drawable/colored_layers" >
     </ImageView>
 
 

@@ -2038,7 +2038,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 String[] urlChoices = existing.toArray(new String[existing.size()]);
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("Choose Tile URL");
+                builder.setTitle("Saved Tile URLs");
                 if(urlChoices.length > 0) {
                     builder.setItems(urlChoices, new DialogInterface.OnClickListener() {
                         @Override

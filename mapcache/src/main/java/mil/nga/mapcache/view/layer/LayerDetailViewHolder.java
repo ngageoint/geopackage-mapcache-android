@@ -170,7 +170,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             GeoPackageFeatureTable feature = (GeoPackageFeatureTable)layerObject.getTable();
             layerTypeText.setText("Feature Layer");
             layerCountLbl.setText("Features");
-            layerTypeIcon.setImageResource(R.drawable.polygon_colored);
+            layerTypeIcon.setImageResource(R.drawable.polygon);
             layerCountText.setText(feature.getCount() + "");
         } else if(layerObject.getTable() instanceof GeoPackageTileTable){
             GeoPackageTileTable tile = (GeoPackageTileTable)layerObject.getTable();

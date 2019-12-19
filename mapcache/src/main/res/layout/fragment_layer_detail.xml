@@ -71,13 +71,14 @@
                 android:orientation="horizontal"
                 android:paddingRight="24dp"
                 android:paddingLeft="24dp"
-                android:paddingBottom="8dp">
+                android:layout_marginBottom="8dp">
 
                 <ImageView
                     android:id="@+id/layer_type_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/material_feature" >
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/colored_layers" >
                 </ImageView>
 
                 <TextView
@@ -85,6 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Feature Layer"
+                    android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/layer_type_icon"
                     android:paddingLeft="8dp"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />

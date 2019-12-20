@@ -17,9 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
 import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
@@ -39,6 +36,10 @@ import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -2231,13 +2232,15 @@ public class GeoPackageMapFragment extends Fragment implements
 
             mil.nga.sf.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
+            String[] columns = featureDao.getIdAndGeometryColumnNames();
+
             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
             if (filter && indexer.isIndexed()) {
 
-                FeatureIndexResults indexResults = indexer.query(mapViewBoundingBox, mapViewProjection);
+                FeatureIndexResults indexResults = indexer.query(columns, mapViewBoundingBox, mapViewProjection);
                 BoundingBox complementary = mapViewBoundingBox.complementaryWgs84();
                 if (complementary != null) {
-                    FeatureIndexResults indexResults2 = indexer.query(complementary, mapViewProjection);
+                    FeatureIndexResults indexResults2 = indexer.query(columns, complementary, mapViewProjection);
                     indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
                 }
 
@@ -2263,7 +2266,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
 
                 // Query for all rows
-                FeatureCursor cursor = featureDao.queryForAll();
+                FeatureCursor cursor = featureDao.query(columns);
                 try {
                     while (!task.isCancelled() && count.get() < maxFeatures
                             && cursor.moveToNext()) {
@@ -3449,7 +3452,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     FeatureIndexListResults listResults = new FeatureIndexListResults();
 
                                     // Query for all rows
-                                    FeatureCursor cursor = featureDao.queryForAll();
+                                    FeatureCursor cursor = featureDao.query();
                                     try {
 
                                         while (cursor.moveToNext()) {

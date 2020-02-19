@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- logo and title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_horizontal"
+            >
+
+            <TextView
+                android:id="@+id/alert_title"
+                style="@style/Base.TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Share GeoPackage" />
+
+        </LinearLayout>
+
+
+        <!--Divider line-->
+        <View style="@style/Divider"
+            android:layout_marginBottom="16dp"
+            android:layout_marginRight="4dp"
+            />
+
+        <!--Share to apps-->
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/share_menu_share_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="16dp"
+            card_view:contentPaddingTop="16dp"
+            card_view:contentPaddingBottom="16dp"
+            card_view:contentPaddingLeft="16dp"
+            card_view:cardElevation="4dp"
+            card_view:cardCornerRadius="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/share_menu_share_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
+                    android:layout_gravity="center"
+                    android:src="@drawable/material_share"/>
+                <TextView
+                    android:id="@+id/share_menu_share_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:layout_toRightOf="@+id/share_menu_share_icon"
+                    android:text="Share with apps"
+                    android:textAppearance="@style/textAppearanceBody1Medium"
+                    android:textColor="@color/nga_primary_light"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <!-- Save to disk -->
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/share_menu_save_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginBottom="16dp"
+            card_view:contentPaddingTop="16dp"
+            card_view:contentPaddingBottom="16dp"
+            card_view:contentPaddingLeft="16dp"
+            card_view:cardElevation="4dp"
+            card_view:cardCornerRadius="4dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/share_menu_save_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="wrap_content"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
+                    android:layout_gravity="center"
+                    android:src="@drawable/material_cloud" />
+                <TextView
+                    android:id="@+id/share_menu_save_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:text="Save to disk"
+                    android:textAppearance="@style/textAppearanceBody1Medium"
+                    android:textColor="@color/nga_primary_light"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

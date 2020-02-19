@@ -1131,12 +1131,13 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Implement OnDialogButtonClickListener Share button confirm click
      * Kick off a share task with this GeoPackage
+     * Menu to either share externally or save the file
      * @param gpName - GeoPackage name
      */
     @Override
     public void onShareGP(String gpName) {
         ShareTask shareTask = new ShareTask(getActivity());
-        shareTask.shareDatabaseOption(gpName);
+        shareTask.askToSaveOrShare(gpName);
     }
 
     /**

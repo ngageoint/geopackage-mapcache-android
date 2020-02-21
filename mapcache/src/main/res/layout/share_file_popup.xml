@@ -97,7 +97,7 @@
                     android:scaleType="fitXY"
                     android:adjustViewBounds="true"
                     android:layout_gravity="center"
-                    android:src="@drawable/material_cloud" />
+                    android:src="@drawable/material_save" />
                 <TextView
                     android:id="@+id/share_menu_save_text"
                     android:layout_width="wrap_content"

@@ -971,7 +971,7 @@ public class GeoPackageManagerFragment extends Fragment implements
             File cacheDirectory = getDatabaseCacheDirectory();
             cacheDirectory.mkdir();
             cacheFile = new File(cacheDirectory, database + "."
-                    + GeoPackageConstants.GEOPACKAGE_EXTENSION);
+                    + GeoPackageConstants.EXTENSION);
             try {
                 GeoPackageIOUtils.copyFile(databaseFile, cacheFile);
             } catch (IOException e) {

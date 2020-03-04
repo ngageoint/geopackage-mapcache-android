@@ -8,7 +8,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 * geopackage-android-map version 3.5.0
 * XYZ tile rebranding, previously referred to as Google
-* gradle plugin updated to 3.5.3
+* gradle plugin updated to 3.6.1
 
 ## [1.25 - Legacy](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.25) (11-15-2019)
 

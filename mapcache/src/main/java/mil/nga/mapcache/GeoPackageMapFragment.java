@@ -692,6 +692,10 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private View transBox;
 
+    /**
+     * ShareTask object handles sharing GeoPackage files to other apps or saving to disk
+     */
+    private ShareTask shareTask;
 
 
     /**
@@ -760,6 +764,9 @@ public class GeoPackageMapFragment extends Fragment implements
         // Draw a transparent box.  used for downloading a new tile layer
         // NOTE: This view is invisible by default
         transBox = getLayoutInflater().inflate(R.layout.transparent_box_view, null);
+
+        // Create a sharetask to handle sharing to other apps or saving to disk
+        shareTask = new ShareTask(getActivity());
 
         return touch;
     }
@@ -1132,12 +1139,14 @@ public class GeoPackageMapFragment extends Fragment implements
      * Implement OnDialogButtonClickListener Share button confirm click
      * Kick off a share task with this GeoPackage
      * Menu to either share externally or save the file
-     * @param gpName - GeoPackage name
+     * @param gpName - GeoPackage name to be saved
      */
     @Override
     public void onShareGP(String gpName) {
-        ShareTask shareTask = new ShareTask(getActivity());
-        shareTask.askToSaveOrShare(gpName);
+        // Set the geopackage name before we ask permissions and get routed back through MainActivity
+        // to exportGeoPackageToExternal()
+        shareTask.setGeoPackageName(gpName);
+        getImportPermissions(MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE);
     }
 
     /**
@@ -1710,7 +1719,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 .setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        getImportPermissions();
+                        getImportPermissions(MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
                         alertDialog.dismiss();
                     }
                 });
@@ -2474,10 +2483,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Make sure we have permissions to read/write to external before importing.  The result will
-     * send MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL back up to mainactivity, and should
-     * call importGeopackageFromFile after
+     * send MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL or MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE
+     * back up to mainactivity, and should call importGeopackageFromFile or exportGeoPackageToExternal
      */
-    private void getImportPermissions(){
+    private void getImportPermissions(int returnCode){
         if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                     .setTitle(R.string.storage_access_rational_title)
@@ -2485,14 +2494,14 @@ public class GeoPackageMapFragment extends Fragment implements
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
                         }
                     })
                     .create()
                     .show();
 
         } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
         }
     }
 
@@ -2500,10 +2509,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * Import a GeoPackage from a file
+     * Import a GeoPackage from a file (after we've been given permission)
      */
     public void importGeopackageFromFile() {
-
         try {
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
             chooseFile.setType("application/octet-stream");
@@ -2512,6 +2520,16 @@ public class GeoPackageMapFragment extends Fragment implements
             startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
         } catch (Exception e) {
             // eat
+        }
+    }
+
+
+    /**
+     * Save a GeoPackage to external disk (after we've been given permission)
+     */
+    public void exportGeoPackageToExternal(){
+        if(shareTask != null && shareTask.getGeoPackageName() != null){
+            shareTask.askToSaveOrShare(shareTask.getGeoPackageName());
         }
     }
 

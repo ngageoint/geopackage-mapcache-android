@@ -1,7 +1,6 @@
 package mil.nga.mapcache.load;
 
 import android.app.Activity;
-import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
@@ -30,15 +28,37 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
+
+/**
+ * Handles sending a GeoPackage to external apps or saving that file to external disk
+ * Used from the GeoPackage detail view share button
+ */
 public class ShareTask {
 
     /**
      * Intent activity request code when sharing a file
      */
     public static final int ACTIVITY_SHARE_FILE = 3343;
+
+    /**
+     * file provider id
+     */
     private static final String AUTHORITY = BuildConfig.APPLICATION_ID+".fileprovider";
+
+    /**
+     * Save a reference to the parent activity
+     */
     private Activity activity;
+
+    /**
+     * Need access to the viewModel to retrieve database files
+     */
     private GeoPackageViewModel geoPackageViewModel;
+
+    /**
+     * Name should be saved to the task
+     */
+    private String geoPackageName;
 
     public ShareTask(FragmentActivity activity) {
         this.activity = activity;
@@ -47,7 +67,7 @@ public class ShareTask {
 
 
     /**
-     * Share database option
+     * Share database with external apps via intent
      *
      * @param database GeoPackage name
      */
@@ -79,14 +99,14 @@ public class ShareTask {
             }
 
         } catch (Exception e) {
-            GeoPackageUtils.showMessage(activity, "Share", e.getMessage());
+            GeoPackageUtils.showMessage(activity, "Error sharing GeoPackage", e.getMessage());
         }
     }
 
 
 
     /**
-     * Save the given database to disk
+     * Save the given database to the downloads directory
      * @param database GeoPackage name
      */
     private void saveDatabaseOption(final String database){
@@ -97,26 +117,13 @@ public class ShareTask {
             // Create the share intent
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
-            shareIntent.setType("*/*");
 
-            // If external database, no permission is needed
-            if (geoPackageViewModel.isExternal(database)) {
-                // Create the Uri and share
-                Uri databaseUri = FileProvider.getUriForFile(activity,
-                        AUTHORITY,
-                        databaseFile);
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                launchShareIntent(shareIntent, databaseUri);
-            }
-            // If internal database, file must be copied to cache for permission
-            else {
-                // Launch the save to disk task
-                SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
-                saveTask.execute(databaseFile, database);
-            }
+            // Launch the save to disk task
+            SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
+            saveTask.execute(databaseFile, database);
 
         } catch (Exception e) {
-            GeoPackageUtils.showMessage(activity, "Save", e.getMessage());
+            GeoPackageUtils.showMessage(activity, "Error saving to file", e.getMessage());
         }
     }
 
@@ -417,6 +424,13 @@ public class ShareTask {
         }
     }
 
+    public String getGeoPackageName() {
+        return geoPackageName;
+    }
+
+    public void setGeoPackageName(String geoPackageName) {
+        this.geoPackageName = geoPackageName;
+    }
 }
 
 

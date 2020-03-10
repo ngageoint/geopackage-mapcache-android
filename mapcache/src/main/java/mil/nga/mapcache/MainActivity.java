@@ -223,6 +223,10 @@ public class MainActivity extends AppCompatActivity {
                 mapFragment.importGeopackageFromFile();
                 break;
 
+            case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                mapFragment.exportGeoPackageToExternal();
+                break;
+
             case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
 //                managerFragment.update(granted);
                 break;

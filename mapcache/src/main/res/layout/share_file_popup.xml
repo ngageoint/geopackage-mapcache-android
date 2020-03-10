@@ -103,7 +103,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="Save to disk"
+                    android:text="Save to Downloads"
                     android:textAppearance="@style/textAppearanceBody1Medium"
                     android:textColor="@color/nga_primary_light"/>
             </LinearLayout>

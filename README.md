@@ -47,6 +47,8 @@ A Tile layer detail view
 
 ### Build ###
 
+[![Build](https://github.com/ngageoint/geopackage-mapcache-android/workflows/Build/badge.svg)](https://github.com/ngageoint/geopackage-mapcache-android/actions?query=workflow%3ABuild)
+
 Build this repository using Android Studio and/or Gradle. Run the "assembleRelease" task on the geopackage-mapcache-android Gradle script.
 
 #### Map Key ####

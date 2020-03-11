@@ -265,7 +265,7 @@ public class ShareTask {
         File cacheDirectory = getDatabaseCacheDirectory();
         cacheDirectory.mkdir();
         cacheFile = new File(cacheDirectory, database + "."
-                + GeoPackageConstants.GEOPACKAGE_EXTENSION);
+                + GeoPackageConstants.EXTENSION);
         try {
             GeoPackageIOUtils.copyFile(databaseFile, cacheFile);
         } catch (IOException e) {
@@ -370,14 +370,14 @@ public class ShareTask {
             File cacheDirectory = getDatabaseCacheDirectory();
             cacheDirectory.mkdir();
             cacheFile = new File(downloadDir, database + "."
-                    + GeoPackageConstants.GEOPACKAGE_EXTENSION);
+                    + GeoPackageConstants.EXTENSION);
 
             // If file already exists, add a number on the end to ensure we don't overwrite
             int fileNumber = 0;
             while(cacheFile.exists()){
                 fileNumber++;
                 cacheFile = new File(downloadDir, database + fileNumber + "."
-                        + GeoPackageConstants.GEOPACKAGE_EXTENSION);
+                        + GeoPackageConstants.EXTENSION);
             }
 
             try {

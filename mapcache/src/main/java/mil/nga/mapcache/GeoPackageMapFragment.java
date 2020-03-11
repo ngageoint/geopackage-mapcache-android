@@ -2236,9 +2236,9 @@ public class GeoPackageMapFragment extends Fragment implements
                         long epsg = Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString());
                         RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
                         String tileFormat = selectedFormat.getText().toString();
-                        boolean googleTiles = false;
+                        boolean xyzTiles = false;
                         if (tileFormat.equalsIgnoreCase("google")) {
-                            googleTiles = true;
+                            xyzTiles = true;
                         }
 
                         CompressFormat compressFormat = null;
@@ -2263,7 +2263,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 GeoPackageMapFragment.this, active,
                                 geopackageName, layerName, url, minZoom,
                                 maxZoom, compressFormat,
-                                compressQuality, googleTiles,
+                                compressQuality, xyzTiles,
                                 boundingBox, scaling,
                                 ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
 
@@ -2346,8 +2346,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_compress_quality);
-        final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
-                .findViewById(R.id.generate_tiles_type_google_radio_button);
+        final RadioButton xyzTilesRadioButton = (RadioButton) createTilesView
+                .findViewById(R.id.generate_tiles_type_xyz_radio_button);
         final EditText minLatInput = (EditText) createTilesView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) createTilesView
@@ -2431,7 +2431,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                 .toString());
                             }
 
-                            boolean googleTiles = googleTilesRadioButton
+                            boolean xyzTiles = xyzTilesRadioButton
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
@@ -2448,7 +2448,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                         GeoPackageMapFragment.this, active,
                                         database, tableName, tileUrl, minZoom,
                                         maxZoom, compressFormat,
-                                        compressQuality, googleTiles,
+                                        compressQuality, xyzTiles,
                                         boundingBox, scaling,
                                         ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
                                 geoPackageViewModel.regenerateGeoPackageTableList();
@@ -4671,13 +4671,15 @@ public class GeoPackageMapFragment extends Fragment implements
 
             mil.nga.sf.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
+            String[] columns = featureDao.getIdAndGeometryColumnNames();
+
             FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
             if (filter && indexer.isIndexed()) {
 
-                FeatureIndexResults indexResults = indexer.query(mapViewBoundingBox, mapViewProjection);
+                FeatureIndexResults indexResults = indexer.query(columns, mapViewBoundingBox, mapViewProjection);
                 BoundingBox complementary = mapViewBoundingBox.complementaryWgs84();
                 if (complementary != null) {
-                    FeatureIndexResults indexResults2 = indexer.query(complementary, mapViewProjection);
+                    FeatureIndexResults indexResults2 = indexer.query(columns, complementary, mapViewProjection);
                     indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
                 }
 
@@ -4703,7 +4705,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
 
                 // Query for all rows
-                FeatureCursor cursor = featureDao.queryForAll();
+                FeatureCursor cursor = featureDao.query(columns);
                 try {
                     while (!task.isCancelled() && count.get() < maxFeatures
                             && cursor.moveToNext()) {
@@ -5908,7 +5910,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     FeatureIndexListResults listResults = new FeatureIndexListResults();
 
                                     // Query for all rows
-                                    FeatureCursor cursor = featureDao.queryForAll();
+                                    FeatureCursor cursor = featureDao.query();
                                     try {
 
                                         while (cursor.moveToNext()) {
@@ -6580,8 +6582,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_compress_quality);
-        final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
-                .findViewById(R.id.generate_tiles_type_google_radio_button);
+        final RadioButton xyzTilesRadioButton = (RadioButton) createTilesView
+                .findViewById(R.id.generate_tiles_type_xyz_radio_button);
         final EditText minLatInput = (EditText) createTilesView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) createTilesView
@@ -6733,7 +6735,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                 .toString());
                             }
 
-                            boolean googleTiles = googleTilesRadioButton
+                            boolean xyzTiles = xyzTilesRadioButton
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
@@ -6754,7 +6756,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     GeoPackageMapFragment.this, active,
                                     database, tableName, tileUrl, minZoom,
                                     maxZoom, compressFormat, compressQuality,
-                                    googleTiles, boundingBox, scaling,
+                                    xyzTiles, boundingBox, scaling,
                                     ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
                         } catch (Exception e) {
                             GeoPackageUtils
@@ -6860,8 +6862,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 .findViewById(R.id.generate_tiles_compress_format);
         final EditText compressQualityInput = (EditText) createTilesView
                 .findViewById(R.id.generate_tiles_compress_quality);
-        final RadioButton googleTilesRadioButton = (RadioButton) createTilesView
-                .findViewById(R.id.generate_tiles_type_google_radio_button);
+        final RadioButton xyzTilesRadioButton = (RadioButton) createTilesView
+                .findViewById(R.id.generate_tiles_type_xyz_radio_button);
         final EditText minLatInput = (EditText) createTilesView
                 .findViewById(R.id.bounding_box_min_latitude_input);
         final EditText maxLatInput = (EditText) createTilesView
@@ -7031,7 +7033,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                                 .toString());
                             }
 
-                            boolean googleTiles = googleTilesRadioButton
+                            boolean xyzTiles = xyzTilesRadioButton
                                     .isChecked();
 
                             BoundingBox boundingBox = new BoundingBox(minLon,
@@ -7092,7 +7094,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     GeoPackageMapFragment.this, active,
                                     geoPackage, tableName, featureTiles, minZoom,
                                     maxZoom, compressFormat,
-                                    compressQuality, googleTiles,
+                                    compressQuality, xyzTiles,
                                     boundingBox, scaling,
                                     ProjectionConstants.AUTHORITY_EPSG,
                                     String.valueOf(ProjectionConstants.EPSG_WEB_MERCATOR));

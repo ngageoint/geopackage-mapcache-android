@@ -4,7 +4,7 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.26 - Legacy (TBD)
+## [1.26 - Legacy](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.26) (03-11-2020)
 
 * geopackage-android-map version 3.5.0
 * XYZ tile rebranding, previously referred to as Google

@@ -308,7 +308,28 @@ public class GeoPackageRepository {
         return null;
     }
 
+    /**
+     * Quick way to check if the geopackage name is already taken (ignoring caps) without using the manager
+     * @param name name of the Geopackage to look for
+     * @return true if the name is already taken
+     */
+    public boolean geoPackageNameExists(String name){
+        if(getGeos().getValue().geoPackageNameExists(name)){
+            return true;
+        }
+        return false;
+    }
+
+
     public boolean setGeoPackageName(String oldName, String newName) {
+        // If the new name already exists, but it's not renaming the old name, then exit to
+        // prevent duplicating GeoPackages
+        if (getGeos().getValue().geoPackageNameExists(newName)) {
+            if(!oldName.equalsIgnoreCase(newName)){
+                return false;
+            }
+        }
+
         // Rename the GeoPackage in the active list first
         GeoPackageDatabases currentActive = active.getValue();
         if(currentActive != null) {

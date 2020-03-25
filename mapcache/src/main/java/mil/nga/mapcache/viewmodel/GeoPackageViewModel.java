@@ -547,6 +547,13 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     *  Returns true if the database name exists (without opening the manager, this is a fast name check)
+     */
+    public boolean geoPackageNameExists(String database){
+        return repository.geoPackageNameExists(database);
+    }
+
+    /**
      * Import an GeoPackage as an external file link without copying locally
      *
      * @param path     full file path

@@ -106,6 +106,18 @@ public class GeoPackageDatabases {
     }
 
     /**
+     * Check if the GeoPackage name exists in our list (ignoring capitalization)
+     */
+    public boolean geoPackageNameExists(String name) {
+        for(GeoPackageDatabase db : getDatabases()){
+            if(db.getDatabase().equalsIgnoreCase(name)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Check if the table exists in this collection of tables, is active
      *
      * @param table

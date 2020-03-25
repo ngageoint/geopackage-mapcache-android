@@ -288,7 +288,7 @@ public class ImportTask {
     public void importGeoPackage(final String name, Uri uri, String path) {
 
         // Check if a database already exists with the name
-        if (geoPackageViewModel.exists(name)) {
+        if (geoPackageViewModel.geoPackageNameExists(name)) {
             try {
                 activity.runOnUiThread(
                         new Runnable() {

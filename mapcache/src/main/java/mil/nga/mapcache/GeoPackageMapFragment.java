@@ -1120,18 +1120,28 @@ public class GeoPackageMapFragment extends Fragment implements
     public void onRenameGP(String oldName, String newName) {
         Log.i("click", "Rename GeoPackage from: " + oldName + " to: " + newName);
         try {
-            if (geoPackageViewModel.setGeoPackageName(oldName, newName)) {
-                // recreate the adapter and repopulate the recyclerview
-                createGeoPackageDetailAdapter(geoPackageViewModel.getGeoByName(newName));
-            } else {
+            // If the new name already exists, make sure the names match, meaning that
+            // this is just renaming the same geopackage
+            if(geoPackageViewModel.geoPackageNameExists(newName) &&
+                    !oldName.equalsIgnoreCase(newName)){
                 GeoPackageUtils.showMessage(getActivity(),
                         getString(R.string.geopackage_rename_label),
-                        "Rename from " + oldName + " to " + newName
-                                + " was not successful");
+                        "GeoPackage name \"" + newName
+                                + "\" is already taken");
+            } else {
+                if (geoPackageViewModel.setGeoPackageName(oldName, newName)) {
+                    // recreate the adapter and repopulate the recyclerview
+                    createGeoPackageDetailAdapter(geoPackageViewModel.getGeoByName(newName));
+                } else {
+                    GeoPackageUtils.showMessage(getActivity(),
+                            getString(R.string.geopackage_rename_label),
+                            "Rename from " + oldName + " to " + newName
+                                    + " was not successful");
+                }
             }
         } catch(Exception e){
             GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_rename_label),
-                            e.getMessage());
+                    e.getMessage());
         }
     }
 

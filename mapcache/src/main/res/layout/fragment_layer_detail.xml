@@ -104,49 +104,6 @@
                 android:paddingLeft="8dp"
                 android:paddingBottom="8dp">
 
-
-<!--            <Button-->
-<!--                android:id="@+id/layerRenameButton"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:layout_margin="8dp"-->
-<!--                android:text="Rename"-->
-<!--                android:textColor="@color/nga_primary_primary_dark"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-<!--                android:backgroundTint="@color/nga_primary_bright"-->
-<!--                />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/layerCopyButton"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:layout_margin="8dp"-->
-<!--                android:text="Copy"-->
-<!--                android:textColor="@color/nga_primary_primary_dark"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-<!--                android:backgroundTint="@color/nga_primary_bright"-->
-<!--                />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/layerDeleteButton"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_weight="1"-->
-<!--                android:layout_margin="8dp"-->
-<!--                android:textAlignment="center"-->
-<!--                android:text="Delete"-->
-<!--                android:textStyle="bold"-->
-<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-<!--                android:textColor="@color/nga_warning"-->
-<!--                android:backgroundTint="@color/nga_warning_light"-->
-<!--                android:paddingVertical="8dp"-->
-<!--                android:paddingHorizontal="16dp"-->
-<!--                />-->
-
                 <Button
                     android:id="@+id/layerRenameButton"
                     android:layout_width="wrap_content"
@@ -166,6 +123,16 @@
                     android:drawableTop="@drawable/material_copy"
                     android:gravity="bottom|center"
                     android:text="Copy" />
+
+                <Button
+                    android:id="@+id/editFeaturesButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/ripple"
+                    android:drawableTop="@drawable/material_location"
+                    android:gravity="bottom|center"
+                    android:text="Edit" />
 
                 <Button
                     android:id="@+id/layerDeleteButton"

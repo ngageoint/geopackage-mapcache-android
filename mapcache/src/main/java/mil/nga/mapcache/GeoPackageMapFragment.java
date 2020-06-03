@@ -1062,8 +1062,17 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+        // Listener for editing a feature layer from the layer detail page
+        DetailActionListener editLayerListener = new DetailActionListener() {
+            @Override
+            public void onClick(View view, int actionType, String gpName, String layerName) {
+                openActionDialog(gpName, layerName, actionType);
+            }
+        };
+
         layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
-                activeLayerListener, detailActionListener, renameLayerListener, copyLayerListener);
+                activeLayerListener, detailActionListener, renameLayerListener, copyLayerListener,
+                editLayerListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 
@@ -1096,6 +1105,9 @@ public class GeoPackageMapFragment extends Fragment implements
             detailButtonUtil.openRenameLayerDialog(getActivity(), gpName, layerName, this);
         } else if(actionType == DetailActionListener.COPY_LAYER){
             detailButtonUtil.openCopyLayerDialog(getActivity(), gpName, layerName, this);
+        } else if(actionType == DetailActionListener.EDIT_FEATURES){
+            // Open edit features mode with the geopackage and layer already selected
+            openEditFeatures(gpName, layerName);
         }
     }
 
@@ -3668,6 +3680,36 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         return handled;
+    }
+
+
+    /**
+     * Open Edit features mode with a preselected GeoPackage and Layer
+     * (This happens when a user clicks the edit features button from a layer detail page)
+     */
+    private void openEditFeatures(String geoPackage, String layer){
+        try {
+
+            if (boundingBoxMode) {
+                resetBoundingBox();
+            }
+
+            editFeaturesDatabase = geoPackage;
+            editFeaturesTable = layer;
+
+            editFeaturesMode = true;
+            editFeaturesView.setVisibility(View.VISIBLE);
+
+
+            updateInBackground(false, true);
+
+        } catch (Exception e) {
+            GeoPackageUtils
+                    .showMessage(
+                            getActivity(),
+                            getString(R.string.edit_features_selection_features_label),
+                            e.getMessage());
+        }
     }
 
     /**

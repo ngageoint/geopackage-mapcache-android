@@ -60,6 +60,11 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private DetailActionListener mCopyLayerListener;
 
     /**
+     * Listener for clicking the edit features button
+     */
+    private DetailActionListener mEditFeaturesListener;
+
+    /**
      * Constructor
      * @param layerObject DetailPageLayerObject
      */
@@ -67,13 +72,15 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                             LayerActiveSwitchListener activeLayerListener,
                             DetailActionListener detailActionListener,
                             DetailActionListener renameLayerListener,
-                            DetailActionListener copyLayerListener){
+                            DetailActionListener copyLayerListener,
+                            DetailActionListener editFeaturesListener){
         mLayerObject = layerObject;
         mBackArrowListener = backArrowListener;
         mActiveLayerListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
         mRenameLayerListener = renameLayerListener;
         mCopyLayerListener = copyLayerListener;
+        mEditFeaturesListener = editFeaturesListener;
     }
 
 
@@ -88,7 +95,8 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_layer_detail, parent, false);
         return new LayerDetailViewHolder(view, mBackArrowListener, mActiveLayerListener,
-                                        mDetailActionListener, mRenameLayerListener, mCopyLayerListener);
+                                        mDetailActionListener, mRenameLayerListener, mCopyLayerListener,
+                                        mEditFeaturesListener);
     }
 
     /**

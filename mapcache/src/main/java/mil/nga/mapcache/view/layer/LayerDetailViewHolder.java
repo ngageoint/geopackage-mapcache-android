@@ -89,6 +89,11 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     private Button mLayerCopy;
 
     /**
+     * Text button for opening this layer in edit mode
+     */
+    private Button mLayerEdit;
+
+    /**
      * DetailPageLayerObject containing details for the selected layer
      */
     private DetailPageLayerObject mLayerObject;
@@ -114,6 +119,11 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     private DetailActionListener mCopyLayerListener;
 
     /**
+     * Click listener for the edit features button
+     */
+    private DetailActionListener mEditFeaturesListener;
+
+    /**
      * Tells this ViewHolder if it should ignore state changes on the switch (used for setting
      * the switch state)
      */
@@ -128,7 +138,8 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
                                  LayerActiveSwitchListener activeLayerListener,
                                  DetailActionListener detailActionListener,
                                  DetailActionListener renameLayerListener,
-                                 DetailActionListener copyLayerListener){
+                                 DetailActionListener copyLayerListener,
+                                 DetailActionListener editFeaturesListener){
         super(view);
         nameText = (TextView) view.findViewById(R.id.layerName);
         backArrow = (ImageButton) itemView.findViewById(R.id.layerPageBackButton);
@@ -142,15 +153,18 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         mLayerDelete = view.findViewById(R.id.layerDeleteButton);
         mLayerRename = view.findViewById(R.id.layerRenameButton);
         mLayerCopy = view.findViewById(R.id.layerCopyButton);
+        mLayerEdit = view.findViewById(R.id.editFeaturesButton);
         zoomLabel = view.findViewById(R.id.layerZoomLabel);
         zoomText = view.findViewById(R.id.textMinZoom);
         mSwitchListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
         mRenameLayerListener = renameLayerListener;
         mCopyLayerListener = copyLayerListener;
+        mEditFeaturesListener = editFeaturesListener;
         setDeleteListener();
         setRenameListener();
         setCopyListener();
+        setEditFeaturesListener();
         setLayerSwitchListener();
         ViewAnimation.fadeInFromRight(itemView, 200);
 
@@ -219,6 +233,18 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             @Override
             public void onClick(View view) {
                 mCopyLayerListener.onClick(view, DetailActionListener.COPY_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+            }
+        });
+    }
+
+    /**
+     * Click listener for the edit features button
+     */
+    private void setEditFeaturesListener(){
+        mLayerEdit.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                mEditFeaturesListener.onClick(view, DetailActionListener.EDIT_FEATURES, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
     }

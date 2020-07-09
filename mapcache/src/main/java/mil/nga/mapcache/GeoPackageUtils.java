@@ -18,10 +18,10 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.extension.scale.TileScaling;
-import mil.nga.geopackage.extension.scale.TileScalingType;
-import mil.nga.geopackage.extension.style.FeatureTableStyles;
-import mil.nga.geopackage.extension.style.StyleRow;
+import mil.nga.geopackage.extension.nga.scale.TileScaling;
+import mil.nga.geopackage.extension.nga.scale.TileScalingType;
+import mil.nga.geopackage.extension.nga.style.FeatureTableStyles;
+import mil.nga.geopackage.extension.nga.style.StyleRow;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;

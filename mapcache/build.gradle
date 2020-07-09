@@ -1,12 +1,10 @@
 apply plugin: 'com.android.application'
-apply plugin: 'maven'
 
 def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? RELEASE_MAPS_MAPCACHE_API_KEY: ''
 def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY: ''
 
 android {
     compileSdkVersion 29
-    ndkVersion "21.0.6113669"
 
     dexOptions {
         javaMaxHeapSize "4g"
@@ -46,17 +44,9 @@ android {
     }
 }
 
-task androidAppVersion {
-    doLast {
-        com.android.build.gradle.AppExtension appExt = project.extensions.android
-        println "versionCode: ${appExt.defaultConfig.applicationId}@${appExt.defaultConfig.versionCode}"
-        println "versionName: ${appExt.defaultConfig.applicationId}@${appExt.defaultConfig.versionName}"
-    }
-}
-
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'mil.nga.geopackage.map:geopackage-android-map:3.5.0' // comment out to build locally
+    api 'mil.nga.geopackage.map:geopackage-android-map:4.0.0' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'androidx.multidex:multidex:2.0.1'
     testImplementation 'androidx.multidex:multidex:2.0.1'

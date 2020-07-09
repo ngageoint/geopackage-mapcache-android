@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="mil.nga.mapcache"
     android:installLocation="auto">
 
@@ -51,7 +52,7 @@
                 <data android:mimeType="application/octet-stream" />
             </intent-filter>
             <!-- GeoPackages in Google Drive or sends from other apps -->
-            <intent-filter>
+            <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

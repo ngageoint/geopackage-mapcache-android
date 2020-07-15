@@ -45,6 +45,13 @@ android {
     }
 }
 
+task androidAppVersion {
+    doLast {
+        println "versionCode: ${android.defaultConfig.applicationId}@${android.defaultConfig.versionCode}"
+        println "versionName: ${android.defaultConfig.applicationId}@${android.defaultConfig.versionName}"
+    }
+}
+
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
     api 'mil.nga.geopackage.map:geopackage-android-map:4.0.0' // comment out to build locally

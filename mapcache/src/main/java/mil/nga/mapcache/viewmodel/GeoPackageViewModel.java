@@ -17,8 +17,8 @@ import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.extension.scale.TileScaling;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;

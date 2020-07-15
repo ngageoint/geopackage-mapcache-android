@@ -54,7 +54,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -120,15 +119,17 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageCache;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageFactory;
 import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
-import mil.nga.geopackage.extension.scale.TileScaling;
-import mil.nga.geopackage.extension.scale.TileTableScaling;
-import mil.nga.geopackage.extension.style.FeatureStyle;
-import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
+import mil.nga.geopackage.extension.nga.scale.TileScaling;
+import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
+import mil.nga.geopackage.extension.nga.style.FeatureStyle;
+import mil.nga.geopackage.extension.schema.SchemaExtension;
+import mil.nga.geopackage.extension.schema.columns.DataColumns;
+import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.index.FeatureIndexListResults;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
@@ -161,8 +162,7 @@ import mil.nga.geopackage.map.tiles.overlay.BoundedOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlay;
 import mil.nga.geopackage.map.tiles.overlay.FeatureOverlayQuery;
 import mil.nga.geopackage.map.tiles.overlay.GeoPackageOverlayFactory;
-import mil.nga.geopackage.schema.columns.DataColumns;
-import mil.nga.geopackage.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
@@ -6342,7 +6342,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                            String title,
                                            GeoPackageGeometryData geomData) {
 
-        DataColumnsDao dataColumnsDao = geoPackage.getDataColumnsDao();
+        DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
         try {
             if (!dataColumnsDao.isTableExists()) {
                 dataColumnsDao = null;

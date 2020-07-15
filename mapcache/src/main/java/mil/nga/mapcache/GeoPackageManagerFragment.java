@@ -70,30 +70,32 @@ import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.GeoPackageFactory;
 import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.link.FeatureTileLink;
-import mil.nga.geopackage.extension.link.FeatureTileTableLinker;
-import mil.nga.geopackage.extension.scale.TileScaling;
-import mil.nga.geopackage.extension.scale.TileTableScaling;
-import mil.nga.geopackage.extension.style.FeatureTableStyles;
-import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.db.TableColumnKey;
+import mil.nga.geopackage.extension.nga.link.FeatureTileLink;
+import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
+import mil.nga.geopackage.extension.nga.scale.TileScaling;
+import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
+import mil.nga.geopackage.extension.nga.style.FeatureTableStyles;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.columns.GeometryColumnsDao;
 import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureTableMetadata;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.matrix.TileMatrix;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.geopackage.user.UserColumn;
 import mil.nga.geopackage.user.UserTable;
 import mil.nga.mapcache.data.GeoPackageDatabase;
@@ -1196,8 +1198,11 @@ public class GeoPackageManagerFragment extends Fragment implements
 
                             GeoPackage geoPackage = manager.open(database);
                             try {
-                                geoPackage.createFeatureTableWithMetadata(
-                                        geometryColumns, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                                SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
+                                        .getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                                geometryColumns.setSrs(srs);
+                                geoPackage.createFeatureTable(FeatureTableMetadata.create(
+                                        geometryColumns, boundingBox));
                             } finally {
                                 geoPackage.close();
                             }
@@ -1358,9 +1363,8 @@ public class GeoPackageManagerFragment extends Fragment implements
                                     // Create the tile table
                                     Projection projection = ProjectionFactory.getProjection(epsg);
                                     BoundingBox bbox = LoadTilesTask.transform(boundingBox, projection);
-                                    geoPackage.createTileTableWithMetadata(
-                                            tableName, bbox, srs.getSrsId(),
-                                            bbox, srs.getSrsId());
+                                    geoPackage.createTileTable(
+                                            TileTableMetadata.create(tableName, bbox, srs.getSrsId()));
 
                                     TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tableName);
                                     tileTableScaling.createOrUpdate(scaling);

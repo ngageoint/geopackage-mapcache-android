@@ -13,25 +13,29 @@ import androidx.lifecycle.MutableLiveData;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageFactory;
 import mil.nga.geopackage.GeoPackageManager;
-import mil.nga.geopackage.core.contents.Contents;
-import mil.nga.geopackage.core.contents.ContentsDao;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystem;
-import mil.nga.geopackage.core.srs.SpatialReferenceSystemDao;
-import mil.nga.geopackage.extension.scale.TileScaling;
-import mil.nga.geopackage.extension.scale.TileTableScaling;
-import mil.nga.geopackage.factory.GeoPackageFactory;
+import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.db.TableColumnKey;
+import mil.nga.geopackage.extension.nga.scale.TileScaling;
+import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureTable;
+import mil.nga.geopackage.features.user.FeatureTableMetadata;
 import mil.nga.geopackage.io.GeoPackageProgress;
-import mil.nga.geopackage.schema.TableColumnKey;
+import mil.nga.geopackage.srs.SpatialReferenceSystem;
+import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.tiles.user.TileTableMetadata;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -686,11 +690,16 @@ public class GeoPackageRepository {
 
         GeoPackage geoPackage = manager.open(gpName);
         try {
-            GeometryColumns created = geoPackage.createFeatureTableWithMetadata(
-                    geometryColumns, boundingBox, ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
-            if(created != null) {
+            SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
+                    .getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            geometryColumns.setSrs(srs);
+            FeatureTable created = geoPackage.createFeatureTable(FeatureTableMetadata.create(
+                    geometryColumns, boundingBox));
+            if (created != null) {
                 return true;
             }
+        }catch (SQLException e){
+            Log.i("Exception", e.toString());
         } finally {
             geoPackage.close();
         }
@@ -710,9 +719,8 @@ public class GeoPackageRepository {
             // Create the tile table
             mil.nga.sf.proj.Projection projection = ProjectionFactory.getProjection(epsg);
             BoundingBox bbox = LoadTilesTask.transform(boundingBox, projection);
-            geoPackage.createTileTableWithMetadata(
-                    tableName, bbox, srs.getSrsId(),
-                    bbox, srs.getSrsId());
+            geoPackage.createTileTable(
+                    TileTableMetadata.create(tableName, bbox, srs.getSrsId()));
 
             TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tableName);
             tileTableScaling.createOrUpdate(scaling);

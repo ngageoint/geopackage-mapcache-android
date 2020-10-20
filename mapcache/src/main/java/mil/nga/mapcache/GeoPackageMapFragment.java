@@ -2052,7 +2052,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 drawButton.setEnabled(true);
 
                 if(givenUrl.isEmpty()){
-                    inputUrl.setError("Name is required");
+                    inputUrl.setError("URL is required");
                     drawButton.setEnabled(false);
                 }
             }

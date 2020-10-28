@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
@@ -135,6 +136,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
     private boolean addStringToSet(Set<String> originalSet, String newUrl){
         HashSet<String> prefList = new HashSet<>(originalSet);
         if(prefList.contains(newUrl)){
+            Toast.makeText(getActivity(), "URL already exists", Toast.LENGTH_SHORT).show();
             return false;
         }
         prefList.add(newUrl);

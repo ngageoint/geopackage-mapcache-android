@@ -207,8 +207,12 @@
     <string name="button_ok_label">OK</string>
     <string name="button_create_label">Create</string>
     <string name="button_discard_label">Discard</string>
+    <string name="button_delete_label">Delete</string>
     <string name="button_cancel_label">Cancel</string>
     <string name="button_save_label">Save</string>
+    <string name="delete_url_title">Delete URL</string>
+    <string name="delete_url_message">Delete this saved URL?</string>
+
 
 
     <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>

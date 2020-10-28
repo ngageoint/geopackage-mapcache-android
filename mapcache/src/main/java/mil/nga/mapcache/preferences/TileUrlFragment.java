@@ -1,7 +1,10 @@
 package mil.nga.mapcache.preferences;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
 import android.media.Image;
 import android.os.Bundle;
 import android.text.Editable;
@@ -22,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -136,7 +140,11 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
     private boolean addStringToSet(Set<String> originalSet, String newUrl){
         HashSet<String> prefList = new HashSet<>(originalSet);
         if(prefList.contains(newUrl)){
-            Toast.makeText(getActivity(), "URL already exists", Toast.LENGTH_SHORT).show();
+            Toast msg = Toast.makeText(getActivity(), "URL already exists", Toast.LENGTH_SHORT);
+            msg.setGravity(Gravity.TOP|Gravity.CENTER, 0, 0);
+            View view = msg.getView();
+            view.getBackground().setColorFilter(Color.WHITE, PorterDuff.Mode.DST_OVER);
+            msg.show();
             return false;
         }
         prefList.add(newUrl);
@@ -293,9 +301,29 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(removeStringFromSet(text)){
-                    labelHolder = (LinearLayout)ViewAnimation.fadeOutAndRemove(itemRow, labelHolder, 250);
-                }
+                AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setTitle(
+                            getString(R.string.delete_url_title))
+                    .setMessage(
+                            getString(R.string.delete_url_message))
+                    .setPositiveButton(getString(R.string.button_delete_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(removeStringFromSet(text)){
+                                    labelHolder = (LinearLayout)ViewAnimation.fadeOutAndRemove(itemRow, labelHolder, 250);
+                                }
+                            }
+                        })
+                    .setNegativeButton(getString(R.string.button_cancel_label),
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                dialog.dismiss();
+                            }
+                        }).create();
+                deleteDialog.show();
             }
         });
 

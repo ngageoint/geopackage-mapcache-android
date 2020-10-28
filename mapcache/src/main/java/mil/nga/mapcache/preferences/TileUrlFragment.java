@@ -134,6 +134,9 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      */
     private boolean addStringToSet(Set<String> originalSet, String newUrl){
         HashSet<String> prefList = new HashSet<>(originalSet);
+        if(prefList.contains(newUrl)){
+            return false;
+        }
         prefList.add(newUrl);
         return saveSet(prefList);
     }

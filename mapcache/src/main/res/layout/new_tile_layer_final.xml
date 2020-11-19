@@ -192,19 +192,19 @@
             android:id="@+id/tileFormatGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checkedButton="@+id/google"
+            android:checkedButton="@+id/geopackage"
             android:orientation="horizontal">
-            <RadioButton
-                android:id="@+id/google"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="32dp"
-                android:text="Standard"/>
             <RadioButton
                 android:id="@+id/geopackage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="32dp"
                 android:text="GeoPackage"/>
+            <RadioButton
+                android:id="@+id/google"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Standard"/>
         </RadioGroup>
 
     </LinearLayout>

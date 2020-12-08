@@ -892,7 +892,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void subscribeGeoPackageRecycler(){
         // Observe list of GeoPackages
-        geoPackageViewModel.getGeos().observe(this, newGeos ->{
+        geoPackageViewModel.getGeos().observe(getViewLifecycleOwner(), newGeos ->{
             allGeos = newGeos;
             // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.getDatabases().isEmpty());
@@ -913,7 +913,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Observe Active Tables - used to determine which layers are enabled.  Update main list
         // of geoPackages when a change is made in order to change the active state
-        geoPackageViewModel.getActive().observe(this, newTables ->{
+        geoPackageViewModel.getActive().observe(getViewLifecycleOwner(), newTables ->{
             active = newTables;
             geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();

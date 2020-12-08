@@ -132,6 +132,7 @@
                     android:background="@drawable/ripple"
                     android:drawableTop="@drawable/material_location"
                     android:gravity="bottom|center"
+                    android:visibility="gone"
                     android:text="Edit" />
 
                 <Button

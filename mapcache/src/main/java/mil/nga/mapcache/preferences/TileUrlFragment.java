@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.UrlValidator;
 import mil.nga.mapcache.utils.ViewAnimation;
 
 /**
@@ -190,13 +192,18 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
             @Override
             public void onClick(View view) {
                 String newUrl = inputText.getText().toString();
-                Set<String> existing = getStringSet(new HashSet<String>());
-                boolean saved = addStringToSet(existing, newUrl);
-                if(saved){
-                    if(editMode){
-                        showEditButtons();
+
+                if(UrlValidator.hasXYZ(getContext(), newUrl)) {
+                    Set<String> existing = getStringSet(new HashSet<String>());
+                    boolean saved = addStringToSet(existing, newUrl);
+                    if (saved) {
+                        if (editMode) {
+                            showEditButtons();
+                        }
+                        addUrlView(newUrl);
                     }
-                    addUrlView(newUrl);
+                } else {
+                    inputText.setError("Not a valid xyz url");
                 }
             }
         });

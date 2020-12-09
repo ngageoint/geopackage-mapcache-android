@@ -416,5 +416,9 @@
     <string name="title_activity_privacy_policy">PrivacyPolicyActivity</string>
     <string name="title_activity_tutorial">TutorialActivity</string>
 
+    <!-- URL validator -->
+    <string name="tile_generator_variable_x">\\{x\\}</string>
+    <string name="tile_generator_variable_y">\\{y\\}</string>
+    <string name="tile_generator_variable_z">\\{z\\}</string>
 
 </resources>

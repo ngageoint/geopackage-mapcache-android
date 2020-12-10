@@ -15,7 +15,7 @@ Software source code previously released under an open source license and then m
     <img src="https://github.com/ngageoint/GeoPackage/raw/master/docs/images/google-play-badge.png" height=50>
 </a>
 
-[Download the latest Legacy APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.25)
+[Download the latest Legacy APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.27)
 
 ### About ###
 
@@ -46,6 +46,8 @@ A Tile layer detail view
 <img src="screenshots/screen5.png" width="30%">
 
 ### Build ###
+
+[![Build](https://github.com/ngageoint/geopackage-mapcache-android/workflows/Build/badge.svg)](https://github.com/ngageoint/geopackage-mapcache-android/actions?query=workflow%3ABuild)
 
 Build this repository using Android Studio and/or Gradle. Run the "assembleRelease" task on the geopackage-mapcache-android Gradle script.
 

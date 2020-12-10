@@ -5,10 +5,21 @@ import android.content.Context;
 import mil.nga.mapcache.R;
 
 /**
- *  Validate tile URLs for geopackage format by checking for xyz and bounding box
+ *  Validate tile URLs for geopackage format by checking for xyz
  */
 
 public class UrlValidator {
+
+    /**
+     * Determine if the url is valid based on whether it has xyz or not
+     * @param context
+     * @param url
+     * @return true if the url has xyz info
+     */
+    public static boolean isValidTileUrl(Context context, String url){
+        return hasXYZ(context, url);
+    }
+
 
     /**
      * Determine if the url has x, y, or z variables

@@ -193,17 +193,13 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
             public void onClick(View view) {
                 String newUrl = inputText.getText().toString();
 
-                if(UrlValidator.hasXYZ(getContext(), newUrl)) {
-                    Set<String> existing = getStringSet(new HashSet<String>());
-                    boolean saved = addStringToSet(existing, newUrl);
-                    if (saved) {
-                        if (editMode) {
-                            showEditButtons();
-                        }
-                        addUrlView(newUrl);
+                Set<String> existing = getStringSet(new HashSet<String>());
+                boolean saved = addStringToSet(existing, newUrl);
+                if (saved) {
+                    if (editMode) {
+                        showEditButtons();
                     }
-                } else {
-                    inputText.setError("Not a valid xyz url");
+                    addUrlView(newUrl);
                 }
             }
         });

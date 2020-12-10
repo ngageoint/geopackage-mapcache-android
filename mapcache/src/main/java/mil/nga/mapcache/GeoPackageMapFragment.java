@@ -2063,9 +2063,6 @@ public class GeoPackageMapFragment extends Fragment implements
         defaultText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                inputUrl.setText(R.string.default_tile_url);
-//                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-
                 Set<String> existing = settings.getStringSet(getString(R.string.geopackage_create_tiles_label), new HashSet<String>());
                 String[] urlChoices = existing.toArray(new String[existing.size()]);
 
@@ -2086,6 +2083,19 @@ public class GeoPackageMapFragment extends Fragment implements
                 builder.show();
             }
         });
+
+        // URL help menu
+        TextView urlHelpText = (TextView) alertView.findViewById(R.id.url_help);
+        urlHelpText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(getString(R.string.map_tile_url_header));
+                builder.setMessage(getString(R.string.url_template_message));
+                builder.show();
+            }
+        });
+
 
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)

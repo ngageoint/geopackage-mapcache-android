@@ -72,8 +72,22 @@
                 android:hint="@string/hint_tile_url" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Choose from saved urls -->
         <TextView
             android:id="@+id/default_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/url_help"
+            android:paddingBottom="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:textColor="@color/nga_accent_primary_dark"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Choose from saved URLs" />
+
+        <!-- Url help -->
+        <TextView
+            android:id="@+id/url_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/draw_tile_box_button"
@@ -82,7 +96,7 @@
             android:paddingRight="16dp"
             android:textColor="@color/nga_accent_primary_dark"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:text="Choose from saved URLs" />
+            android:text="URL help" />
 
         <!-- continue button -->
         <com.google.android.material.button.MaterialButton

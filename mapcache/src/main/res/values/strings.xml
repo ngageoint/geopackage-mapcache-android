@@ -213,6 +213,13 @@
     <string name="delete_url_title">Delete URL</string>
     <string name="delete_url_message">Delete this saved URL?</string>
 
+    <string name="map_tile_url_header">Map Tile URLs</string>
+    <string name="url_template_message">\nFor XYZ tile servers, make sure the URL is formatted with the template on the end:
+    \n\nhttps://yourtileserver.com/{z}/{x}/{y}.png
+    \n\n\nFor WMS tile servers, make sure the URL is formatted with the bounding box coordinates as a template in the query parameters:
+    \n\n&amp;bbox={minLon},{minLat},{maxLon},{maxLat}\n\n</string>
+
+
 
 
     <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>

@@ -219,6 +219,12 @@
     \n\n\nFor WMS tile servers, make sure the URL is formatted with the bounding box coordinates as a template in the query parameters:
     \n\n&amp;bbox={minLon},{minLat},{maxLon},{maxLat}\n\n</string>
 
+    <string name="srs_help_title">Spatial Reference System Help</string>
+    <string name="srs_help">\nEPSG: 4326 uses a coordinate system on the surface of a sphere or ellipsoid of reference.  Think Google Earth.
+    \n\nEPSG: 3857 uses a coordinate system PROJECTED from the surface of the sphere.  Think Google Maps (flat).
+    \n\nWe select EPSG 3857 by default, but you have the choice of 4326 if your tile servers support it.</string>
+
+
 
 
 

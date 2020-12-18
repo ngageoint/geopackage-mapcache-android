@@ -155,19 +155,39 @@
         android:visibility="gone">
 
         <!--SRS-->
-        <TextView
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_blue_secondary"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:text="Spatial Reference System"/>
+            android:orientation="horizontal"
+            android:layout_marginRight="16dp">
+            <TextView
+                android:id="@+id/srsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/grey_blue_secondary"
+                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+                android:text="Spatial Reference System"
+                android:drawableRight="@drawable/material_info"
+                android:drawablePadding="16dp"
+                android:drawableTint="@color/grey_blue_secondary"/>
+
+<!--            <TextView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentRight="true"-->
+<!--                android:textColor="@color/grey_blue_secondary"-->
+<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
+<!--                android:text="help"/>-->
+        </RelativeLayout>
+
         <RadioGroup
             android:id="@+id/srsGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checkedButton="@+id/srs3857"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="0dp">
             <RadioButton
                 android:id="@+id/srs3857"
                 android:layout_width="wrap_content"

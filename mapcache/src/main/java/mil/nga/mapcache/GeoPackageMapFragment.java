@@ -2241,6 +2241,26 @@ public class GeoPackageMapFragment extends Fragment implements
                 .setView(tileView);
         final AlertDialog alertDialog = dialog.create();
 
+        TextView srsLabel = (TextView) tileView.findViewById(R.id.srsLabel);
+        srsLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                View srsHelpView = inflater.inflate(R.layout., null);
+//
+//                AlertDialog.Builder srsHelpDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+//                        .setView(srsHelpView);
+//                final AlertDialog srsDialog = srsHelpDialog.create();
+//                srsDialog.setTitle("srs info");
+//                srsDialog.show();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(getString(R.string.srs_help_title));
+                builder.setMessage(getString(R.string.srs_help));
+                builder.show();
+
+            }
+        });
+
         // close button
         closeLogo.setOnClickListener(new View.OnClickListener(){
             @Override

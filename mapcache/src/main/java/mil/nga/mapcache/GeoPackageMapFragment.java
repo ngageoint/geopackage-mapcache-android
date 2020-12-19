@@ -2245,17 +2245,17 @@ public class GeoPackageMapFragment extends Fragment implements
         srsLabel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                View srsHelpView = inflater.inflate(R.layout., null);
-//
-//                AlertDialog.Builder srsHelpDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-//                        .setView(srsHelpView);
-//                final AlertDialog srsDialog = srsHelpDialog.create();
-//                srsDialog.setTitle("srs info");
-//                srsDialog.show();
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle(getString(R.string.srs_help_title));
                 builder.setMessage(getString(R.string.srs_help));
+                final AlertDialog srsDialog = builder.create();
+
+                builder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        srsDialog.dismiss();
+                    }
+                });
                 builder.show();
 
             }

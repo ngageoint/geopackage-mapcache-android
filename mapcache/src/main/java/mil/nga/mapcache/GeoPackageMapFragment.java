@@ -2092,6 +2092,13 @@ public class GeoPackageMapFragment extends Fragment implements
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle(getString(R.string.map_tile_url_header));
                 builder.setMessage(getString(R.string.url_template_message));
+                final AlertDialog urlDialog = builder.create();
+                builder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        urlDialog.dismiss();
+                    }
+                });
                 builder.show();
             }
         });

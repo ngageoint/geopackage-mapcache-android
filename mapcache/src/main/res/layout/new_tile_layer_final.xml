@@ -151,8 +151,19 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginLeft="16dp"
-        android:paddingTop="16dp"
+        android:paddingTop="8dp"
         android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:textColor="@color/nga_accent_light"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:drawableLeft="@drawable/material_info"
+            android:drawablePadding="16dp"
+            android:drawableTint="@color/nga_accent_light"
+            android:text="More Info"/>
 
         <!--SRS-->
         <RelativeLayout
@@ -167,17 +178,8 @@
                 android:textColor="@color/grey_blue_secondary"
                 android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
                 android:text="Spatial Reference System"
-                android:drawableRight="@drawable/material_info"
-                android:drawablePadding="16dp"
-                android:drawableTint="@color/grey_blue_secondary"/>
+                />
 
-<!--            <TextView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_alignParentRight="true"-->
-<!--                android:textColor="@color/grey_blue_secondary"-->
-<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-<!--                android:text="help"/>-->
         </RelativeLayout>
 
         <RadioGroup

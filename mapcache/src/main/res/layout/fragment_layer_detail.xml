@@ -237,6 +237,34 @@
                     android:text="None"
                     android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
 
+                <!-- Fields -->
+                <TextView
+                    android:id="@+id/label_fields"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/text_description"
+                    android:text="Fields"
+                    android:paddingTop="32dp"
+                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
+
+                <!-- Add field button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_field_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/label_fields"
+                    android:padding="16dp"
+                    android:layout_margin="0dp"
+                    android:layout_gravity="center_horizontal"
+                    android:backgroundTint="@color/nga_accent_primary"
+                    android:textColor="@color/white"
+                    android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+                    android:text="Add new field"
+                    android:textAlignment="center">
+                </com.google.android.material.button.MaterialButton>
+
+
+
 
             </RelativeLayout>
 

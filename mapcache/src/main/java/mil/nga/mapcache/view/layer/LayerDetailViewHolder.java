@@ -39,19 +39,14 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     private TextView layerTypeText;
 
     /**
+     * Layer count detail text - will show the number of features or tiles
+     */
+    private TextView layerCountDetailText;
+
+    /**
      * Icon showing either feature or tile layer type
      */
     private ImageView layerTypeIcon;
-
-    /**
-     * Text label above the feature/tile count
-     */
-    private TextView layerCountLbl;
-
-    /**
-     * Text to display the feature/tile count
-     */
-    private TextView layerCountText;
 
     /**
      * active/inactive switch
@@ -144,9 +139,8 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         nameText = (TextView) view.findViewById(R.id.layerName);
         backArrow = (ImageButton) itemView.findViewById(R.id.layerPageBackButton);
         backArrow.setOnClickListener(backListener);
-        layerCountText = (TextView) view.findViewById(R.id.layerTileCount);
         layerTypeText = (TextView) view.findViewById(R.id.layerType);
-        layerCountLbl = (TextView) view.findViewById(R.id.layerTileCountLbl);
+        layerCountDetailText = (TextView) view.findViewById(R.id.layerCountDetail);
         layerTypeIcon = (ImageView) view.findViewById(R.id.layer_type_icon);
         descriptionText = (TextView) view.findViewById(R.id.text_description);
         layerOn = (Switch) view.findViewById(R.id.enableSwitch);
@@ -182,16 +176,14 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         setCheckedStatus(layerObject.isChecked());
         if(layerObject.getTable() instanceof GeoPackageFeatureTable){
             GeoPackageFeatureTable feature = (GeoPackageFeatureTable)layerObject.getTable();
-            layerTypeText.setText("Feature Layer");
-            layerCountLbl.setText("Features");
+            layerTypeText.setText("Feature Layer in " + mLayerObject.getGeoPackageName());
+            layerCountDetailText.setText(feature.getCount() + " features");
             layerTypeIcon.setImageResource(R.drawable.polygon);
-            layerCountText.setText(feature.getCount() + "");
         } else if(layerObject.getTable() instanceof GeoPackageTileTable){
             GeoPackageTileTable tile = (GeoPackageTileTable)layerObject.getTable();
             layerTypeText.setText("Tile Layer");
-            layerCountLbl.setText("Tiles");
             layerTypeIcon.setImageResource(R.drawable.colored_layers);
-            layerCountText.setText(tile.getCount() + "");
+            layerCountDetailText.setText(tile.getCount() + " tiles");
             if(tile.getMinZoom() >= 0 && tile.getMaxZoom() >= 0) {
                 zoomLabel.setVisibility(View.VISIBLE);
                 zoomText.setVisibility(View.VISIBLE);

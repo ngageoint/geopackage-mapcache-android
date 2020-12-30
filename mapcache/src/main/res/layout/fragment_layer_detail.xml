@@ -81,15 +81,30 @@
                     android:src="@drawable/colored_layers" >
                 </ImageView>
 
-                <TextView
-                    android:id="@+id/layerType"
+                <!-- Layer type and tile/feature count -->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Feature Layer"
-                    android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/layer_type_icon"
                     android:paddingLeft="8dp"
-                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/layerType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Feature Layer"
+                        android:layout_centerVertical="true"
+                        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+                    <TextView
+                        android:id="@+id/layerCountDetail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Feature count"
+                        android:layout_centerVertical="true"
+                        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+                </LinearLayout>
             </RelativeLayout>
 
 
@@ -162,31 +177,11 @@
                 android:paddingTop="16dp">
 
 
-                <!--Tile / Feature count-->
-                <TextView
-                    android:id="@+id/layerTileCountLbl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tiles"
-                    android:textColor="@color/grey_blue_secondary"
-                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
-
-                <TextView
-                    android:id="@+id/layerTileCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/layerTileCountLbl"
-                    android:text="0"
-                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
-
-
                 <!--Zoom levels-->
                 <TextView
                     android:id="@+id/layerZoomLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/layerTileCount"
-                    android:paddingTop="8dp"
                     android:textColor="@color/grey_blue_secondary"
                     android:text="Zoom Levels"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
@@ -198,6 +193,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layerZoomLabel"
                     android:text="n/a"
+                    android:paddingBottom="8dp"
                     android:textAppearance="@style/textAppearanceBody1MediumDarkBlue"
                     android:visibility="gone"/>
 
@@ -229,7 +225,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/textMinZoom"
-                    android:paddingTop="8dp"
                     android:textColor="@color/grey_blue_secondary"
                     android:text="Description"
                     android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />

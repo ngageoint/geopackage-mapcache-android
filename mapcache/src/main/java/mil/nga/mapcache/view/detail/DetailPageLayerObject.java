@@ -1,5 +1,9 @@
 package mil.nga.mapcache.view.detail;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
@@ -22,6 +26,8 @@ public class DetailPageLayerObject {
     private GeoPackageTable table;
     // Description
     private String description;
+    // Feature Columns
+    private List<FeatureColumn> featureColumns = new ArrayList<>();
 
     /**
      * Constructor
@@ -98,5 +104,13 @@ public class DetailPageLayerObject {
 
     public void setTable(GeoPackageTable table) {
         this.table = table;
+    }
+
+    public List<FeatureColumn> getFeatureColumns() {
+        return featureColumns;
+    }
+
+    public void setFeatureColumns(List<FeatureColumn> featureColumns) {
+        this.featureColumns = featureColumns;
     }
 }

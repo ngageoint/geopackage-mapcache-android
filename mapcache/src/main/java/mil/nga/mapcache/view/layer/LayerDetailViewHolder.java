@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
@@ -67,6 +68,11 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      * Min zoom text
      */
     private TextView zoomText;
+
+    /**
+     * Feature column fields
+     */
+    private TextView existingFields;
 
     /**
      * Text button for deleting the layer
@@ -150,6 +156,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         mLayerEdit = view.findViewById(R.id.editFeaturesButton);
         zoomLabel = view.findViewById(R.id.layerZoomLabel);
         zoomText = view.findViewById(R.id.textMinZoom);
+        existingFields = view.findViewById(R.id.existing_fields);
         mSwitchListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
         mRenameLayerListener = renameLayerListener;
@@ -179,6 +186,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             layerTypeText.setText("Feature Layer in " + mLayerObject.getGeoPackageName());
             layerCountDetailText.setText(feature.getCount() + " features");
             layerTypeIcon.setImageResource(R.drawable.polygon);
+            setFeatureColumnText(feature);
         } else if(layerObject.getTable() instanceof GeoPackageTileTable){
             GeoPackageTileTable tile = (GeoPackageTileTable)layerObject.getTable();
             layerTypeText.setText("Tile Layer");
@@ -249,6 +257,14 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         setIgnoreStateChange(true);
         layerOn.setChecked(checked);
         setIgnoreStateChange(false);
+    }
+
+    private void setFeatureColumnText(GeoPackageFeatureTable feature){
+        String columnNames = "";
+        for(FeatureColumn column : feature.getFeatureColumns()){
+            columnNames = column.getName() + ", " + columnNames;
+        }
+        existingFields.setText(columnNames);
     }
 
     /**

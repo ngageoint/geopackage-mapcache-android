@@ -24,10 +24,12 @@ import mil.nga.geopackage.GeoPackageFactory;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.features.columns.GeometryColumns;
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.features.user.FeatureTableMetadata;
@@ -402,11 +404,11 @@ public class GeoPackageRepository {
                                     description = contents.getDescription();
                                 } catch (Exception e) {
                                 }
-
-                                GeoPackageTable table = new GeoPackageFeatureTable(database,
+                                GeoPackageFeatureTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
                                 table.setDescription(description);
                                 table.setActive(active.getValue().exists(table));
+                                table.setFeatureColumns(featureDao.getColumns());
                                 tables.add(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
@@ -705,6 +707,41 @@ public class GeoPackageRepository {
         }
         return false;
     }
+
+    /**
+     * Create feature column in layer
+     */
+    public boolean createFeatureColumn(String gpName, String layerName){
+        boolean created = false;
+        GeoPackage geoPackage = manager.open(gpName);
+        try {
+            FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
+            featureDao.addColumn(FeatureColumn.createColumn("fake", GeoPackageDataType.TEXT));
+            created = true;
+        }catch (Exception e){
+            Log.i("Feature Column Error", e.toString());
+        } finally {
+            geoPackage.close();
+        }
+        return created;
+    }
+
+    /**
+     * Get feature columns from table
+     */
+    public List<FeatureColumn> getFeatureColumnsFromTable(String gpName, String layerName){
+        GeoPackage geoPackage = manager.open(gpName);
+        try {
+            FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
+            return featureDao.getColumns();
+        }catch (Exception e){
+            Log.i("Column Fetch Error", e.toString());
+        } finally {
+            geoPackage.close();
+        }
+        return null;
+    }
+
 
     /**
      * Create a tile table in the given GeoPackage

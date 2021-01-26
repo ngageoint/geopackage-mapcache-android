@@ -1,7 +1,9 @@
 package mil.nga.mapcache.data;
 
 import java.io.Serializable;
+import java.util.List;
 
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.sf.GeometryType;
 
 /**
@@ -20,6 +22,11 @@ public class GeoPackageFeatureTable extends GeoPackageTable implements Serializa
      * Geometry Type
      */
     public GeometryType geometryType;
+
+    /**
+     * Feature columns
+     */
+    public List<FeatureColumn> featureColumns;
 
     /**
      * Create a new feature table
@@ -49,4 +56,11 @@ public class GeoPackageFeatureTable extends GeoPackageTable implements Serializa
         this.geometryType = geometryType;
     }
 
+    public List<FeatureColumn> getFeatureColumns() {
+        return featureColumns;
+    }
+
+    public void setFeatureColumns(List<FeatureColumn> featureColumns) {
+        this.featureColumns = featureColumns;
+    }
 }

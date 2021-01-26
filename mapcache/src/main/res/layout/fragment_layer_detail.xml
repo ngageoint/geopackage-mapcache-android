@@ -263,15 +263,25 @@
                     android:textAlignment="center">
                 </com.google.android.material.button.MaterialButton>
 
-                <ImageView
-                    android:id="@+id/textformaticon"
+                <!-- Fields -->
+                <TextView
+                    android:id="@+id/existing_fields"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:paddingTop="16dp"
                     android:layout_below="@+id/add_field_button"
-                    android:src="@drawable/ic_twotone_text_format_24" >
-                </ImageView>
+                    android:text="n/a"
+                    android:paddingTop="32dp"
+                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
+
+<!--                <ImageView-->
+<!--                    android:id="@+id/textformaticon"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_centerVertical="true"-->
+<!--                    android:paddingTop="16dp"-->
+<!--                    android:layout_below="@+id/add_field_button"-->
+<!--                    android:src="@drawable/ic_twotone_text_format_24" >-->
+<!--                </ImageView>-->
 
 
 

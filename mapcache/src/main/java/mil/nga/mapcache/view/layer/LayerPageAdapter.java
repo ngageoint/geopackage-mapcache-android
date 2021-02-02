@@ -14,7 +14,9 @@ import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
+import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
+import mil.nga.mapcache.view.detail.LayerViewHolder;
 
 /**
  * This adapter will power the RecyclerView to hold the details of a selected Layer from the Detail
@@ -33,6 +35,11 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * DetailPageLayerObject containing details for the selected layer
      */
     private DetailPageLayerObject mLayerObject;
+
+    /**
+     * List of 1 DetailPageLayerObject followed by multiple FeatureColumnObjects
+     */
+    private List<Object> mItems;
 
     /**
      * Click listener for the back button in the header
@@ -65,16 +72,21 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private DetailActionListener mEditFeaturesListener;
 
     /**
-     * Constructor
-     * @param layerObject DetailPageLayerObject
+     * Two types of objects to be inflated, Headers and Feature Columns
      */
-    public LayerPageAdapter(DetailPageLayerObject layerObject, View.OnClickListener backArrowListener,
+    private final int HEADER = 0, COLUMN = 1;
+
+    /**
+     * Constructor
+     * @param items - List of  DetailPageLayerObject and FeatureColumnObjects
+     */
+    public LayerPageAdapter(List<Object> items, View.OnClickListener backArrowListener,
                             LayerActiveSwitchListener activeLayerListener,
                             DetailActionListener detailActionListener,
                             DetailActionListener renameLayerListener,
                             DetailActionListener copyLayerListener,
                             DetailActionListener editFeaturesListener){
-        mLayerObject = layerObject;
+        mItems = items;
         mBackArrowListener = backArrowListener;
         mActiveLayerListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
@@ -93,10 +105,17 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_layer_detail, parent, false);
-        return new LayerDetailViewHolder(view, mBackArrowListener, mActiveLayerListener,
-                                        mDetailActionListener, mRenameLayerListener, mCopyLayerListener,
-                                        mEditFeaturesListener);
+        switch(viewType) {
+            case HEADER:
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_layer_detail, parent, false);
+                return new LayerDetailViewHolder(view, mBackArrowListener, mActiveLayerListener,
+                    mDetailActionListener, mRenameLayerListener, mCopyLayerListener,
+                    mEditFeaturesListener);
+            case COLUMN:
+                View columnView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feature_colum_type_layout, parent, false);
+                return new LayerFeatureHolder(columnView);
+        }
+        return null;
     }
 
     /**
@@ -106,9 +125,38 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      */
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        LayerDetailViewHolder viewHolder = (LayerDetailViewHolder)holder;
-        viewHolder.setData(mLayerObject);
+        if(holder instanceof LayerDetailViewHolder){
+            bindHeader(holder, position);
+        } else if (holder instanceof LayerFeatureHolder){
+            bindColumn(holder, position);
+        }
     }
+
+    /**
+     * Bind a view for a Header type
+     * @param holder a LayerDetailViewHolder
+     * @param position position in the list to build
+     */
+    private void bindHeader(RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof LayerDetailViewHolder){
+            LayerDetailViewHolder viewHolder = (LayerDetailViewHolder)holder;
+            viewHolder.setData(mItems.get(position));
+        }
+    }
+
+    /**
+     * Bind a view for a Feature Column type
+     * @param holder a LayerFeatureHolder
+     * @param position position in the list to build
+     */
+    private void bindColumn(RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof LayerFeatureHolder){
+            LayerFeatureHolder viewHolder = (LayerFeatureHolder)holder;
+            viewHolder.setData(mItems.get(position));
+        }
+    }
+
+
 
     /**
      * Takes the list of active GeoPackageDatabases and modifies the active state if found
@@ -135,7 +183,23 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      */
     @Override
     public int getItemCount() {
-        return 1;
+        return mItems.size();
+    }
+
+    /**
+     * You can either get the item type by finding out what kind of object it is, or put it
+     * first in the list if you know you'll always put the header there
+     * @param position position in the list to evaluate
+     * @return the type of object in the list
+     */
+    @Override
+    public int getItemViewType(int position) {
+        if(mItems.get(position) instanceof DetailPageLayerObject){
+            return HEADER;
+        } else if(mItems.get(position) instanceof FeatureColumnDetailObject){
+            return COLUMN;
+        }
+        return -1;
     }
 
     /**

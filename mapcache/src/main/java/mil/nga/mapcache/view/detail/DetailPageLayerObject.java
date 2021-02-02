@@ -44,6 +44,10 @@ public class DetailPageLayerObject {
         } else{
             this.iconType = R.drawable.colored_layers;
         }
+        if(table instanceof GeoPackageFeatureTable){
+            GeoPackageFeatureTable featureTable = (GeoPackageFeatureTable)table;
+            featureColumns = featureTable.getFeatureColumns();
+        }
     }
 
     /**

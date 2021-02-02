@@ -6,39 +6,6 @@
     android:orientation="horizontal"
     android:paddingLeft="24dp">
 
-
-<!--    Left aligned enable switch-->
-<!--    &lt;!&ndash;Active layer switch&ndash;&gt;-->
-<!--    <Switch-->
-<!--        android:id="@+id/simpleSwitch"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"/>-->
-
-
-<!--    &lt;!&ndash;Layer type icon&ndash;&gt;-->
-<!--    <ImageView-->
-<!--        android:id="@+id/layer_icon"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_marginLeft="24dp"-->
-<!--        android:layout_marginRight="16dp"-->
-<!--        android:src="@drawable/ic_launcher" >-->
-<!--    </ImageView>-->
-
-
-<!--    &lt;!&ndash;Layer name&ndash;&gt;-->
-<!--    <TextView-->
-<!--        android:id="@+id/layer_label"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="@+id/label"-->
-<!--        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-<!--        android:paddingBottom="16dp"-->
-<!--        android:paddingTop="16dp">-->
-<!--    </TextView>-->
-
-
-
 <!--    Right aligned enable switch-->
     <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -87,10 +54,5 @@
         android:paddingBottom="16dp"
         android:gravity="center_vertical"/>
     </RelativeLayout>
-
-
-    <!--alternate way of drawing the icon from the textview properties-->
-    <!--android:drawableLeft="@drawable/material_info"-->
-    <!--android:drawablePadding="8dp"-->
 
 </LinearLayout>

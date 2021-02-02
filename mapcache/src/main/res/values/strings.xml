@@ -434,4 +434,9 @@
     <string name="tile_generator_variable_y">\\{y\\}</string>
     <string name="tile_generator_variable_z">\\{z\\}</string>
 
+    <!-- Feature Column labels -->
+    <string name="fc_label_checkbox">Checkbox</string>
+    <string name="fc_label_text">Text</string>
+    <string name="fc_label_number">Number</string>
+
 </resources>

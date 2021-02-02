@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.layer;
 
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -9,6 +10,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.button.MaterialButton;
 
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.mapcache.R;
@@ -69,10 +72,6 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     private TextView zoomText;
 
-    /**
-     * Feature column fields
-     */
-    private TextView existingFields;
 
     /**
      * Text button for deleting the layer
@@ -130,6 +129,21 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     private boolean ignoreStateChange;
 
+    /**
+     * Button for adding a field
+     */
+    private MaterialButton addFieldButton;
+
+    /**
+     * Fields label
+     */
+    private TextView labelFields;
+
+    /**
+     * Save off the view so we can show/hide the feature column data
+     */
+    private View mainView;
+
 
     /**
      * Constructor
@@ -142,6 +156,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
                                  DetailActionListener copyLayerListener,
                                  DetailActionListener editFeaturesListener){
         super(view);
+        mainView = view;
         nameText = (TextView) view.findViewById(R.id.layerName);
         backArrow = (ImageButton) itemView.findViewById(R.id.layerPageBackButton);
         backArrow.setOnClickListener(backListener);
@@ -156,7 +171,8 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         mLayerEdit = view.findViewById(R.id.editFeaturesButton);
         zoomLabel = view.findViewById(R.id.layerZoomLabel);
         zoomText = view.findViewById(R.id.textMinZoom);
-        existingFields = view.findViewById(R.id.existing_fields);
+        addFieldButton = view.findViewById(R.id.add_field_button);
+        labelFields = view.findViewById(R.id.label_fields);
         mSwitchListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
         mRenameLayerListener = renameLayerListener;
@@ -174,29 +190,47 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     /**
      * Sets the view to hold data given in the LayerDetail object
      */
-    public void setData(DetailPageLayerObject layerObject){
-        mLayerObject = layerObject;
+    public void setData(Object layerObject){
+        if(layerObject instanceof DetailPageLayerObject){
+        mLayerObject = (DetailPageLayerObject)layerObject;
         nameText.setText(mLayerObject.getName());
         if(mLayerObject.getDescription() != null && !mLayerObject.getDescription().isEmpty()) {
             descriptionText.setText(mLayerObject.getDescription());
         }
-        setCheckedStatus(layerObject.isChecked());
-        if(layerObject.getTable() instanceof GeoPackageFeatureTable){
-            GeoPackageFeatureTable feature = (GeoPackageFeatureTable)layerObject.getTable();
+        setCheckedStatus(mLayerObject.isChecked());
+        if(mLayerObject.getTable() instanceof GeoPackageFeatureTable){
+            GeoPackageFeatureTable feature = (GeoPackageFeatureTable)mLayerObject.getTable();
             layerTypeText.setText("Feature Layer in " + mLayerObject.getGeoPackageName());
             layerCountDetailText.setText(feature.getCount() + " features");
             layerTypeIcon.setImageResource(R.drawable.polygon);
-            setFeatureColumnText(feature);
-        } else if(layerObject.getTable() instanceof GeoPackageTileTable){
-            GeoPackageTileTable tile = (GeoPackageTileTable)layerObject.getTable();
+        } else if(mLayerObject.getTable() instanceof GeoPackageTileTable){
+            GeoPackageTileTable tile = (GeoPackageTileTable)mLayerObject.getTable();
             layerTypeText.setText("Tile Layer");
             layerTypeIcon.setImageResource(R.drawable.colored_layers);
             layerCountDetailText.setText(tile.getCount() + " tiles");
+            showFields(false);
             if(tile.getMinZoom() >= 0 && tile.getMaxZoom() >= 0) {
                 zoomLabel.setVisibility(View.VISIBLE);
                 zoomText.setVisibility(View.VISIBLE);
                 zoomText.setText(tile.getMinZoom() + "-" + tile.getMaxZoom());
             }
+        }
+        }
+    }
+
+    /**
+     * If it's a tile layer, don't show the data fields
+     */
+    private void showFields(boolean show){
+        if(!show) {
+            addFieldButton.setVisibility(View.GONE);
+            labelFields.setVisibility(View.GONE);
+            ViewGroup.LayoutParams params = mainView.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            mainView.setLayoutParams(params);
+        } else {
+            addFieldButton.setVisibility(View.VISIBLE);
+            labelFields.setVisibility(View.VISIBLE);
         }
     }
 
@@ -259,13 +293,6 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         setIgnoreStateChange(false);
     }
 
-    private void setFeatureColumnText(GeoPackageFeatureTable feature){
-        String columnNames = "";
-        for(FeatureColumn column : feature.getFeatureColumns()){
-            columnNames = column.getName() + ", " + columnNames;
-        }
-        existingFields.setText(columnNames);
-    }
 
     /**
      * Set ignore state to tell the active switch listener to ignore a state change.  Used to set

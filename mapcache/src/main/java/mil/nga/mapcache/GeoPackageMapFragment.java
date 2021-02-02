@@ -136,6 +136,7 @@ import mil.nga.geopackage.features.index.FeatureIndexManager;
 import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.index.MultipleFeatureIndexResults;
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -199,6 +200,7 @@ import mil.nga.mapcache.view.detail.DetailPageAdapter;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 import mil.nga.mapcache.view.detail.NewLayerUtil;
+import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
@@ -1070,7 +1072,17 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
-        layerAdapter = new LayerPageAdapter(layerObject, detailBackListener,
+        List<Object> layerDetailObjects = new ArrayList<>();
+        layerDetailObjects.add(layerObject);
+        for(FeatureColumn fc : layerObject.getFeatureColumns()){
+            // Default values of 'id' and 'geom' shouldn't be passed along
+            if(!fc.getName().equalsIgnoreCase("id") &&
+                !fc.getName().equalsIgnoreCase("geom")) {
+                FeatureColumnDetailObject fcDetailObecjt = new FeatureColumnDetailObject(fc.getName(), fc.getDataType());
+                layerDetailObjects.add(fcDetailObecjt);
+            }
+        }
+        layerAdapter = new LayerPageAdapter(layerDetailObjects, detailBackListener,
                 activeLayerListener, detailActionListener, renameLayerListener, copyLayerListener,
                 editLayerListener);
         populateRecyclerWithLayerDetail(layerAdapter);

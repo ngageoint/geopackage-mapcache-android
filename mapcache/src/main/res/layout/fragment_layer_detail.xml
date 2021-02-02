@@ -1,7 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context="mil.nga.mapcache.view.layer.LayerPageAdapter"
     android:clickable="true">
 
@@ -262,28 +262,6 @@
                     android:text="Add new field"
                     android:textAlignment="center">
                 </com.google.android.material.button.MaterialButton>
-
-                <!-- Fields -->
-                <TextView
-                    android:id="@+id/existing_fields"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/add_field_button"
-                    android:text="n/a"
-                    android:paddingTop="32dp"
-                    android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/textformaticon"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_centerVertical="true"-->
-<!--                    android:paddingTop="16dp"-->
-<!--                    android:layout_below="@+id/add_field_button"-->
-<!--                    android:src="@drawable/ic_twotone_text_format_24" >-->
-<!--                </ImageView>-->
-
-
 
 
             </RelativeLayout>

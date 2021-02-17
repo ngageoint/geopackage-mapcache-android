@@ -52,21 +52,6 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private DetailActionListener mDetailActionListener;
 
     /**
-     * Listener for clicking the rename layer button
-     */
-    private DetailActionListener mRenameLayerListener;
-
-    /**
-     * Listener for clicking the copy layer button
-     */
-    private DetailActionListener mCopyLayerListener;
-
-    /**
-     * Listener for clicking the edit features button
-     */
-    private DetailActionListener mEditFeaturesListener;
-
-    /**
      * Two types of objects to be inflated, Headers and Feature Columns
      */
     private final int HEADER = 0, COLUMN = 1;
@@ -77,17 +62,11 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      */
     public LayerPageAdapter(List<Object> items, View.OnClickListener backArrowListener,
                             LayerActiveSwitchListener activeLayerListener,
-                            DetailActionListener detailActionListener,
-                            DetailActionListener renameLayerListener,
-                            DetailActionListener copyLayerListener,
-                            DetailActionListener editFeaturesListener){
+                            DetailActionListener detailActionListener){
         mItems = items;
         mBackArrowListener = backArrowListener;
         mActiveLayerListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
-        mRenameLayerListener = renameLayerListener;
-        mCopyLayerListener = copyLayerListener;
-        mEditFeaturesListener = editFeaturesListener;
     }
 
 
@@ -104,8 +83,7 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case HEADER:
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_layer_detail, parent, false);
                 return new LayerDetailViewHolder(view, mBackArrowListener, mActiveLayerListener,
-                    mDetailActionListener, mRenameLayerListener, mCopyLayerListener,
-                    mEditFeaturesListener);
+                    mDetailActionListener);
             case COLUMN:
                 View columnView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feature_colum_type_layout, parent, false);
                 return new LayerFeatureHolder(columnView);

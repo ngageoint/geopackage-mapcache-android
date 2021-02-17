@@ -1084,8 +1084,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         }
         layerAdapter = new LayerPageAdapter(layerDetailObjects, detailBackListener,
-                activeLayerListener, detailActionListener, renameLayerListener, copyLayerListener,
-                editLayerListener);
+                activeLayerListener, detailActionListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 

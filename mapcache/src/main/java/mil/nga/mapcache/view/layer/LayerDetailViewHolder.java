@@ -104,24 +104,9 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     private LayerActiveSwitchListener mSwitchListener;
 
     /**
-     * Click listener for the delete button
+     * Click listener for the rename, copy, delete, and add field functions
      */
     private DetailActionListener mDetailActionListener;
-
-    /**
-     * Click listener for the rename layer button
-     */
-    private DetailActionListener mRenameLayerListener;
-
-    /**
-     * Click listener for the copy button
-     */
-    private DetailActionListener mCopyLayerListener;
-
-    /**
-     * Click listener for the edit features button
-     */
-    private DetailActionListener mEditFeaturesListener;
 
     /**
      * Tells this ViewHolder if it should ignore state changes on the switch (used for setting
@@ -151,10 +136,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     public LayerDetailViewHolder(View view, View.OnClickListener backListener,
                                  LayerActiveSwitchListener activeLayerListener,
-                                 DetailActionListener detailActionListener,
-                                 DetailActionListener renameLayerListener,
-                                 DetailActionListener copyLayerListener,
-                                 DetailActionListener editFeaturesListener){
+                                 DetailActionListener detailActionListener){
         super(view);
         mainView = view;
         nameText = (TextView) view.findViewById(R.id.layerName);
@@ -175,9 +157,6 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         labelFields = view.findViewById(R.id.label_fields);
         mSwitchListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
-        mRenameLayerListener = renameLayerListener;
-        mCopyLayerListener = copyLayerListener;
-        mEditFeaturesListener = editFeaturesListener;
         setDeleteListener();
         setRenameListener();
         setCopyListener();
@@ -237,7 +216,6 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
      */
     private void setDeleteListener(){
         mLayerDelete.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View view) {
                 mDetailActionListener.onClick(view, DetailActionListener.DELETE_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
@@ -276,7 +254,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         mLayerEdit.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                mEditFeaturesListener.onClick(view, DetailActionListener.EDIT_FEATURES, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+                mDetailActionListener.onClick(view, DetailActionListener.EDIT_FEATURES, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
     }

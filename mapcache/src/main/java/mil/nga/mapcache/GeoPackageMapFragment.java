@@ -123,6 +123,7 @@ import mil.nga.geopackage.GeoPackageFactory;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
@@ -1117,7 +1118,9 @@ public class GeoPackageMapFragment extends Fragment implements
             detailButtonUtil.openRenameLayerDialog(getActivity(), gpName, layerName, this);
         } else if(actionType == DetailActionListener.COPY_LAYER){
             detailButtonUtil.openCopyLayerDialog(getActivity(), gpName, layerName, this);
-        } else if(actionType == DetailActionListener.EDIT_FEATURES){
+        } else if(actionType == DetailActionListener.ADD_LAYER_FIELD){
+            detailButtonUtil.openAddFieldDialog(getActivity(), gpName, layerName, this);
+        }else if(actionType == DetailActionListener.EDIT_FEATURES){
             // Open edit features mode with the geopackage and layer already selected
             openEditFeatures(gpName, layerName);
         }
@@ -1291,7 +1294,6 @@ public class GeoPackageMapFragment extends Fragment implements
         Log.i("click", "Copy Layer");
         try {
             if (geoPackageViewModel.copyLayer(gpName, oldLayer, newLayerName)) {
-//                populateRecyclerWithGeoPackages();
                 Toast.makeText(getActivity(), "Layer copied", Toast.LENGTH_SHORT).show();
 
             }else{
@@ -1301,6 +1303,29 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         } catch (Exception e) {
             GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_copy_label),
+                    e.getMessage());
+        }
+    }
+
+    /**
+     * Ask the viewmodel to create a new layer feature column
+     */
+    public void onAddFeatureField(String gpName, String layerName, String fieldName,
+                                  GeoPackageDataType type){
+        Log.i("click", "Create feature column: " + fieldName + " and type: " + type);
+        try {
+            if (geoPackageViewModel.createFeatureColumnLayer(gpName, layerName, fieldName, type)) {
+                GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
+                DetailPageLayerObject newLayerObject = newDb.getLayerObject(active.getDatabase(gpName), gpName, layerName);
+                if(newLayerObject != null)
+                    createGeoPackageLayerDetailAdapter(newLayerObject);
+            }else{
+                GeoPackageUtils.showMessage(getActivity(),
+                        getString(R.string.new_feature_column_label),"Creating new Feature Column in "
+                                + " " + layerName + " was not successful");
+            }
+        } catch (Exception e) {
+            GeoPackageUtils.showMessage(getActivity(), getString(R.string.new_feature_column_label),
                     e.getMessage());
         }
     }

@@ -1,5 +1,7 @@
 package mil.nga.mapcache.listeners;
 
+import mil.nga.geopackage.db.GeoPackageDataType;
+
 /**
  * Listener to be implemented for opening dialog windows
  * These should all be implemented in GeoPackageMapFragment
@@ -59,6 +61,13 @@ public interface OnDialogButtonClickListener {
      * @param layerName Layer name to copy
      */
     void onCopyLayer(String gpName, String oldLayer, String layerName);
+
+    /**
+     * Add a Layer Feature field
+     * @param gpName GeoPackage name
+     * @param layerName Layer name to add the field to
+     */
+    void onAddFeatureField(String gpName, String layerName, String name, GeoPackageDataType type);
 
     /**
      * Cancel button

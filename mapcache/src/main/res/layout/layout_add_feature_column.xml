@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--First page of the new tile layer wizard-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- logo and title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/new_field_close_logo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/material_add_box" />
+
+            <TextView
+                android:id="@+id/new_field_title"
+                style="@style/Base.TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/alert_logo"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@+id/alert_logo"
+                android:text="New Feature Column" />
+        </LinearLayout>
+
+
+
+        <!--Name-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/new_field_name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AccentTheme"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/new_tile_name_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/AccentTheme"
+                android:hint="@string/hint_name" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- type -->
+        <RadioGroup
+            android:id="@+id/new_field_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/new_field_text"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="0dp">
+            <RadioButton
+                android:id="@+id/new_field_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Text"/>
+            <RadioButton
+                android:id="@+id/new_field_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="Number"/>
+            <RadioButton
+                android:id="@+id/new_field_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Check Box"/>
+        </RadioGroup>
+
+        <!-- add button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/new_field_confirm"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="@color/nga_accent_primary"
+            android:textColor="@color/white"
+            android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+            android:text="Add new field"
+            android:textAlignment="center">
+        </com.google.android.material.button.MaterialButton>
+
+        <!-- cancel button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/new_field_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="@color/inactive_grey"
+            android:textColor="@color/black87"
+            android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+            android:text="Cancel"
+            android:textAlignment="center">
+        </com.google.android.material.button.MaterialButton>
+
+    </LinearLayout>
+
+
+
+
+
+</LinearLayout>

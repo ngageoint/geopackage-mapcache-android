@@ -124,6 +124,7 @@
     <string name="geopackage_view_label">View</string>
     <string name="geopackage_delete_label">Delete</string>
     <string name="layer_delete_label">Delete</string>
+    <string name="new_feature_column_label">New Feature Column</string>
     <string name="geopackage_rename_label">Rename</string>
     <string name="geopackage_copy_label">Copy</string>
     <string name="geopackage_copy_suffix">_copy</string>

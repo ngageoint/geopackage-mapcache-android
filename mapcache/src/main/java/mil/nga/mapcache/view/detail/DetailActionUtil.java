@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -14,10 +16,14 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.w3c.dom.Text;
+
 import java.util.regex.Pattern;
 
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
+import mil.nga.mapcache.utils.DataTypeConverter;
 
 /**
  * Util class to launch dialogs and return click listeners for the action buttons in the GeoPackage
@@ -228,31 +234,6 @@ public class DetailActionUtil {
                             dialog.dismiss();
                 });
         AlertDialog alertDialog = copyDialogBuilder.create();
-
-//        // Validate the input before allowing the rename to happen
-//        inputName.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-//            @Override
-//            public void afterTextChanged(Editable editable) {}
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//                String givenName = inputName.getText().toString();
-//                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-//
-//                if(givenName.isEmpty()){
-//                    inputName.setError("Name is required");
-//                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-//                } else {
-//                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
-//                    if (!allowed) {
-//                        inputName.setError("Names must be alphanumeric only");
-//                        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-//                    }
-//                }
-//            }
-//        });
         alertDialog.show();
     }
 
@@ -399,4 +380,48 @@ public class DetailActionUtil {
     }
 
 
+    /**
+     * A dialog for adding a Feature Column to a layer (called from the layer detail page)
+     * @param context Context for opening dialog
+     * @param gpName GeoPackage name
+     * @param layerName Layer name to add the feature column to
+     * @param listener Click listener to callback to the mapfragment
+     */
+    public void openAddFieldDialog(Context context, String gpName, String layerName,
+                                      final OnDialogButtonClickListener listener){
+        // Create Alert window with the new layer feature column layout
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View alertView = inflater.inflate(R.layout.layout_add_feature_column, null);
+        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.new_field_close_logo);
+        MaterialButton addButton = alertView.findViewById(R.id.new_field_confirm);
+        MaterialButton cancelButton = alertView.findViewById(R.id.new_field_cancel);
+        TextInputEditText name = alertView.findViewById(R.id.new_tile_name_text);
+        RadioGroup typeGroup = (RadioGroup) alertView.findViewById(R.id.new_field_type);
+
+        AlertDialog addFieldDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
+                .setView(alertView)
+                .create();
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addFieldDialog.dismiss();
+                RadioButton selectedType = (RadioButton) alertView.findViewById(typeGroup.getCheckedRadioButtonId());
+                String newType = selectedType.getText().toString();
+                GeoPackageDataType convertedType = DataTypeConverter.getGeoPackageDataType(newType);
+                if(convertedType != null) {
+                    listener.onAddFeatureField(gpName, layerName, name.getText().toString(), convertedType);
+                }
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addFieldDialog.dismiss();
+                listener.onCancelButtonClicked();
+            }
+        });
+
+        addFieldDialog.show();
+    }
 }

@@ -203,6 +203,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             layerTypeText.setText("Feature Layer in " + mLayerObject.getGeoPackageName());
             layerCountDetailText.setText(feature.getCount() + " features");
             layerTypeIcon.setImageResource(R.drawable.polygon);
+            setAddFieldAction();
         } else if(mLayerObject.getTable() instanceof GeoPackageTileTable){
             GeoPackageTileTable tile = (GeoPackageTileTable)mLayerObject.getTable();
             layerTypeText.setText("Tile Layer");
@@ -216,6 +217,19 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
             }
         }
         }
+    }
+
+    /**
+     * Set the action for the Add Field Button.  Opens a new dialog for creating a new feature column
+     * on this layer
+     */
+    private void setAddFieldAction(){
+        addFieldButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRenameLayerListener.onClick(view, DetailActionListener.ADD_LAYER_FIELD, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+            }
+        });
     }
 
     /**

@@ -711,12 +711,13 @@ public class GeoPackageRepository {
     /**
      * Create feature column in layer
      */
-    public boolean createFeatureColumn(String gpName, String layerName){
+    public boolean createFeatureColumn(String gpName, String layerName, String columnName,
+                                       GeoPackageDataType type){
         boolean created = false;
         GeoPackage geoPackage = manager.open(gpName);
         try {
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
-            featureDao.addColumn(FeatureColumn.createColumn("fake", GeoPackageDataType.TEXT));
+            featureDao.addColumn(FeatureColumn.createColumn(columnName, type));
             created = true;
         }catch (Exception e){
             Log.i("Feature Column Error", e.toString());

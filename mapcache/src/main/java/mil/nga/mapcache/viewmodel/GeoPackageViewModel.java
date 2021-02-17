@@ -18,6 +18,7 @@ import java.util.List;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.contents.Contents;
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabase;
@@ -518,6 +519,18 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      */
     public boolean copyLayer(String geoPackageName, String currentLayer, String newLayerName){
         if(repository.copyLayer(geoPackageName, currentLayer, newLayerName)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Create a new Feature Column in the given GeoPackage Layer
+     */
+    public boolean createFeatureColumnLayer(String geoPackageName, String layer,
+                                            String columnName, GeoPackageDataType type){
+        if(repository.createFeatureColumn(geoPackageName, layer, columnName, type)){
             regenerateGeoPackageTableList();
             return true;
         }

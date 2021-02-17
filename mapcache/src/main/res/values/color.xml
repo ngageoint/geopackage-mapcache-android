@@ -45,6 +45,8 @@
     <color name="dark_blue_text">#0B1F2C</color>
     <color name="grey_blue_secondary">#778490</color>
     <color name="grey_blue_secondary_light">#9CABB9</color>
+    <color name="inactive_grey">#E5E5E5</color>
+
 
     <!--transparent-->
     <color name="trans_grey">#65000000</color>

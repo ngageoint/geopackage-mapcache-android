@@ -227,25 +227,9 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         addFieldButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mRenameLayerListener.onClick(view, DetailActionListener.ADD_LAYER_FIELD, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+                mDetailActionListener.onClick(view, DetailActionListener.ADD_LAYER_FIELD, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
-    }
-
-    /**
-     * If it's a tile layer, don't show the data fields
-     */
-    private void showFields(boolean show){
-        if(!show) {
-            addFieldButton.setVisibility(View.GONE);
-            labelFields.setVisibility(View.GONE);
-            ViewGroup.LayoutParams params = mainView.getLayoutParams();
-            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
-            mainView.setLayoutParams(params);
-        } else {
-            addFieldButton.setVisibility(View.VISIBLE);
-            labelFields.setVisibility(View.VISIBLE);
-        }
     }
 
     /**
@@ -268,7 +252,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         mLayerRename.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                mRenameLayerListener.onClick(view, DetailActionListener.RENAME_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+                mDetailActionListener.onClick(view, DetailActionListener.RENAME_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
     }
@@ -280,7 +264,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         mLayerCopy.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                mCopyLayerListener.onClick(view, DetailActionListener.COPY_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+                mDetailActionListener.onClick(view, DetailActionListener.COPY_LAYER, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
     }
@@ -295,6 +279,22 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
                 mEditFeaturesListener.onClick(view, DetailActionListener.EDIT_FEATURES, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
+    }
+
+    /**
+     * If it's a tile layer, don't show the data fields
+     */
+    private void showFields(boolean show){
+        if(!show) {
+            addFieldButton.setVisibility(View.GONE);
+            labelFields.setVisibility(View.GONE);
+            ViewGroup.LayoutParams params = mainView.getLayoutParams();
+            params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+            mainView.setLayoutParams(params);
+        } else {
+            addFieldButton.setVisibility(View.VISIBLE);
+            labelFields.setVisibility(View.VISIBLE);
+        }
     }
 
     /**

@@ -32,11 +32,6 @@ import mil.nga.mapcache.view.detail.LayerViewHolder;
 public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     /**
-     * DetailPageLayerObject containing details for the selected layer
-     */
-    private DetailPageLayerObject mLayerObject;
-
-    /**
      * List of 1 DetailPageLayerObject followed by multiple FeatureColumnObjects
      */
     private List<Object> mItems;
@@ -163,18 +158,44 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      * @param active populated GeoPackageDatabases object with active layers
      */
     public void updateActiveTables(GeoPackageDatabases active){
-        GeoPackageDatabase db = active.getDatabase(mLayerObject.getGeoPackageName());
-        if(db != null){
-            List<String> allTables = db.getAllTableNames();
-            if(allTables.contains(mLayerObject.getName())){
-                mLayerObject.setChecked(true);
-            } else{
-                mLayerObject.setChecked(false);
-            }
+        if(active.isEmpty()){
+            clearActive();
         } else {
-            mLayerObject.setChecked(false);
+            GeoPackageDatabase db = active.getDatabase(getGeoPackageName());
+            int position = 0;
+            List<String> allTables = db.getAllTableNames();
+            if (db != null) {
+                for (Object layerObject : mItems) {
+                    if (layerObject instanceof DetailPageLayerObject) {
+                        DetailPageLayerObject detailPageObject = (DetailPageLayerObject) layerObject;
+                        if (allTables.contains(detailPageObject.getName())) {
+                            detailPageObject.setChecked(true);
+                        } else {
+                            detailPageObject.setChecked(false);
+                        }
+                        notifyItemChanged(position);
+                    }
+                    position++;
+                }
+            } else {
+                clearActive();
+            }
         }
-        notifyItemChanged(0);
+    }
+
+    /**
+     * Clear active state in the header object
+     */
+    private void clearActive(){
+        int position = 0;
+        for (Object layerObject : mItems) {
+            if (layerObject instanceof DetailPageLayerObject) {
+                DetailPageLayerObject detailPageObject = (DetailPageLayerObject) layerObject;
+                detailPageObject.setChecked(false);
+                notifyItemChanged(position);
+            }
+            position++;
+        }
     }
 
     /**
@@ -203,27 +224,15 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     /**
-     * Getters and setters
-     */
-    public DetailPageLayerObject getmLayerObject() {
-        return mLayerObject;
-    }
-
-    /**
-     * Set the layer object for populating data
-     * @param mLayerObject
-     */
-    public void setmLayerObject(DetailPageLayerObject mLayerObject) {
-        this.mLayerObject = mLayerObject;
-    }
-
-    /**
      * Get the name of the GeoPackage currently populating the view
      * @return
      */
     public String getGeoPackageName(){
-        if(mLayerObject != null){
-            return mLayerObject.getGeoPackageName();
+        if(!mItems.isEmpty()){
+            if(mItems.get(0) instanceof DetailPageLayerObject){
+                DetailPageLayerObject header = (DetailPageLayerObject)mItems.get(0);
+                return header.getGeoPackageName();
+            }
         }
         return null;
     }

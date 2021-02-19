@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
 
-import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
@@ -30,7 +29,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     /**
      * Layer name text view
      */
-    private TextView nameText;
+    private final TextView nameText;
 
     /**
      * Back button to take the RecyclerView back to the GeoPackage Detail page
@@ -40,58 +39,58 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     /**
      * Layer type text - either feature or tile
      */
-    private TextView layerTypeText;
+    private final TextView layerTypeText;
 
     /**
      * Layer count detail text - will show the number of features or tiles
      */
-    private TextView layerCountDetailText;
+    private final TextView layerCountDetailText;
 
     /**
      * Icon showing either feature or tile layer type
      */
-    private ImageView layerTypeIcon;
+    private final ImageView layerTypeIcon;
 
     /**
-     * active/inactive switch
+     * active / inactive switch
      */
-    private Switch layerOn;
+    private final Switch layerOn;
 
     /**
      * Description
      */
-    private TextView descriptionText;
+    private final TextView descriptionText;
 
     /**
      * Min zoom label
      */
-    private TextView zoomLabel;
+    private final TextView zoomLabel;
 
     /**
      * Min zoom text
      */
-    private TextView zoomText;
+    private final TextView zoomText;
 
 
     /**
      * Text button for deleting the layer
      */
-    private TextView mLayerDelete;
+    private final TextView mLayerDelete;
 
     /**
      * Text button for renaming a layer
      */
-    private Button mLayerRename;
+    private final Button mLayerRename;
 
     /**
      * Text button for copying a layer
      */
-    private Button mLayerCopy;
+    private final Button mLayerCopy;
 
     /**
      * Text button for opening this layer in edit mode
      */
-    private Button mLayerEdit;
+    private final Button mLayerEdit;
 
     /**
      * DetailPageLayerObject containing details for the selected layer
@@ -101,12 +100,12 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     /**
      * Click listener to be attached to the layer switch
      */
-    private LayerActiveSwitchListener mSwitchListener;
+    private final LayerActiveSwitchListener mSwitchListener;
 
     /**
      * Click listener for the rename, copy, delete, and add field functions
      */
-    private DetailActionListener mDetailActionListener;
+    private final DetailActionListener mDetailActionListener;
 
     /**
      * Tells this ViewHolder if it should ignore state changes on the switch (used for setting
@@ -117,17 +116,17 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     /**
      * Button for adding a field
      */
-    private MaterialButton addFieldButton;
+    private final MaterialButton addFieldButton;
 
     /**
      * Fields label
      */
-    private TextView labelFields;
+    private final TextView labelFields;
 
     /**
      * Save off the view so we can show/hide the feature column data
      */
-    private View mainView;
+    private final View mainView;
 
 
     /**
@@ -206,7 +205,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         addFieldButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDetailActionListener.onClick(view, DetailActionListener.ADD_LAYER_FIELD, mLayerObject.getGeoPackageName(), mLayerObject.getName());
+                mDetailActionListener.onClick(view, DetailActionListener.ADD_FEATURE_COLUMN, mLayerObject.getGeoPackageName(), mLayerObject.getName());
             }
         });
     }

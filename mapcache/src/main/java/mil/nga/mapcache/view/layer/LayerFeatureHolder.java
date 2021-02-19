@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.DetailActionListener;
+import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 import mil.nga.sf.GeometryType;
 
@@ -17,17 +19,17 @@ class LayerFeatureHolder extends RecyclerView.ViewHolder {
     /**
      * Icon showing the column data type
      */
-    private ImageView columnTypeIcon;
+    private final ImageView columnTypeIcon;
 
     /**
      * Column name text view
      */
-    private TextView nameText;
+    private final TextView nameText;
 
     /**
      * Column type text view
      */
-    private TextView typeText;
+    private final TextView typeText;
 
 
     /**
@@ -36,14 +38,26 @@ class LayerFeatureHolder extends RecyclerView.ViewHolder {
     private FeatureColumnDetailObject columnDetailObject;
 
     /**
+     * Delete button
+     */
+    private final ImageView deleteIcon;
+
+    /**
+     * Click listener for the delete feature column function
+     */
+    private final FeatureColumnListener featureColumnListener;
+
+    /**
      * Constructor
      * @param view - the view to be inflated
      */
-    public LayerFeatureHolder(@NonNull View view) {
+    public LayerFeatureHolder(@NonNull View view, FeatureColumnListener detailActionListener) {
         super(view);
+        featureColumnListener = detailActionListener;
         nameText = (TextView) view.findViewById(R.id.column_name);
         typeText = (TextView) view.findViewById(R.id.column_type);
         columnTypeIcon = (ImageView) view.findViewById(R.id.column_icon);
+        deleteIcon = (ImageView) view.findViewById(R.id.delete_feature_column);
     }
 
     public void setData(Object dataObject) {
@@ -51,7 +65,21 @@ class LayerFeatureHolder extends RecyclerView.ViewHolder {
             columnDetailObject = (FeatureColumnDetailObject) dataObject;
             nameText.setText(columnDetailObject.getName());
             setTypeInfo(columnDetailObject.getColumnType());
+            setDeleteListener();
         }
+    }
+
+    /**
+     * Listener for delete button
+     */
+    private void setDeleteListener(){
+        deleteIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                featureColumnListener.onClick(view, FeatureColumnListener.DELETE_FEATURE_COLUMN,
+                        columnDetailObject);
+            }
+        });
     }
 
     /**

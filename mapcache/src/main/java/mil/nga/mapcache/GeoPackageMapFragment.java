@@ -183,6 +183,7 @@ import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
+import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
@@ -202,6 +203,7 @@ import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
 import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
+import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
@@ -620,6 +622,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private DetailActionUtil detailButtonUtil;
 
     /**
+     * Util class for opening dialogs to respond to the feature column buttons on the layer detail page
+     */
+    private FeatureColumnUtil featureColumnUtil;
+
+    /**
      * ViewModel for accessing data from the repository
      */
     private GeoPackageViewModel geoPackageViewModel;
@@ -750,6 +757,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Util class for launching dialogs when clicking buttons on GeoPackage detail page
         detailButtonUtil = new DetailActionUtil(getActivity());
+
+        // Util class for launching dialogs when creating/deleting feature columns on the layer detail page
+        featureColumnUtil = new FeatureColumnUtil(getActivity());
 
         // Floating action button
         layerFab = view.findViewById(R.id.layer_fab);
@@ -1073,18 +1083,27 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         };
 
+        // Listener for editing feature columns on the layer detail page
+        FeatureColumnListener featureColumnListener = new FeatureColumnListener() {
+            @Override
+            public void onClick(View view, int actionType, FeatureColumnDetailObject columnDetailObject) {
+                openFeatureColumnDialog(columnDetailObject, actionType);
+            }
+        };
+
         List<Object> layerDetailObjects = new ArrayList<>();
         layerDetailObjects.add(layerObject);
         for(FeatureColumn fc : layerObject.getFeatureColumns()){
             // Default values of 'id' and 'geom' shouldn't be passed along
             if(!fc.getName().equalsIgnoreCase("id") &&
                 !fc.getName().equalsIgnoreCase("geom")) {
-                FeatureColumnDetailObject fcDetailObecjt = new FeatureColumnDetailObject(fc.getName(), fc.getDataType());
-                layerDetailObjects.add(fcDetailObecjt);
+                FeatureColumnDetailObject fcDetailObject = new FeatureColumnDetailObject(fc.getName(),
+                        fc.getDataType(), layerObject.getGeoPackageName(), layerObject.getName());
+                layerDetailObjects.add(fcDetailObject);
             }
         }
         layerAdapter = new LayerPageAdapter(layerDetailObjects, detailBackListener,
-                activeLayerListener, detailActionListener);
+                activeLayerListener, detailActionListener, featureColumnListener);
         populateRecyclerWithLayerDetail(layerAdapter);
     }
 
@@ -1117,11 +1136,24 @@ public class GeoPackageMapFragment extends Fragment implements
             detailButtonUtil.openRenameLayerDialog(getActivity(), gpName, layerName, this);
         } else if(actionType == DetailActionListener.COPY_LAYER){
             detailButtonUtil.openCopyLayerDialog(getActivity(), gpName, layerName, this);
-        } else if(actionType == DetailActionListener.ADD_LAYER_FIELD){
+        } else if(actionType == DetailActionListener.ADD_FEATURE_COLUMN){
             detailButtonUtil.openAddFieldDialog(getActivity(), gpName, layerName, this);
         }else if(actionType == DetailActionListener.EDIT_FEATURES){
             // Open edit features mode with the geopackage and layer already selected
             openEditFeatures(gpName, layerName);
+        }
+    }
+
+    /**
+     * Ask the FeatureColumnUtil to open a dialog to complete the action related to the button
+     * that was clicked
+     * @param columnDetailObject object containing feature column details
+     * @param actionType ActionType enum
+     */
+    private void openFeatureColumnDialog(FeatureColumnDetailObject columnDetailObject,
+                                         int actionType){
+        if(actionType == FeatureColumnListener.DELETE_FEATURE_COLUMN){
+            featureColumnUtil.openDeleteDialog(getActivity(), columnDetailObject, this);
         }
     }
 
@@ -1311,7 +1343,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void onAddFeatureField(String gpName, String layerName, String fieldName,
                                   GeoPackageDataType type){
-        Log.i("click", "Create feature column: " + fieldName + " and type: " + type);
         try {
             if (geoPackageViewModel.createFeatureColumnLayer(gpName, layerName, fieldName, type)) {
                 GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
@@ -1325,6 +1356,27 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         } catch (Exception e) {
             GeoPackageUtils.showMessage(getActivity(), getString(R.string.new_feature_column_label),
+                    e.getMessage());
+        }
+    }
+
+    /**
+     * Remove a Feature Column from a layer via the viewmodel
+     */
+    public void onDeleteFeatureColumn(String gpName, String layerName, String columnName){
+        try {
+            if (geoPackageViewModel.deleteFeatureColumnLayer(gpName, layerName, columnName)) {
+                GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
+                DetailPageLayerObject newLayerObject = newDb.getLayerObject(active.getDatabase(gpName), gpName, layerName);
+                if(newLayerObject != null)
+                    createGeoPackageLayerDetailAdapter(newLayerObject);
+            }else{
+                GeoPackageUtils.showMessage(getActivity(),
+                        getString(R.string.delete_feature_column_label),"Delete Feature Column in "
+                                + " " + layerName + " was not successful");
+            }
+        } catch (Exception e) {
+            GeoPackageUtils.showMessage(getActivity(), getString(R.string.delete_feature_column_label),
                     e.getMessage());
         }
     }

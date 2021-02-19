@@ -70,6 +70,11 @@ public interface OnDialogButtonClickListener {
     void onAddFeatureField(String gpName, String layerName, String name, GeoPackageDataType type);
 
     /**
+     * Deleting a Feature Column from the layer detail page
+     */
+    void onDeleteFeatureColumn(String gpName, String layerName, String columnName);
+
+    /**
      * Cancel button
      */
     void onCancelButtonClicked();

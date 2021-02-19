@@ -537,6 +537,18 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return false;
     }
 
+    /**
+     * Delete the given Feature Column in the GeoPackage Layer
+     */
+    public boolean deleteFeatureColumnLayer(String geoPackageName, String layer,
+                                            String columnName){
+        if(repository.deleteFeatureColumn(geoPackageName, layer, columnName)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      *  Returns a database file

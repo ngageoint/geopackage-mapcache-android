@@ -125,6 +125,7 @@
     <string name="geopackage_delete_label">Delete</string>
     <string name="layer_delete_label">Delete</string>
     <string name="new_feature_column_label">New Feature Column</string>
+    <string name="delete_feature_column_label">Delete Feature Column</string>
     <string name="geopackage_rename_label">Rename</string>
     <string name="geopackage_copy_label">Copy</string>
     <string name="geopackage_copy_suffix">_copy</string>
@@ -439,5 +440,6 @@
     <string name="fc_label_checkbox">Checkbox</string>
     <string name="fc_label_text">Text</string>
     <string name="fc_label_number">Number</string>
+    <string name="delete_feature_column_text">Delete this Feature Column?</string>
 
 </resources>

@@ -13,6 +13,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.listeners.DetailActionListener;
+import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
@@ -52,6 +53,11 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private DetailActionListener mDetailActionListener;
 
     /**
+     * Listener for the feature columns
+     */
+    private FeatureColumnListener mFeatureColumnListener;
+
+    /**
      * Two types of objects to be inflated, Headers and Feature Columns
      */
     private final int HEADER = 0, COLUMN = 1;
@@ -62,11 +68,13 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
      */
     public LayerPageAdapter(List<Object> items, View.OnClickListener backArrowListener,
                             LayerActiveSwitchListener activeLayerListener,
-                            DetailActionListener detailActionListener){
+                            DetailActionListener detailActionListener,
+                            FeatureColumnListener featureColumnListener){
         mItems = items;
         mBackArrowListener = backArrowListener;
         mActiveLayerListener = activeLayerListener;
         mDetailActionListener = detailActionListener;
+        mFeatureColumnListener = featureColumnListener;
     }
 
 
@@ -86,7 +94,7 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     mDetailActionListener);
             case COLUMN:
                 View columnView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feature_colum_type_layout, parent, false);
-                return new LayerFeatureHolder(columnView);
+                return new LayerFeatureHolder(columnView, mFeatureColumnListener);
         }
         return null;
     }

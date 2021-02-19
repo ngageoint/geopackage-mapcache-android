@@ -714,31 +714,42 @@ public class GeoPackageRepository {
     public boolean createFeatureColumn(String gpName, String layerName, String columnName,
                                        GeoPackageDataType type){
         boolean created = false;
-        GeoPackage geoPackage = manager.open(gpName);
-        try {
+        try (GeoPackage geoPackage = manager.open(gpName)) {
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
             featureDao.addColumn(FeatureColumn.createColumn(columnName, type));
             created = true;
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.i("Feature Column Error", e.toString());
-        } finally {
-            geoPackage.close();
         }
         return created;
     }
+
+
+    /**
+     * Delete feature column from a layer
+     */
+    public boolean deleteFeatureColumn(String gpName, String layerName, String columnName){
+        boolean deleted= false;
+        try (GeoPackage geoPackage = manager.open(gpName)) {
+            FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
+            featureDao.dropColumn(columnName);
+            deleted = true;
+        } catch (Exception e) {
+            Log.i("Feature Column Error", e.toString());
+        }
+        return deleted;
+    }
+
 
     /**
      * Get feature columns from table
      */
     public List<FeatureColumn> getFeatureColumnsFromTable(String gpName, String layerName){
-        GeoPackage geoPackage = manager.open(gpName);
-        try {
+        try (GeoPackage geoPackage = manager.open(gpName)) {
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
             return featureDao.getColumns();
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.i("Column Fetch Error", e.toString());
-        } finally {
-            geoPackage.close();
         }
         return null;
     }

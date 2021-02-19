@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.button.MaterialButton;
@@ -54,7 +55,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
     /**
      * active / inactive switch
      */
-    private final Switch layerOn;
+    private final SwitchCompat layerOn;
 
     /**
      * Description
@@ -145,7 +146,7 @@ public class LayerDetailViewHolder extends RecyclerView.ViewHolder{
         layerCountDetailText = (TextView) view.findViewById(R.id.layerCountDetail);
         layerTypeIcon = (ImageView) view.findViewById(R.id.layer_type_icon);
         descriptionText = (TextView) view.findViewById(R.id.text_description);
-        layerOn = (Switch) view.findViewById(R.id.enableSwitch);
+        layerOn = view.findViewById(R.id.enableSwitch);
         mLayerDelete = view.findViewById(R.id.layerDeleteButton);
         mLayerRename = view.findViewById(R.id.layerRenameButton);
         mLayerCopy = view.findViewById(R.id.layerCopyButton);

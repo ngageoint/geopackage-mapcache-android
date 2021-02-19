@@ -48,6 +48,11 @@
         <item name="colorAccent">@color/nga_accent_primary_dark</item>
     </style>
 
+    <!-- Material button style -->
+    <style name="MaterialButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="backgroundTint">@color/color_states_materialbutton</item>
+    </style>
+
 
 
     <!-- Material.io font styles:

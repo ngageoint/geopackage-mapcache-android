@@ -1,12 +1,16 @@
 package mil.nga.mapcache.view.layer;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+
+import java.util.regex.Pattern;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;

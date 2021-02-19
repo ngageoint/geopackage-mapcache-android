@@ -441,5 +441,8 @@
     <string name="fc_label_text">Text</string>
     <string name="fc_label_number">Number</string>
     <string name="delete_feature_column_text">Delete this Feature Column?</string>
+    <string name="name_is_required">Name is required</string>
+    <string name="must_be_alphanumeric">Names must be alphanumeric only</string>
+    <string name="regex_alphanumeric">[a-zA-Z_0-9]+</string>
 
 </resources>

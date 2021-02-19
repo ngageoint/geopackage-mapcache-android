@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.detail;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -397,7 +398,7 @@ public class DetailActionUtil {
         MaterialButton cancelButton = alertView.findViewById(R.id.new_field_cancel);
         TextInputEditText name = alertView.findViewById(R.id.new_tile_name_text);
         RadioGroup typeGroup = (RadioGroup) alertView.findViewById(R.id.new_field_type);
-
+        addButton.setEnabled(false);
         AlertDialog addFieldDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)
                 .create();
@@ -419,6 +420,31 @@ public class DetailActionUtil {
             public void onClick(View view) {
                 addFieldDialog.dismiss();
                 listener.onCancelButtonClicked();
+            }
+        });
+
+        // Validate the input before allowing the create to happen
+        name.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String givenName = name.getText().toString();
+                addButton.setEnabled(true);
+                if(givenName.isEmpty()){
+                    name.setError(context.getResources().getString(R.string.name_is_required));
+                    addButton.setEnabled(false);
+                } else {
+                    boolean allowed = Pattern.matches(context.getResources().getString(R.string.regex_alphanumeric),
+                            givenName);
+                    if (!allowed) {
+                        name.setError(context.getResources().getString(R.string.must_be_alphanumeric));
+                        addButton.setBackgroundColor(context.getResources().getColor(R.color.inactive_grey));
+                        addButton.setEnabled(false);
+                    }
+                }
             }
         });
 

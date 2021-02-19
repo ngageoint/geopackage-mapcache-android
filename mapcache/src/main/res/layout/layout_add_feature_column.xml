@@ -85,15 +85,15 @@
                 android:text="Check Box"/>
         </RadioGroup>
 
-        <!-- add button -->
+        <!-- add button (colors to be set by theme / color_states_materialbutton) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/new_field_confirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/MaterialButtonStyle"
             android:padding="16dp"
             android:layout_margin="16dp"
             android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/nga_accent_primary"
             android:textColor="@color/white"
             android:textAppearance="@style/textAppearanceSubtitle1Heavy"
             android:text="Add new field"
@@ -106,7 +106,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:layout_margin="16dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
             android:layout_gravity="center_horizontal"
             android:backgroundTint="@color/inactive_grey"
             android:textColor="@color/black87"

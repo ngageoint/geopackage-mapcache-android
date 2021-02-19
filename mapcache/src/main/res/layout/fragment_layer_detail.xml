@@ -243,6 +243,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/text_description"
+                    android:textColor="@color/grey_blue_secondary"
                     android:text="Fields"
                     android:paddingTop="32dp"
                     android:textAppearance="@style/textAppearanceBody1MediumDarkBlue" />

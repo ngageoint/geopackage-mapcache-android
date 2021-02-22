@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.0.9</string>
-    <string name="app_release_date">Released Dec 2020</string>
+    <string name="app_version">Version 2.0.10</string>
+    <string name="app_release_date">Released Feb 2021</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -375,26 +375,9 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.0.9\n \t
-        - Support for Android 11\n\t
-        - Library updates\n\t
-        \n
-        Release Notes - 2.0.8\n \t
-        - New save GeoPackage to Downloads function\n\t
-        - Fixes and performance improvements\n\t
-        \n
-        Release Notes - 2.0.7\n \t
-        - UI updates\n\t
-        - Fixes and performance improvements\n\t
-        \n
-        Release Notes - 2.0.6\n \t
-        - UI updates\n\t
-        - Performance improvements\n\t
-        \n
-        Release Notes - 2.0.5\n \t
-        - Bug fixes\n\t
-        - UI updates\n\t
-        - Usability improvements\n\t
+        Release Notes - 2.0.10\n \t
+        - New: Layer Feature column support\n\t
+        - Performance updates\n\t
         \n
         </string>
 

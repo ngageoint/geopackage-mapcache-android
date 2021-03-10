@@ -15,7 +15,7 @@ Software source code previously released under an open source license and then m
     <img src="https://github.com/ngageoint/GeoPackage/raw/master/docs/images/google-play-badge.png" height=50>
 </a>
 
-[Download the latest Legacy APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.27)
+[Download the latest Legacy APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.28)
 
 ### About ###
 

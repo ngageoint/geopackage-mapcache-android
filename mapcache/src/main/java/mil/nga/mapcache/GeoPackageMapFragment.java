@@ -138,6 +138,7 @@ import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.index.MultipleFeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureColumn;
+import mil.nga.geopackage.features.user.FeatureColumns;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -205,6 +206,7 @@ import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
+import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -873,7 +875,6 @@ public class GeoPackageMapFragment extends Fragment implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         geoPackageRecycler.setLayoutManager(layoutManager);
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
-//        behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
         GeoPackageClickListener geoClickListener = new GeoPackageClickListener() {
             @Override
@@ -6441,6 +6442,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getFeatureDao(markerFeature.tableName);
 
         final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
+        FeatureColumns columns = featureRow.getColumns();
 
         if (featureRow != null) {
             final GeoPackageGeometryData geomData = featureRow.getGeometry();
@@ -6448,7 +6450,23 @@ public class GeoPackageMapFragment extends Fragment implements
                     .getGeometryType();
 
             String title = getTitle(geometryType, marker);
+            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
+            try {
+                if (!dataColumnsDao.isTableExists()) {
+                    dataColumnsDao = null;
+                }
+            } catch (SQLException e) {
+                dataColumnsDao = null;
+                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                        "Failed to check if Data Columns table exists for GeoPackage: "
+                                + geoPackage.getName(), e);
+            }
+
             infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
+
+            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
+                    geoPackage.getName(), markerFeature.tableName);
+            pointView.showPointData();
         } else {
             geoPackage.close();
         }
@@ -6478,6 +6496,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     "Failed to check if Data Columns table exists for GeoPackage: "
                             + geoPackage.getName(), e);
         }
+
 
         StringBuilder message = new StringBuilder();
         int geometryColumn = featureRow.getGeometryColumnIndex();

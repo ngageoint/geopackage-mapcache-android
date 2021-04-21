@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Layout for an individual layer item in the recyclerview for a feature detail-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="24dp">
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/RelativeLayout01"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true">
+
+        <!--Layer name-->
+        <TextView
+            android:id="@+id/fc_name_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="name"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="0dp"
+            android:layout_gravity="bottom|start"
+            android:layout_centerVertical="true"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy">
+        </TextView>
+
+
+        <!--Name-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/fc_value_holder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/fc_name_label"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:gravity="center_vertical"
+            android:theme="@style/AccentTheme">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/fc_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@style/AccentTheme"
+                android:hint="value" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

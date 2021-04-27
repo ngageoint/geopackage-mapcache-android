@@ -206,6 +206,7 @@ import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
+import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
@@ -6442,7 +6443,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getFeatureDao(markerFeature.tableName);
 
         final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
-        FeatureColumns columns = featureRow.getColumns();
+//        FeatureColumns columns = featureRow.getColumns();
 
         if (featureRow != null) {
             final GeoPackageGeometryData geomData = featureRow.getGeometry();
@@ -6462,7 +6463,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 + geoPackage.getName(), e);
             }
 
-            infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
+           // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
 
             PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
                     geoPackage.getName(), markerFeature.tableName);

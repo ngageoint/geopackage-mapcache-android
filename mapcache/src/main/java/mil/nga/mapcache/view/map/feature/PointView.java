@@ -1,11 +1,13 @@
 package mil.nga.mapcache.view.map.feature;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,16 +16,21 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
+import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.GeometryType;
 
@@ -63,6 +70,28 @@ public class PointView {
     private String layerName;
 
     /**
+     * Save button
+     */
+    private MaterialButton saveButton;
+
+    /**
+     * Save button listener
+     */
+    private SaveFeatureColumnListener saveListener;
+
+    /**
+     * We'll generate a list of FCObjects to hold our data for the recycler
+     */
+    private List<FcColumnDataObject> fcObjects = new ArrayList<>();
+
+    /**
+     * recycler to hold each feature column object in a viewholder
+     */
+    private RecyclerView fcRecycler;
+    private FeatureColumnAdapter fcAdapter;
+
+
+    /**
      * ViewModel for accessing data from the repository
      */
     private GeoPackageViewModel geoPackageViewModel;
@@ -87,6 +116,9 @@ public class PointView {
         TextView titleText = (TextView) alertView.findViewById(R.id.feature_detail_title);
         titleText.setText(geometryType.toString());
 
+        // Save button
+        this.saveButton = (MaterialButton) alertView.findViewById(R.id.feature_detail_save);
+
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
                 .setView(alertView);
@@ -100,42 +132,71 @@ public class PointView {
 
 
         // Feature Column recycler
-        List<FcColumnDataObject> fcObjects = new ArrayList<>();
         StringBuilder message = new StringBuilder();
         int geometryColumn = featureRow.getGeometryColumnIndex();
         for (int i = 0; i < featureRow.columnCount(); i++) {
             if (i != geometryColumn) {
                 Object value = featureRow.getValue(i);
-                if (value != null) {
-                    String columnName = featureRow.getColumn(i).getName();
-                    if (dataColumnsDao != null) {
-                        try {
-                            DataColumns dataColumn = dataColumnsDao.getDataColumn(featureRow.getTable().getTableName(), columnName);
-                            if (dataColumn != null) {
-                                columnName = dataColumn.getName();
-                            }
-                        } catch (SQLException e) {
-                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                    "Failed to search for Data Column name for column: " + columnName
-                                            + ", Feature Table: " + featureRow.getTable().getTableName(), e);
+
+                FeatureColumn featureColumn = featureRow.getColumn(i);
+
+                String columnName = featureColumn.getName();
+                if (dataColumnsDao != null) {
+                    try {
+                        DataColumns dataColumn = dataColumnsDao.getDataColumn(featureRow.getTable().getTableName(), columnName);
+                        if (dataColumn != null) {
+                            columnName = dataColumn.getName();
                         }
+                    } catch (SQLException e) {
+                        Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                "Failed to search for Data Column name for column: " + columnName
+                                        + ", Feature Table: " + featureRow.getTable().getTableName(), e);
                     }
+                }
+
+                if (value == null) {
+                    if(featureColumn.getDataType().equals(GeoPackageDataType.TEXT)){
+                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, new String(""));
+                        fcObjects.add(fcRow);
+                    } else if(featureColumn.getDataType().equals(GeoPackageDataType.DOUBLE)){
+                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0.0);
+                        fcObjects.add(fcRow);
+                    } else if(featureColumn.getDataType().equals(GeoPackageDataType.BOOLEAN)){
+                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, false);
+                        fcObjects.add(fcRow);
+                    }
+                } else{
                     FcColumnDataObject fcRow = new FcColumnDataObject(columnName, value);
                     fcObjects.add(fcRow);
+                }
+
                     message.append(columnName).append(": ");
                     message.append(value);
                     message.append("\n");
-                }
+
             }
         }
-        RecyclerView fcRecycler = alertView.findViewById(R.id.fc_recycler);
+        fcRecycler = alertView.findViewById(R.id.fc_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(alertView.getContext());
         fcRecycler.setLayoutManager(layoutManager);
-        FeatureColumnAdapter fcAdapter = new FeatureColumnAdapter(fcObjects);
+        fcAdapter = new FeatureColumnAdapter(fcObjects, context);
         fcRecycler.setAdapter(fcAdapter);
 
 
-        // Click listener for close button
+        /**
+         * Save the data by calling back to write to the geopackage
+         */
+        this.saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveListener.onClick(view, fcAdapter.getmItems());
+            }
+        });
+
+
+        /**
+         * Click listener for close button
+         */
         closeLogo.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -143,6 +204,24 @@ public class PointView {
             }
         });
 
+
         alertDialog.show();
+        // Allow the keyboard to pop up in front of the alert dialog
+        alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE  | WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+    }
+
+
+
+    public void setSaveListener(SaveFeatureColumnListener listener){
+        this.saveListener = listener;
+    }
+
+    /**
+     * Update the fcObjects list with the text inputs on the page, tehn return
+     * @return
+     */
+    public List<FcColumnDataObject> getFcObjects() {
+        return fcObjects;
     }
 }

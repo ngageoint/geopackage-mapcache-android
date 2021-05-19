@@ -188,6 +188,7 @@ import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
+import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -6443,7 +6444,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 .getFeatureDao(markerFeature.tableName);
 
         final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
-//        FeatureColumns columns = featureRow.getColumns();
 
         if (featureRow != null) {
             final GeoPackageGeometryData geomData = featureRow.getGeometry();
@@ -6467,11 +6467,46 @@ public class GeoPackageMapFragment extends Fragment implements
 
             PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
                     geoPackage.getName(), markerFeature.tableName);
+            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
+                @Override
+                public void onClick(View view, List<FcColumnDataObject> values) {
+                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
+                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
+
+                }
+            };
+            pointView.setSaveListener(saveListener);
             pointView.showPointData();
+
         } else {
             geoPackage.close();
         }
     }
+
+
+    /**
+     * Save all feature column data in a geopackage after a user clicks save
+     */
+    private void saveFeatureColumnChanges(FeatureRow featureRow, List<FcColumnDataObject> fcObjects,
+                                          FeatureDao featureDao, GeoPackage geopackage, List<FcColumnDataObject> values){
+        for(int i=0;i<values.size();i++){
+            FcColumnDataObject fc = values.get(i);
+            if(!fc.getmName().equalsIgnoreCase("id")) {
+                if (fc.getmValue() instanceof String) {
+                    featureRow.setValue(fc.getmName(), fc.getmValue());
+                } else if (fc.getmValue() instanceof Double) {
+                    featureRow.setValue(fc.getmName(), Double.parseDouble(fc.getmValue().toString()));
+                } else if (fc.getmValue() instanceof Boolean) {
+                    featureRow.setValue(fc.getmName(), (Boolean)fc.getmValue());
+                }
+            }
+        }
+        int updatedRow = featureDao.update(featureRow);
+        geopackage.close();
+    }
+
+
+
 
     /**
      * Info existing feature option

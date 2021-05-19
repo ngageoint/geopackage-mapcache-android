@@ -14,7 +14,7 @@
         android:id="@+id/features"
         android:title="Edit features"
         android:icon="@drawable/material_feature"
-        android:visible="false"
+        android:visible="true"
         app:showAsAction="never"
         />
 

@@ -117,8 +117,6 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             checkboxSwitch = (SwitchCompat) itemView.findViewById(R.id.fc_switch);
             this.editTextListener = textListener;
             this.switchListener = switchListener;
-            valueText.addTextChangedListener(editTextListener);
-            checkboxSwitch.setOnCheckedChangeListener(switchListener);
 
             final InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             valueText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -149,6 +147,8 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     valueText.setEnabled(false);
                 }
             }
+            valueText.addTextChangedListener(editTextListener);
+            checkboxSwitch.setOnCheckedChangeListener(switchListener);
         }
 
         /**

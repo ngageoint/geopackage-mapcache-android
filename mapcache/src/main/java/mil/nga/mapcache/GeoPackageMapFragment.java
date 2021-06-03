@@ -101,6 +101,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -128,6 +129,7 @@ import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.extension.nga.style.FeatureStyle;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
@@ -6445,6 +6447,11 @@ public class GeoPackageMapFragment extends Fragment implements
 
         final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
 
+        // If it has RTree extensions, it's indexed and we can't save feature column data.
+        // Not currently supported for Android
+        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+        boolean hasExtension = extension.has(markerFeature.tableName);
+
         if (featureRow != null) {
             final GeoPackageGeometryData geomData = featureRow.getGeometry();
             final GeometryType geometryType = geomData.getGeometry()
@@ -6466,7 +6473,7 @@ public class GeoPackageMapFragment extends Fragment implements
            // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
 
             PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
-                    geoPackage.getName(), markerFeature.tableName);
+                    geoPackage.getName(), markerFeature.tableName, !hasExtension);
             SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
                 @Override
                 public void onClick(View view, List<FcColumnDataObject> values) {
@@ -6498,6 +6505,8 @@ public class GeoPackageMapFragment extends Fragment implements
                     featureRow.setValue(fc.getmName(), Double.parseDouble(fc.getmValue().toString()));
                 } else if (fc.getmValue() instanceof Boolean) {
                     featureRow.setValue(fc.getmName(), (Boolean)fc.getmValue());
+                } else if (fc.getmValue() instanceof Date){
+                    // don't save dates yet
                 }
             }
         }

@@ -96,13 +96,14 @@
 
         <!-- Save button -->
         <com.google.android.material.button.MaterialButton
+            style="@style/MaterialButtonStyle"
             android:id="@+id/feature_detail_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:layout_margin="16dp"
             android:layout_gravity="center_horizontal"
-            android:backgroundTint="@color/nga_accent_primary"
+            android:backgroundTint="@color/color_states_materialbutton"
             android:textColor="@color/white"
             android:textAppearance="@style/textAppearanceSubtitle1Heavy"
             android:text="Save"

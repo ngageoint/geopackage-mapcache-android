@@ -90,6 +90,11 @@ public class PointView {
     private RecyclerView fcRecycler;
     private FeatureColumnAdapter fcAdapter;
 
+    /**
+     * If we want the user to be able to save changes
+     */
+    private boolean enableSaves;
+
 
     /**
      * ViewModel for accessing data from the repository
@@ -97,13 +102,15 @@ public class PointView {
     private GeoPackageViewModel geoPackageViewModel;
 
     public PointView(Context context, GeometryType geometryType, FeatureRow featureRow,
-                     DataColumnsDao dataColumnsDao, String geoName, String layerName){
+                     DataColumnsDao dataColumnsDao, String geoName, String layerName,
+                     boolean enableSaves){
         this.context = context;
         this.geometryType = geometryType;
         this.featureRow = featureRow;
         this.dataColumnsDao = dataColumnsDao;
         this.geoName = geoName;
         this.layerName = layerName;
+        this.enableSaves = enableSaves;
     }
 
     public void showPointData(){
@@ -118,6 +125,9 @@ public class PointView {
 
         // Save button
         this.saveButton = (MaterialButton) alertView.findViewById(R.id.feature_detail_save);
+        if (!this.enableSaves) {
+            saveButton.setEnabled(false);
+        }
 
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
@@ -163,6 +173,9 @@ public class PointView {
                         fcObjects.add(fcRow);
                     } else if(featureColumn.getDataType().equals(GeoPackageDataType.BOOLEAN)){
                         FcColumnDataObject fcRow = new FcColumnDataObject(columnName, false);
+                        fcObjects.add(fcRow);
+                    } else if(featureColumn.getDataType().equals(GeoPackageDataType.INTEGER)){
+                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0);
                         fcObjects.add(fcRow);
                     }
                 } else{

@@ -149,8 +149,8 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         } else {
             GeoPackageDatabase db = active.getDatabase(getGeoPackageName());
             int position = 0;
-            List<String> allTables = db.getAllTableNames();
             if (db != null) {
+                List<String> allTables = db.getAllTableNames();
                 for (Object layerObject : mItems) {
                     if (layerObject instanceof DetailPageLayerObject) {
                         DetailPageLayerObject detailPageObject = (DetailPageLayerObject) layerObject;

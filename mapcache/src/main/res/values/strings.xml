@@ -427,5 +427,6 @@
     <string name="name_is_required">Name is required</string>
     <string name="must_be_alphanumeric">Names must be alphanumeric only</string>
     <string name="regex_alphanumeric">[a-zA-Z_0-9]+</string>
+    <string name="attachments">Attachments</string>
 
 </resources>

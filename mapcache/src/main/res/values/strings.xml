@@ -236,19 +236,16 @@
         <item>Washington DC</item>
         <item>Port au Prince</item>
         <item>Blue Marble</item>
-        <item>Whitehorse</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
         <item>http://portal.opengeospatial.org/files/74984</item>
         <item>http://portal.opengeospatial.org/files/74863</item>
         <item>http://portal.opengeospatial.org/files/73648</item>
-        <item>http://portal.opengeospatial.org/files/63156</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
         <item>washington_dc</item>
         <item>port_au_prince</item>
         <item>blue_marble</item>
-        <item>whitehorse</item>
     </string-array>
 
     <string-array name="preloaded_tile_url_labels">

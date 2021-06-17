@@ -2340,6 +2340,8 @@ public class GeoPackageMapFragment extends Fragment implements
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(tileView);
         final AlertDialog alertDialog = dialog.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+
 
         TextView srsLabel = (TextView) tileView.findViewById(R.id.srsLabel);
         srsLabel.setOnClickListener(new View.OnClickListener() {

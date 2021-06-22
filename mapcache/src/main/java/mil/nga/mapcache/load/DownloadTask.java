@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 
 import java.net.URL;
@@ -169,7 +170,7 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
                         + "' at url '" + url + "'";
             }
         } catch (final Exception e) {
-            return e.toString();
+            return "Couldn't download GeoPackage from: " + url + "\n\nFull error:\n" + e.toString();
         }
         return null;
     }

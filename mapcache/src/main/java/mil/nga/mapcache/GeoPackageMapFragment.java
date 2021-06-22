@@ -2734,7 +2734,7 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void afterTextChanged(Editable editable) {
                 inputLayoutName.setErrorEnabled(false);
-                boolean newTextValid = validateInput(inputLayoutName, inputName);
+                boolean newTextValid = validateInput(inputLayoutName, inputName, false);
             }
         };
         inputName.addTextChangedListener(inputNameWatcher);
@@ -2750,7 +2750,7 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void afterTextChanged(Editable editable) {
                 inputLayoutUrl.setErrorEnabled(false);
-                boolean newUrlValid = validateInput(inputLayoutUrl, inputUrl);
+                boolean newUrlValid = validateInput(inputLayoutUrl, inputUrl, true);
             }
         };
         inputUrl.addTextChangedListener(inputUrlWatcher);
@@ -2809,14 +2809,14 @@ public class GeoPackageMapFragment extends Fragment implements
         alertDialog.show();
 
         // Override the positive click listener to enable validation
-        Button theButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        theButton.setOnClickListener(new View.OnClickListener() {
+        Button downloadButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 // Validate input on both fields
-                boolean nameValid = validateInput(inputLayoutName, inputName);
-                boolean urlValid = validateInput(inputLayoutUrl, inputUrl);
+                boolean nameValid = validateInput(inputLayoutName, inputName, false);
+                boolean urlValid = validateInput(inputLayoutUrl, inputUrl, true);
 
                 if(nameValid && urlValid) {
                     String database = inputName.getText().toString();
@@ -2915,14 +2915,20 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * validate input
+     * validate input - check for empty or valid url
      * @param inputLayout
      * @return true if input is not empty and is valid
      */
-    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName){
+    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName, boolean isUrl){
         if (inputName.getText().toString().trim().isEmpty()) {
             inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid));
             return false;
+        }
+        if(isUrl){
+            if(!URLUtil.isValidUrl(inputName.getText().toString().trim())){
+                inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid_url));
+                return false;
+            }
         }
         return true;
     }

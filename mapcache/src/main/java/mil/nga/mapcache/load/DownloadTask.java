@@ -9,7 +9,9 @@ import android.os.PowerManager;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.net.URL;
 
@@ -50,7 +52,7 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
         this.activity = activity;
         this.database = database;
         this.url = url;
-        geoPackageViewModel = ViewModelProviders.of(activity).get(GeoPackageViewModel.class);
+        geoPackageViewModel = new ViewModelProvider(activity).get(GeoPackageViewModel.class);
         cancel = activity.getApplicationContext().getResources().getString(R.string.button_cancel_label);
         importLabel = activity.getApplicationContext().getResources().getString(R.string.geopackage_import_label);
         progressDialog = createDownloadProgressDialog(database, url, this, null);

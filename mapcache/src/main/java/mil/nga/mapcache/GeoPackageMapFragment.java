@@ -58,7 +58,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -140,7 +140,6 @@ import mil.nga.geopackage.features.index.FeatureIndexResults;
 import mil.nga.geopackage.features.index.FeatureIndexType;
 import mil.nga.geopackage.features.index.MultipleFeatureIndexResults;
 import mil.nga.geopackage.features.user.FeatureColumn;
-import mil.nga.geopackage.features.user.FeatureColumns;
 import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
@@ -737,7 +736,7 @@ public class GeoPackageMapFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
+        geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
         geoPackageViewModel.init();
 
         active = new GeoPackageDatabases(getActivity().getApplicationContext(), "active");

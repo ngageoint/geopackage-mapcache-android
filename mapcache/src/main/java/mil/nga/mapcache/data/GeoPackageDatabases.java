@@ -175,15 +175,21 @@ public class GeoPackageDatabases {
 
         List<GeoPackageFeatureOverlayTable> response = new ArrayList<GeoPackageFeatureOverlayTable>();
 
-        Set<String> featureOverlays = settings.getStringSet(
-                getFeatureOverlayTablesPreferenceKey(databaseName),
-                new HashSet<String>());
+        try {
+            final Set<String> featureOverlays = settings.getStringSet(
+                    getFeatureOverlayTablesPreferenceKey(databaseName),
+                    new HashSet<String>());
 
-        for (String featureOverlay : featureOverlays) {
-            GeoPackageTable geoPackageTable = readTableFile(databaseName, featureOverlay);
-            if (geoPackageTable != null) {
-                response.add((GeoPackageFeatureOverlayTable) geoPackageTable);
+            for (String featureOverlay : featureOverlays) {
+                GeoPackageTable geoPackageTable = readTableFile(databaseName, featureOverlay);
+                if (geoPackageTable != null) {
+                    response.add((GeoPackageFeatureOverlayTable) geoPackageTable);
+                }
             }
+        } catch(Exception e){
+            Log.e(GeoPackageDatabases.class.getSimpleName(),
+                    "Failed to load featureOverlays settings from database " + databaseName +
+                            ":  ", e);
         }
 
         return response;
@@ -514,32 +520,37 @@ public class GeoPackageDatabases {
      */
     public void loadFromPreferences() {
         databases.clear();
-        Set<String> databases = settings.getStringSet(databasePreference,
-                new HashSet<String>());
-        for (String database : databases) {
-            Set<String> tiles = settings
-                    .getStringSet(getTileTablesPreferenceKey(database),
-                            new HashSet<String>());
-            Set<String> features = settings.getStringSet(
-                    getFeatureTablesPreferenceKey(database),
+        try {
+            final Set<String> databases = settings.getStringSet(databasePreference,
                     new HashSet<String>());
-            Set<String> featureOverlays = settings.getStringSet(
-                    getFeatureOverlayTablesPreferenceKey(database),
-                    new HashSet<String>());
+            for (String database : databases) {
+                Set<String> tiles = settings
+                        .getStringSet(getTileTablesPreferenceKey(database),
+                                new HashSet<String>());
+                Set<String> features = settings.getStringSet(
+                        getFeatureTablesPreferenceKey(database),
+                        new HashSet<String>());
+                Set<String> featureOverlays = settings.getStringSet(
+                        getFeatureOverlayTablesPreferenceKey(database),
+                        new HashSet<String>());
 
-            for (String tile : tiles) {
-                addTable(new GeoPackageTileTable(database, tile, 0), false);
-            }
-            for (String feature : features) {
-                addTable(new GeoPackageFeatureTable(database, feature, null,
-                        0), false);
-            }
-            for (String featureOverlay : featureOverlays) {
-                GeoPackageTable geoPackageTable = readTableFile(database, featureOverlay);
-                if (geoPackageTable != null) {
-                    addTable(geoPackageTable, false);
+                for (String tile : tiles) {
+                    addTable(new GeoPackageTileTable(database, tile, 0), false);
+                }
+                for (String feature : features) {
+                    addTable(new GeoPackageFeatureTable(database, feature, null,
+                            0), false);
+                }
+                for (String featureOverlay : featureOverlays) {
+                    GeoPackageTable geoPackageTable = readTableFile(database, featureOverlay);
+                    if (geoPackageTable != null) {
+                        addTable(geoPackageTable, false);
+                    }
                 }
             }
+        } catch (Exception e){
+            Log.e(GeoPackageDatabases.class.getSimpleName(),
+                    "Failed to load databasePreference settings: ", e);
         }
     }
 

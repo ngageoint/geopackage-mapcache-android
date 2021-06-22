@@ -170,7 +170,7 @@ public class PointView {
 
                 if (value == null) {
                     if(featureColumn.getDataType().equals(GeoPackageDataType.TEXT)){
-                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, new String(""));
+                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, "");
                         fcObjects.add(fcRow);
                     } else if(featureColumn.getDataType().equals(GeoPackageDataType.DOUBLE)){
                         FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0.0);

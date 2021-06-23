@@ -8,10 +8,7 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.net.URL;
 

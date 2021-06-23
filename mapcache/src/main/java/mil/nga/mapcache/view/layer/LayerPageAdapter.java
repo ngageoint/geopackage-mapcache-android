@@ -15,9 +15,7 @@ import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
-import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
-import mil.nga.mapcache.view.detail.LayerViewHolder;
 
 /**
  * This adapter will power the RecyclerView to hold the details of a selected Layer from the Detail

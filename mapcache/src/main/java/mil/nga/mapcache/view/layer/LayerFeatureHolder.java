@@ -9,10 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.FeatureColumnListener;
-import mil.nga.mapcache.view.detail.DetailPageLayerObject;
-import mil.nga.sf.GeometryType;
 
 class LayerFeatureHolder extends RecyclerView.ViewHolder {
 

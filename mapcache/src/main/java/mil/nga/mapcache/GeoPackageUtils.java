@@ -26,8 +26,8 @@ import mil.nga.geopackage.tiles.features.DefaultFeatureTiles;
 import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.filter.InputFilterDecimalMinMax;
 import mil.nga.mapcache.filter.InputFilterMinMax;
+import mil.nga.proj.ProjectionConstants;
 import mil.nga.sf.GeometryType;
-import mil.nga.sf.proj.ProjectionConstants;
 
 public class GeoPackageUtils {
 

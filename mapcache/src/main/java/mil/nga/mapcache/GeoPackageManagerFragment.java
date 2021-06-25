@@ -111,11 +111,11 @@ import mil.nga.mapcache.indexer.IndexerTask;
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.proj.ProjectionTransform;
 import mil.nga.sf.GeometryType;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.wkb.GeometryCodes;
 
 /**

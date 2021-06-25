@@ -30,9 +30,9 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * List of FeatureColumn objects associated with a single feature
      */
-    private List<FcColumnDataObject> mItems;
+    private final List<FcColumnDataObject> mItems;
 
-    private Context context;
+    private final Context context;
 
     /**
      * Constructor
@@ -100,20 +100,20 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
 
     class FeatureColumnViewHolder extends RecyclerView.ViewHolder {
-        private TextInputEditText valueText;
-        private TextInputLayout valueLabel;
-        private TextView checkboxLabel;
-        private SwitchCompat checkboxSwitch;
+        private final TextInputEditText valueText;
+        private final TextInputLayout valueLabel;
+        private final TextView checkboxLabel;
+        private final SwitchCompat checkboxSwitch;
         public EditTextListener editTextListener;
         public EditSwitchListener switchListener;
 
         public FeatureColumnViewHolder(View itemView, EditTextListener textListener,
                                        EditSwitchListener switchListener) {
             super(itemView);
-            valueText = (TextInputEditText) itemView.findViewById(R.id.fc_value);
-            valueLabel = (TextInputLayout) itemView.findViewById(R.id.fc_value_holder);
-            checkboxLabel = (TextView) itemView.findViewById(R.id.fc_check_label);
-            checkboxSwitch = (SwitchCompat) itemView.findViewById(R.id.fc_switch);
+            valueText = itemView.findViewById(R.id.fc_value);
+            valueLabel = itemView.findViewById(R.id.fc_value_holder);
+            checkboxLabel = itemView.findViewById(R.id.fc_check_label);
+            checkboxSwitch = itemView.findViewById(R.id.fc_switch);
             this.editTextListener = textListener;
             this.switchListener = switchListener;
 

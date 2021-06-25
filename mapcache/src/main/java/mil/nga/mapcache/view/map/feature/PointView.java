@@ -29,7 +29,6 @@ import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
-import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.GeometryType;
 
 /**
@@ -40,37 +39,32 @@ public class PointView {
     /**
      * Context from where this was called
      */
-    private Context context;
+    private final Context context;
 
     /**
      * Geometry type
      */
-    private GeometryType geometryType;
+    private final GeometryType geometryType;
 
     /**
      * Feature row data
      */
-    private FeatureRow featureRow;
+    private final FeatureRow featureRow;
 
     /**
      * DataColumnsDao
      */
-    private DataColumnsDao dataColumnsDao;
+    private final DataColumnsDao dataColumnsDao;
 
     /**
      * GeoPackage name
      */
-    private String geoName;
+    private final String geoName;
 
     /**
      * GeoPackage layer name
      */
-    private String layerName;
-
-    /**
-     * Save button
-     */
-    private MaterialButton saveButton;
+    private final String layerName;
 
     /**
      * Save button listener
@@ -80,24 +74,15 @@ public class PointView {
     /**
      * We'll generate a list of FCObjects to hold our data for the recycler
      */
-    private List<FcColumnDataObject> fcObjects = new ArrayList<>();
+    private final List<FcColumnDataObject> fcObjects = new ArrayList<>();
 
-    /**
-     * recycler to hold each feature column object in a viewholder
-     */
-    private RecyclerView fcRecycler;
     private FeatureColumnAdapter fcAdapter;
 
     /**
      * If we want the user to be able to save changes
      */
-    private boolean enableSaves;
+    private final boolean enableSaves;
 
-
-    /**
-     * ViewModel for accessing data from the repository
-     */
-    private GeoPackageViewModel geoPackageViewModel;
 
     public PointView(Context context, GeometryType geometryType, FeatureRow featureRow,
                      DataColumnsDao dataColumnsDao, String geoName, String layerName,
@@ -122,7 +107,7 @@ public class PointView {
         titleText.setText(geometryType.toString());
 
         // Save button
-        this.saveButton = (MaterialButton) alertView.findViewById(R.id.feature_detail_save);
+        MaterialButton saveButton = (MaterialButton) alertView.findViewById(R.id.feature_detail_save);
         if (!this.enableSaves) {
             saveButton.setEnabled(false);
         }
@@ -187,7 +172,10 @@ public class PointView {
 
             }
         }
-        fcRecycler = alertView.findViewById(R.id.fc_recycler);
+        /**
+         * recycler to hold each feature column object in a viewholder
+         */
+        RecyclerView fcRecycler = alertView.findViewById(R.id.fc_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(alertView.getContext());
         fcRecycler.setLayoutManager(layoutManager);
         fcAdapter = new FeatureColumnAdapter(fcObjects, context);
@@ -219,7 +207,7 @@ public class PointView {
         /**
          * Save the data by calling back to write to the geopackage
          */
-        this.saveButton.setOnClickListener(new View.OnClickListener() {
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 saveListener.onClick(view, fcAdapter.getmItems());
@@ -252,7 +240,7 @@ public class PointView {
 
     /**
      * Update the fcObjects list with the text inputs on the page, tehn return
-     * @return
+     * @return feature column data objects
      */
     public List<FcColumnDataObject> getFcObjects() {
         return fcObjects;

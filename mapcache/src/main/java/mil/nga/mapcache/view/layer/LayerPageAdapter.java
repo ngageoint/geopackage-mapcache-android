@@ -33,27 +33,27 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     /**
      * List of 1 DetailPageLayerObject followed by multiple FeatureColumnObjects
      */
-    private List<Object> mItems;
+    private final List<Object> mItems;
 
     /**
      * Click listener for the back button in the header
      */
-    private View.OnClickListener mBackArrowListener;
+    private final View.OnClickListener mBackArrowListener;
 
     /**
      * Listener for clicking the active switch
      */
-    private LayerActiveSwitchListener mActiveLayerListener;
+    private final LayerActiveSwitchListener mActiveLayerListener;
 
     /**
      * Listener for clicking the delete button
      */
-    private DetailActionListener mDetailActionListener;
+    private final DetailActionListener mDetailActionListener;
 
     /**
      * Listener for the feature columns
      */
-    private FeatureColumnListener mFeatureColumnListener;
+    private final FeatureColumnListener mFeatureColumnListener;
 
     /**
      * Two types of objects to be inflated, Headers and Feature Columns
@@ -99,8 +99,8 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * call the view holder's setData() method with the Layer Detail object to populate the view
-     * @param holder
-     * @param position
+     * @param holder either LayerDetailViewHolder, or LayerFeatureHolder
+     * @param position position in the list of items
      */
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
@@ -152,11 +152,7 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 for (Object layerObject : mItems) {
                     if (layerObject instanceof DetailPageLayerObject) {
                         DetailPageLayerObject detailPageObject = (DetailPageLayerObject) layerObject;
-                        if (allTables.contains(detailPageObject.getName())) {
-                            detailPageObject.setChecked(true);
-                        } else {
-                            detailPageObject.setChecked(false);
-                        }
+                        detailPageObject.setChecked(allTables.contains(detailPageObject.getName()));
                         notifyItemChanged(position);
                     }
                     position++;
@@ -184,7 +180,7 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * For now we only have 1 row
-     * @return
+     * @return return number of items
      */
     @Override
     public int getItemCount() {
@@ -209,7 +205,7 @@ public class LayerPageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     /**
      * Get the name of the GeoPackage currently populating the view
-     * @return
+     * @return name of the geopackage
      */
     public String getGeoPackageName(){
         if(!mItems.isEmpty()){

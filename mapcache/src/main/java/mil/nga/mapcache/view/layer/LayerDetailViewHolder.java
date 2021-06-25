@@ -6,7 +6,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.widget.SwitchCompat;

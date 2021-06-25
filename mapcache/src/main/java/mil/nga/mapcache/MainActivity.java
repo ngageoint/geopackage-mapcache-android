@@ -92,19 +92,21 @@ public class MainActivity extends AppCompatActivity {
         hideActionBar();
 
         // Handle opening and importing GeoPackages
-        Intent intent = getIntent();
-        Uri uri = intent.getData();
-        if(uri == null){
-            Bundle bundle = intent.getExtras();
-            if(bundle != null){
-                Object objectUri = bundle.get(Intent.EXTRA_STREAM);
-                if(objectUri != null){
-                    uri = (Uri)objectUri;
+        if(getIntent() != null) {
+            Intent intent = getIntent();
+            Uri uri = intent.getData();
+            if (uri == null) {
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    Object objectUri = bundle.get(Intent.EXTRA_STREAM);
+                    if (objectUri != null) {
+                        uri = (Uri) objectUri;
+                    }
                 }
             }
-        }
-        if (uri != null) {
-            handleIntentUri(uri, intent);
+            if (uri != null) {
+                handleIntentUri(uri, intent);
+            }
         }
 
         /**

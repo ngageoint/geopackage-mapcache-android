@@ -1,12 +1,10 @@
 package mil.nga.mapcache.view.detail;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -16,8 +14,6 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
-
-import org.w3c.dom.Text;
 
 import java.util.regex.Pattern;
 

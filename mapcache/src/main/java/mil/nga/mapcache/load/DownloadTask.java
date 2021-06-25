@@ -8,7 +8,7 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.net.URL;
 
@@ -49,7 +49,7 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
         this.activity = activity;
         this.database = database;
         this.url = url;
-        geoPackageViewModel = ViewModelProviders.of(activity).get(GeoPackageViewModel.class);
+        geoPackageViewModel = new ViewModelProvider(activity).get(GeoPackageViewModel.class);
         cancel = activity.getApplicationContext().getResources().getString(R.string.button_cancel_label);
         importLabel = activity.getApplicationContext().getResources().getString(R.string.geopackage_import_label);
         progressDialog = createDownloadProgressDialog(database, url, this, null);
@@ -169,7 +169,7 @@ public class DownloadTask extends AsyncTask<String, Integer, String>
                         + "' at url '" + url + "'";
             }
         } catch (final Exception e) {
-            return e.toString();
+            return "Couldn't download GeoPackage from: " + url + "\n\nFull error:\n" + e.toString();
         }
         return null;
     }

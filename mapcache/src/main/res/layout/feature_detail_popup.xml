@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popup showing details for a selected feature -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- logo and title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/feature_detail_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:background="@drawable/ic_clear_grey_800_24dp" />
+
+            <TextView
+                android:id="@+id/feature_detail_title"
+                style="@style/Base.TextAppearance.AppCompat.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/alert_logo"
+                android:layout_marginLeft="16dp"
+                android:layout_toRightOf="@+id/alert_logo"
+                android:text="Feature Detail" />
+        </LinearLayout>
+
+
+        <!-- Geopackage and layer name -->
+        <RelativeLayout
+            android:id="@+id/geo_and_layer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingRight="24dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/layer_type_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/polygon" >
+            </ImageView>
+
+            <!-- Layer type and tile/feature count -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/layer_type_icon"
+                android:paddingLeft="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/fc_geo_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Feature Layer"
+                    android:layout_centerVertical="true"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+                <TextView
+                    android:id="@+id/fc_layer_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Feature count"
+                    android:layout_centerVertical="true"
+                    android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <!-- Attachments -->
+        <TextView
+            android:id="@+id/fc_attachments_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/attachments"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp">
+
+            <!-- Take photo button -->
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonStyle"
+                android:id="@+id/add_from_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="@color/color_secondary_materialbutton"
+                android:textColor="@color/white"
+                android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:layout_marginHorizontal="16dp"
+                app:icon="@drawable/ic_baseline_camera_alt_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+            <!-- choose photo button -->
+            <com.google.android.material.button.MaterialButton
+                style="@style/MaterialButtonStyle"
+                android:id="@+id/add_from_gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="8dp"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="@color/color_secondary_materialbutton"
+                android:textColor="@color/white"
+                android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:layout_marginHorizontal="16dp"
+                app:icon="@drawable/ic_baseline_collections_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp" />
+
+        </LinearLayout>
+
+        <!-- View Pager holding the photo attachments -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/attachmentPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingStart="0dp"
+                android:paddingEnd="40dp" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <!-- Feature column data recylcer -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/fc_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            />
+
+
+
+        <!-- Save button -->
+        <com.google.android.material.button.MaterialButton
+            style="@style/MaterialButtonStyle"
+            android:id="@+id/feature_detail_save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="@color/color_states_materialbutton"
+            android:textColor="@color/white"
+            android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+            android:text="Save"
+            android:textAlignment="center">
+
+        </com.google.android.material.button.MaterialButton>
+        
+    </LinearLayout>
+
+</LinearLayout>

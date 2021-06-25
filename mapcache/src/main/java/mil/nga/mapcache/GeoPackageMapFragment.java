@@ -58,7 +58,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -128,6 +128,7 @@ import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.extension.nga.style.FeatureStyle;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
@@ -187,6 +188,7 @@ import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
+import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -205,6 +207,8 @@ import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
+import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
+import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
@@ -731,7 +735,7 @@ public class GeoPackageMapFragment extends Fragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        geoPackageViewModel = ViewModelProviders.of(getActivity()).get(GeoPackageViewModel.class);
+        geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
         geoPackageViewModel.init();
 
         active = new GeoPackageDatabases(getActivity().getApplicationContext(), "active");
@@ -873,7 +877,6 @@ public class GeoPackageMapFragment extends Fragment implements
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         geoPackageRecycler.setLayoutManager(layoutManager);
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
-//        behavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
 
         GeoPackageClickListener geoClickListener = new GeoPackageClickListener() {
             @Override
@@ -2335,6 +2338,8 @@ public class GeoPackageMapFragment extends Fragment implements
         AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(tileView);
         final AlertDialog alertDialog = dialog.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+
 
         TextView srsLabel = (TextView) tileView.findViewById(R.id.srsLabel);
         srsLabel.setOnClickListener(new View.OnClickListener() {
@@ -2727,7 +2732,7 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void afterTextChanged(Editable editable) {
                 inputLayoutName.setErrorEnabled(false);
-                boolean newTextValid = validateInput(inputLayoutName, inputName);
+                boolean newTextValid = validateInput(inputLayoutName, inputName, false);
             }
         };
         inputName.addTextChangedListener(inputNameWatcher);
@@ -2743,7 +2748,7 @@ public class GeoPackageMapFragment extends Fragment implements
             @Override
             public void afterTextChanged(Editable editable) {
                 inputLayoutUrl.setErrorEnabled(false);
-                boolean newUrlValid = validateInput(inputLayoutUrl, inputUrl);
+                boolean newUrlValid = validateInput(inputLayoutUrl, inputUrl, true);
             }
         };
         inputUrl.addTextChangedListener(inputUrlWatcher);
@@ -2802,14 +2807,14 @@ public class GeoPackageMapFragment extends Fragment implements
         alertDialog.show();
 
         // Override the positive click listener to enable validation
-        Button theButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        theButton.setOnClickListener(new View.OnClickListener() {
+        Button downloadButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 // Validate input on both fields
-                boolean nameValid = validateInput(inputLayoutName, inputName);
-                boolean urlValid = validateInput(inputLayoutUrl, inputUrl);
+                boolean nameValid = validateInput(inputLayoutName, inputName, false);
+                boolean urlValid = validateInput(inputLayoutUrl, inputUrl, true);
 
                 if(nameValid && urlValid) {
                     String database = inputName.getText().toString();
@@ -2908,14 +2913,20 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * validate input
+     * validate input - check for empty or valid url
      * @param inputLayout
      * @return true if input is not empty and is valid
      */
-    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName){
+    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName, boolean isUrl){
         if (inputName.getText().toString().trim().isEmpty()) {
             inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid));
             return false;
+        }
+        if(isUrl){
+            if(!URLUtil.isValidUrl(inputName.getText().toString().trim())){
+                inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid_url));
+                return false;
+            }
         }
         return true;
     }
@@ -6442,17 +6453,75 @@ public class GeoPackageMapFragment extends Fragment implements
 
         final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
 
+        // If it has RTree extensions, it's indexed and we can't save feature column data.
+        // Not currently supported for Android
+        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+        boolean hasExtension = extension.has(markerFeature.tableName);
+
         if (featureRow != null) {
             final GeoPackageGeometryData geomData = featureRow.getGeometry();
             final GeometryType geometryType = geomData.getGeometry()
                     .getGeometryType();
 
             String title = getTitle(geometryType, marker);
-            infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
+            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
+            try {
+                if (!dataColumnsDao.isTableExists()) {
+                    dataColumnsDao = null;
+                }
+            } catch (SQLException e) {
+                dataColumnsDao = null;
+                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                        "Failed to check if Data Columns table exists for GeoPackage: "
+                                + geoPackage.getName(), e);
+            }
+
+           // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
+
+            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
+                    geoPackage.getName(), markerFeature.tableName, !hasExtension);
+            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
+                @Override
+                public void onClick(View view, List<FcColumnDataObject> values) {
+                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
+                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
+
+                }
+            };
+            pointView.setSaveListener(saveListener);
+            pointView.showPointData();
+
         } else {
             geoPackage.close();
         }
     }
+
+
+    /**
+     * Save all feature column data in a geopackage after a user clicks save
+     */
+    private void saveFeatureColumnChanges(FeatureRow featureRow, List<FcColumnDataObject> fcObjects,
+                                          FeatureDao featureDao, GeoPackage geopackage, List<FcColumnDataObject> values){
+        for(int i=0;i<values.size();i++){
+            FcColumnDataObject fc = values.get(i);
+            if(!fc.getmName().equalsIgnoreCase("id")) {
+                if (fc.getmValue() instanceof String) {
+                    featureRow.setValue(fc.getmName(), fc.getmValue());
+                } else if (fc.getmValue() instanceof Double) {
+                    featureRow.setValue(fc.getmName(), Double.parseDouble(fc.getmValue().toString()));
+                } else if (fc.getmValue() instanceof Boolean) {
+                    featureRow.setValue(fc.getmName(), (Boolean)fc.getmValue());
+                } else if (fc.getmValue() instanceof Date){
+                    // don't save dates yet
+                }
+            }
+        }
+        int updatedRow = featureDao.update(featureRow);
+        geopackage.close();
+    }
+
+
+
 
     /**
      * Info existing feature option
@@ -6478,6 +6547,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     "Failed to check if Data Columns table exists for GeoPackage: "
                             + geoPackage.getName(), e);
         }
+
 
         StringBuilder message = new StringBuilder();
         int geometryColumn = featureRow.getGeometryColumnIndex();

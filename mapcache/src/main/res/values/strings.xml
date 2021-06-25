@@ -236,19 +236,16 @@
         <item>Washington DC</item>
         <item>Port au Prince</item>
         <item>Blue Marble</item>
-        <item>Whitehorse</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
         <item>http://portal.opengeospatial.org/files/74984</item>
         <item>http://portal.opengeospatial.org/files/74863</item>
         <item>http://portal.opengeospatial.org/files/73648</item>
-        <item>http://portal.opengeospatial.org/files/63156</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
         <item>washington_dc</item>
         <item>port_au_prince</item>
         <item>blue_marble</item>
-        <item>whitehorse</item>
     </string-array>
 
     <string-array name="preloaded_tile_url_labels">
@@ -318,6 +315,7 @@
 
     <string name="example_geopackages"><font color='#009688'>Example GeoPackages</font></string>
     <string name="err_msg_invalid">is not valid</string>
+    <string name="err_msg_invalid_url">is not a valid URL</string>
     <string name="no_packages_text">No GeoPackage files found</string>
     <string name="activity_geo_package_detail">All GeoPackages</string>
     <string name="layers_label">Layers</string>
@@ -427,5 +425,6 @@
     <string name="name_is_required">Name is required</string>
     <string name="must_be_alphanumeric">Names must be alphanumeric only</string>
     <string name="regex_alphanumeric">[a-zA-Z_0-9]+</string>
+    <string name="attachments">Attachments</string>
 
 </resources>

@@ -105,32 +105,30 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof GeoPackageHeaderViewHolder){
-            bindHeader(holder, position);
+            bindHeader(holder);
         } else if(holder instanceof GeoPackageViewHolder){
             bindRow(holder, position);
         } else if(holder instanceof  GeoPackageFooterViewHolder){
-            bindFooter(holder, position);
+            bindFooter(holder);
         }
     }
 
     /**
      * Bind the Header object of a geopackage view
      * @param holder - GeoPackageHeaderViewHolder
-     * @param position - position to bind (should be 0)
      */
-    private void bindHeader(RecyclerView.ViewHolder holder, int position){
+    private void bindHeader(RecyclerView.ViewHolder holder){
         if(holder instanceof GeoPackageHeaderViewHolder){
             GeoPackageHeaderViewHolder viewHolder = (GeoPackageHeaderViewHolder)holder;
-                viewHolder.getTitle().setText("GeoPackages");
+                viewHolder.getTitle().setText(R.string.geopackages);
         }
     }
 
     /**
      * Bind the footer object of a geopackage view
      * @param holder - GeoPackageFooterViewHolder
-     * @param position - position to bind (should be 0)
      */
-    private void bindFooter(RecyclerView.ViewHolder holder, int position){
+    private void bindFooter(RecyclerView.ViewHolder holder){
         if(holder instanceof GeoPackageFooterViewHolder){
             GeoPackageFooterViewHolder viewHolder = (GeoPackageFooterViewHolder)holder;
         }
@@ -273,7 +271,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * View holder for a GeoPackage header object
      * -----------------------------------------------------------------------------------
      */
-    public class GeoPackageHeaderViewHolder extends RecyclerView.ViewHolder{
+    public static class GeoPackageHeaderViewHolder extends RecyclerView.ViewHolder{
 
         /**
          * Name of the state
@@ -282,7 +280,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
         /**
          * Constructor
-         * @param itemView
+         * @param itemView geopackage header view
          */
         public GeoPackageHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -306,7 +304,7 @@ public class GeoPackageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
      * View holder for the bottom card to show swipe action
      * -----------------------------------------------------------------------------------
      */
-    public class GeoPackageFooterViewHolder extends RecyclerView.ViewHolder{
+    public static class GeoPackageFooterViewHolder extends RecyclerView.ViewHolder{
 
         public GeoPackageFooterViewHolder(@NonNull View itemView) {
             super(itemView);

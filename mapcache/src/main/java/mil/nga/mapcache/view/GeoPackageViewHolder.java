@@ -39,12 +39,12 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
     /**
      * Layout to hold the color of the active state (if the geopackage has active layers on the map
      */
-    private LinearLayout activeLayout;
+    private final LinearLayout activeLayout;
 
     /**
      * Context resources
      */
-    private Resources res;
+    private final Resources res;
 
     /**
      * Click listener to be attached to the layer
@@ -113,32 +113,30 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
                 featureTables++;
         }
 
-        Iterator<GeoPackageTileTable> tileIterator = db.getTiles().iterator();
-        while (tileIterator.hasNext()) {
-            GeoPackageTileTable current = tileIterator.next();
-            if(current.isActive()){
+        for (GeoPackageTileTable current : db.getTiles()) {
+            if (current.isActive()) {
                 active = true;
             }
             // GeoPackage title
-            if(current instanceof GeoPackageTileTable)
+            if (current instanceof GeoPackageTileTable)
                 tileTables++;
         }
         if(db.isActiveTables()){
             active = true;
         }
         this.title.setText(db.getDatabase());
-        this.featureTables.setText("Feature Tables: " + featureTables);
-        this.tileTables.setText("Tile Tables: " + tileTables);
+        this.featureTables.setText(res.getString(R.string.feature_tables_label, featureTables));
+        this.tileTables.setText(res.getString(R.string.tile_tables_label, tileTables));
         setActiveColor(active);
     }
 
     /**
      * Sets up the click listener
-     * @param view
+     * @param view geopackage click listener
      */
     @Override
     public void onClick(View view) {
-        mListener.onClick(view, getAdapterPosition(), mDatabase);
+        mListener.onClick(view, getBindingAdapterPosition(), mDatabase);
     }
 
     /**

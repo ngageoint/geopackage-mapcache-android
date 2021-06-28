@@ -426,5 +426,8 @@
     <string name="must_be_alphanumeric">Names must be alphanumeric only</string>
     <string name="regex_alphanumeric">[a-zA-Z_0-9]+</string>
     <string name="attachments">Attachments</string>
+    <string name="geopackages">GeoPackages</string>
+    <string name="feature_tables_label">Feature Tables: %1$d</string>
+    <string name="tile_tables_label">Tile Tables: %1$d</string>
 
 </resources>

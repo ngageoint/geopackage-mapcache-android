@@ -45,9 +45,9 @@ import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryType;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
 
 /**
  *  Repository to provide access to stored GeoPackages.  Most of the data in the app is powered by
@@ -766,7 +766,7 @@ public class GeoPackageRepository {
             SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
             SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
             // Create the tile table
-            mil.nga.sf.proj.Projection projection = ProjectionFactory.getProjection(epsg);
+            mil.nga.proj.Projection projection = ProjectionFactory.getProjection(epsg);
             BoundingBox bbox = LoadTilesTask.transform(boundingBox, projection);
             geoPackage.createTileTable(
                     TileTableMetadata.create(tableName, bbox, srs.getSrsId()));

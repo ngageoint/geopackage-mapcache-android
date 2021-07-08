@@ -210,13 +210,13 @@ import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.proj.ProjectionTransform;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.util.GeometryPrinter;
 
@@ -4328,7 +4328,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private BoundingBox transformBoundingBoxToWgs84(BoundingBox boundingBox, SpatialReferenceSystem srs) {
 
-        mil.nga.sf.proj.Projection projection = srs.getProjection();
+        mil.nga.proj.Projection projection = srs.getProjection();
         if (projection.isUnit(Units.DEGREES)) {
             boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
         }
@@ -4857,7 +4857,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (!task.isCancelled() && count.get() < maxFeatures) {
 
-            mil.nga.sf.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            mil.nga.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
             String[] columns = featureDao.getIdAndGeometryColumnNames();
 
@@ -4880,7 +4880,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 double filterMaxLongitude = 0;
 
                 if (filter) {
-                    mil.nga.sf.proj.Projection featureProjection = featureDao.getProjection();
+                    mil.nga.proj.Projection featureProjection = featureDao.getProjection();
                     ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
                     BoundingBox boundedMapViewBoundingBox = mapViewBoundingBox.boundWgs84Coordinates();
                     BoundingBox transformedBoundingBox = boundedMapViewBoundingBox.transform(projectionTransform);
@@ -6055,7 +6055,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, screenClickPercentage);
                     clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
-                    mil.nga.sf.proj.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                    mil.nga.proj.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
                     double tolerance = MapUtils.getToleranceDistance(point, view, map, screenClickPercentage);
 
@@ -6084,7 +6084,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                                 } else {
 
-                                    mil.nga.sf.proj.Projection featureProjection = featureDao.getProjection();
+                                    mil.nga.proj.Projection featureProjection = featureDao.getProjection();
                                     ProjectionTransform projectionTransform = clickProjection.getTransformation(featureProjection);
                                     BoundingBox boundedClickBoundingBox = clickBoundingBox.boundWgs84Coordinates();
                                     BoundingBox transformedBoundingBox = boundedClickBoundingBox.transform(projectionTransform);

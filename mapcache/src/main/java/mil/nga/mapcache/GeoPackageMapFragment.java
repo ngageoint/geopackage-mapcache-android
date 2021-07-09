@@ -1579,6 +1579,52 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
+     * Enable map bearing compass
+     */
+    private void setMapBearing() {
+        // Verify permissions first
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+//        LocationRequest locationRequest = LocationRequest.create();
+//        locationRequest.setInterval(0);
+//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        locationRequest.setFastestInterval(0);
+//        locationRequest.setNumUpdates(Integer.MAX_VALUE);
+//
+//        LocationCallback locationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(@NonNull LocationResult locationResult) {
+//                super.onLocationResult(locationResult);
+//                if(locationResult.getLastLocation() != null){
+//                    Location location = locationResult.getLastLocation();
+//                    if(locationResult.getLastLocation().hasBearing()){
+//                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//
+//                    if (location.hasBearing()) {
+//                        CameraPosition cameraPosition = new CameraPosition.Builder()
+//                                .target(latLng)             // Sets the center of the map to current location
+//                                .zoom(15)                   // Sets the zoom
+//                                .bearing(location.getBearing()) // Sets the orientation of the camera
+//                                .tilt(0)                   // Sets the tilt of the camera to 0 degrees
+//                                .build();                   // Creates a CameraPosition from the builder
+//                        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                        Log.i("gps update: ", System.currentTimeMillis()/1000 + "");
+//                    }
+//                    }
+//                }
+//            }
+//        };
+//
+//        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+//
+
+    }
+
+
+
+    /**
      * Set Floating action button to open the create new geopackage wizard
      */
     private void setFLoatingActionButton(){

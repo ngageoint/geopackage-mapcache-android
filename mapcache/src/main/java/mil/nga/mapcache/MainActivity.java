@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Handle the URI from an intent for opening or importing a GeoPackage
      *
-     * @param uri
+     * @param uri intent uri
      */
     private void handleIntentUri(final Uri uri, Intent intent) {
         String path = FileUtils.getPath(this, uri);

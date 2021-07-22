@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -52,6 +53,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
@@ -63,6 +65,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -75,6 +80,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -173,6 +179,7 @@ import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.user.UserCursor;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
@@ -1587,38 +1594,38 @@ public class GeoPackageMapFragment extends Fragment implements
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
-//        LocationRequest locationRequest = LocationRequest.create();
-//        locationRequest.setInterval(0);
-//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        locationRequest.setFastestInterval(0);
-//        locationRequest.setNumUpdates(Integer.MAX_VALUE);
-//
-//        LocationCallback locationCallback = new LocationCallback() {
-//            @Override
-//            public void onLocationResult(@NonNull LocationResult locationResult) {
-//                super.onLocationResult(locationResult);
-//                if(locationResult.getLastLocation() != null){
-//                    Location location = locationResult.getLastLocation();
-//                    if(locationResult.getLastLocation().hasBearing()){
-//                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//
-//                    if (location.hasBearing()) {
-//                        CameraPosition cameraPosition = new CameraPosition.Builder()
-//                                .target(latLng)             // Sets the center of the map to current location
-//                                .zoom(15)                   // Sets the zoom
-//                                .bearing(location.getBearing()) // Sets the orientation of the camera
-//                                .tilt(0)                   // Sets the tilt of the camera to 0 degrees
-//                                .build();                   // Creates a CameraPosition from the builder
-//                        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//                        Log.i("gps update: ", System.currentTimeMillis()/1000 + "");
-//                    }
-//                    }
-//                }
-//            }
-//        };
-//
-//        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-//
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(0);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setFastestInterval(0);
+        locationRequest.setNumUpdates(Integer.MAX_VALUE);
+
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                if(locationResult.getLastLocation() != null){
+                    Location location = locationResult.getLastLocation();
+                    if(locationResult.getLastLocation().hasBearing()){
+                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                    if (location.hasBearing()) {
+                        CameraPosition cameraPosition = new CameraPosition.Builder()
+                                .target(latLng)             // Sets the center of the map to current location
+                                .zoom(15)                   // Sets the zoom
+                                .bearing(location.getBearing()) // Sets the orientation of the camera
+                                .tilt(0)                   // Sets the tilt of the camera to 0 degrees
+                                .build();                   // Creates a CameraPosition from the builder
+                        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                        Log.i("gps update: ", System.currentTimeMillis()/1000 + "");
+                    }
+                    }
+                }
+            }
+        };
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+
 
     }
 
@@ -4939,34 +4946,43 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
 
                 // Query for all rows
-                FeatureCursor cursor = featureDao.query(columns);
-                try {
-                    while (!task.isCancelled() && count.get() < maxFeatures
-                            && cursor.moveToNext()) {
-                        try {
-                            FeatureRow row = cursor.getRow();
+                UserCursor userCursor = featureDao.query(columns);
+                if(userCursor instanceof FeatureCursor) {
+                    FeatureCursor cursor = featureDao.query(columns);
+                    try {
+                        while (!task.isCancelled() && count.get() < maxFeatures
+                                && cursor.moveToNext()) {
+                            try {
+                                FeatureRow row = cursor.getRow();
 
-                            if (threadPool != null) {
-                                // Process the feature row in the thread pool
-                                FeatureRowProcessor processor = new FeatureRowProcessor(
-                                        task, database, featureDao, row, count, maxFeatures, editable, converter,
-                                        styleCache, filterBoundingBox, filterMaxLongitude, filter);
-                                threadPool.execute(processor);
-                            } else {
+                                if (threadPool != null) {
+                                    // Process the feature row in the thread pool
+                                    FeatureRowProcessor processor = new FeatureRowProcessor(
+                                            task, database, featureDao, row, count, maxFeatures, editable, converter,
+                                            styleCache, filterBoundingBox, filterMaxLongitude, filter);
+                                    threadPool.execute(processor);
+                                } else {
 
-                                processFeatureRow(task, database, featureDao, converter, styleCache, row, count, maxFeatures, editable,
-                                        filterBoundingBox, filterMaxLongitude, filter);
+                                    processFeatureRow(task, database, featureDao, converter, styleCache, row, count, maxFeatures, editable,
+                                            filterBoundingBox, filterMaxLongitude, filter);
+                                }
+                            } catch (Exception e) {
+                                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                        "Failed to display feature. database: " + database
+                                                + ", feature table: " + features
+                                                + ", row: " + cursor.getPosition(), e);
                             }
-                        } catch (Exception e) {
-                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                    "Failed to display feature. database: " + database
-                                            + ", feature table: " + features
-                                            + ", row: " + cursor.getPosition(), e);
                         }
-                    }
 
-                } finally {
-                    cursor.close();
+                    } finally {
+                        cursor.close();
+                    }
+                } else{
+                    Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                            "Failed to display feature. database: " + database
+                                    + ", feature table: " + features
+                                    + ", row: " + userCursor.getPosition()
+                                    + ".  Received a tileCursor from featureDao when expecting a featureCursor");
                 }
             }
             indexer.close();

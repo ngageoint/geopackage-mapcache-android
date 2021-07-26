@@ -43,7 +43,7 @@ Downloading tiles for a new layer
 
 A Tile layer detail view
 
-<img src="screenshots/screen5.png" width="30%">
+<img src="screenshots/screen6.png" width="30%">
 
 ### Build ###
 

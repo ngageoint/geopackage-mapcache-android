@@ -14,6 +14,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -92,6 +93,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
@@ -99,6 +101,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.jetbrains.annotations.NotNull;
 import org.locationtech.proj4j.units.Units;
 
 import java.lang.reflect.Method;
@@ -196,6 +199,7 @@ import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
+import mil.nga.mapcache.listeners.SensorCallback;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -203,6 +207,7 @@ import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
+import mil.nga.mapcache.sensors.SensorHandler;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
@@ -312,6 +317,31 @@ public class GeoPackageMapFragment extends Fragment implements
      * True when the map is visible
      */
     private static boolean visible = false;
+
+    /**
+     * True when we are showing bearing on the map
+     */
+    private static boolean bearingVisible = false;
+
+    /**
+     * Tracks the last calculated bearing from the sensors
+     */
+    float mCompassLastMeasuredBearing = new Float(0.0f);
+
+    /**
+     * Last location saved from location services
+     */
+    Location mLastLocation;
+
+    /**
+     * Handles sensor listeners for location updates
+     */
+    private SensorHandler sensorHandler;
+
+    /**
+     * Callback for location updates
+     */
+    private LocationCallback locationCallback;
 
     /**
      * GeoPackage manager
@@ -1472,6 +1502,14 @@ public class GeoPackageMapFragment extends Fragment implements
             showHideOption.setTitle("Show my location");
         }
 
+        // Set text for show/hide my bearing based on current visibility
+        MenuItem showBearing = pm.getMenu().findItem(R.id.showBearing);
+        if(bearingVisible){
+            showBearing.setTitle("Hide Bearing");
+        } else{
+            showBearing.setTitle("Show Bearing");
+        }
+
         int totalFeaturesAndTiles = active.getAllFeaturesAndTilesCount();
         if(totalFeaturesAndTiles == 0){
             MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
@@ -1521,6 +1559,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     case R.id.showMyLocation:
                         showMyLocation();
+                        return true;
+
+                    case R.id.showBearing:
+                        setMapBearing();
                         return true;
                 }
 
@@ -1580,53 +1622,97 @@ public class GeoPackageMapFragment extends Fragment implements
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
                 }
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Log.i("loc", "failed");
+            }
         });
     }
 
+
+    /**
+     * Handler to either show map bearing or stop updates
+     */
+    private void setMapBearing(){
+        if(bearingVisible){
+            stopMapBearing();
+        } else{
+            showMapBearing();
+        }
+    }
 
 
     /**
      * Enable map bearing compass
      */
-    private void setMapBearing() {
+    private void showMapBearing() {
         // Verify permissions first
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
+
+        // Callback to move the camera every time the handler gets a sensor update
+        SensorCallback sensorCallback = new SensorCallback() {
+            public void onSensorChanged(SensorEvent event, float bearing) {
+                mCompassLastMeasuredBearing = bearing;
+                if(mLastLocation != null) {
+                    LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(latLng)             // Sets the center of the map to current location
+                            .zoom(15)                   // Sets the zoom
+                            .bearing(bearing)           // Sets the orientation of the camera
+                            .tilt(0)                   // Sets the tilt of the camera to 0 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+
+                    //move map camera
+                    map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+            }
+        };
+
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(0);
+        locationRequest.setInterval(12000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setFastestInterval(0);
+        locationRequest.setFastestInterval(12000);
         locationRequest.setNumUpdates(Integer.MAX_VALUE);
 
-        LocationCallback locationCallback = new LocationCallback() {
+        locationCallback = new LocationCallback() {
             @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                if(locationResult.getLastLocation() != null){
-                    Location location = locationResult.getLastLocation();
-                    if(locationResult.getLastLocation().hasBearing()){
-                        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-                    if (location.hasBearing()) {
-                        CameraPosition cameraPosition = new CameraPosition.Builder()
-                                .target(latLng)             // Sets the center of the map to current location
-                                .zoom(15)                   // Sets the zoom
-                                .bearing(location.getBearing()) // Sets the orientation of the camera
-                                .tilt(0)                   // Sets the tilt of the camera to 0 degrees
-                                .build();                   // Creates a CameraPosition from the builder
-                        map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                        Log.i("gps update: ", System.currentTimeMillis()/1000 + "");
-                    }
-                    }
+            public void onLocationResult(LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+                    //The last location in the list is the newest
+                    mLastLocation = location;
                 }
             }
         };
 
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+        sensorHandler = new SensorHandler(sensorCallback, getContext());
+        bearingVisible = !bearingVisible;
+    }
 
 
+    /**
+     * Stop the map bearing view, then zoom out and center
+     */
+    private void stopMapBearing(){
+        bearingVisible = !bearingVisible;
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+        sensorHandler.stopUpdates();
+        if(mLastLocation != null) {
+            LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(latLng)             // Sets the center of the map to current location
+                    .zoom(13)                   // Sets the zoom
+                    .bearing(0) // Sets the orientation of the camera
+                    .tilt(0)                   // Sets the tilt of the camera to 0 degrees
+                    .build();                   // Creates a CameraPosition from the builder
+
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1000, null);
+        }
     }
 
 
@@ -1653,7 +1739,7 @@ public class GeoPackageMapFragment extends Fragment implements
 //                newLayerWizard();
                 String geoName = detailPageAdapter.getGeoPackageName();
                 if(geoName != null) {
-                    newTileLayerWizard(geoName);
+                    newLayerWizard();
                 }
             }
         });
@@ -1997,7 +2083,7 @@ public class GeoPackageMapFragment extends Fragment implements
             public void onClick(View v) {
                 String geoName = detailPageAdapter.getGeoPackageName();
                 if(geoName != null) {
-                    createTilesOption(geoName);
+                    newTileLayerWizard(geoName);
                 }
                 alertDialog.dismiss();
             }
@@ -2054,13 +2140,13 @@ public class GeoPackageMapFragment extends Fragment implements
                                         getString(R.string.create_features_name_label)
                                                 + " is required");
                             }
-                            double minLat = Double.valueOf(minLatInput
+                            double minLat = Double.parseDouble(minLatInput
                                     .getText().toString());
-                            double maxLat = Double.valueOf(maxLatInput
+                            double maxLat = Double.parseDouble(maxLatInput
                                     .getText().toString());
-                            double minLon = Double.valueOf(minLonInput
+                            double minLon = Double.parseDouble(minLonInput
                                     .getText().toString());
-                            double maxLon = Double.valueOf(maxLonInput
+                            double maxLon = Double.parseDouble(maxLonInput
                                     .getText().toString());
 
                             if (minLat > maxLat) {

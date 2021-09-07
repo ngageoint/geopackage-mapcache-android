@@ -1,9 +1,12 @@
 package mil.nga.mapcache.preferences;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,7 @@ public class AboutMapcacheActivityFragment extends PreferenceFragmentCompat impl
                              Bundle savedInstanceState) {
         aboutView = inflater.inflate(R.layout.fragment_about_mapcache, container, false);
         createUrls();
+        setVersion();
         return aboutView;
     }
 
@@ -60,6 +64,25 @@ public class AboutMapcacheActivityFragment extends PreferenceFragmentCompat impl
         final TextView ogcText = (TextView) aboutView.findViewById(R.id.ogc_url);
         ogcText.setText(ogcUrl);
         ogcText.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    /**
+     * Set app version info from gradle file
+     */
+    private void setVersion(){
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e("About MapCache: ", e.toString());
+        }
+
+        String version = String.valueOf(R.string.app_version);
+        if (packageInfo != null) {
+            version = packageInfo.versionName;
+        }
+        TextView versionName = aboutView.findViewById(R.id.mapcache_version);
+        versionName.setText(version);
     }
 
     @Override

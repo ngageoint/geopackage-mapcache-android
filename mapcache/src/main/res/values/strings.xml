@@ -411,6 +411,8 @@
     <string name="title_activity_disclaimer">DisclaimerActivity</string>
     <string name="title_activity_privacy_policy">PrivacyPolicyActivity</string>
     <string name="title_activity_tutorial">TutorialActivity</string>
+    <string name="title_activity_feature_view">FeatureViewActivity</string>
+
 
     <!-- URL validator -->
     <string name="tile_generator_variable_x">\\{x\\}</string>
@@ -427,6 +429,8 @@
     <string name="regex_alphanumeric">[a-zA-Z_0-9]+</string>
     <string name="attachments">Attachments</string>
     <string name="geopackages">GeoPackages</string>
+    <string name="marker_feature_param">markerfeature</string>
+    <string name="marker_title_param">title</string>
     <string name="feature_tables_label">Feature Tables: %1$d</string>
     <string name="tile_tables_label">Tile Tables: %1$d</string>
 

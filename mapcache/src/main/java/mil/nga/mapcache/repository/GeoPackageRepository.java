@@ -28,23 +28,31 @@ import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.TableColumnKey;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
+import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
+import mil.nga.geopackage.extension.schema.SchemaExtension;
+import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureDao;
+import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.features.user.FeatureTableMetadata;
+import mil.nga.geopackage.geom.GeoPackageGeometryData;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
+import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.view.map.feature.FeatureViewObjects;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
 import mil.nga.sf.GeometryType;
@@ -601,8 +609,79 @@ public class GeoPackageRepository {
     }
 
     /**
-     * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
+     * Opens a geopackage and pulls out all objects needed for a view created by clicking on a
+     * Feature point.
+     * @return FeatureViewObjects object containing only the needed parts of the geopackage
      */
+    public FeatureViewObjects getFeatureViewObjects(MarkerFeature markerFeature){
+        FeatureViewObjects featureObjects = new FeatureViewObjects();
+        featureObjects.setGeopackageName(markerFeature.getDatabase());
+        featureObjects.setLayerName(markerFeature.getTableName());
+        final GeoPackage geoPackage = manager.open(markerFeature.getDatabase(), false);
+        if(geoPackage != null) {
+            final FeatureDao featureDao = geoPackage
+                    .getFeatureDao(markerFeature.getTableName());
+
+            final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.getFeatureId());
+
+            // If it has RTree extensions, it's indexed and we can't save feature column data.
+            // Not currently supported for Android
+            RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+            boolean hasExtension = extension.has(markerFeature.getTableName());
+
+            if (featureRow != null) {
+                final GeoPackageGeometryData geomData = featureRow.getGeometry();
+                final GeometryType geometryType = geomData.getGeometry()
+                        .getGeometryType();
+                DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
+                try {
+                    if (!dataColumnsDao.isTableExists()) {
+                        dataColumnsDao = null;
+                    }
+                } catch (SQLException e) {
+                    dataColumnsDao = null;
+                    Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                            "Failed to check if Data Columns table exists for GeoPackage: "
+                                    + geoPackage.getName(), e);
+                }
+                featureObjects.setFeatureRow(featureRow);
+                featureObjects.setHasExtension(hasExtension);
+                featureObjects.setGeometryType(geometryType);
+                featureObjects.setDataColumnsDao(dataColumnsDao);
+            }
+            geoPackage.close();
+        }
+            return featureObjects;
+    }
+
+    /**
+     * Open the geopackage and update the featureDao with the given featureViewObjects data
+     * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
+     * @return true if it updates
+     */
+    public boolean updateFeatureDao(FeatureViewObjects featureViewObjects){
+        if(featureViewObjects.isValid()){
+            try {
+                final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
+                if (geoPackage != null) {
+                    final FeatureDao featureDao = geoPackage
+                            .getFeatureDao(featureViewObjects.getLayerName());
+                    featureDao.update(featureViewObjects.getFeatureRow());
+                    geoPackage.close();
+                    return true;
+                }
+            }catch (Exception e){
+                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                        "Error saving feature data: ", e);
+            }
+        }
+        return false;
+    }
+
+
+        /**
+         * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
+         */
     public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress) {
         return manager.importGeoPackage(name, source, progress);
     }

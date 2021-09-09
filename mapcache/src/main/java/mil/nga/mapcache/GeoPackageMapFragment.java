@@ -190,6 +190,7 @@ import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
@@ -220,6 +221,7 @@ import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
+import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
 import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.ProjectionConstants;
@@ -457,15 +459,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Mapping between marker ids and the feature ids
      */
     private Map<String, Long> editFeatureIds = new HashMap<String, Long>();
-
-    /**
-     * Marker feature
-     */
-    class MarkerFeature {
-        long featureId;
-        String database;
-        String tableName;
-    }
 
     /**
      * Mapping between marker ids and the features
@@ -5505,10 +5498,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (shape.getShapeType() == GoogleMapShapeType.MARKER) {
             Marker marker = (Marker) shape.getShape();
-            MarkerFeature markerFeature = new MarkerFeature();
-            markerFeature.database = database;
-            markerFeature.tableName = tableName;
-            markerFeature.featureId = featureId;
+            MarkerFeature markerFeature = new MarkerFeature(featureId, database, tableName);
             markerIds.put(marker.getId(), markerFeature);
         }
     }
@@ -6595,53 +6585,56 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param markerFeature
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
-        final GeoPackage geoPackage = manager.open(markerFeature.database, false);
-        final FeatureDao featureDao = geoPackage
-                .getFeatureDao(markerFeature.tableName);
-
-        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
-
-        // If it has RTree extensions, it's indexed and we can't save feature column data.
-        // Not currently supported for Android
-        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
-        boolean hasExtension = extension.has(markerFeature.tableName);
-
-        if (featureRow != null) {
-            final GeoPackageGeometryData geomData = featureRow.getGeometry();
-            final GeometryType geometryType = geomData.getGeometry()
-                    .getGeometryType();
-
-            String title = getTitle(geometryType, marker);
-            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
-            try {
-                if (!dataColumnsDao.isTableExists()) {
-                    dataColumnsDao = null;
-                }
-            } catch (SQLException e) {
-                dataColumnsDao = null;
-                Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                        "Failed to check if Data Columns table exists for GeoPackage: "
-                                + geoPackage.getName(), e);
-            }
+//        final GeoPackage geoPackage = manager.open(markerFeature.getDatabase(), false);
+//        final FeatureDao featureDao = geoPackage
+//                .getFeatureDao(markerFeature.getTableName());
+//
+//        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.getFeatureId());
+//
+//        // If it has RTree extensions, it's indexed and we can't save feature column data.
+//        // Not currently supported for Android
+//        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+//        boolean hasExtension = extension.has(markerFeature.getTableName());
+//
+//        if (featureRow != null) {
+//            final GeoPackageGeometryData geomData = featureRow.getGeometry();
+//            final GeometryType geometryType = geomData.getGeometry()
+//                    .getGeometryType();
+//
+//            String title = getTitle(geometryType, marker);
+//            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
+//            try {
+//                if (!dataColumnsDao.isTableExists()) {
+//                    dataColumnsDao = null;
+//                }
+//            } catch (SQLException e) {
+//                dataColumnsDao = null;
+//                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+//                        "Failed to check if Data Columns table exists for GeoPackage: "
+//                                + geoPackage.getName(), e);
+//            }
 
            // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
 
-            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
-                    geoPackage.getName(), markerFeature.tableName, !hasExtension);
-            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
-                @Override
-                public void onClick(View view, List<FcColumnDataObject> values) {
-                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
-                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
+//            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
+//                    geoPackage.getName(), markerFeature.getTableName(), !hasExtension);
+//            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
+//                @Override
+//                public void onClick(View view, List<FcColumnDataObject> values) {
+//                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
+//                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
+//
+//                }
+//            };
+//            pointView.setSaveListener(saveListener);
+//            pointView.showPointData();
+            Intent intent = new Intent(getContext(), FeatureViewActivity.class);
+            intent.putExtra(String.valueOf(R.string.marker_feature_param),markerFeature);
+            startActivity(intent);
 
-                }
-            };
-            pointView.setSaveListener(saveListener);
-            pointView.showPointData();
-
-        } else {
-            geoPackage.close();
-        }
+//        } else {
+//            geoPackage.close();
+//        }
     }
 
 

@@ -1,14 +1,24 @@
 package mil.nga.mapcache.view.map.feature;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -27,6 +37,7 @@ import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.mapcache.GeoPackageMapFragment;
+import mil.nga.mapcache.MainActivity;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
 import mil.nga.sf.GeometryType;
@@ -40,6 +51,11 @@ public class PointView {
      * Context from where this was called
      */
     private final Context context;
+
+    /**
+     * Permission check
+     */
+    public static final int REQUEST_ID_CAMERA_PERMISSIONS = 203;
 
     /**
      * Geometry type
@@ -83,7 +99,21 @@ public class PointView {
      */
     private final boolean enableSaves;
 
+    /**
+     * Button for adding image from camera
+     */
+    private MaterialButton cameraButton;
 
+    /**
+     *  Constructor
+     * @param context
+     * @param geometryType
+     * @param featureRow
+     * @param dataColumnsDao
+     * @param geoName
+     * @param layerName
+     * @param enableSaves
+     */
     public PointView(Context context, GeometryType geometryType, FeatureRow featureRow,
                      DataColumnsDao dataColumnsDao, String geoName, String layerName,
                      boolean enableSaves){
@@ -189,6 +219,10 @@ public class PointView {
 //        sliderItems.add(new SliderItem(R.drawable.flood1));
 //        sliderItems.add(new SliderItem(R.drawable.flood2));
 //        sliderItems.add(new SliderItem(R.drawable.flood3));
+        Bitmap flood1 = BitmapFactory.decodeResource(context.getResources(),R.drawable.flood1);
+            sliderItems.add(new SliderItem(flood1));
+        sliderItems.add(new SliderItem(flood1));
+
         viewPager2.setAdapter(new SliderAdapter(sliderItems, viewPager2));
         viewPager2.setClipToPadding(false);
         viewPager2.setClipChildren(false);

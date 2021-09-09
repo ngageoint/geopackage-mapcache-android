@@ -24,9 +24,11 @@ import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.repository.GeoPackageRepository;
+import mil.nga.mapcache.view.map.feature.FeatureViewObjects;
 import mil.nga.sf.GeometryType;
 
 
@@ -255,6 +257,25 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
             }
         }
         return false;
+    }
+
+    /**
+     * Opens a geopackage and pulls out all objects needed for a view created by clicking on a
+     * Feature point.
+     * @return FeatureViewObjects object containing only the needed parts of the geopackage
+     */
+    public FeatureViewObjects getFeatureViewObjects(MarkerFeature markerFeature){
+        return repository.getFeatureViewObjects(markerFeature);
+    }
+
+
+    /**
+     * Open the geopackage and update the featureDao with the given featureViewObjects data
+     * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
+     * @return true if it updates
+     */
+    public boolean updateFeatureDao(FeatureViewObjects featureViewObjects){
+        return repository.updateFeatureDao(featureViewObjects);
     }
 
 

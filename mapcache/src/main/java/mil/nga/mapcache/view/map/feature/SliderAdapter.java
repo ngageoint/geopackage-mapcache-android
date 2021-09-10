@@ -40,6 +40,10 @@ class SliderAdapter extends RecyclerView.Adapter<SliderAdapter.SliderViewHolder>
         return sliderItems.size();
     }
 
+    public List<SliderItem> getSliderItems(){
+        return sliderItems;
+    }
+
     class SliderViewHolder extends ViewHolder{
 
         private final ImageView imageView;

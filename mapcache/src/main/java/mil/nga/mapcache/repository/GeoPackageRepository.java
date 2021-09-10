@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,29 +27,45 @@ import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.TableColumnKey;
+import mil.nga.geopackage.extension.ExtensionManager;
+import mil.nga.geopackage.extension.Extensions;
+import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
+import mil.nga.geopackage.extension.related.ExtendedRelation;
+import mil.nga.geopackage.extension.related.RelatedTablesExtension;
+import mil.nga.geopackage.extension.related.UserMappingDao;
+import mil.nga.geopackage.extension.related.UserMappingRow;
+import mil.nga.geopackage.extension.related.UserMappingTable;
+import mil.nga.geopackage.extension.related.media.MediaDao;
+import mil.nga.geopackage.extension.related.media.MediaRow;
+import mil.nga.geopackage.extension.related.media.MediaTable;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
+import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
 import mil.nga.geopackage.features.user.FeatureTableMetadata;
 import mil.nga.geopackage.geom.GeoPackageGeometryData;
+import mil.nga.geopackage.io.BitmapConverter;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
+import mil.nga.geopackage.user.custom.UserCustomCursor;
+import mil.nga.geopackage.user.custom.UserCustomRow;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.load.LoadTilesTask;
@@ -644,6 +661,30 @@ public class GeoPackageRepository {
                             "Failed to check if Data Columns table exists for GeoPackage: "
                                     + geoPackage.getName(), e);
                 }
+
+                // Get extensions for attachments
+                List<Bitmap> bitmaps = new ArrayList<>();
+                RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
+                List<ExtendedRelation> relationList = related.getRelationships();
+                for(ExtendedRelation relation : relationList){
+                    String tableName = relation.getBaseTableName();
+                    if(tableName.equalsIgnoreCase(markerFeature.getTableName())){
+                        MediaDao mediaDao = related.getMediaDao(relation);
+                        UserCustomCursor mediaCursor = mediaDao.queryForAll();
+                        List<Long> mediaIds = new ArrayList<>();
+                        while (mediaCursor.moveToNext()) {
+                            mediaIds.add(mediaCursor.getRow().getId());
+                        }
+                        mediaCursor.close();
+                        List<MediaRow> mediaRows = mediaDao.getRows(mediaIds);
+                        for(MediaRow row : mediaRows){
+                            Bitmap bitmap = row.getDataBitmap();
+                            bitmaps.add(bitmap);
+                        }
+
+                    }
+                }
+                featureObjects.getBitmaps().addAll(bitmaps);
                 featureObjects.setFeatureRow(featureRow);
                 featureObjects.setHasExtension(hasExtension);
                 featureObjects.setGeometryType(geometryType);
@@ -667,6 +708,50 @@ public class GeoPackageRepository {
                     final FeatureDao featureDao = geoPackage
                             .getFeatureDao(featureViewObjects.getLayerName());
                     featureDao.update(featureViewObjects.getFeatureRow());
+                    // Add attachments
+                    RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
+                    List<ExtendedRelation> relationList = related.getRelationships();
+                    for(ExtendedRelation relation : relationList) {
+                        String tableName = relation.getBaseTableName();
+                        if (tableName.equalsIgnoreCase(featureViewObjects.getLayerName())) {
+                            MediaDao mediaDao = related.getMediaDao(relation);
+                            UserMappingDao userMappingDao = related.getMappingDao(relation);
+                            int totalMappedCount = userMappingDao.count();
+                            int totalMediaCount = mediaDao.count();
+                            mediaDao.deleteAll();
+                            userMappingDao.deleteAll();
+                            for(Bitmap image : featureViewObjects.getBitmaps()) {
+                                byte[] mediaData = BitmapConverter.toBytes(image, Bitmap.CompressFormat.PNG);
+                                String contentType = "image/png";
+
+                                // Take a look at the existing rows - read only
+//                                int totalMappedCount = userMappingDao.count();
+//                                int totalMediaCount = mediaDao.count();
+//                                UserCustomCursor mappingCursor = userMappingDao.queryForAll();
+//                                int cursCount = mappingCursor.getCount();
+//                                long featureRowId = featureViewObjects.getFeatureRow().getId();
+//                                UserMappingRow userMappingRow;
+//                                while (mappingCursor.moveToNext()) {
+//                                    userMappingRow = userMappingDao.getRow(mappingCursor);
+//                                    long rowBaseId = userMappingRow.getBaseId();
+//                                    long relatedId = userMappingRow.getRelatedId();
+//                                    int index = userMappingRow.getBaseIdColumnIndex();
+//                                }
+
+                                MediaRow mediaRow = mediaDao.newRow();
+                                mediaRow.setData(mediaData);
+                                mediaRow.setContentType(contentType);
+                                mediaDao.create(mediaRow);
+                                UserMappingDao mappingDao = related.getMappingDao(relation);
+                                UserMappingRow userMappingRow = mappingDao.newRow();
+                                long featureRowId = featureViewObjects.getFeatureRow().getId();
+                                long mediaRowId = mediaRow.getId();
+                                userMappingRow.setBaseId(featureViewObjects.getFeatureRow().getId());
+                                userMappingRow.setRelatedId(mediaRow.getId());
+                                mappingDao.create(userMappingRow);
+                            }
+                        }
+                    }
                     geoPackage.close();
                     return true;
                 }

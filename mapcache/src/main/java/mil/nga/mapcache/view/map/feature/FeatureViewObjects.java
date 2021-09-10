@@ -1,5 +1,10 @@
 package mil.nga.mapcache.view.map.feature;
 
+import android.graphics.Bitmap;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.sf.GeometryType;
@@ -12,6 +17,7 @@ public class FeatureViewObjects {
     private FeatureRow featureRow;
     private GeometryType geometryType;
     private DataColumnsDao dataColumnsDao;
+    private List<Bitmap> bitmaps = new ArrayList<>();
     private boolean hasExtension;
     private String geopackageName;
     private String layerName;
@@ -26,6 +32,14 @@ public class FeatureViewObjects {
             return false;
         }
         return true;
+    }
+
+    public List<Bitmap> getBitmaps() {
+        return bitmaps;
+    }
+
+    public void setBitmaps(List<Bitmap> bitmaps) {
+        this.bitmaps = bitmaps;
     }
 
     public FeatureRow getFeatureRow() {

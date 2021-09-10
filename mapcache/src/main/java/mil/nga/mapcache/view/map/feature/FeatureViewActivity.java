@@ -165,11 +165,14 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Set up the viewpager as a scrolling image gallery
      */
     private void createImageGallery(){
-        if(imageGalleryPager != null){
+        if(imageGalleryPager != null && featureViewObjects != null){
             // Attachment sample images
-            Bitmap flood1 = BitmapFactory.decodeResource(getResources(),R.drawable.flood1);
-            sliderItems.add(new SliderItem(flood1));
-            sliderItems.add(new SliderItem(flood1));
+//            Bitmap flood1 = BitmapFactory.decodeResource(getResources(),R.drawable.flood1);
+//            sliderItems.add(new SliderItem(flood1));
+//            sliderItems.add(new SliderItem(flood1));
+            for(Bitmap bitmap : featureViewObjects.getBitmaps()){
+                sliderItems.add(new SliderItem(bitmap));
+            }
             imageGalleryPager.setAdapter(sliderAdapter);
             imageGalleryPager.setClipToPadding(false);
             imageGalleryPager.setClipChildren(false);
@@ -341,6 +344,15 @@ public class FeatureViewActivity extends AppCompatActivity {
                 }
             }
         }
+        // Save all attachments into the featureViewObjects object
+        if(sliderAdapter.getItemCount() != featureViewObjects.getBitmaps().size()){
+            List<Bitmap> newBitmaps = new ArrayList<>();
+            for(SliderItem item : sliderAdapter.getSliderItems()){
+                newBitmaps.add(item.getImage());
+            }
+            featureViewObjects.setBitmaps(newBitmaps);
+        }
+
         // Call the repository to Save the data
         boolean updated = geoPackageViewModel.updateFeatureDao(featureViewObjects);
         if(!updated) {

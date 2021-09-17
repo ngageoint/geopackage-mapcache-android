@@ -18,7 +18,7 @@ jobs:
       run: ./gradlew assembleRelease -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
     - name: GitHub Action for MobSF
       uses: fundacaocerti/mobsf-action@v1.6
-      env:
+      with:
         INPUT_FILE_NAME: build/app/outputs/apk/app.apk
         SCAN_TYPE: apk
         OUTPUT_FILE_NAME: mobsf-report

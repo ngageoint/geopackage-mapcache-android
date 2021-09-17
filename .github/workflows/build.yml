@@ -16,22 +16,6 @@ jobs:
         java-version: 1.8
     - name: Build with Gradle
       run: ./gradlew assembleRelease -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
-    - name: GitHub Action for MobSF
-      uses: fundacaocerti/mobsf-action@v1.6
-      with:
-        INPUT_FILE_NAME: build/app/outputs/apk/app.apk
-        SCAN_TYPE: apk
-        OUTPUT_FILE_NAME: mobsf-report
-    - name: Upload MobSF Analysis PDF Result
-      uses: actions/upload-artifact@v2
-      with:
-        name: mobsf-report.pdf
-        path: mobsf-report.pdf
-    - name: Upload MobSF Analysis JSON Result
-      uses: actions/upload-artifact@v2
-      with:
-        name: mobsf-report.json
-        path: mobsf-report.json
     - name: Sign APK
       uses: r0adkll/sign-android-release@v1
       with:

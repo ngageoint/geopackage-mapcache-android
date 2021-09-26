@@ -274,8 +274,8 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it updates
      */
-    public boolean updateFeatureDao(FeatureViewObjects featureViewObjects){
-        return repository.updateFeatureDao(featureViewObjects);
+    public boolean saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
+        return repository.saveFeatureObjectValues(featureViewObjects);
     }
 
 

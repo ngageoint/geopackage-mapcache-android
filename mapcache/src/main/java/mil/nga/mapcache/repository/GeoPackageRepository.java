@@ -27,9 +27,6 @@ import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.TableColumnKey;
-import mil.nga.geopackage.extension.ExtensionManager;
-import mil.nga.geopackage.extension.Extensions;
-import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
@@ -40,12 +37,12 @@ import mil.nga.geopackage.extension.related.UserMappingTable;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.extension.related.media.MediaRow;
 import mil.nga.geopackage.extension.related.media.MediaTable;
+import mil.nga.geopackage.extension.related.media.MediaTableMetadata;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
-import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
@@ -57,15 +54,13 @@ import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
-import mil.nga.geopackage.user.custom.UserCustomCursor;
-import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
-import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.load.LoadTilesTask;
@@ -670,18 +665,17 @@ public class GeoPackageRepository {
                     String tableName = relation.getBaseTableName();
                     if(tableName.equalsIgnoreCase(markerFeature.getTableName())){
                         MediaDao mediaDao = related.getMediaDao(relation);
-                        UserCustomCursor mediaCursor = mediaDao.queryForAll();
+                        // Get list of mediaIds from related table instead of iterating mediaCursor
+                        String relatedTableName = relation.getBaseTableName();
                         List<Long> mediaIds = new ArrayList<>();
-                        while (mediaCursor.moveToNext()) {
-                            mediaIds.add(mediaCursor.getRow().getId());
+                        if(tableName.equalsIgnoreCase(relatedTableName)){
+                            mediaIds = related.getMappingsForBase(relation,featureRow.getId());
                         }
-                        mediaCursor.close();
                         List<MediaRow> mediaRows = mediaDao.getRows(mediaIds);
                         for(MediaRow row : mediaRows){
                             Bitmap bitmap = row.getDataBitmap();
                             bitmaps.add(bitmap);
                         }
-
                     }
                 }
                 featureObjects.getBitmaps().addAll(bitmaps);
@@ -700,9 +694,11 @@ public class GeoPackageRepository {
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it updates
      */
-    public boolean updateFeatureDao(FeatureViewObjects featureViewObjects){
+    public boolean saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
         if(featureViewObjects.isValid()){
             try {
+                String tableName = featureViewObjects.getLayerName();
+                String mediaTableName = context.getString(R.string.media_table_tag);
                 final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
                 if (geoPackage != null) {
                     final FeatureDao featureDao = geoPackage
@@ -710,38 +706,33 @@ public class GeoPackageRepository {
                     featureDao.update(featureViewObjects.getFeatureRow());
                     // Add attachments
                     RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
+                    if(!related.has()){
+                        // Populate and validate a media table
+                        List<UserCustomColumn> additionalMediaColumns = new ArrayList<>();
+                        MediaTable mediaTable = MediaTable.create(
+                                MediaTableMetadata.create(mediaTableName, additionalMediaColumns));
+                        // Create and validate a mapping table
+                        List<UserCustomColumn> additionalMappingColumns = new ArrayList<>();
+                        final String mappingTableName = tableName + "_" + mediaTableName;
+                        UserMappingTable userMappingTable = UserMappingTable.create(
+                                mappingTableName, additionalMappingColumns);
+                        related.addMediaRelationship(tableName, mediaTable,userMappingTable);
+                    }
                     List<ExtendedRelation> relationList = related.getRelationships();
                     for(ExtendedRelation relation : relationList) {
-                        String tableName = relation.getBaseTableName();
                         if (tableName.equalsIgnoreCase(featureViewObjects.getLayerName())) {
                             MediaDao mediaDao = related.getMediaDao(relation);
                             UserMappingDao userMappingDao = related.getMappingDao(relation);
                             int totalMappedCount = userMappingDao.count();
                             int totalMediaCount = mediaDao.count();
-                            mediaDao.deleteAll();
-                            userMappingDao.deleteAll();
-                            for(Bitmap image : featureViewObjects.getBitmaps()) {
+                            for(Bitmap image : featureViewObjects.getAddedBitmaps()) {
                                 byte[] mediaData = BitmapConverter.toBytes(image, Bitmap.CompressFormat.PNG);
                                 String contentType = "image/png";
-
-                                // Take a look at the existing rows - read only
-//                                int totalMappedCount = userMappingDao.count();
-//                                int totalMediaCount = mediaDao.count();
-//                                UserCustomCursor mappingCursor = userMappingDao.queryForAll();
-//                                int cursCount = mappingCursor.getCount();
-//                                long featureRowId = featureViewObjects.getFeatureRow().getId();
-//                                UserMappingRow userMappingRow;
-//                                while (mappingCursor.moveToNext()) {
-//                                    userMappingRow = userMappingDao.getRow(mappingCursor);
-//                                    long rowBaseId = userMappingRow.getBaseId();
-//                                    long relatedId = userMappingRow.getRelatedId();
-//                                    int index = userMappingRow.getBaseIdColumnIndex();
-//                                }
-
                                 MediaRow mediaRow = mediaDao.newRow();
                                 mediaRow.setData(mediaData);
                                 mediaRow.setContentType(contentType);
                                 mediaDao.create(mediaRow);
+                                final String mappingTableName = tableName + "_" + mediaTableName;
                                 UserMappingDao mappingDao = related.getMappingDao(relation);
                                 UserMappingRow userMappingRow = mappingDao.newRow();
                                 long featureRowId = featureViewObjects.getFeatureRow().getId();
@@ -762,6 +753,64 @@ public class GeoPackageRepository {
         }
         return false;
     }
+
+
+
+    /**
+     * Open the geopackage and remove a bitmap image from a feature layer object
+     * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
+     * @return true if it is deleted
+     */
+    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects){
+        if(featureViewObjects.isValid()){
+            try {
+                String tableName = featureViewObjects.getLayerName();
+                String mediaTableName = "media_table";
+                final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
+                if (geoPackage != null) {
+                    final FeatureDao featureDao = geoPackage
+                            .getFeatureDao(featureViewObjects.getLayerName());
+                            // Old
+                            //mediaDao.deleteAll();
+                            //userMappingDao.deleteAll();
+                            // New
+//                            long featureRowId = featureViewObjects.getFeatureRow().getId();
+                            // userMappingDao.deleteByBaseId(featureRowId)
+
+//                            // Take a look at the media rows
+//                            UserCustomCursor mediaCursor = mediaDao.queryForAll();
+//                            int mediaCount = mediaCursor.getCount();
+//                            MediaRow row;
+//                            while(mediaCursor.moveToNext()){
+//                                row = mediaDao.getRow(mediaCursor);
+//                                Log.i("test","test");
+//                            }
+
+                    // Take a look at the existing rows - read only
+//                                UserCustomCursor mappingCursor = userMappingDao.queryForAll();
+//                                int cursCount = mappingCursor.getCount();
+//                                long featureRowId = featureViewObjects.getFeatureRow().getId();
+//                                UserMappingRow userMappingRow;
+//                                while (mappingCursor.moveToNext()) {
+//                                    userMappingRow = userMappingDao.getRow(mappingCursor);
+//                                    long rowBaseId = userMappingRow.getBaseId();
+//                                    long relatedId = userMappingRow.getRelatedId();
+//                                    int index = userMappingRow.getBaseIdColumnIndex();
+//                                    Log.i("Log", "test");
+//                                }
+                }
+
+                    geoPackage.close();
+                    return true;
+            }catch (Exception e){
+                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                        "Error deleting feature image: ", e);
+            }
+        }
+        return false;
+    }
+
+
 
 
         /**

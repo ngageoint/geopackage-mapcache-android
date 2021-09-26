@@ -40,7 +40,6 @@ import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.MarkerFeature;
-import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 public class FeatureViewActivity extends AppCompatActivity {
@@ -195,6 +194,7 @@ public class FeatureViewActivity extends AppCompatActivity {
      */
     private void addImageToGallery(Bitmap image){
         if(image != null){
+            featureViewObjects.getAddedBitmaps().add(image);
             sliderItems.add(new SliderItem(image));
             sliderAdapter.notifyDataSetChanged();
         }
@@ -344,19 +344,14 @@ public class FeatureViewActivity extends AppCompatActivity {
                 }
             }
         }
-        // Save all attachments into the featureViewObjects object
-        if(sliderAdapter.getItemCount() != featureViewObjects.getBitmaps().size()){
-            List<Bitmap> newBitmaps = new ArrayList<>();
-            for(SliderItem item : sliderAdapter.getSliderItems()){
-                newBitmaps.add(item.getImage());
-            }
-            featureViewObjects.setBitmaps(newBitmaps);
-        }
-
         // Call the repository to Save the data
-        boolean updated = geoPackageViewModel.updateFeatureDao(featureViewObjects);
+        boolean updated = geoPackageViewModel.saveFeatureObjectValues(featureViewObjects);
         if(!updated) {
             Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
+        } else{
+            // Update our local arrays to merge the newly added images to the existing image list
+            featureViewObjects.getBitmaps().addAll(featureViewObjects.getAddedBitmaps());
+            featureViewObjects.getAddedBitmaps().clear();
         }
     }
 

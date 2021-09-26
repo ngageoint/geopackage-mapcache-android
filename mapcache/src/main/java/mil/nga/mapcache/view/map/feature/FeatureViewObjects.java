@@ -18,6 +18,8 @@ public class FeatureViewObjects {
     private GeometryType geometryType;
     private DataColumnsDao dataColumnsDao;
     private List<Bitmap> bitmaps = new ArrayList<>();
+    // Save images that were added by the user after loading the menu separately
+    private List<Bitmap> addedBitmaps = new ArrayList<>();
     private boolean hasExtension;
     private String geopackageName;
     private String layerName;
@@ -32,6 +34,14 @@ public class FeatureViewObjects {
             return false;
         }
         return true;
+    }
+
+    public List<Bitmap> getAddedBitmaps() {
+        return addedBitmaps;
+    }
+
+    public void setAddedBitmaps(List<Bitmap> addedBitmaps) {
+        this.addedBitmaps = addedBitmaps;
     }
 
     public List<Bitmap> getBitmaps() {

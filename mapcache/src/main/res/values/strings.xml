@@ -433,5 +433,6 @@
     <string name="marker_title_param">title</string>
     <string name="feature_tables_label">Feature Tables: %1$d</string>
     <string name="tile_tables_label">Tile Tables: %1$d</string>
+    <string name="media_table_tag">media_table</string>
 
 </resources>

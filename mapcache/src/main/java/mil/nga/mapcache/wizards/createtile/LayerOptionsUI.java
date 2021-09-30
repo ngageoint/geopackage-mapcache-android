@@ -74,6 +74,9 @@ public class LayerOptionsUI {
      */
     private LayerOptionsModel model = new LayerOptionsModel();
 
+    /**
+     * Used to validate the model and execute the load tiles.
+     */
     private LayerOptionsController controller;
 
     /**
@@ -136,10 +139,12 @@ public class LayerOptionsUI {
         finalUrl.setText(this.model.getUrl());
 
         // finish button
-        final MaterialButton drawButton = (MaterialButton) tileView.findViewById(R.id.create_tile_button);
+        final MaterialButton drawButton = (MaterialButton) tileView.findViewById(
+                R.id.create_tile_button);
 
         // Advanced options
-        ImageButton advancedExpand = (ImageButton) tileView.findViewById(R.id.advanced_expand_button);
+        ImageButton advancedExpand = (ImageButton) tileView.findViewById(
+                R.id.advanced_expand_button);
         View advancedView = (View) tileView.findViewById(R.id.advanceLayout);
         advancedExpand.setOnClickListener((view) -> {
             toggleSection(advancedExpand, advancedView);
@@ -148,7 +153,8 @@ public class LayerOptionsUI {
         RadioGroup tileFormatGroup = (RadioGroup) tileView.findViewById(R.id.tileFormatGroup);
 
         // Open the dialog
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+        AlertDialog.Builder dialog = new AlertDialog.Builder(
+                getActivity(), R.style.AppCompatAlertDialogStyle)
                 .setView(tileView);
         final AlertDialog alertDialog = dialog.create();
         alertDialog.setCanceledOnTouchOutside(false);
@@ -191,13 +197,17 @@ public class LayerOptionsUI {
                 model.setMinZoom(Integer.valueOf(minSpinner.getSelectedItem().toString()));
                 model.setMaxZoom(Integer.valueOf(maxSpinner.getSelectedItem().toString()));
                 // Get values ready for creating the layer
-                RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
-                model.setEpsg(Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString()));
-                RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
+                RadioButton selectedSrs = (RadioButton) tileView.findViewById(
+                        srsGroup.getCheckedRadioButtonId());
+                model.setEpsg(
+                        Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString()));
+                RadioButton selectedFormat = (RadioButton) tileView.findViewById(
+                        tileFormatGroup.getCheckedRadioButtonId());
                 model.setTileFormat(selectedFormat.getText().toString());
 
                 if (!model.getValidationMessage().isEmpty()) {
-                    Toast.makeText(getActivity(), model.getValidationMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), model.getValidationMessage(), Toast.LENGTH_SHORT)
+                            .show();
                 } else {
                     try {
                         controller.loadTiles();

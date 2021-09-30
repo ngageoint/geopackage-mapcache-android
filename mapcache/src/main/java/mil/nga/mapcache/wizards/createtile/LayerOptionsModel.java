@@ -6,22 +6,7 @@ import java.util.Observable;
  * Contains the various input values the user can change when creating a tile layer, such as min and
  * max zoom levels.
  */
-public class LayerOptionsModel extends Observable {
-
-    /**
-     * The layer name property.
-     */
-    public static String LAYER_NAME_PROP = "layerName";
-
-    /**
-     * The url property.
-     */
-    public static String URL_PROP = "url";
-
-    /**
-     * The geopackage name property.
-     */
-    public static String GEOPACKAGE_NAME_PROP = "geopackageName";
+public class LayerOptionsModel extends NewTileLayerModel {
 
     /**
      * The epsg property.
@@ -44,26 +29,6 @@ public class LayerOptionsModel extends Observable {
     public static String MAX_ZOOM_PROP = "maxZoom";
 
     /**
-     * The validation message property.
-     */
-    public static String VALIDATION_MESSAGE_PROP = "validationMessage";
-
-    /**
-     * The layer name.
-     */
-    private String layerName;
-
-    /**
-     * The base url to the layer.
-     */
-    private String url;
-
-    /**
-     * The name of the geopackage.
-     */
-    private String geopackageName;
-
-    /**
      * Either 4326 or 3857.
      */
     private long epsg;
@@ -82,71 +47,6 @@ public class LayerOptionsModel extends Observable {
      * The maximum zoom level.
      */
     private int maxZoom = 10;
-
-    /**
-     * If anything is wrong with the inputs, this message will be populated.
-     */
-    private String validationMessage = "";
-
-    /**
-     * Gets the name of the layer.
-     *
-     * @return The name of the layer.
-     */
-    public String getLayerName() {
-        return layerName;
-    }
-
-    /**
-     * Sets the layer name.
-     *
-     * @param layerName The new name of the layer.
-     */
-    public void setLayerName(String layerName) {
-        this.layerName = layerName;
-        setChanged();
-        notifyObservers(LAYER_NAME_PROP);
-    }
-
-    /**
-     * Gets the base url to the tile layer.
-     *
-     * @return The base url for the tile layer.
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    /**
-     * Sets the base url for the tile layer.
-     *
-     * @param url The base url for the tile layer.
-     */
-    public void setUrl(String url) {
-        this.url = url;
-        setChanged();
-        notifyObservers(URL_PROP);
-    }
-
-    /**
-     * Gets the name of the geopackage.
-     *
-     * @return The name of the geopackage.
-     */
-    public String getGeopackageName() {
-        return geopackageName;
-    }
-
-    /**
-     * Sets the name of the geopackage.
-     *
-     * @param geopackageName The new name of the geopackage.
-     */
-    public void setGeopackageName(String geopackageName) {
-        this.geopackageName = geopackageName;
-        setChanged();
-        notifyObservers(GEOPACKAGE_NAME_PROP);
-    }
 
     /**
      * Gets the EPSG.
@@ -226,25 +126,5 @@ public class LayerOptionsModel extends Observable {
         this.maxZoom = maxZoom;
         setChanged();
         notifyObservers(MAX_ZOOM_PROP);
-    }
-
-    /**
-     * Gets the validation message, if empty everything is valid.
-     *
-     * @return Empty or a validation message.
-     */
-    public String getValidationMessage() {
-        return validationMessage;
-    }
-
-    /**
-     * Sets the validation message, if empty everything is valid.
-     *
-     * @param validationMessage The validation message.
-     */
-    public void setValidationMessage(String validationMessage) {
-        this.validationMessage = validationMessage;
-        setChanged();
-        notifyObservers(VALIDATION_MESSAGE_PROP);
     }
 }

@@ -1,0 +1,126 @@
+package mil.nga.mapcache.wizards.createtile;
+
+import java.util.Observable;
+
+public class NewTileLayerModel extends Observable {
+
+    /**
+     * The geopackage name property.
+     */
+    public static String GEOPACKAGE_NAME_PROP = "geopackageName";
+
+    /**
+     * The layer name property.
+     */
+    public static String LAYER_NAME_PROP = "layerName";
+
+    /**
+     * The url property.
+     */
+    public static String URL_PROP = "url";
+
+    /**
+     * The validation message property.
+     */
+    public static String VALIDATION_MESSAGE_PROP = "validationMessage";
+
+    /**
+     * The layer name.
+     */
+    private String layerName;
+
+    /**
+     * The base url to the layer.
+     */
+    private String url;
+
+    /**
+     * The name of the geopackage.
+     */
+    private String geopackageName;
+
+    /**
+     * If anything is wrong with the inputs, this message will be populated.
+     */
+    private String validationMessage = "";
+
+    /**
+     * Gets the name of the layer.
+     *
+     * @return The name of the layer.
+     */
+    public String getLayerName() {
+        return layerName;
+    }
+
+    /**
+     * Sets the layer name.
+     *
+     * @param layerName The new name of the layer.
+     */
+    public void setLayerName(String layerName) {
+        this.layerName = layerName;
+        setChanged();
+        notifyObservers(LAYER_NAME_PROP);
+    }
+
+    /**
+     * Gets the base url to the tile layer.
+     *
+     * @return The base url for the tile layer.
+     */
+    public String getUrl() {
+        return url;
+    }
+
+    /**
+     * Sets the base url for the tile layer.
+     *
+     * @param url The base url for the tile layer.
+     */
+    public void setUrl(String url) {
+        this.url = url;
+        setChanged();
+        notifyObservers(URL_PROP);
+    }
+
+    /**
+     * Gets the name of the geopackage.
+     *
+     * @return The name of the geopackage.
+     */
+    public String getGeopackageName() {
+        return geopackageName;
+    }
+
+    /**
+     * Sets the name of the geopackage.
+     *
+     * @param geopackageName The new name of the geopackage.
+     */
+    public void setGeopackageName(String geopackageName) {
+        this.geopackageName = geopackageName;
+        setChanged();
+        notifyObservers(GEOPACKAGE_NAME_PROP);
+    }
+
+    /**
+     * Gets the validation message, if empty everything is valid.
+     *
+     * @return Empty or a validation message.
+     */
+    public String getValidationMessage() {
+        return validationMessage;
+    }
+
+    /**
+     * Sets the validation message, if empty everything is valid.
+     *
+     * @param validationMessage The validation message.
+     */
+    public void setValidationMessage(String validationMessage) {
+        this.validationMessage = validationMessage;
+        setChanged();
+        notifyObservers(VALIDATION_MESSAGE_PROP);
+    }
+}

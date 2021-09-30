@@ -74,16 +74,19 @@ public class LayerOptionsUI {
      */
     private LayerOptionsModel model = new LayerOptionsModel();
 
+    private LayerOptionsController controller;
+
     /**
      * Constructs a new layer options UI
-     * @param activity Use The app context.
-     * @param fragment The fragment this UI is apart of, used to get resource strings.
-     * @param active The active GeoPackages
-     * @param callback The callback to pass to LoadTilesTask.
-     * @param boxManager Contains a bounding box that is displayed to the user.
+     *
+     * @param activity       Use The app context.
+     * @param fragment       The fragment this UI is apart of, used to get resource strings.
+     * @param active         The active GeoPackages
+     * @param callback       The callback to pass to LoadTilesTask.
+     * @param boxManager     Contains a bounding box that is displayed to the user.
      * @param geoPackageName The name of the geopackage.
-     * @param layerName The name of the layer.
-     * @param url The base url to the tile layer.
+     * @param layerName      The name of the layer.
+     * @param url            The base url to the tile layer.
      */
     public LayerOptionsUI(FragmentActivity activity, Context context, Fragment fragment,
                           GeoPackageDatabases active, ILoadTilesTask callback,
@@ -98,6 +101,7 @@ public class LayerOptionsUI {
         this.model.setGeopackageName(geoPackageName);
         this.model.setLayerName(layerName);
         this.model.setUrl(url);
+        controller = new LayerOptionsController(boxManager, callback, active, activity, model);
     }
 
     /**
@@ -110,12 +114,12 @@ public class LayerOptionsUI {
         ImageView closeLogo = (ImageView) tileView.findViewById(R.id.final_layer_close_logo);
 
         // Set the spinner values for zoom levels
-        Spinner minSpinner = (Spinner)tileView.findViewById(R.id.min_zoom_spinner);
+        Spinner minSpinner = (Spinner) tileView.findViewById(R.id.min_zoom_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.zoom_levels, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         minSpinner.setAdapter(adapter);
-        Spinner maxSpinner = (Spinner)tileView.findViewById(R.id.max_zoom_spinner);
+        Spinner maxSpinner = (Spinner) tileView.findViewById(R.id.max_zoom_spinner);
         ArrayAdapter<CharSequence> maxAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.zoom_levels, android.R.layout.simple_spinner_item);
         maxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -136,8 +140,8 @@ public class LayerOptionsUI {
 
         // Advanced options
         ImageButton advancedExpand = (ImageButton) tileView.findViewById(R.id.advanced_expand_button);
-        View advancedView = (View)tileView.findViewById(R.id.advanceLayout);
-        advancedExpand.setOnClickListener((view)->{
+        View advancedView = (View) tileView.findViewById(R.id.advanceLayout);
+        advancedExpand.setOnClickListener((view) -> {
             toggleSection(advancedExpand, advancedView);
         });
         RadioGroup srsGroup = (RadioGroup) tileView.findViewById(R.id.srsGroup);
@@ -159,7 +163,7 @@ public class LayerOptionsUI {
                 builder.setMessage(fragment.getString(R.string.srs_help));
                 final AlertDialog srsDialog = builder.create();
 
-                builder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener(){
+                builder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         srsDialog.dismiss();
@@ -171,7 +175,7 @@ public class LayerOptionsUI {
         });
 
         // close button
-        closeLogo.setOnClickListener(new View.OnClickListener(){
+        closeLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
@@ -181,53 +185,22 @@ public class LayerOptionsUI {
         });
 
         // finish button
-        drawButton.setOnClickListener(new View.OnClickListener(){
+        drawButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 model.setMinZoom(Integer.valueOf(minSpinner.getSelectedItem().toString()));
                 model.setMaxZoom(Integer.valueOf(maxSpinner.getSelectedItem().toString()));
+                // Get values ready for creating the layer
+                RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
+                model.setEpsg(Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString()));
+                RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
+                model.setTileFormat(selectedFormat.getText().toString());
 
-                if(model.getMinZoom() > model.getMaxZoom()){
-                    Toast.makeText(getActivity(), "Min zoom can't be more than max zoom", Toast.LENGTH_SHORT).show();
+                if (!model.getValidationMessage().isEmpty()) {
+                    Toast.makeText(getActivity(), model.getValidationMessage(), Toast.LENGTH_SHORT).show();
                 } else {
-
                     try {
-                        // Get values ready for creating the layer
-                        RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
-                        model.setEpsg(Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString()));
-                        RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
-                        model.setTileFormat(selectedFormat.getText().toString());
-                        boolean xyzTiles = false;
-                        if (model.getTileFormat().equalsIgnoreCase("google")) {
-                            xyzTiles = true;
-                        }
-
-                        Bitmap.CompressFormat compressFormat = null;
-                        Integer compressQuality = 100;
-                        TileScaling scaling = null;
-                        double minLat = 90.0;
-                        double minLon = 180.0;
-                        double maxLat = -90.0;
-                        double maxLon = -180.0;
-                        for (LatLng point : boxManager.getBoundingBox().getPoints()) {
-                            minLat = Math.min(minLat, point.latitude);
-                            minLon = Math.min(minLon, point.longitude);
-                            maxLat = Math.max(maxLat, point.latitude);
-                            maxLon = Math.max(maxLon, point.longitude);
-                        }
-                        BoundingBox boundingBox = new BoundingBox(minLon,
-                                minLat, maxLon, maxLat);
-
-
-                        // Load tiles
-                        LoadTilesTask.loadTiles(getActivity(),
-                                callback, active,
-                                model.getGeopackageName(), model.getLayerName(), model.getUrl(), model.getMinZoom(),
-                                model.getMaxZoom(), compressFormat,
-                                compressQuality, xyzTiles,
-                                boundingBox, scaling,
-                                ProjectionConstants.AUTHORITY_EPSG, String.valueOf(model.getEpsg()));
-
+                        controller.loadTiles();
                     } catch (Exception e) {
                         GeoPackageUtils
                                 .showMessage(
@@ -246,6 +219,7 @@ public class LayerOptionsUI {
 
     /**
      * Gets the activity.
+     *
      * @return The activity.
      */
     private FragmentActivity getActivity() {
@@ -254,6 +228,7 @@ public class LayerOptionsUI {
 
     /**
      * Gets the app context.
+     *
      * @return The app context.
      */
     private Context getContext() {
@@ -262,6 +237,7 @@ public class LayerOptionsUI {
 
     /**
      * Toggles the advanced options arrow up or down.
+     *
      * @param view The view to animate.
      * @return True if the advanced options should be visible.
      */
@@ -277,6 +253,7 @@ public class LayerOptionsUI {
 
     /**
      * Toggle for showing / hiding a view (used in the advanced section of create tile menu)
+     *
      * @param bt
      * @param lyt
      */

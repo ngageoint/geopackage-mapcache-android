@@ -11,37 +11,42 @@ public class LayerOptionsModel extends Observable {
     /**
      * The layer name property.
      */
-    public static String LAYER_NAME_PROP="layerName";
+    public static String LAYER_NAME_PROP = "layerName";
 
     /**
      * The url property.
      */
-    public static String URL_PROP="url";
+    public static String URL_PROP = "url";
 
     /**
      * The geopackage name property.
      */
-    public static String GEOPACKAGE_NAME_PROP="geopackageName";
+    public static String GEOPACKAGE_NAME_PROP = "geopackageName";
 
     /**
      * The epsg property.
      */
-    public static String EPSG_PROP="epsg";
+    public static String EPSG_PROP = "epsg";
 
     /**
      * The tile format property.
      */
-    public static String TILE_FORMAT_PROP="tileFormat";
+    public static String TILE_FORMAT_PROP = "tileFormat";
 
     /**
      * The minimum zoom level property.
      */
-    public static String MIN_ZOOM_PROP="minZoom";
+    public static String MIN_ZOOM_PROP = "minZoom";
 
     /**
      * The maximum zoom level property.
      */
-    public static String MAX_ZOOM_PROP="maxZoom";
+    public static String MAX_ZOOM_PROP = "maxZoom";
+
+    /**
+     * The validation message property.
+     */
+    public static String VALIDATION_MESSAGE_PROP = "validationMessage";
 
     /**
      * The layer name.
@@ -79,7 +84,13 @@ public class LayerOptionsModel extends Observable {
     private int maxZoom = 10;
 
     /**
+     * If anything is wrong with the inputs, this message will be populated.
+     */
+    private String validationMessage = "";
+
+    /**
      * Gets the name of the layer.
+     *
      * @return The name of the layer.
      */
     public String getLayerName() {
@@ -88,6 +99,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the layer name.
+     *
      * @param layerName The new name of the layer.
      */
     public void setLayerName(String layerName) {
@@ -98,6 +110,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Gets the base url to the tile layer.
+     *
      * @return The base url for the tile layer.
      */
     public String getUrl() {
@@ -106,6 +119,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the base url for the tile layer.
+     *
      * @param url The base url for the tile layer.
      */
     public void setUrl(String url) {
@@ -116,6 +130,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Gets the name of the geopackage.
+     *
      * @return The name of the geopackage.
      */
     public String getGeopackageName() {
@@ -124,6 +139,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the name of the geopackage.
+     *
      * @param geopackageName The new name of the geopackage.
      */
     public void setGeopackageName(String geopackageName) {
@@ -134,6 +150,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Gets the EPSG.
+     *
      * @return The EPSG.
      */
     public long getEpsg() {
@@ -142,6 +159,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the EPSG.
+     *
      * @param epsg The new EPSG.
      */
     public void setEpsg(long epsg) {
@@ -152,6 +170,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Gets the tile format.
+     *
      * @return The tile format.
      */
     public String getTileFormat() {
@@ -160,6 +179,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the tile format.
+     *
      * @param tileFormat The new tile format.
      */
     public void setTileFormat(String tileFormat) {
@@ -170,6 +190,7 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Gets the minimum zoom level.
+     *
      * @return The minimum zoom level.
      */
     public int getMinZoom() {
@@ -178,16 +199,18 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the minimum zoom level.
+     *
      * @param minZoom The minimum zoom level.
      */
     public void setMinZoom(int minZoom) {
         this.minZoom = minZoom;
-        hasChanged();
+        setChanged();
         notifyObservers(MIN_ZOOM_PROP);
     }
 
     /**
      * Gets the maximum zoom level.
+     *
      * @return The maximum zoom level.
      */
     public int getMaxZoom() {
@@ -196,11 +219,32 @@ public class LayerOptionsModel extends Observable {
 
     /**
      * Sets the maximum zoom level.
+     *
      * @param maxZoom The maximum zoom level.
      */
     public void setMaxZoom(int maxZoom) {
         this.maxZoom = maxZoom;
-        hasChanged();
+        setChanged();
         notifyObservers(MAX_ZOOM_PROP);
+    }
+
+    /**
+     * Gets the validation message, if empty everything is valid.
+     *
+     * @return Empty or a validation message.
+     */
+    public String getValidationMessage() {
+        return validationMessage;
+    }
+
+    /**
+     * Sets the validation message, if empty everything is valid.
+     *
+     * @param validationMessage The validation message.
+     */
+    public void setValidationMessage(String validationMessage) {
+        this.validationMessage = validationMessage;
+        setChanged();
+        notifyObservers(VALIDATION_MESSAGE_PROP);
     }
 }

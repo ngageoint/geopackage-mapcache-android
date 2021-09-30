@@ -22,6 +22,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.HashSet;
+import java.util.Observable;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -31,7 +32,12 @@ import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
-public class NewTileLayerUI {
+import java.util.Observer;
+
+/**
+ * The first step when creating a new tile layer within a geopackage.
+ */
+public class NewTileLayerUI implements Observer {
 
     /**
      * RecyclerView that will hold our GeoPackages.
@@ -73,13 +79,49 @@ public class NewTileLayerUI {
      */
     private IBoundingBoxManager boxManager;
 
+    /**
+     * The model for the UI.
+     */
     private NewTileLayerModel model = new NewTileLayerModel();
 
+    /**
+     * The button that takes us to the next step.
+     */
+    private MaterialButton drawButton;
+
+    /**
+     * The text input for the new layer name.
+     */
+    private TextInputEditText inputName;
+
+    /**
+     * The text input for the new url.
+     */
+    private TextInputEditText inputUrl;
+
+    /**
+     * The controller.
+     */
+    private NewTileLayerController controller;
+
+    /**
+     * Constructor
+     *
+     * @param geoPackageRecycler RecyclerView that will hold our GeoPackages.
+     * @param mapView            The map.
+     * @param boxManager         The bounding box manager.
+     * @param activity           Use The app context.
+     * @param context            The app context.
+     * @param fragment           The fragment this UI is apart of, used to get resource strings.
+     * @param active             The active GeoPackages
+     * @param callback           The callback to pass to LoadTilesTask.
+     * @param geoPackageName     The name of the geopackage.
+     */
     public NewTileLayerUI(RecyclerView geoPackageRecycler, IMapView mapView,
                           IBoundingBoxManager boxManager,
                           FragmentActivity activity, Context context, Fragment fragment,
-                          GeoPackageDatabases active, ILoadTilesTask callback,
-                          String geoPackageName) {
+                          GeoPackageDatabases active, GeoPackageViewModel geoPackageViewModel,
+                          ILoadTilesTask callback, String geoPackageName) {
         this.geoPackageRecycler = geoPackageRecycler;
         this.mapView = mapView;
         this.boxManager = boxManager;
@@ -89,8 +131,15 @@ public class NewTileLayerUI {
         this.active = active;
         this.callback = callback;
         model.setGeopackageName(geoPackageName);
+        model.addObserver(this);
+        this.controller = new NewTileLayerController(model, geoPackageViewModel);
     }
 
+    /**
+     * Show the UI for the first step in creating a new tile layer within a geopackage.
+     *
+     * @param geoPackageViewModel Used to validate unique layer names.
+     */
     public void show(GeoPackageViewModel geoPackageViewModel) {
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -103,10 +152,10 @@ public class NewTileLayerUI {
         closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
         TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
         titleText.setText("Create Tile Layer");
-        final MaterialButton drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
+        drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
 
         // Validate name to have only alphanumeric chars because of sqlite errors
-        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.new_tile_name_text);
+        inputName = (TextInputEditText) alertView.findViewById(R.id.new_tile_name_text);
         inputName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -119,22 +168,11 @@ public class NewTileLayerUI {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String givenName = inputName.getText().toString();
-                drawButton.setEnabled(true);
-
-                if (givenName.isEmpty()) {
-                    inputName.setError("Name is required");
-                    drawButton.setEnabled(false);
-                } else {
-                    boolean allowed = Pattern.matches("[a-zA-Z_0-9]+", givenName);
-                    if (!allowed) {
-                        inputName.setError("Names must be alphanumeric only");
-                        drawButton.setEnabled(false);
-                    }
-                }
+                model.setLayerName(givenName);
             }
         });
 
-        final TextInputEditText inputUrl = (TextInputEditText) alertView.findViewById(R.id.new_tile_url);
+        inputUrl = (TextInputEditText) alertView.findViewById(R.id.new_tile_url);
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(activity);
         String defaultTileUrl = settings.getString("default_tile_url", context.getResources().getString(R.string.default_tile_url));
@@ -152,12 +190,7 @@ public class NewTileLayerUI {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 String givenUrl = inputUrl.getText().toString();
-                drawButton.setEnabled(true);
-
-                if (givenUrl.isEmpty()) {
-                    inputUrl.setError("URL is required");
-                    drawButton.setEnabled(false);
-                }
+                model.setUrl(givenUrl);
             }
         });
 
@@ -226,19 +259,8 @@ public class NewTileLayerUI {
             public void onClick(View v) {
                 model.setLayerName(inputName.getText().toString());
                 model.setUrl(inputUrl.getText().toString());
-                if (model.getLayerName().isEmpty() || model.getLayerName().trim().length() == 0) {
-                    inputName.setError("Layer name must not be blank");
-                    drawButton.setEnabled(false);
-                } else if (model.getUrl().isEmpty() || model.getUrl().trim().length() == 0) {
-                    inputUrl.setError("URL must not be blank");
-                    drawButton.setEnabled(false);
-                } else if (geoPackageViewModel.tableExistsInGeoPackage(model.getGeopackageName(), model.getLayerName())) {
-                    inputName.setError("Layer name already exists");
-                    drawButton.setEnabled(false);
-                } else if (!URLUtil.isValidUrl(model.getUrl())) {
-                    inputUrl.setError("URL is not valid");
-                    drawButton.setEnabled(false);
-                } else {
+                if ((model.getLayerNameError() == null || model.getLayerNameError().isEmpty())
+                        && (model.getUrlError() == null || model.getUrlError().isEmpty())) {
                     alertDialog.dismiss();
                     drawTileBoundingBox();
                 }
@@ -246,6 +268,25 @@ public class NewTileLayerUI {
         });
 
         alertDialog.show();
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (NewTileLayerModel.LAYER_NAME_PROP.equals(o)) {
+            inputName.setError(model.getLayerNameError());
+            if (model.getLayerNameError() == null || model.getLayerNameError().isEmpty()) {
+                drawButton.setEnabled(true);
+            } else {
+                drawButton.setEnabled(false);
+            }
+        } else if (NewTileLayerModel.URL_ERROR_PROP.equals(o)) {
+            inputUrl.setError(model.getUrlError());
+            if (model.getUrlError() == null || model.getUrlError().isEmpty()) {
+                drawButton.setEnabled(true);
+            } else {
+                drawButton.setEnabled(false);
+            }
+        }
     }
 
     /**

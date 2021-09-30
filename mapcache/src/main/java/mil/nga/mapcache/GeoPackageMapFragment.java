@@ -2207,8 +2207,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void newTileLayerWizard(final String geopackageName) {
         NewTileLayerUI newTileLayerUI = new NewTileLayerUI(geoPackageRecycler, this,
-                this, getActivity(), getContext(), this, active, this,
-                geopackageName);
+                this, getActivity(), getContext(), this, active,
+                geoPackageViewModel, this, geopackageName);
         newTileLayerUI.show(geoPackageViewModel);
     }
 

@@ -14,10 +14,17 @@ public class NewTileLayerModel extends Observable {
      */
     public static String LAYER_NAME_PROP = "layerName";
 
+    public static String LAYER_NAME_ERROR_PROP = "layerNameError";
+
     /**
      * The url property.
      */
     public static String URL_PROP = "url";
+
+    /**
+     * The url error property.
+     */
+    public static String URL_ERROR_PROP = "urlError";
 
     /**
      * The validation message property.
@@ -30,9 +37,19 @@ public class NewTileLayerModel extends Observable {
     private String layerName;
 
     /**
+     * Contains error message for layer name.
+     */
+    private String layerNameError = null;
+
+    /**
      * The base url to the layer.
      */
     private String url;
+
+    /**
+     * Contains error message for url.
+     */
+    private String urlError = null;
 
     /**
      * The name of the geopackage.
@@ -65,6 +82,26 @@ public class NewTileLayerModel extends Observable {
     }
 
     /**
+     * Gets any error messages about the layer name.
+     *
+     * @return The error message or empty string if no errors.
+     */
+    public String getLayerNameError() {
+        return layerNameError;
+    }
+
+    /**
+     * Sets the layer name error message.
+     *
+     * @param layerNameError The error message or empty string if no errors.
+     */
+    public void setLayerNameError(String layerNameError) {
+        this.layerNameError = layerNameError;
+        setChanged();
+        notifyObservers(LAYER_NAME_ERROR_PROP);
+    }
+
+    /**
      * Gets the base url to the tile layer.
      *
      * @return The base url for the tile layer.
@@ -82,6 +119,21 @@ public class NewTileLayerModel extends Observable {
         this.url = url;
         setChanged();
         notifyObservers(URL_PROP);
+    }
+
+    /**
+     * Gets any error messages about the url.
+     *
+     * @return The error message or empty string if no errors.
+     */
+    public String getUrlError() {
+        return urlError;
+    }
+
+    public void setUrlError(String urlError) {
+        this.urlError = urlError;
+        setChanged();
+        notifyObservers(URL_ERROR_PROP);
     }
 
     /**

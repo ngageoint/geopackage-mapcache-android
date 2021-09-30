@@ -34,6 +34,16 @@ public class LayerOptionsModel extends Observable {
     public static String TILE_FORMAT_PROP="tileFormat";
 
     /**
+     * The minimum zoom level property.
+     */
+    public static String MIN_ZOOM_PROP="minZoom";
+
+    /**
+     * The maximum zoom level property.
+     */
+    public static String MAX_ZOOM_PROP="maxZoom";
+
+    /**
      * The layer name.
      */
     private String layerName;
@@ -57,6 +67,16 @@ public class LayerOptionsModel extends Observable {
      * Either geopackage or standard.
      */
     private String tileFormat;
+
+    /**
+     * The minimum zoom level.
+     */
+    private int minZoom = 0;
+
+    /**
+     * The maximum zoom level.
+     */
+    private int maxZoom = 10;
 
     /**
      * Gets the name of the layer.
@@ -146,5 +166,41 @@ public class LayerOptionsModel extends Observable {
         this.tileFormat = tileFormat;
         setChanged();
         notifyObservers(TILE_FORMAT_PROP);
+    }
+
+    /**
+     * Gets the minimum zoom level.
+     * @return The minimum zoom level.
+     */
+    public int getMinZoom() {
+        return minZoom;
+    }
+
+    /**
+     * Sets the minimum zoom level.
+     * @param minZoom The minimum zoom level.
+     */
+    public void setMinZoom(int minZoom) {
+        this.minZoom = minZoom;
+        hasChanged();
+        notifyObservers(MIN_ZOOM_PROP);
+    }
+
+    /**
+     * Gets the maximum zoom level.
+     * @return The maximum zoom level.
+     */
+    public int getMaxZoom() {
+        return maxZoom;
+    }
+
+    /**
+     * Sets the maximum zoom level.
+     * @param maxZoom The maximum zoom level.
+     */
+    public void setMaxZoom(int maxZoom) {
+        this.maxZoom = maxZoom;
+        hasChanged();
+        notifyObservers(MAX_ZOOM_PROP);
     }
 }

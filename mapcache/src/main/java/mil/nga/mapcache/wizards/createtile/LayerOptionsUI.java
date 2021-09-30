@@ -70,19 +70,9 @@ public class LayerOptionsUI {
     private IBoundingBoxManager boxManager;
 
     /**
-     * The name of the geopackage.
+     * Contains the UI state.
      */
-    private String geopackageName;
-
-    /**
-     * The name of the layer.
-     */
-    private String layerName;
-
-    /**
-     * The base url to the tile layer.
-     */
-    private String url;
+    private LayerOptionsModel model = new LayerOptionsModel();
 
     /**
      * Constructs a new layer options UI
@@ -105,9 +95,9 @@ public class LayerOptionsUI {
         this.active = active;
         this.callback = callback;
         this.boxManager = boxManager;
-        this.geopackageName = geoPackageName;
-        this.layerName = layerName;
-        this.url = url;
+        this.model.setGeopackageName(geoPackageName);
+        this.model.setLayerName(layerName);
+        this.model.setUrl(url);
     }
 
     /**
@@ -130,16 +120,16 @@ public class LayerOptionsUI {
                 R.array.zoom_levels, android.R.layout.simple_spinner_item);
         maxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         maxSpinner.setAdapter(maxAdapter);
-        maxSpinner.setSelection(maxAdapter.getPosition("5"));
+        maxSpinner.setSelection(maxAdapter.getPosition(String.valueOf(model.getMaxZoom())));
 
         // Set a listener to adjust min and max when selections are made
         NewLayerUtil.setZoomLevelSyncListener(minSpinner, maxSpinner);
 
         // Name and url
         TextView finalName = (TextView) tileView.findViewById(R.id.final_tile_name);
-        finalName.setText(layerName);
+        finalName.setText(this.model.getLayerName());
         TextView finalUrl = (TextView) tileView.findViewById(R.id.final_tile_url);
-        finalUrl.setText(url);
+        finalUrl.setText(this.model.getUrl());
 
         // finish button
         final MaterialButton drawButton = (MaterialButton) tileView.findViewById(R.id.create_tile_button);
@@ -194,21 +184,21 @@ public class LayerOptionsUI {
         drawButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                int minZoom = Integer.valueOf(minSpinner.getSelectedItem().toString());
-                int maxZoom = Integer.valueOf(maxSpinner.getSelectedItem().toString());
+                model.setMinZoom(Integer.valueOf(minSpinner.getSelectedItem().toString()));
+                model.setMaxZoom(Integer.valueOf(maxSpinner.getSelectedItem().toString()));
 
-                if(minZoom > maxZoom){
+                if(model.getMinZoom() > model.getMaxZoom()){
                     Toast.makeText(getActivity(), "Min zoom can't be more than max zoom", Toast.LENGTH_SHORT).show();
                 } else {
 
                     try {
                         // Get values ready for creating the layer
                         RadioButton selectedSrs = (RadioButton) tileView.findViewById(srsGroup.getCheckedRadioButtonId());
-                        long epsg = Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString());
+                        model.setEpsg(Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString()));
                         RadioButton selectedFormat = (RadioButton) tileView.findViewById(tileFormatGroup.getCheckedRadioButtonId());
-                        String tileFormat = selectedFormat.getText().toString();
+                        model.setTileFormat(selectedFormat.getText().toString());
                         boolean xyzTiles = false;
-                        if (tileFormat.equalsIgnoreCase("google")) {
+                        if (model.getTileFormat().equalsIgnoreCase("google")) {
                             xyzTiles = true;
                         }
 
@@ -232,11 +222,11 @@ public class LayerOptionsUI {
                         // Load tiles
                         LoadTilesTask.loadTiles(getActivity(),
                                 callback, active,
-                                geopackageName, layerName, url, minZoom,
-                                maxZoom, compressFormat,
+                                model.getGeopackageName(), model.getLayerName(), model.getUrl(), model.getMinZoom(),
+                                model.getMaxZoom(), compressFormat,
                                 compressQuality, xyzTiles,
                                 boundingBox, scaling,
-                                ProjectionConstants.AUTHORITY_EPSG, String.valueOf(epsg));
+                                ProjectionConstants.AUTHORITY_EPSG, String.valueOf(model.getEpsg()));
 
                     } catch (Exception e) {
                         GeoPackageUtils

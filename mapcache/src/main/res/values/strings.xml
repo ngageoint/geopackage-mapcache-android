@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1</string>
+    <string name="app_version">Version 2.1.0</string>
     <string name="app_release_date">Released Oct 2021</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
@@ -373,7 +373,7 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1\n \t
+        Release Notes - 2.1.0\n \t
         - New: Feature image attachments - Attach images to feature points by clicking on a point\n\n\t
         - New: Edit feature layers - Draw points on a feature layer by clicking the edit menu ->
         Edit Features -> and selecting the layer you want to modify.  When finished, select Stop Editing

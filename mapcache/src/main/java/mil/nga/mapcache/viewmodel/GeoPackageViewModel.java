@@ -2,6 +2,7 @@ package mil.nga.mapcache.viewmodel;
 
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,9 +26,11 @@ import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageTable;
+import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.repository.GeoPackageRepository;
+import mil.nga.mapcache.view.map.feature.FeatureViewObjects;
 import mil.nga.sf.GeometryType;
 
 
@@ -257,11 +261,41 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         return false;
     }
 
+    /**
+     * Opens a geopackage and pulls out all objects needed for a view created by clicking on a
+     * Feature point.
+     * @return FeatureViewObjects object containing only the needed parts of the geopackage
+     */
+    public FeatureViewObjects getFeatureViewObjects(MarkerFeature markerFeature){
+        return repository.getFeatureViewObjects(markerFeature);
+    }
+
 
     /**
-     * Add the table to the activeTables list (used to enable a layer on the map)
-     * @param newTable
+     * Open the geopackage and update the featureDao with the given featureViewObjects data
+     * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
+     * @return true if it updates
      */
+    public HashMap<Long, Bitmap> saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
+        return repository.saveFeatureObjectValues(featureViewObjects);
+    }
+
+
+    /**
+     * Delete the associated media row from the given feature
+     * @param featureViewObjects
+     * @param rowId
+     * @return
+     */
+    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects, long rowId) {
+        return repository.deleteImageFromFeature(featureViewObjects, rowId);
+    }
+
+
+        /**
+         * Add the table to the activeTables list (used to enable a layer on the map)
+         * @param newTable
+         */
     public void addToTables(GeoPackageTable newTable){
         //List<GeoPackageTable> newTables = activeTables.getValue();
         //newTables.add(newTable);

@@ -43,4 +43,10 @@
         android:title="Show my location"
         android:icon="@drawable/ic_my_location_black_24dp"
         app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/showBearing"
+        android:title="Show Bearing"
+        android:icon="@drawable/ic_baseline_compass_calibration_24"
+        app:showAsAction="never"/>
 </menu>

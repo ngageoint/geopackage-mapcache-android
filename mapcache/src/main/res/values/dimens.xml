@@ -15,4 +15,10 @@
     -->
     <dimen name="navigation_drawer_width">240dp</dimen>
 
+    <dimen name="pageMargin">20dp</dimen>
+    <dimen name="offset">30dp</dimen>
+    <dimen name="pageMarginAndOffset">70dp</dimen>
+
+
+
 </resources>

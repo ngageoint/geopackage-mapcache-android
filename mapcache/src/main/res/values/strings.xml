@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.0.10</string>
-    <string name="app_release_date">Released Feb 2021</string>
+    <string name="app_version">Version 2.1.0</string>
+    <string name="app_release_date">Released Oct 2021</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -135,7 +135,7 @@
     <string name="geopackage_share_copy_message">Preparing internal GeoPackage for sharing</string>
     <string name="geopackage_import_label">Download</string>
     <string name="geopackage_create_label">Create</string>
-    <string name="geopackage_create_features_label">Create Features</string>
+    <string name="geopackage_create_features_label">Create Layer</string>
     <string name="geopackage_create_tiles_label">Create Tiles</string>
     <string name="no_saved_urls_message">You have not saved any tile URLs yet.  This can be done in preferences -> saved tile urls.</string>
     <string name="table_image_description">Table Type</string>
@@ -373,8 +373,13 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.0.10\n \t
-        - New: Layer Feature column support\n\t
+        Release Notes - 2.1.0\n \t
+        - New: Feature image attachments - Attach images to feature points by clicking on a point\n\n\t
+        - New: Edit feature layers - Draw points on a feature layer by clicking the edit menu ->
+        Edit Features -> and selecting the layer you want to modify.  When finished, select Stop Editing
+        in the same drop down edit menu\n\n\t
+        - New: Show map bearing - view your current orientation on the map by selecting the edit button ->
+        Show Bearing\n\n\t
         - Performance updates\n\t
         \n
         </string>
@@ -411,6 +416,8 @@
     <string name="title_activity_disclaimer">DisclaimerActivity</string>
     <string name="title_activity_privacy_policy">PrivacyPolicyActivity</string>
     <string name="title_activity_tutorial">TutorialActivity</string>
+    <string name="title_activity_feature_view">FeatureViewActivity</string>
+
 
     <!-- URL validator -->
     <string name="tile_generator_variable_x">\\{x\\}</string>
@@ -426,5 +433,14 @@
     <string name="must_be_alphanumeric">Names must be alphanumeric only</string>
     <string name="regex_alphanumeric">[a-zA-Z_0-9]+</string>
     <string name="attachments">Attachments</string>
+    <string name="geopackages">GeoPackages</string>
+    <string name="marker_feature_param">markerfeature</string>
+    <string name="marker_title_param">title</string>
+    <string name="feature_tables_label">Feature Tables: %1$d</string>
+    <string name="tile_tables_label">Tile Tables: %1$d</string>
+    <string name="media_table_tag">media_table</string>
+    <string name="close">Close</string>
+    <string name="delete">Delete</string>
+    <string name="temp_file_name">tempBitmap.jpg</string>
 
 </resources>

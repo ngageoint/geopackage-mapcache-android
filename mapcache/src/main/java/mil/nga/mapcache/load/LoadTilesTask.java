@@ -23,10 +23,10 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
-import mil.nga.sf.proj.Projection;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
+import mil.nga.proj.Projection;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.proj.ProjectionTransform;
 
 /**
  * Load tiles task

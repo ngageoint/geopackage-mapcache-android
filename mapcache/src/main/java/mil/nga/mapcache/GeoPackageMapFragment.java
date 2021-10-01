@@ -14,11 +14,13 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -52,6 +54,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
@@ -63,6 +66,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -75,6 +81,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -86,6 +93,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
@@ -93,6 +101,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.jetbrains.annotations.NotNull;
 import org.locationtech.proj4j.units.Units;
 
 import java.lang.reflect.Method;
@@ -173,6 +182,7 @@ import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
+import mil.nga.geopackage.user.UserCursor;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
@@ -180,6 +190,7 @@ import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
+import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
@@ -189,6 +200,7 @@ import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
+import mil.nga.mapcache.listeners.SensorCallback;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -196,6 +208,7 @@ import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
+import mil.nga.mapcache.sensors.SensorHandler;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
@@ -208,15 +221,16 @@ import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
+import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
 import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
+import mil.nga.proj.ProjectionConstants;
+import mil.nga.proj.ProjectionFactory;
+import mil.nga.proj.ProjectionTransform;
 import mil.nga.sf.Geometry;
 import mil.nga.sf.GeometryEnvelope;
 import mil.nga.sf.GeometryType;
 import mil.nga.sf.LineString;
-import mil.nga.sf.proj.ProjectionConstants;
-import mil.nga.sf.proj.ProjectionFactory;
-import mil.nga.sf.proj.ProjectionTransform;
 import mil.nga.sf.util.GeometryEnvelopeBuilder;
 import mil.nga.sf.util.GeometryPrinter;
 
@@ -305,6 +319,32 @@ public class GeoPackageMapFragment extends Fragment implements
      * True when the map is visible
      */
     private static boolean visible = false;
+
+    /**
+     * True when we are showing bearing on the map
+     */
+    private static boolean bearingVisible = false;
+
+
+    /**
+     * Tracks the last calculated bearing from the sensors
+     */
+    float mCompassLastMeasuredBearing = new Float(0.0f);
+
+    /**
+     * Last location saved from location services
+     */
+    Location mLastLocation;
+
+    /**
+     * Handles sensor listeners for location updates
+     */
+    private SensorHandler sensorHandler;
+
+    /**
+     * Callback for location updates
+     */
+    private LocationCallback locationCallback;
 
     /**
      * GeoPackage manager
@@ -420,15 +460,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Mapping between marker ids and the feature ids
      */
     private Map<String, Long> editFeatureIds = new HashMap<String, Long>();
-
-    /**
-     * Marker feature
-     */
-    class MarkerFeature {
-        long featureId;
-        String database;
-        String tableName;
-    }
 
     /**
      * Mapping between marker ids and the features
@@ -1457,12 +1488,28 @@ public class GeoPackageMapFragment extends Fragment implements
 
         pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
 
+        // Set text for edit features mode
+        MenuItem editFeaturesItem = pm.getMenu().findItem(R.id.features);
+        if(editFeaturesMode){
+            editFeaturesItem.setTitle("Stop editing");
+        } else{
+            editFeaturesItem.setTitle("Edit Features");
+        }
+
         // Set text for show/hide my location based on current visibility
         showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
         if(visible){
             showHideOption.setTitle("Hide my location");
         } else{
             showHideOption.setTitle("Show my location");
+        }
+
+        // Set text for show/hide my bearing based on current visibility
+        MenuItem showBearing = pm.getMenu().findItem(R.id.showBearing);
+        if(bearingVisible){
+            showBearing.setTitle("Hide Bearing");
+        } else{
+            showBearing.setTitle("Show Bearing");
         }
 
         int totalFeaturesAndTiles = active.getAllFeaturesAndTilesCount();
@@ -1514,6 +1561,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     case R.id.showMyLocation:
                         showMyLocation();
+                        return true;
+
+                    case R.id.showBearing:
+                        setMapBearing();
                         return true;
                 }
 
@@ -1573,7 +1624,97 @@ public class GeoPackageMapFragment extends Fragment implements
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
                 }
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Log.i("loc", "failed");
+            }
         });
+    }
+
+
+    /**
+     * Handler to either show map bearing or stop updates
+     */
+    private void setMapBearing(){
+        if(bearingVisible){
+            stopMapBearing();
+        } else{
+            showMapBearing();
+        }
+    }
+
+
+    /**
+     * Enable map bearing compass
+     */
+    private void showMapBearing() {
+        // Verify permissions first
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
+
+        // Callback to move the camera every time the handler gets a sensor update
+        SensorCallback sensorCallback = new SensorCallback() {
+            public void onSensorChanged(SensorEvent event, float bearing) {
+                mCompassLastMeasuredBearing = bearing;
+                if(mLastLocation != null) {
+                    LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                    CameraPosition cameraPosition = new CameraPosition.Builder()
+                            .target(latLng)             // Sets the center of the map to current location
+                            .zoom(15)                   // Sets the zoom
+                            .bearing(bearing)           // Sets the orientation of the camera
+                            .tilt(0)                   // Sets the tilt of the camera to 0 degrees
+                            .build();                   // Creates a CameraPosition from the builder
+
+                    //move map camera
+                    map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+            }
+        };
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(12000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setFastestInterval(12000);
+        locationRequest.setNumUpdates(Integer.MAX_VALUE);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+                    //The last location in the list is the newest
+                    mLastLocation = location;
+                }
+            }
+        };
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+        sensorHandler = new SensorHandler(sensorCallback, getContext());
+        bearingVisible = !bearingVisible;
+    }
+
+
+    /**
+     * Stop the map bearing view, then zoom out and center
+     */
+    private void stopMapBearing(){
+        bearingVisible = !bearingVisible;
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+        sensorHandler.stopUpdates();
+        if(mLastLocation != null) {
+            LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(latLng)             // Sets the center of the map to current location
+                    .zoom(13)                   // Sets the zoom
+                    .bearing(0) // Sets the orientation of the camera
+                    .tilt(0)                   // Sets the tilt of the camera to 0 degrees
+                    .build();                   // Creates a CameraPosition from the builder
+
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 1000, null);
+        }
     }
 
 
@@ -1600,7 +1741,7 @@ public class GeoPackageMapFragment extends Fragment implements
 //                newLayerWizard();
                 String geoName = detailPageAdapter.getGeoPackageName();
                 if(geoName != null) {
-                    newTileLayerWizard(geoName);
+                    newLayerWizard();
                 }
             }
         });
@@ -1944,7 +2085,7 @@ public class GeoPackageMapFragment extends Fragment implements
             public void onClick(View v) {
                 String geoName = detailPageAdapter.getGeoPackageName();
                 if(geoName != null) {
-                    createTilesOption(geoName);
+                    newTileLayerWizard(geoName);
                 }
                 alertDialog.dismiss();
             }
@@ -2001,13 +2142,13 @@ public class GeoPackageMapFragment extends Fragment implements
                                         getString(R.string.create_features_name_label)
                                                 + " is required");
                             }
-                            double minLat = Double.valueOf(minLatInput
+                            double minLat = Double.parseDouble(minLatInput
                                     .getText().toString());
-                            double maxLat = Double.valueOf(maxLatInput
+                            double maxLat = Double.parseDouble(maxLatInput
                                     .getText().toString());
-                            double minLon = Double.valueOf(minLonInput
+                            double minLon = Double.parseDouble(minLonInput
                                     .getText().toString());
-                            double maxLon = Double.valueOf(maxLonInput
+                            double maxLon = Double.parseDouble(maxLonInput
                                     .getText().toString());
 
                             if (minLat > maxLat) {
@@ -4328,7 +4469,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private BoundingBox transformBoundingBoxToWgs84(BoundingBox boundingBox, SpatialReferenceSystem srs) {
 
-        mil.nga.sf.proj.Projection projection = srs.getProjection();
+        mil.nga.proj.Projection projection = srs.getProjection();
         if (projection.isUnit(Units.DEGREES)) {
             boundingBox = TileBoundingBoxUtils.boundDegreesBoundingBoxWithWebMercatorLimits(boundingBox);
         }
@@ -4857,7 +4998,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (!task.isCancelled() && count.get() < maxFeatures) {
 
-            mil.nga.sf.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+            mil.nga.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
             String[] columns = featureDao.getIdAndGeometryColumnNames();
 
@@ -4880,7 +5021,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 double filterMaxLongitude = 0;
 
                 if (filter) {
-                    mil.nga.sf.proj.Projection featureProjection = featureDao.getProjection();
+                    mil.nga.proj.Projection featureProjection = featureDao.getProjection();
                     ProjectionTransform projectionTransform = mapViewProjection.getTransformation(featureProjection);
                     BoundingBox boundedMapViewBoundingBox = mapViewBoundingBox.boundWgs84Coordinates();
                     BoundingBox transformedBoundingBox = boundedMapViewBoundingBox.transform(projectionTransform);
@@ -4893,34 +5034,43 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
 
                 // Query for all rows
-                FeatureCursor cursor = featureDao.query(columns);
-                try {
-                    while (!task.isCancelled() && count.get() < maxFeatures
-                            && cursor.moveToNext()) {
-                        try {
-                            FeatureRow row = cursor.getRow();
+                UserCursor userCursor = featureDao.query(columns);
+                if(userCursor instanceof FeatureCursor) {
+                    FeatureCursor cursor = featureDao.query(columns);
+                    try {
+                        while (!task.isCancelled() && count.get() < maxFeatures
+                                && cursor.moveToNext()) {
+                            try {
+                                FeatureRow row = cursor.getRow();
 
-                            if (threadPool != null) {
-                                // Process the feature row in the thread pool
-                                FeatureRowProcessor processor = new FeatureRowProcessor(
-                                        task, database, featureDao, row, count, maxFeatures, editable, converter,
-                                        styleCache, filterBoundingBox, filterMaxLongitude, filter);
-                                threadPool.execute(processor);
-                            } else {
+                                if (threadPool != null) {
+                                    // Process the feature row in the thread pool
+                                    FeatureRowProcessor processor = new FeatureRowProcessor(
+                                            task, database, featureDao, row, count, maxFeatures, editable, converter,
+                                            styleCache, filterBoundingBox, filterMaxLongitude, filter);
+                                    threadPool.execute(processor);
+                                } else {
 
-                                processFeatureRow(task, database, featureDao, converter, styleCache, row, count, maxFeatures, editable,
-                                        filterBoundingBox, filterMaxLongitude, filter);
+                                    processFeatureRow(task, database, featureDao, converter, styleCache, row, count, maxFeatures, editable,
+                                            filterBoundingBox, filterMaxLongitude, filter);
+                                }
+                            } catch (Exception e) {
+                                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                                        "Failed to display feature. database: " + database
+                                                + ", feature table: " + features
+                                                + ", row: " + cursor.getPosition(), e);
                             }
-                        } catch (Exception e) {
-                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                    "Failed to display feature. database: " + database
-                                            + ", feature table: " + features
-                                            + ", row: " + cursor.getPosition(), e);
                         }
-                    }
 
-                } finally {
-                    cursor.close();
+                    } finally {
+                        cursor.close();
+                    }
+                } else{
+                    Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                            "Failed to display feature. database: " + database
+                                    + ", feature table: " + features
+                                    + ", row: " + userCursor.getPosition()
+                                    + ".  Received a tileCursor from featureDao when expecting a featureCursor");
                 }
             }
             indexer.close();
@@ -5357,10 +5507,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (shape.getShapeType() == GoogleMapShapeType.MARKER) {
             Marker marker = (Marker) shape.getShape();
-            MarkerFeature markerFeature = new MarkerFeature();
-            markerFeature.database = database;
-            markerFeature.tableName = tableName;
-            markerFeature.featureId = featureId;
+            MarkerFeature markerFeature = new MarkerFeature(featureId, database, tableName);
             markerIds.put(marker.getId(), markerFeature);
         }
     }
@@ -6055,7 +6202,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     BoundingBox clickBoundingBox = MapUtils.buildClickBoundingBox(point, view, map, screenClickPercentage);
                     clickBoundingBox = clickBoundingBox.expandWgs84Coordinates();
-                    mil.nga.sf.proj.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
+                    mil.nga.proj.Projection clickProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
                     double tolerance = MapUtils.getToleranceDistance(point, view, map, screenClickPercentage);
 
@@ -6084,7 +6231,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                                 } else {
 
-                                    mil.nga.sf.proj.Projection featureProjection = featureDao.getProjection();
+                                    mil.nga.proj.Projection featureProjection = featureDao.getProjection();
                                     ProjectionTransform projectionTransform = clickProjection.getTransformation(featureProjection);
                                     BoundingBox boundedClickBoundingBox = clickBoundingBox.boundWgs84Coordinates();
                                     BoundingBox transformedBoundingBox = boundedClickBoundingBox.transform(projectionTransform);
@@ -6447,53 +6594,56 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param markerFeature
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
-        final GeoPackage geoPackage = manager.open(markerFeature.database, false);
-        final FeatureDao featureDao = geoPackage
-                .getFeatureDao(markerFeature.tableName);
-
-        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.featureId);
-
-        // If it has RTree extensions, it's indexed and we can't save feature column data.
-        // Not currently supported for Android
-        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
-        boolean hasExtension = extension.has(markerFeature.tableName);
-
-        if (featureRow != null) {
-            final GeoPackageGeometryData geomData = featureRow.getGeometry();
-            final GeometryType geometryType = geomData.getGeometry()
-                    .getGeometryType();
-
-            String title = getTitle(geometryType, marker);
-            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
-            try {
-                if (!dataColumnsDao.isTableExists()) {
-                    dataColumnsDao = null;
-                }
-            } catch (SQLException e) {
-                dataColumnsDao = null;
-                Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                        "Failed to check if Data Columns table exists for GeoPackage: "
-                                + geoPackage.getName(), e);
-            }
+//        final GeoPackage geoPackage = manager.open(markerFeature.getDatabase(), false);
+//        final FeatureDao featureDao = geoPackage
+//                .getFeatureDao(markerFeature.getTableName());
+//
+//        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.getFeatureId());
+//
+//        // If it has RTree extensions, it's indexed and we can't save feature column data.
+//        // Not currently supported for Android
+//        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
+//        boolean hasExtension = extension.has(markerFeature.getTableName());
+//
+//        if (featureRow != null) {
+//            final GeoPackageGeometryData geomData = featureRow.getGeometry();
+//            final GeometryType geometryType = geomData.getGeometry()
+//                    .getGeometryType();
+//
+//            String title = getTitle(geometryType, marker);
+//            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
+//            try {
+//                if (!dataColumnsDao.isTableExists()) {
+//                    dataColumnsDao = null;
+//                }
+//            } catch (SQLException e) {
+//                dataColumnsDao = null;
+//                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+//                        "Failed to check if Data Columns table exists for GeoPackage: "
+//                                + geoPackage.getName(), e);
+//            }
 
            // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
 
-            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
-                    geoPackage.getName(), markerFeature.tableName, !hasExtension);
-            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
-                @Override
-                public void onClick(View view, List<FcColumnDataObject> values) {
-                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
-                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
+//            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
+//                    geoPackage.getName(), markerFeature.getTableName(), !hasExtension);
+//            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
+//                @Override
+//                public void onClick(View view, List<FcColumnDataObject> values) {
+//                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
+//                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
+//
+//                }
+//            };
+//            pointView.setSaveListener(saveListener);
+//            pointView.showPointData();
+            Intent intent = new Intent(getContext(), FeatureViewActivity.class);
+            intent.putExtra(String.valueOf(R.string.marker_feature_param),markerFeature);
+            startActivity(intent);
 
-                }
-            };
-            pointView.setSaveListener(saveListener);
-            pointView.showPointData();
-
-        } else {
-            geoPackage.close();
-        }
+//        } else {
+//            geoPackage.close();
+//        }
     }
 
 

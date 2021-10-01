@@ -14,6 +14,14 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: mobsfscan
+      uses: MobSF/mobsfscan@0.0.8
+      with:
+        args: '. --sarif --output results.sarif || true'
+    - name: Upload mobsfscan report
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: results.sarif
     - name: Build with Gradle
       run: ./gradlew assembleRelease -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
     - name: Sign APK

@@ -11,13 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.MutableLiveData;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -658,7 +661,7 @@ public class GeoPackageRepository {
                 }
 
                 // Get extensions for attachments
-                List<Bitmap> bitmaps = new ArrayList<>();
+                HashMap<Long,Bitmap> bitmaps = new HashMap<>();
                 RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
                 List<ExtendedRelation> relationList = related.getRelationships();
                 for(ExtendedRelation relation : relationList){
@@ -674,11 +677,11 @@ public class GeoPackageRepository {
                         List<MediaRow> mediaRows = mediaDao.getRows(mediaIds);
                         for(MediaRow row : mediaRows){
                             Bitmap bitmap = row.getDataBitmap();
-                            bitmaps.add(bitmap);
+                            bitmaps.put(row.getId(),bitmap);
                         }
                     }
                 }
-                featureObjects.getBitmaps().addAll(bitmaps);
+                featureObjects.getBitmaps().putAll(bitmaps);
                 featureObjects.setFeatureRow(featureRow);
                 featureObjects.setHasExtension(hasExtension);
                 featureObjects.setGeometryType(geometryType);
@@ -694,7 +697,8 @@ public class GeoPackageRepository {
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it updates
      */
-    public boolean saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
+    public HashMap<Long,Bitmap> saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
+        HashMap<Long,Bitmap> addedImages = new HashMap();
         if(featureViewObjects.isValid()){
             try {
                 String tableName = featureViewObjects.getLayerName();
@@ -720,13 +724,16 @@ public class GeoPackageRepository {
                     }
                     List<ExtendedRelation> relationList = related.getRelationships();
                     for(ExtendedRelation relation : relationList) {
-                        if (tableName.equalsIgnoreCase(featureViewObjects.getLayerName())) {
+                        if (relation.getBaseTableName().equalsIgnoreCase(featureViewObjects.getLayerName())) {
                             MediaDao mediaDao = related.getMediaDao(relation);
                             UserMappingDao userMappingDao = related.getMappingDao(relation);
                             int totalMappedCount = userMappingDao.count();
                             int totalMediaCount = mediaDao.count();
-                            for(Bitmap image : featureViewObjects.getAddedBitmaps()) {
-                                byte[] mediaData = BitmapConverter.toBytes(image, Bitmap.CompressFormat.PNG);
+                            for(Map.Entry map  :  featureViewObjects.getAddedBitmaps().entrySet() ){
+                                Bitmap image = (Bitmap)map.getValue();
+                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                                byte[] mediaData = stream.toByteArray();
                                 String contentType = "image/png";
                                 MediaRow mediaRow = mediaDao.newRow();
                                 mediaRow.setData(mediaData);
@@ -740,18 +747,19 @@ public class GeoPackageRepository {
                                 userMappingRow.setBaseId(featureViewObjects.getFeatureRow().getId());
                                 userMappingRow.setRelatedId(mediaRow.getId());
                                 mappingDao.create(userMappingRow);
+                                addedImages.put(mediaRowId,image);
                             }
                         }
                     }
                     geoPackage.close();
-                    return true;
+                    return addedImages;
                 }
             }catch (Exception e){
                 Log.e(GeoPackageMapFragment.class.getSimpleName(),
                         "Error saving feature data: ", e);
             }
         }
-        return false;
+        return addedImages;
     }
 
 
@@ -761,7 +769,8 @@ public class GeoPackageRepository {
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it is deleted
      */
-    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects){
+    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects, long rowId){
+        boolean deleted = false;
         if(featureViewObjects.isValid()){
             try {
                 String tableName = featureViewObjects.getLayerName();
@@ -770,13 +779,26 @@ public class GeoPackageRepository {
                 if (geoPackage != null) {
                     final FeatureDao featureDao = geoPackage
                             .getFeatureDao(featureViewObjects.getLayerName());
-                            // Old
-                            //mediaDao.deleteAll();
-                            //userMappingDao.deleteAll();
-                            // New
-//                            long featureRowId = featureViewObjects.getFeatureRow().getId();
-                            // userMappingDao.deleteByBaseId(featureRowId)
-
+                    RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
+                    List<ExtendedRelation> relationList = related.getRelationships();
+                    for(ExtendedRelation relation : relationList) {
+                        if (relation.getBaseTableName().equalsIgnoreCase(featureViewObjects.getLayerName())) {
+                            MediaDao mediaDao = related.getMediaDao(relation);
+                            UserMappingDao userMappingDao = related.getMappingDao(relation);
+                            List<Long> mappingIds = related.getMappingsForBase(relation, featureViewObjects.getFeatureRow().getId());
+                            int count = mappingIds.size();
+                            List<MediaRow> rowList = mediaDao.getRows(mappingIds);
+                            for(MediaRow row : rowList){
+                                long id = row.getId();
+                                if(row.getId() == rowId){
+                                    Log.i("test","deleting");
+                                    int deletedValue = mediaDao.deleteById(row.getId());
+                                    deleted = true;
+                                    Log.i("test","deleted: " + deleted);
+                                }
+                            }
+                        }
+                    }
 //                            // Take a look at the media rows
 //                            UserCustomCursor mediaCursor = mediaDao.queryForAll();
 //                            int mediaCount = mediaCursor.getCount();
@@ -801,13 +823,12 @@ public class GeoPackageRepository {
                 }
 
                     geoPackage.close();
-                    return true;
             }catch (Exception e){
                 Log.e(GeoPackageMapFragment.class.getSimpleName(),
                         "Error deleting feature image: ", e);
             }
         }
-        return false;
+        return deleted;
     }
 
 

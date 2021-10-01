@@ -2,6 +2,7 @@ package mil.nga.mapcache.viewmodel;
 
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -274,15 +276,26 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it updates
      */
-    public boolean saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
+    public HashMap<Long, Bitmap> saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
         return repository.saveFeatureObjectValues(featureViewObjects);
     }
 
 
     /**
-     * Add the table to the activeTables list (used to enable a layer on the map)
-     * @param newTable
+     * Delete the associated media row from the given feature
+     * @param featureViewObjects
+     * @param rowId
+     * @return
      */
+    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects, long rowId) {
+        return repository.deleteImageFromFeature(featureViewObjects, rowId);
+    }
+
+
+        /**
+         * Add the table to the activeTables list (used to enable a layer on the map)
+         * @param newTable
+         */
     public void addToTables(GeoPackageTable newTable){
         //List<GeoPackageTable> newTables = activeTables.getValue();
         //newTables.add(newTable);

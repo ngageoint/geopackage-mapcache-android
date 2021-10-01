@@ -3,6 +3,7 @@ package mil.nga.mapcache.view.map.feature;
 import android.graphics.Bitmap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
@@ -17,9 +18,9 @@ public class FeatureViewObjects {
     private FeatureRow featureRow;
     private GeometryType geometryType;
     private DataColumnsDao dataColumnsDao;
-    private List<Bitmap> bitmaps = new ArrayList<>();
+    private HashMap<Long,Bitmap> bitmaps = new HashMap<>();
     // Save images that were added by the user after loading the menu separately
-    private List<Bitmap> addedBitmaps = new ArrayList<>();
+    private HashMap<Long,Bitmap> addedBitmaps = new HashMap<>();
     private boolean hasExtension;
     private String geopackageName;
     private String layerName;
@@ -36,19 +37,19 @@ public class FeatureViewObjects {
         return true;
     }
 
-    public List<Bitmap> getAddedBitmaps() {
+    public HashMap<Long,Bitmap> getAddedBitmaps() {
         return addedBitmaps;
     }
 
-    public void setAddedBitmaps(List<Bitmap> addedBitmaps) {
+    public void setAddedBitmaps(HashMap<Long,Bitmap> addedBitmaps) {
         this.addedBitmaps = addedBitmaps;
     }
 
-    public List<Bitmap> getBitmaps() {
+    public HashMap<Long,Bitmap> getBitmaps() {
         return bitmaps;
     }
 
-    public void setBitmaps(List<Bitmap> bitmaps) {
+    public void setBitmaps(HashMap<Long,Bitmap> bitmaps) {
         this.bitmaps = bitmaps;
     }
 

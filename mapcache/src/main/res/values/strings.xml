@@ -434,5 +434,8 @@
     <string name="feature_tables_label">Feature Tables: %1$d</string>
     <string name="tile_tables_label">Tile Tables: %1$d</string>
     <string name="media_table_tag">media_table</string>
+    <string name="close">Close</string>
+    <string name="delete">Delete</string>
+    <string name="temp_file_name">tempBitmap.jpg</string>
 
 </resources>

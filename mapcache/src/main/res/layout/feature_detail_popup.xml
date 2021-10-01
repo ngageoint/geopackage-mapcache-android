@@ -150,6 +150,8 @@
                 android:id="@+id/attachmentPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/pageMarginAndOffset"
+                android:layout_marginRight="@dimen/pageMarginAndOffset"
                 android:paddingStart="0dp"
                 android:paddingEnd="0dp" />
 
@@ -160,7 +162,8 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/fc_recycler"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="300dp"
+            android:scrollbars="vertical"
             />
 
 

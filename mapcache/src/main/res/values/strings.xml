@@ -378,6 +378,8 @@
         - New: Edit feature layers - Draw points on a feature layer by clicking the edit menu ->
         Edit Features -> and selecting the layer you want to modify.  When finished, select Stop Editing
         in the same drop down edit menu\n\n\t
+        - New: Show map bearing - view your current orientation on the map by selecting the edit button ->
+        Show Bearing\n\n\t
         - Performance updates\n\t
         \n
         </string>

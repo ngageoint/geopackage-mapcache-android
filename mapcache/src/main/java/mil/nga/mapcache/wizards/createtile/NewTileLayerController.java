@@ -1,11 +1,17 @@
 package mil.nga.mapcache.wizards.createtile;
 
+import android.content.SharedPreferences;
 import android.webkit.URLUtil;
 
+import androidx.fragment.app.Fragment;
+
+import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import mil.nga.mapcache.R;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
@@ -24,15 +30,39 @@ public class NewTileLayerController implements Observer {
     private GeoPackageViewModel geoPackageViewModel;
 
     /**
+     * Used to get string constants.
+     */
+    private Fragment fragment;
+
+    /**
+     * Used to get saved urls.
+     */
+    private SharedPreferences settings;
+
+    /**
      * Constructor.
      *
      * @param model               The model.
      * @param geoPackageViewModel Used to ensure unique layer names.
+     * @param fragment            Used to get string constants.
+     * @param settings            Used to get saved urls.
      */
-    public NewTileLayerController(NewTileLayerModel model, GeoPackageViewModel geoPackageViewModel) {
+    public NewTileLayerController(NewTileLayerModel model, GeoPackageViewModel geoPackageViewModel,
+                                  Fragment fragment, SharedPreferences settings) {
         this.model = model;
         this.geoPackageViewModel = geoPackageViewModel;
+        this.fragment = fragment;
+        this.settings = settings;
         this.model.addObserver(this);
+    }
+
+    /**
+     * Loads the saved urls into the model.
+     */
+    public void loadSavedUrls() {
+        Set<String> existing = settings.getStringSet(fragment.getString(R.string.geopackage_create_tiles_label), new HashSet<String>());
+        String[] urlChoices = existing.toArray(new String[existing.size()]);
+        model.setSavedUrls(urlChoices);
     }
 
     @Override

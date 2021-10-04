@@ -132,7 +132,8 @@ public class NewTileLayerUI implements Observer {
         this.callback = callback;
         model.setGeopackageName(geoPackageName);
         model.addObserver(this);
-        this.controller = new NewTileLayerController(model, geoPackageViewModel);
+        this.controller = new NewTileLayerController(model, geoPackageViewModel, fragment,
+                PreferenceManager.getDefaultSharedPreferences(activity));
     }
 
     /**
@@ -199,24 +200,7 @@ public class NewTileLayerUI implements Observer {
         defaultText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Set<String> existing = settings.getStringSet(fragment.getString(R.string.geopackage_create_tiles_label), new HashSet<String>());
-                String[] urlChoices = existing.toArray(new String[existing.size()]);
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Saved Tile URLs");
-                if (urlChoices.length > 0) {
-                    builder.setItems(urlChoices, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            inputUrl.setText(urlChoices[which]);
-                            inputUrl.setError(null);
-                            ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-                        }
-                    });
-                } else {
-                    builder.setMessage(fragment.getString(R.string.no_saved_urls_message));
-                }
-                builder.show();
+                controller.loadSavedUrls();
             }
         });
 
@@ -286,6 +270,8 @@ public class NewTileLayerUI implements Observer {
             } else {
                 drawButton.setEnabled(false);
             }
+        } else if (NewTileLayerModel.SAVED_URLS_PROP.equals(o)) {
+            showSavedUrls();
         }
     }
 
@@ -296,5 +282,26 @@ public class NewTileLayerUI implements Observer {
         TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView, boxManager);
         tileBoundsUI.show(activity, context, fragment, active, callback,
                 model.getGeopackageName(), model.getLayerName(), model.getUrl());
+    }
+
+    /**
+     * Shows the saved urls the user can choose from, or a message stating they have none.
+     */
+    private void showSavedUrls() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Saved Tile URLs");
+        if (model.getSavedUrls().length > 0) {
+            builder.setItems(model.getSavedUrls(), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    inputUrl.setText(model.getSavedUrls()[which]);
+                    inputUrl.setError(null);
+                    ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+                }
+            });
+        } else {
+            builder.setMessage(fragment.getString(R.string.no_saved_urls_message));
+        }
+        builder.show();
     }
 }

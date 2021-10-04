@@ -14,6 +14,9 @@ public class NewTileLayerModel extends Observable {
      */
     public static String LAYER_NAME_PROP = "layerName";
 
+    /**
+     * The layer name error property.
+     */
     public static String LAYER_NAME_ERROR_PROP = "layerNameError";
 
     /**
@@ -30,6 +33,11 @@ public class NewTileLayerModel extends Observable {
      * The validation message property.
      */
     public static String VALIDATION_MESSAGE_PROP = "validationMessage";
+
+    /**
+     * The saved urls property.
+     */
+    public static String SAVED_URLS_PROP = "savedUrls";
 
     /**
      * The layer name.
@@ -55,6 +63,11 @@ public class NewTileLayerModel extends Observable {
      * The name of the geopackage.
      */
     private String geopackageName;
+
+    /**
+     * The list of saved urls.
+     */
+    private String[] savedUrls;
 
     /**
      * If anything is wrong with the inputs, this message will be populated.
@@ -130,6 +143,11 @@ public class NewTileLayerModel extends Observable {
         return urlError;
     }
 
+    /**
+     * Sets the error message about the url.
+     *
+     * @param urlError The error message or empty string if no errors.
+     */
     public void setUrlError(String urlError) {
         this.urlError = urlError;
         setChanged();
@@ -143,6 +161,26 @@ public class NewTileLayerModel extends Observable {
      */
     public String getGeopackageName() {
         return geopackageName;
+    }
+
+    /**
+     * Get the saved urls.
+     *
+     * @return The list of saved urls.
+     */
+    public String[] getSavedUrls() {
+        return savedUrls;
+    }
+
+    /**
+     * Sets the saved urls.
+     *
+     * @param savedUrls The saved urls.
+     */
+    public void setSavedUrls(String[] savedUrls) {
+        this.savedUrls = savedUrls;
+        setChanged();
+        notifyObservers(SAVED_URLS_PROP);
     }
 
     /**

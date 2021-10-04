@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.0.10</string>
-    <string name="app_release_date">Released Feb 2021</string>
+    <string name="app_version">Version 2.1.0</string>
+    <string name="app_release_date">Released Oct 2021</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -373,8 +373,13 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.0.10\n \t
-        - New: Layer Feature column support\n\t
+        Release Notes - 2.1.0\n \t
+        - New: Feature image attachments - Attach images to feature points by clicking on a point\n\n\t
+        - New: Edit feature layers - Draw points on a feature layer by clicking the edit menu ->
+        Edit Features -> and selecting the layer you want to modify.  When finished, select Stop Editing
+        in the same drop down edit menu\n\n\t
+        - New: Show map bearing - view your current orientation on the map by selecting the edit button ->
+        Show Bearing\n\n\t
         - Performance updates\n\t
         \n
         </string>
@@ -433,5 +438,9 @@
     <string name="marker_title_param">title</string>
     <string name="feature_tables_label">Feature Tables: %1$d</string>
     <string name="tile_tables_label">Tile Tables: %1$d</string>
+    <string name="media_table_tag">media_table</string>
+    <string name="close">Close</string>
+    <string name="delete">Delete</string>
+    <string name="temp_file_name">tempBitmap.jpg</string>
 
 </resources>

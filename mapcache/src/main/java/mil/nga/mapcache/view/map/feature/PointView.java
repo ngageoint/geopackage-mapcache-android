@@ -220,10 +220,10 @@ public class PointView {
 //        sliderItems.add(new SliderItem(R.drawable.flood2));
 //        sliderItems.add(new SliderItem(R.drawable.flood3));
         Bitmap flood1 = BitmapFactory.decodeResource(context.getResources(),R.drawable.flood1);
-            sliderItems.add(new SliderItem(flood1));
-        sliderItems.add(new SliderItem(flood1));
+            sliderItems.add(new SliderItem(-1,flood1));
+        sliderItems.add(new SliderItem(-1,flood1));
 
-        viewPager2.setAdapter(new SliderAdapter(sliderItems, viewPager2));
+        viewPager2.setAdapter(new SliderAdapter(sliderItems, viewPager2, null));
         viewPager2.setClipToPadding(false);
         viewPager2.setClipChildren(false);
         viewPager2.setOffscreenPageLimit(3);

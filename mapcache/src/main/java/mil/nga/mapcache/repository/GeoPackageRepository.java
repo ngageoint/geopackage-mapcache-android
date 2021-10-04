@@ -11,13 +11,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.MutableLiveData;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -27,9 +30,6 @@ import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.db.TableColumnKey;
-import mil.nga.geopackage.extension.ExtensionManager;
-import mil.nga.geopackage.extension.Extensions;
-import mil.nga.geopackage.extension.ExtensionsDao;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.extension.related.ExtendedRelation;
@@ -40,12 +40,12 @@ import mil.nga.geopackage.extension.related.UserMappingTable;
 import mil.nga.geopackage.extension.related.media.MediaDao;
 import mil.nga.geopackage.extension.related.media.MediaRow;
 import mil.nga.geopackage.extension.related.media.MediaTable;
+import mil.nga.geopackage.extension.related.media.MediaTableMetadata;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
-import mil.nga.geopackage.features.user.FeatureCursor;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.features.user.FeatureRow;
 import mil.nga.geopackage.features.user.FeatureTable;
@@ -57,15 +57,13 @@ import mil.nga.geopackage.srs.SpatialReferenceSystem;
 import mil.nga.geopackage.srs.SpatialReferenceSystemDao;
 import mil.nga.geopackage.tiles.user.TileDao;
 import mil.nga.geopackage.tiles.user.TileTableMetadata;
-import mil.nga.geopackage.user.custom.UserCustomCursor;
-import mil.nga.geopackage.user.custom.UserCustomRow;
+import mil.nga.geopackage.user.custom.UserCustomColumn;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTable;
-import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.load.LoadTilesTask;
@@ -663,28 +661,27 @@ public class GeoPackageRepository {
                 }
 
                 // Get extensions for attachments
-                List<Bitmap> bitmaps = new ArrayList<>();
+                HashMap<Long,Bitmap> bitmaps = new HashMap<>();
                 RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
                 List<ExtendedRelation> relationList = related.getRelationships();
                 for(ExtendedRelation relation : relationList){
                     String tableName = relation.getBaseTableName();
                     if(tableName.equalsIgnoreCase(markerFeature.getTableName())){
                         MediaDao mediaDao = related.getMediaDao(relation);
-                        UserCustomCursor mediaCursor = mediaDao.queryForAll();
+                        // Get list of mediaIds from related table instead of iterating mediaCursor
+                        String relatedTableName = relation.getBaseTableName();
                         List<Long> mediaIds = new ArrayList<>();
-                        while (mediaCursor.moveToNext()) {
-                            mediaIds.add(mediaCursor.getRow().getId());
+                        if(tableName.equalsIgnoreCase(relatedTableName)){
+                            mediaIds = related.getMappingsForBase(relation,featureRow.getId());
                         }
-                        mediaCursor.close();
                         List<MediaRow> mediaRows = mediaDao.getRows(mediaIds);
                         for(MediaRow row : mediaRows){
                             Bitmap bitmap = row.getDataBitmap();
-                            bitmaps.add(bitmap);
+                            bitmaps.put(row.getId(),bitmap);
                         }
-
                     }
                 }
-                featureObjects.getBitmaps().addAll(bitmaps);
+                featureObjects.getBitmaps().putAll(bitmaps);
                 featureObjects.setFeatureRow(featureRow);
                 featureObjects.setHasExtension(hasExtension);
                 featureObjects.setGeometryType(geometryType);
@@ -700,9 +697,12 @@ public class GeoPackageRepository {
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it updates
      */
-    public boolean updateFeatureDao(FeatureViewObjects featureViewObjects){
+    public HashMap<Long,Bitmap> saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
+        HashMap<Long,Bitmap> addedImages = new HashMap();
         if(featureViewObjects.isValid()){
             try {
+                String tableName = featureViewObjects.getLayerName();
+                String mediaTableName = context.getString(R.string.media_table_tag);
                 final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
                 if (geoPackage != null) {
                     final FeatureDao featureDao = geoPackage
@@ -710,23 +710,105 @@ public class GeoPackageRepository {
                     featureDao.update(featureViewObjects.getFeatureRow());
                     // Add attachments
                     RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
+                    if(!related.has()){
+                        // Populate and validate a media table
+                        List<UserCustomColumn> additionalMediaColumns = new ArrayList<>();
+                        MediaTable mediaTable = MediaTable.create(
+                                MediaTableMetadata.create(mediaTableName, additionalMediaColumns));
+                        // Create and validate a mapping table
+                        List<UserCustomColumn> additionalMappingColumns = new ArrayList<>();
+                        final String mappingTableName = tableName + "_" + mediaTableName;
+                        UserMappingTable userMappingTable = UserMappingTable.create(
+                                mappingTableName, additionalMappingColumns);
+                        related.addMediaRelationship(tableName, mediaTable,userMappingTable);
+                    }
                     List<ExtendedRelation> relationList = related.getRelationships();
                     for(ExtendedRelation relation : relationList) {
-                        String tableName = relation.getBaseTableName();
-                        if (tableName.equalsIgnoreCase(featureViewObjects.getLayerName())) {
+                        if (relation.getBaseTableName().equalsIgnoreCase(featureViewObjects.getLayerName())) {
                             MediaDao mediaDao = related.getMediaDao(relation);
                             UserMappingDao userMappingDao = related.getMappingDao(relation);
                             int totalMappedCount = userMappingDao.count();
                             int totalMediaCount = mediaDao.count();
-                            mediaDao.deleteAll();
-                            userMappingDao.deleteAll();
-                            for(Bitmap image : featureViewObjects.getBitmaps()) {
-                                byte[] mediaData = BitmapConverter.toBytes(image, Bitmap.CompressFormat.PNG);
+                            for(Map.Entry map  :  featureViewObjects.getAddedBitmaps().entrySet() ){
+                                Bitmap image = (Bitmap)map.getValue();
+                                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                                image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                                byte[] mediaData = stream.toByteArray();
                                 String contentType = "image/png";
+                                MediaRow mediaRow = mediaDao.newRow();
+                                mediaRow.setData(mediaData);
+                                mediaRow.setContentType(contentType);
+                                mediaDao.create(mediaRow);
+                                final String mappingTableName = tableName + "_" + mediaTableName;
+                                UserMappingDao mappingDao = related.getMappingDao(relation);
+                                UserMappingRow userMappingRow = mappingDao.newRow();
+                                long featureRowId = featureViewObjects.getFeatureRow().getId();
+                                long mediaRowId = mediaRow.getId();
+                                userMappingRow.setBaseId(featureViewObjects.getFeatureRow().getId());
+                                userMappingRow.setRelatedId(mediaRow.getId());
+                                mappingDao.create(userMappingRow);
+                                addedImages.put(mediaRowId,image);
+                            }
+                        }
+                    }
+                    geoPackage.close();
+                    return addedImages;
+                }
+            }catch (Exception e){
+                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                        "Error saving feature data: ", e);
+            }
+        }
+        return addedImages;
+    }
 
-                                // Take a look at the existing rows - read only
-//                                int totalMappedCount = userMappingDao.count();
-//                                int totalMediaCount = mediaDao.count();
+
+
+    /**
+     * Open the geopackage and remove a bitmap image from a feature layer object
+     * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
+     * @return true if it is deleted
+     */
+    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects, long rowId){
+        boolean deleted = false;
+        if(featureViewObjects.isValid()){
+            try {
+                String tableName = featureViewObjects.getLayerName();
+                String mediaTableName = "media_table";
+                final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
+                if (geoPackage != null) {
+                    final FeatureDao featureDao = geoPackage
+                            .getFeatureDao(featureViewObjects.getLayerName());
+                    RelatedTablesExtension related = new RelatedTablesExtension(geoPackage);
+                    List<ExtendedRelation> relationList = related.getRelationships();
+                    for(ExtendedRelation relation : relationList) {
+                        if (relation.getBaseTableName().equalsIgnoreCase(featureViewObjects.getLayerName())) {
+                            MediaDao mediaDao = related.getMediaDao(relation);
+                            UserMappingDao userMappingDao = related.getMappingDao(relation);
+                            List<Long> mappingIds = related.getMappingsForBase(relation, featureViewObjects.getFeatureRow().getId());
+                            int count = mappingIds.size();
+                            List<MediaRow> rowList = mediaDao.getRows(mappingIds);
+                            for(MediaRow row : rowList){
+                                long id = row.getId();
+                                if(row.getId() == rowId){
+                                    Log.i("test","deleting");
+                                    int deletedValue = mediaDao.deleteById(row.getId());
+                                    deleted = true;
+                                    Log.i("test","deleted: " + deleted);
+                                }
+                            }
+                        }
+                    }
+//                            // Take a look at the media rows
+//                            UserCustomCursor mediaCursor = mediaDao.queryForAll();
+//                            int mediaCount = mediaCursor.getCount();
+//                            MediaRow row;
+//                            while(mediaCursor.moveToNext()){
+//                                row = mediaDao.getRow(mediaCursor);
+//                                Log.i("test","test");
+//                            }
+
+                    // Take a look at the existing rows - read only
 //                                UserCustomCursor mappingCursor = userMappingDao.queryForAll();
 //                                int cursCount = mappingCursor.getCount();
 //                                long featureRowId = featureViewObjects.getFeatureRow().getId();
@@ -736,32 +818,20 @@ public class GeoPackageRepository {
 //                                    long rowBaseId = userMappingRow.getBaseId();
 //                                    long relatedId = userMappingRow.getRelatedId();
 //                                    int index = userMappingRow.getBaseIdColumnIndex();
+//                                    Log.i("Log", "test");
 //                                }
-
-                                MediaRow mediaRow = mediaDao.newRow();
-                                mediaRow.setData(mediaData);
-                                mediaRow.setContentType(contentType);
-                                mediaDao.create(mediaRow);
-                                UserMappingDao mappingDao = related.getMappingDao(relation);
-                                UserMappingRow userMappingRow = mappingDao.newRow();
-                                long featureRowId = featureViewObjects.getFeatureRow().getId();
-                                long mediaRowId = mediaRow.getId();
-                                userMappingRow.setBaseId(featureViewObjects.getFeatureRow().getId());
-                                userMappingRow.setRelatedId(mediaRow.getId());
-                                mappingDao.create(userMappingRow);
-                            }
-                        }
-                    }
-                    geoPackage.close();
-                    return true;
                 }
+
+                    geoPackage.close();
             }catch (Exception e){
                 Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                        "Error saving feature data: ", e);
+                        "Error deleting feature image: ", e);
             }
         }
-        return false;
+        return deleted;
     }
+
+
 
 
         /**

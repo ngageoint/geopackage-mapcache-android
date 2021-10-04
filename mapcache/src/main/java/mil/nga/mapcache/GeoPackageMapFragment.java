@@ -330,6 +330,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private static boolean bearingVisible = false;
 
+
     /**
      * Tracks the last calculated bearing from the sensors
      */
@@ -1484,6 +1485,14 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
+
+        // Set text for edit features mode
+        MenuItem editFeaturesItem = pm.getMenu().findItem(R.id.features);
+        if(editFeaturesMode){
+            editFeaturesItem.setTitle("Stop editing");
+        } else{
+            editFeaturesItem.setTitle("Edit Features");
+        }
 
         // Set text for show/hide my location based on current visibility
         showHideOption = pm.getMenu().findItem(R.id.showMyLocation);

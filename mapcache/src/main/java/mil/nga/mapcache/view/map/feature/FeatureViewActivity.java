@@ -2,15 +2,19 @@ package mil.nga.mapcache.view.map.feature;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,8 +22,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
@@ -29,10 +35,16 @@ import com.google.android.material.button.MaterialButton;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
@@ -40,7 +52,8 @@ import mil.nga.geopackage.features.user.FeatureColumn;
 import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.MarkerFeature;
-import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
+import mil.nga.mapcache.listeners.DeleteImageListener;
+import mil.nga.mapcache.utils.ImageUtils;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 public class FeatureViewActivity extends AppCompatActivity {
@@ -118,6 +131,11 @@ public class FeatureViewActivity extends AppCompatActivity {
      */
     private RecyclerView fcRecycler;
 
+    /**
+     * Listener for clicking the delete button on the images
+     */
+    private DeleteImageListener deleteImageListener;
+
 
     /**
      * On Create
@@ -156,7 +174,7 @@ public class FeatureViewActivity extends AppCompatActivity {
         // set up the image gallery
         imageGalleryPager = findViewById(R.id.attachmentPager);
         sliderItems = new ArrayList<>();
-        sliderAdapter = new SliderAdapter(sliderItems, imageGalleryPager);
+        sliderAdapter = new SliderAdapter(sliderItems, imageGalleryPager, deleteImageListener);
         createImageGallery();
     }
 
@@ -166,20 +184,27 @@ public class FeatureViewActivity extends AppCompatActivity {
      */
     private void createImageGallery(){
         if(imageGalleryPager != null && featureViewObjects != null){
-            // Attachment sample images
-//            Bitmap flood1 = BitmapFactory.decodeResource(getResources(),R.drawable.flood1);
-//            sliderItems.add(new SliderItem(flood1));
-//            sliderItems.add(new SliderItem(flood1));
-            for(Bitmap bitmap : featureViewObjects.getBitmaps()){
-                sliderItems.add(new SliderItem(bitmap));
+            for(Map.Entry map  :  featureViewObjects.getBitmaps().entrySet() ){
+                sliderItems.add(new SliderItem((long)map.getKey(),(Bitmap)map.getValue()));
             }
             imageGalleryPager.setAdapter(sliderAdapter);
             imageGalleryPager.setClipToPadding(false);
             imageGalleryPager.setClipChildren(false);
             imageGalleryPager.setOffscreenPageLimit(3);
-            imageGalleryPager.getChildAt(0).setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
+
+            // Formatting how the view pager looks
+            float pageMarginPx = getResources().getDimension(R.dimen.pageMargin);
+            float offsetPx = getResources().getDimension(R.dimen.offset);
             CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
-            compositePageTransformer.addTransformer(new MarginPageTransformer(40));
+            compositePageTransformer.addTransformer((page, position) -> {
+                ViewParent viewPager = page.getParent().getParent();
+                float offset = position * -(2 * offsetPx + pageMarginPx);
+                if(ViewCompat.getLayoutDirection((View) viewPager) == ViewCompat.LAYOUT_DIRECTION_RTL){
+                    page.setTranslationX(-offset);
+                } else{
+                    page.setTranslationX(offset);
+                }
+            });
             compositePageTransformer.addTransformer((page, position) -> {
                 float r = 1 - Math.abs(position);
                 page.setScaleY(0.85f + r * 0.15f);
@@ -195,14 +220,21 @@ public class FeatureViewActivity extends AppCompatActivity {
      */
     private void addImageToGallery(Bitmap image){
         if(image != null){
-            sliderItems.add(new SliderItem(image));
+            // We can put negative values for the id since it's assigned during saving.  Make it negative so
+            // we can tell later if it's been assigned by us or created in the gpkg
+            long newMediaId = -1;
+            if(!featureViewObjects.getAddedBitmaps().isEmpty()) {
+                newMediaId = (long) (featureViewObjects.getAddedBitmaps().size()+1) * -1;
+            }
+            featureViewObjects.getAddedBitmaps().put(newMediaId,image);
+            sliderItems.add(new SliderItem(newMediaId,image));
             sliderAdapter.notifyDataSetChanged();
         }
     }
 
 
     /**
-     * Create click listeners for all buttons: cameraButton, galleryButton, closeLogo
+     * Create click listeners for all buttons: cameraButton, galleryButton, closeLogo, deleteImage
      */
     private void createButtonListeners(){
         if(cameraButton != null) {
@@ -229,6 +261,18 @@ public class FeatureViewActivity extends AppCompatActivity {
                 }
             });
         }
+        // Create delete listener
+        deleteImageListener = (view, actionType, rowId) -> {
+            if(rowId >= 0){
+                boolean deletedImage = geoPackageViewModel.deleteImageFromFeature(featureViewObjects, rowId);
+                if(deletedImage){
+                    featureViewObjects.getBitmaps().remove(rowId);
+                }
+            } else {
+                featureViewObjects.getAddedBitmaps().remove(rowId);
+            }
+            sliderAdapter.remove(rowId);
+        };
     }
 
 
@@ -245,7 +289,6 @@ public class FeatureViewActivity extends AppCompatActivity {
             layerNameText.setText(markerFeature.getTableName());
 
             // Feature Column recycler
-            StringBuilder message = new StringBuilder();
             int geometryColumn = featureViewObjects.getFeatureRow().getGeometryColumnIndex();
             for (int i = 0; i < featureViewObjects.getFeatureRow().columnCount(); i++) {
                 if (i != geometryColumn) {
@@ -288,11 +331,6 @@ public class FeatureViewActivity extends AppCompatActivity {
                         FcColumnDataObject fcRow = new FcColumnDataObject(columnName, value);
                         fcObjects.add(fcRow);
                     }
-
-                    message.append(columnName).append(": ");
-                    message.append(value);
-                    message.append("\n");
-
                 }
             }
             fcRecycler = findViewById(R.id.fc_recycler);
@@ -333,30 +371,28 @@ public class FeatureViewActivity extends AppCompatActivity {
         for(int i=0;i<fcAdapter.getmItems().size();i++){
             FcColumnDataObject fc = fcAdapter.getmItems().get(i);
             if(!fc.getmName().equalsIgnoreCase("id")) {
-                if (fc.getmValue() instanceof String) {
+                if (String.class.equals(fc.getFormat())) {
                     featureViewObjects.getFeatureRow().setValue(fc.getmName(), fc.getmValue());
-                } else if (fc.getmValue() instanceof Double) {
+                } else if (Double.class.equals(fc.getFormat())) {
                     featureViewObjects.getFeatureRow().setValue(fc.getmName(), Double.parseDouble(fc.getmValue().toString()));
-                } else if (fc.getmValue() instanceof Boolean) {
-                    featureViewObjects.getFeatureRow().setValue(fc.getmName(), (Boolean)fc.getmValue());
-                } else if (fc.getmValue() instanceof Date){
-                    // don't save dates yet
+                } else if (Boolean.class.equals(fc.getFormat())) {
+                    featureViewObjects.getFeatureRow().setValue(fc.getmName(), (Boolean) fc.getmValue());
+                } else if (Date.class.equals(fc.getFormat())) {
+                    // Don't save dates yet
                 }
             }
         }
-        // Save all attachments into the featureViewObjects object
-        if(sliderAdapter.getItemCount() != featureViewObjects.getBitmaps().size()){
-            List<Bitmap> newBitmaps = new ArrayList<>();
-            for(SliderItem item : sliderAdapter.getSliderItems()){
-                newBitmaps.add(item.getImage());
-            }
-            featureViewObjects.setBitmaps(newBitmaps);
-        }
-
+        int newImageCount = featureViewObjects.getAddedBitmaps().size();
         // Call the repository to Save the data
-        boolean updated = geoPackageViewModel.updateFeatureDao(featureViewObjects);
-        if(!updated) {
+        // We get a list of saved images back because if there are new images to save, we need to
+        // have the new media id to assign to those values
+        HashMap<Long,Bitmap> addedImages = geoPackageViewModel.saveFeatureObjectValues(featureViewObjects);
+        if(addedImages.isEmpty() && newImageCount > 0) {
             Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
+        } else{
+            // Update our local arrays to merge the newly added images to the existing image list
+            featureViewObjects.getBitmaps().putAll(addedImages);
+            featureViewObjects.getAddedBitmaps().clear();
         }
     }
 
@@ -407,7 +443,6 @@ public class FeatureViewActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),
                         "FlagUp Requires Access to Your Storage.",
                         Toast.LENGTH_SHORT).show();
-
             } else {
                 takePicture();
             }
@@ -426,7 +461,12 @@ public class FeatureViewActivity extends AppCompatActivity {
                 case 0:
                     if (resultCode == RESULT_OK && data != null) {
                         Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
-                        addImageToGallery(selectedImage);
+                        try {
+                            Bitmap rotatedImage = ImageUtils.rotateBitmap(selectedImage);
+                            addImageToGallery(rotatedImage);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 case 1:
@@ -439,7 +479,12 @@ public class FeatureViewActivity extends AppCompatActivity {
                                 cursor.moveToFirst();
                                 int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                                 String picturePath = cursor.getString(columnIndex);
-                                addImageToGallery(BitmapFactory.decodeFile(picturePath));
+                                try {
+                                    Bitmap rotatedImage = ImageUtils.rotateBitmapFromPath(picturePath);
+                                    addImageToGallery(rotatedImage);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
                                 cursor.close();
                             }
                         }

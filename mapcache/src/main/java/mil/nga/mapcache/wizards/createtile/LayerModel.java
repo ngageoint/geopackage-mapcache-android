@@ -63,5 +63,7 @@ public class LayerModel extends Observable {
      */
     public void setDescription(String description) {
         this.description = description;
+        setChanged();
+        notifyObservers();
     }
 }

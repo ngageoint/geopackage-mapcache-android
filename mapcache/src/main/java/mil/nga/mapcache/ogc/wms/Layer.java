@@ -38,6 +38,7 @@ public class Layer {
 
     /**
      * Gets the child layers.
+     *
      * @return The child layers.
      */
     public List<Layer> getLayers() {

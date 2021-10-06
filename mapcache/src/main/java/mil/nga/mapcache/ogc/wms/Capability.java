@@ -14,7 +14,8 @@ public class Capability {
     private List<Layer> layer = new ArrayList<>();
 
     /**
-     * Gets the layers for the wms service.
+     * Gets the layers for the wms service.ß
+     *
      * @return The layers for the wms service with child layers.
      */
     public List<Layer> getLayer() {

@@ -8,7 +8,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,10 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.HashSet;
 import java.util.Observable;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -103,6 +99,12 @@ public class NewTileLayerUI implements Observer {
      * The controller.
      */
     private NewTileLayerController controller;
+
+    /**
+     * If the url given has extra layers with it, this will populate a list of available layers
+     * for the user to choose from.
+     */
+    private LayersProvider provider;
 
     /**
      * Constructor
@@ -246,7 +248,10 @@ public class NewTileLayerUI implements Observer {
                 if ((model.getLayerNameError() == null || model.getLayerNameError().isEmpty())
                         && (model.getUrlError() == null || model.getUrlError().isEmpty())) {
                     alertDialog.dismiss();
-                    drawTileBoundingBox();
+                    LayersModel layers = new LayersModel();
+                    layers.addObserver(NewTileLayerUI.this);
+                    LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
+                    provider.retrieveLayers(model.getUrl());
                 }
             }
         });
@@ -272,6 +277,22 @@ public class NewTileLayerUI implements Observer {
             }
         } else if (NewTileLayerModel.SAVED_URLS_PROP.equals(o)) {
             showSavedUrls();
+        } else if (LayersModel.LAYERS_PROP.equals(o)) {
+            LayersModel layers = (LayersModel) observable;
+            if (layers.getSelectedLayer() == null || layers.getLayers().length == 0) {
+                drawTileBoundingBox();
+            } else {
+                LayersView layersView = new LayersView(context, layers);
+                layersView.show();
+            }
+        } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {
+            LayersModel layers = (LayersModel) observable;
+            // TODO: figure out the real url
+            model.setUrl(model.getUrl() + "?service=WMS&request=GetMap&layers="
+                    + layers.getSelectedLayer().getName()
+                    + "&styles=&format=image/png&transparent=true&version=1.3.0&width=256&"
+                    + "height=256&crs=EPSG:3857&bbox={minLon},{minLat},{maxLon},{maxLat}");
+            drawTileBoundingBox();
         }
     }
 

@@ -15,7 +15,7 @@ public class LayersModel extends Observable {
     /**
      * The selected layer.
      */
-    public static String SELECTED_LAYER = "selectedLayers";
+    public static String SELECTED_LAYER_PROP = "selectedLayers";
 
     /**
      * The available layers from a server.
@@ -64,6 +64,6 @@ public class LayersModel extends Observable {
     public void setSelectedLayer(LayerModel selectedLayer) {
         this.selectedLayer = selectedLayer;
         setChanged();
-        notifyObservers(SELECTED_LAYER);
+        notifyObservers(SELECTED_LAYER_PROP);
     }
 }

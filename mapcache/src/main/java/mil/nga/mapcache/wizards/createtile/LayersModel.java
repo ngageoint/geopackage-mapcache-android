@@ -44,7 +44,7 @@ public class LayersModel extends Observable {
     public void setLayers(LayerModel[] layers) {
         this.layers = layers;
         setChanged();
-        notifyObservers();
+        notifyObservers(LAYERS_PROP);
     }
 
     /**
@@ -64,6 +64,6 @@ public class LayersModel extends Observable {
     public void setSelectedLayer(LayerModel selectedLayer) {
         this.selectedLayer = selectedLayer;
         setChanged();
-        notifyObservers();
+        notifyObservers(SELECTED_LAYER);
     }
 }

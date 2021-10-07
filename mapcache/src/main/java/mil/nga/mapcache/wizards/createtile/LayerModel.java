@@ -44,7 +44,7 @@ public class LayerModel extends Observable {
     public void setName(String name) {
         this.name = name;
         setChanged();
-        notifyObservers();
+        notifyObservers(NAME_PROPERTY);
     }
 
     /**
@@ -64,6 +64,6 @@ public class LayerModel extends Observable {
     public void setDescription(String description) {
         this.description = description;
         setChanged();
-        notifyObservers();
+        notifyObservers(DESCRIPTION_PROPERTY);
     }
 }

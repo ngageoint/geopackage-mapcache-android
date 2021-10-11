@@ -94,7 +94,12 @@ public class LayersProvider implements IResponseHandler {
 
     @Override
     public void handleException(IOException exception) {
-        model.setLayers(new LayerModel[0]);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                model.setLayers(new LayerModel[0]);
+            }
+        });
         Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed: ", exception);
     }
 

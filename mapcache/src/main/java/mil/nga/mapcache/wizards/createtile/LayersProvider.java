@@ -106,17 +106,21 @@ public class LayersProvider implements IResponseHandler {
      * @param parents   The stack of parents for the layer.
      */
     private void getLayers(List<LayerModel> allLayers, Layer layer, Stack<Layer> parents) {
-        if (layer.getLayers().isEmpty()) {
+        if (!layer.getName().isEmpty()) {
             LayerModel model = new LayerModel();
             String title = parents.get(0).getTitle();
             String description = "";
             for (int i = 1; i < parents.size(); i++) {
                 description += parents.get(i).getTitle() + " ";
             }
-            model.setName(title);
+            description += layer.getTitle();
+            model.setName(layer.getName());
+            model.setTitle(title);
             model.setDescription(description);
             allLayers.add(model);
-        } else {
+        }
+
+        if (!layer.getLayers().isEmpty()) {
             parents.push(layer);
             for (Layer child : layer.getLayers()) {
                 getLayers(allLayers, child, parents);

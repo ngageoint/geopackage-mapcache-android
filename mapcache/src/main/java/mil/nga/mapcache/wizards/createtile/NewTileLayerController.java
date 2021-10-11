@@ -65,6 +65,13 @@ public class NewTileLayerController implements Observer {
         model.setSavedUrls(urlChoices);
     }
 
+    public void setUrl(LayerModel selectedLayer) {
+        model.setUrl(model.getUrl() + "?service=WMS&request=GetMap&layers="
+                + selectedLayer.getName()
+                + "&styles=&format=image/png&transparent=true&version=1.3.0&width=256&"
+                + "height=256&crs=EPSG:3857&bbox={minLon},{minLat},{maxLon},{maxLat}");
+    }
+
     @Override
     public void update(Observable observable, Object o) {
         if (NewTileLayerModel.LAYER_NAME_PROP.equals(o)) {

@@ -42,7 +42,7 @@ public class LayersList extends ArrayAdapter<LayerModel> {
         LayerModel layer = model.getLayers()[position];
         TextView txtTitle = (TextView) rowView.findViewById(R.id.title);
         TextView txtDescription = (TextView) rowView.findViewById(R.id.description);
-        txtTitle.setText(layer.getName());
+        txtTitle.setText(layer.getTitle());
         txtDescription.setText(layer.getDescription());
 
         return rowView;

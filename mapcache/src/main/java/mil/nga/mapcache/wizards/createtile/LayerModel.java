@@ -23,6 +23,11 @@ public class LayerModel extends Observable {
     private String name;
 
     /**
+     * The title of the layer.
+     */
+    private String title;
+
+    /**
      * The description of the layer.
      */
     private String description;
@@ -65,5 +70,23 @@ public class LayerModel extends Observable {
         this.description = description;
         setChanged();
         notifyObservers(DESCRIPTION_PROPERTY);
+    }
+
+    /**
+     * Gets the title of the layer.
+     *
+     * @return The title of the layer.
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title of the layer.
+     *
+     * @param title The title of the layer.
+     */
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

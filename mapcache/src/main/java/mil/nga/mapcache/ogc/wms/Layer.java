@@ -14,9 +14,32 @@ public class Layer {
     private String title;
 
     /**
+     * The unique id of the layer.
+     */
+    private String name;
+
+    /**
      * The child layers.
      */
     private List<Layer> layers = new ArrayList<>();
+
+    /**
+     * Gets the unique id of the layer.
+     *
+     * @return The unique id of the layer.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the unique id of the layer.
+     *
+     * @param name The unique id of the layer.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
     /**
      * Gets the layer's title.

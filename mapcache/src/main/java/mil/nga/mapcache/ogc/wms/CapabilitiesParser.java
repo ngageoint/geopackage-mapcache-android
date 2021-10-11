@@ -68,8 +68,12 @@ public class CapabilitiesParser extends DefaultHandler {
         super.startElement(uri, localName, qName, attributes);
         if (localName.equals("Layer")) {
             handleLayer();
-        } else if (currentLayer != null && localName.equals("Title")) {
-            currentLayer.setTitle(attributes.toString());
+        } else if (currentLayer != null) {
+            if (localName.equals("Title")) {
+                currentLayer.setTitle(attributes.toString());
+            } else if (localName.equals("Name")) {
+                currentLayer.setName(attributes.toString());
+            }
         }
     }
 

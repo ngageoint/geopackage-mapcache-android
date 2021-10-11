@@ -287,11 +287,7 @@ public class NewTileLayerUI implements Observer {
             }
         } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {
             LayersModel layers = (LayersModel) observable;
-            // TODO: figure out the real url
-            model.setUrl(model.getUrl() + "?service=WMS&request=GetMap&layers="
-                    + layers.getSelectedLayer().getName()
-                    + "&styles=&format=image/png&transparent=true&version=1.3.0&width=256&"
-                    + "height=256&crs=EPSG:3857&bbox={minLon},{minLat},{maxLon},{maxLat}");
+            controller.setUrl(layers.getSelectedLayer());
             drawTileBoundingBox();
         }
     }

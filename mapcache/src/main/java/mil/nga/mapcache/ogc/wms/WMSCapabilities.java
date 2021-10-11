@@ -8,7 +8,7 @@ public class WMSCapabilities {
     /**
      * The capability from the getCapabilities xml.
      */
-    private Capability capability;
+    private Capability capability = new Capability();
 
     /**
      * Gets the capability from the getCapabilities xml.

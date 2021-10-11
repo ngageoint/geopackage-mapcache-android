@@ -24,6 +24,21 @@ import javax.xml.parsers.SAXParserFactory;
 public class CapabilitiesParser extends DefaultHandler {
 
     /**
+     * The name of the title element.
+     */
+    private static String TITLE_ELEMENT = "Title";
+
+    /**
+     * The name of the name element.
+     */
+    private static String NAME_ELEMENT = "Name";
+
+    /**
+     * The name of the layer element.
+     */
+    private static String LAYER_ELEMENT = "Layer";
+
+    /**
      * The current WMSCapabilties being populated.
      */
     private WMSCapabilities current = null;
@@ -32,6 +47,11 @@ public class CapabilitiesParser extends DefaultHandler {
      * The current layer we are parsing.
      */
     private Layer currentLayer = null;
+
+    /**
+     * The name of the current element.
+     */
+    private String currentElementName;
 
     /**
      * The current stack of all parent layers.
@@ -57,6 +77,18 @@ public class CapabilitiesParser extends DefaultHandler {
     }
 
     @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        super.characters(ch, start, length);
+        if (currentLayer != null) {
+            if (TITLE_ELEMENT.equals(currentElementName) && currentLayer.getTitle().isEmpty()) {
+                currentLayer.setTitle(new String(ch, start, length));
+            } else if (NAME_ELEMENT.equals(currentElementName) && currentLayer.getName().isEmpty()) {
+                currentLayer.setName(new String(ch, start, length));
+            }
+        }
+    }
+
+    @Override
     public void startDocument() throws SAXException {
         super.startDocument();
         current = new WMSCapabilities();
@@ -66,21 +98,16 @@ public class CapabilitiesParser extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
         super.startElement(uri, localName, qName, attributes);
-        if (localName.equals("Layer")) {
+        currentElementName = localName;
+        if (localName.equals(LAYER_ELEMENT)) {
             handleLayer();
-        } else if (currentLayer != null) {
-            if (localName.equals("Title")) {
-                currentLayer.setTitle(attributes.toString());
-            } else if (localName.equals("Name")) {
-                currentLayer.setName(attributes.toString());
-            }
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
-        if (localName.equals("Layer")) {
+        if (localName.equals(LAYER_ELEMENT)) {
             if (parentLayers.empty()) {
                 currentLayer = null;
             } else {

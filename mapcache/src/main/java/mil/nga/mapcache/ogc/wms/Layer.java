@@ -11,12 +11,12 @@ public class Layer {
     /**
      * The layer's title.
      */
-    private String title;
+    private String title = "";
 
     /**
      * The unique id of the layer.
      */
-    private String name;
+    private String name = "";
 
     /**
      * The child layers.

@@ -34,7 +34,8 @@ public class HttpClient {
      * @param handler The response handler, called when request is complete.
      */
     public void sendGet(String url, IResponseHandler handler) {
-
+        HttpGetRequest request = new HttpGetRequest(url, handler);
+        executor.execute(request);
     }
 
     /**

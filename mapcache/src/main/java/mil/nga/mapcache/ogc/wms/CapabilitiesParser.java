@@ -46,7 +46,7 @@ public class CapabilitiesParser extends DefaultHandler {
     /**
      * The name of the GetMap Format element.
      */
-    private static String FORMAT_ELEMENT = "GetMap";
+    private static String FORMAT_ELEMENT = "Format";
 
     /**
      * The current WMSCapabilties being populated.

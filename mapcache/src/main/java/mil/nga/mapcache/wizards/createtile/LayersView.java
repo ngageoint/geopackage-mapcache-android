@@ -26,13 +26,20 @@ public class LayersView {
     private LayersModel model;
 
     /**
+     * Used as a custom adapter for the list view.
+     */
+    private LayersList adapter;
+
+    /**
      * Constructor.
+     *
      * @param context The application context.
-     * @param model The layers model.
+     * @param model   The layers model.
      */
     public LayersView(Context context, LayersModel model) {
         this.context = context;
         this.model = model;
+        adapter = new LayersList(context, model);
     }
 
     /**
@@ -41,19 +48,23 @@ public class LayersView {
     public void show() {
         LayoutInflater inflater = LayoutInflater.from(context);
         ListView layersView = (ListView) inflater.inflate(R.layout.layers_pick_list, null);
-        layersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LayerModel layer = model.getLayers()[i];
-                model.setSelectedLayer(layer);
-            }
-        });
+        layersView.setAdapter(adapter);
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(
                 context, R.style.AppCompatAlertDialogStyle)
                 .setView(layersView);
         final AlertDialog alertDialog = dialog.create();
         alertDialog.setCanceledOnTouchOutside(false);
+
+        layersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LayerModel layer = model.getLayers()[i];
+                model.setSelectedLayer(layer);
+                alertDialog.dismiss();
+            }
+        });
+
         alertDialog.show();
     }
 }

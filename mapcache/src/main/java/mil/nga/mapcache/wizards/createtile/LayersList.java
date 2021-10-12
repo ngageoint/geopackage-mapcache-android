@@ -29,7 +29,7 @@ public class LayersList extends ArrayAdapter<LayerModel> {
      * @param model   Contains all the layers.
      */
     public LayersList(@NonNull Context context, LayersModel model) {
-        super(context, R.layout.layer_row_description);
+        super(context, R.layout.layer_row_description, model.getLayers());
         this.model = model;
     }
 

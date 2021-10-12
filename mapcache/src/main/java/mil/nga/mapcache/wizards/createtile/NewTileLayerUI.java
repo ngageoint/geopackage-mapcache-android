@@ -279,7 +279,9 @@ public class NewTileLayerUI implements Observer {
             showSavedUrls();
         } else if (LayersModel.LAYERS_PROP.equals(o)) {
             LayersModel layers = (LayersModel) observable;
-            if (layers.getLayers() == null || layers.getLayers().length == 0) {
+            if (layers.getLayers() == null || layers.getLayers().length == 0 ||
+                    (layers.getSelectedLayer() != null && layers.getLayers() != null
+                            && layers.getLayers().length > 0)) {
                 drawTileBoundingBox();
             } else {
                 LayersView layersView = new LayersView(context, layers);

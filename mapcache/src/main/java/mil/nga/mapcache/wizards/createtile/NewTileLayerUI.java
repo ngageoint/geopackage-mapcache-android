@@ -1,5 +1,6 @@
 package mil.nga.mapcache.wizards.createtile;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -105,6 +106,11 @@ public class NewTileLayerUI implements Observer {
      * for the user to choose from.
      */
     private LayersProvider provider;
+
+    /**
+     * Used to show a spinning progress dialog.
+     */
+    private ProgressDialog progressDialog;
 
     /**
      * Constructor
@@ -252,6 +258,7 @@ public class NewTileLayerUI implements Observer {
                     layers.addObserver(NewTileLayerUI.this);
                     LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
                     provider.retrieveLayers(model.getUrl());
+                    showSpinningDialog();
                 }
             }
         });
@@ -278,6 +285,7 @@ public class NewTileLayerUI implements Observer {
         } else if (NewTileLayerModel.SAVED_URLS_PROP.equals(o)) {
             showSavedUrls();
         } else if (LayersModel.LAYERS_PROP.equals(o)) {
+            hideSpinningDialog();
             LayersModel layers = (LayersModel) observable;
             if (layers.getLayers() == null || layers.getLayers().length == 0 ||
                     (layers.getSelectedLayer() != null && layers.getLayers() != null
@@ -322,5 +330,26 @@ public class NewTileLayerUI implements Observer {
             builder.setMessage(fragment.getString(R.string.no_saved_urls_message));
         }
         builder.show();
+    }
+
+    /**
+     * Shows a spinning dialog while we retrieve layers from server.
+     */
+    private void showSpinningDialog() {
+        this.progressDialog = new ProgressDialog(activity);
+        progressDialog.setTitle("Retrieving Layers");
+        progressDialog.setCancelable(false);
+        progressDialog.setIndeterminate(true);
+        progressDialog.show();
+    }
+
+    /**
+     * Hides the spinning dialog.
+     */
+    private void hideSpinningDialog() {
+        if (this.progressDialog != null) {
+            this.progressDialog.dismiss();
+            this.progressDialog = null;
+        }
     }
 }

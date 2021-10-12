@@ -18,6 +18,16 @@ public class LayersModel extends Observable {
     public static String SELECTED_LAYER_PROP = "selectedLayers";
 
     /**
+     * The image formats property.
+     */
+    public static String IMAGE_FORMATS_PROP = "imageFormats";
+
+    /**
+     * The available image formats for the tiles.
+     */
+    private String[] imageFormats;
+
+    /**
      * The available layers from a server.
      */
     private LayerModel[] layers;
@@ -65,5 +75,25 @@ public class LayersModel extends Observable {
         this.selectedLayer = selectedLayer;
         setChanged();
         notifyObservers(SELECTED_LAYER_PROP);
+    }
+
+    /**
+     * Gets the available image formats for the layers tiles.
+     *
+     * @return The available image formats.
+     */
+    public String[] getImageFormats() {
+        return imageFormats;
+    }
+
+    /**
+     * Sets the available image formats for the layers tiles.
+     *
+     * @param imageFormats The availabel image formats.
+     */
+    public void setImageFormats(String[] imageFormats) {
+        this.imageFormats = imageFormats;
+        setChanged();
+        notifyObservers(IMAGE_FORMATS_PROP);
     }
 }

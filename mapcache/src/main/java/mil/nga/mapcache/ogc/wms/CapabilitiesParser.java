@@ -39,6 +39,16 @@ public class CapabilitiesParser extends DefaultHandler {
     private static String LAYER_ELEMENT = "Layer";
 
     /**
+     * The name of the GetMap element.
+     */
+    private static String GETMAP_ELEMENT = "GetMap";
+
+    /**
+     * The name of the GetMap Format element.
+     */
+    private static String FORMAT_ELEMENT = "GetMap";
+
+    /**
      * The current WMSCapabilties being populated.
      */
     private WMSCapabilities current = null;
@@ -57,6 +67,11 @@ public class CapabilitiesParser extends DefaultHandler {
      * The current stack of all parent layers.
      */
     private Stack<Layer> parentLayers = new Stack<>();
+
+    /**
+     * The parents elements we are currently parsing.
+     */
+    private Stack<String> currentElements = new Stack<>();
 
     /**
      * Parses the wms getCapabilities document and returns a new WMSCapabilities populated
@@ -86,6 +101,13 @@ public class CapabilitiesParser extends DefaultHandler {
                 currentLayer.setName(new String(ch, start, length));
             }
         }
+
+        if (FORMAT_ELEMENT.equals(currentElementName)) {
+            if (currentElements.contains(GETMAP_ELEMENT)) {
+                current.getCapability().getRequest().getGetMap().getFormat().add(
+                        new String(ch, start, length));
+            }
+        }
     }
 
     @Override
@@ -98,6 +120,7 @@ public class CapabilitiesParser extends DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
         super.startElement(uri, localName, qName, attributes);
+        currentElements.push(currentElementName);
         currentElementName = localName;
         if (localName.equals(LAYER_ELEMENT)) {
             handleLayer();
@@ -107,6 +130,7 @@ public class CapabilitiesParser extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         super.endElement(uri, localName, qName);
+        currentElementName = currentElements.pop();
         if (localName.equals(LAYER_ELEMENT)) {
             if (parentLayers.empty()) {
                 currentLayer = null;

@@ -103,7 +103,7 @@ public class CapabilitiesParser extends DefaultHandler {
         }
 
         if (FORMAT_ELEMENT.equals(currentElementName)) {
-            if (currentElements.contains(GETMAP_ELEMENT)) {
+            if (currentElements.lastElement().equals(GETMAP_ELEMENT)) {
                 current.getCapability().getRequest().getGetMap().getFormat().add(
                         new String(ch, start, length));
             }

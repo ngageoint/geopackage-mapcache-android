@@ -72,7 +72,7 @@ public class LayersProvider implements IResponseHandler {
     public void handleResponse(InputStream stream) {
         CapabilitiesParser parser = new CapabilitiesParser();
         try {
-            WMSCapabilities capabilities = parser.parse(stream);
+            final WMSCapabilities capabilities = parser.parse(stream);
             List<LayerModel> allLayers = new ArrayList<>();
             Stack<Layer> parents = new Stack<>();
             for (Layer layer : capabilities.getCapability().getLayer()) {
@@ -82,6 +82,8 @@ public class LayersProvider implements IResponseHandler {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    model.setImageFormats(capabilities.getCapability().getRequest().getGetMap()
+                            .getFormat().toArray(new String[0]));
                     model.setLayers(allLayersArray);
                 }
             });

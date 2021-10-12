@@ -14,11 +14,25 @@ public class Capability {
     private List<Layer> layer = new ArrayList<>();
 
     /**
+     * The request element.
+     */
+    private Request request = new Request();
+
+    /**
      * Gets the layers for the wms service.ß
      *
      * @return The layers for the wms service with child layers.
      */
     public List<Layer> getLayer() {
         return layer;
+    }
+
+    /**
+     * Gets the request element.
+     *
+     * @return The request element.
+     */
+    public Request getRequest() {
+        return request;
     }
 }

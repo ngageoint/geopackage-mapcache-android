@@ -297,7 +297,7 @@ public class NewTileLayerUI implements Observer {
             }
         } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {
             LayersModel layers = (LayersModel) observable;
-            controller.setUrl(layers.getSelectedLayer());
+            controller.setUrl(layers);
             drawTileBoundingBox();
         }
     }

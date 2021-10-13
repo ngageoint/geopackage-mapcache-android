@@ -5,7 +5,12 @@ import android.webkit.URLUtil;
 
 import androidx.fragment.app.Fragment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -17,7 +22,9 @@ import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 /**
  * Controller class for the first step in creating a new tile layer within a geopackage.
  */
-public class NewTileLayerController implements Observer {
+public class NewTileLayerController implements Observer, Comparator<String> {
+
+    private static String[] preferredImageFormats = {"png", "jpeg", "tiff", "gif"};
 
     /**
      * The model.
@@ -65,10 +72,16 @@ public class NewTileLayerController implements Observer {
         model.setSavedUrls(urlChoices);
     }
 
-    public void setUrl(LayerModel selectedLayer) {
+    /**
+     * Sets the proper url in the model based on what the user has selected.
+     *
+     * @param layersModel The model containing user input.
+     */
+    public void setUrl(LayersModel layersModel) {
+        String format = getFormat(layersModel);
         model.setUrl(model.getUrl() + "?service=WMS&request=GetMap&layers="
-                + selectedLayer.getName()
-                + "&styles=&format=image/png&transparent=true&version=1.3.0&width=256&"
+                + layersModel.getSelectedLayer().getName()
+                + "&styles=&format=" + format + "&transparent=true&version=1.3.0&width=256&"
                 + "height=256&crs=EPSG:3857&bbox={minLon},{minLat},{maxLon},{maxLat}");
     }
 
@@ -99,5 +112,45 @@ public class NewTileLayerController implements Observer {
                 model.setUrlError(null);
             }
         }
+    }
+
+    @Override
+    public int compare(String s, String t1) {
+        int sIndex = formatIndex(s);
+        int t1Index = formatIndex(t1);
+
+        return Integer.compare(sIndex, t1Index);
+    }
+
+    /**
+     * Based on the available formats gets the most preferred format out of all of them.
+     *
+     * @param layersModel Contains the available formats.
+     * @return The best format to use for tile downloads.
+     */
+    private String getFormat(LayersModel layersModel) {
+        List<String> formats = new ArrayList<String>(Arrays.asList(layersModel.getImageFormats()));
+        Collections.sort(formats, this);
+
+        return formats.get(0);
+    }
+
+    /**
+     * Finds the index of the format within the preferred format array.
+     *
+     * @param format The format to check.
+     * @return The index of the format within the preferred format array, or an index outside
+     * the bounds of the preferred format array if its an unknown format.
+     */
+    private int formatIndex(String format) {
+        int index = 0;
+        for (String prefFormat : preferredImageFormats) {
+            if (format.endsWith(prefFormat)) {
+                break;
+            }
+            index++;
+        }
+
+        return index;
     }
 }

@@ -37,6 +37,11 @@ public class TileBoundingBoxUI {
     private IBoundingBoxManager boxManager;
 
     /**
+     * The model containing available layers to select if the server has that available.
+     */
+    private LayersModel layers;
+
+    /**
      * Constructor.
      *
      * @param geoPackageRecycler RecyclerView that will hold our GeoPackages.
@@ -44,10 +49,11 @@ public class TileBoundingBoxUI {
      * @param boxManager         The bounding box manager.
      */
     public TileBoundingBoxUI(RecyclerView geoPackageRecycler, IMapView mapView,
-                             IBoundingBoxManager boxManager) {
+                             IBoundingBoxManager boxManager, LayersModel layers) {
         this.geoPackageRecycler = geoPackageRecycler;
         this.mapView = mapView;
         this.boxManager = boxManager;
+        this.layers = layers;
     }
 
     /**
@@ -72,8 +78,22 @@ public class TileBoundingBoxUI {
         mapView.setZoomLevelVisible(true);
 
         // Make sure the transparent box is visible, and add it to the mapview
-        mapView.getTransBox().setVisibility(View.VISIBLE);
+        View transBox = mapView.getTransBox();
+        transBox.setVisibility(View.VISIBLE);
         mapView.getTouchableMap().addView(mapView.getTransBox());
+
+        View layersButton = transBox.findViewById(R.id.layersButton);
+        if (layers.getLayers() != null && layers.getLayers().length > 0) {
+            layersButton.setVisibility(View.VISIBLE);
+            layersButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mapView.getTouchableMap().removeView(mapView.getTransBox());
+                    LayersView layersView = new LayersView(context, layers);
+                    layersView.show();
+                }
+            });
+        }
 
         // Cancel
         Button cancelTile = (Button) mapView.getTransBox().findViewById(

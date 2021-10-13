@@ -290,7 +290,7 @@ public class NewTileLayerUI implements Observer {
             if (layers.getLayers() == null || layers.getLayers().length == 0 ||
                     (layers.getSelectedLayer() != null && layers.getLayers() != null
                             && layers.getLayers().length > 0)) {
-                drawTileBoundingBox();
+                drawTileBoundingBox(layers);
             } else {
                 LayersView layersView = new LayersView(context, layers);
                 layersView.show();
@@ -298,15 +298,16 @@ public class NewTileLayerUI implements Observer {
         } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {
             LayersModel layers = (LayersModel) observable;
             controller.setUrl(layers);
-            drawTileBoundingBox();
+            drawTileBoundingBox(layers);
         }
     }
 
     /**
      * Show a message for the user to draw a bounding box on the map.  use results to create a tile layer
      */
-    private void drawTileBoundingBox() {
-        TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView, boxManager);
+    private void drawTileBoundingBox(LayersModel layers) {
+        TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView,
+                boxManager, layers);
         tileBoundsUI.show(activity, context, fragment, active, callback,
                 model.getGeopackageName(), model.getLayerName(), model.getUrl());
     }

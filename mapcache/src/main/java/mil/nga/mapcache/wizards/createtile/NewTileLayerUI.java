@@ -256,9 +256,9 @@ public class NewTileLayerUI implements Observer {
                     alertDialog.dismiss();
                     LayersModel layers = new LayersModel();
                     layers.addObserver(NewTileLayerUI.this);
+                    showSpinningDialog();
                     LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
                     provider.retrieveLayers(model.getUrl());
-                    showSpinningDialog();
                 }
             }
         });

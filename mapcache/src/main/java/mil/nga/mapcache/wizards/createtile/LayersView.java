@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -47,12 +48,13 @@ public class LayersView {
      */
     public void show() {
         LayoutInflater inflater = LayoutInflater.from(context);
-        ListView layersView = (ListView) inflater.inflate(R.layout.layers_pick_list, null);
+        View view = inflater.inflate(R.layout.layers_pick_list, null);
+        ListView layersView = view.findViewById(R.id.layersPickView);
         layersView.setAdapter(adapter);
 
         AlertDialog.Builder dialog = new AlertDialog.Builder(
                 context, R.style.AppCompatAlertDialogStyle)
-                .setView(layersView);
+                .setView(view);
         final AlertDialog alertDialog = dialog.create();
         alertDialog.setCanceledOnTouchOutside(false);
 
@@ -61,6 +63,15 @@ public class LayersView {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LayerModel layer = model.getLayers()[i];
                 model.setSelectedLayer(layer);
+                alertDialog.dismiss();
+            }
+        });
+
+        ImageView closeLogo = (ImageView) view.findViewById(R.id.new_layer_close_logo);
+        // Click listener for close button
+        closeLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 alertDialog.dismiss();
             }
         });

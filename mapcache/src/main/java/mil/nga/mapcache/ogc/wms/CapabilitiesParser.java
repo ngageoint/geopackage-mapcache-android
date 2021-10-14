@@ -49,6 +49,11 @@ public class CapabilitiesParser extends DefaultHandler {
     private static String FORMAT_ELEMENT = "Format";
 
     /**
+     * The name of the CRS element within the Layer element.
+     */
+    private static String CRS_ELEMENT = "CRS";
+
+    /**
      * The current WMSCapabilties being populated.
      */
     private WMSCapabilities current = null;
@@ -107,6 +112,8 @@ public class CapabilitiesParser extends DefaultHandler {
                 current.getCapability().getRequest().getGetMap().getFormat().add(
                         new String(ch, start, length));
             }
+        } else if (CRS_ELEMENT.equals(currentElementName)) {
+            currentLayer.getCRS().add(new String(ch, start, length));
         }
     }
 

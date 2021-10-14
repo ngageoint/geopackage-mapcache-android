@@ -124,6 +124,16 @@ public class LayersProvider implements IResponseHandler {
             model.setName(layer.getName());
             model.setTitle(title);
             model.setDescription(description);
+
+            int index = 0;
+            long[] epsgs = new long[layer.getCRS().size()];
+            for (String crs : layer.getCRS()) {
+                String[] splitCRS = crs.split(":");
+                epsgs[index] = Long.valueOf(splitCRS[splitCRS.length - 1]);
+                index++;
+            }
+            model.setEpsgs(epsgs);
+
             allLayers.add(model);
         }
 

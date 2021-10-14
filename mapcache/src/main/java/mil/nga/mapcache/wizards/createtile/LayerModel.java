@@ -1,5 +1,7 @@
 package mil.nga.mapcache.wizards.createtile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
 /**
@@ -18,6 +20,16 @@ public class LayerModel extends Observable {
     public static String DESCRIPTION_PROPERTY = "description";
 
     /**
+     * The title property.
+     */
+    public static String TITLE_PROPERTY = "title";
+
+    /**
+     * The epsgs property.
+     */
+    public static String EPSGS_PROPERTY = "epsgs";
+
+    /**
      * The name of the layer.
      */
     private String name;
@@ -31,6 +43,11 @@ public class LayerModel extends Observable {
      * The description of the layer.
      */
     private String description;
+
+    /**
+     * The available coordinate systems for this layer.
+     */
+    private long[] epsgs;
 
     /**
      * Gets the name of the layer.
@@ -88,5 +105,27 @@ public class LayerModel extends Observable {
      */
     public void setTitle(String title) {
         this.title = title;
+        setChanged();
+        notifyObservers(TITLE_PROPERTY);
+    }
+
+    /**
+     * Gets the available coordinate systems for this layer.
+     *
+     * @return The available coordinate systems for this layer.
+     */
+    public long[] getEpsgs() {
+        return epsgs;
+    }
+
+    /**
+     * Sets the available coordinate systems for this layer.
+     *
+     * @param epsgs The available coordinate systems for this layer.
+     */
+    public void setEpsgs(long[] epsgs) {
+        this.epsgs = epsgs;
+        setChanged();
+        notifyObservers(EPSGS_PROPERTY);
     }
 }

@@ -73,8 +73,19 @@ public class LayerOptionsController implements Observer {
         this.layers = layers;
 
         LayerModel layer = this.layers.getSelectedLayer();
-        if (!Arrays.asList(layer.getEpsgs()).contains(this.model.getEpsg())) {
-            this.model.setEpsg(4326);
+        if (layers.getSelectedLayer().getEpsgs() != null
+                && layers.getSelectedLayer().getEpsgs().length > 0) {
+            boolean contained = false;
+            for (long epsg : this.layers.getSelectedLayer().getEpsgs()) {
+                if (epsg == model.getEpsg()) {
+                    contained = true;
+                    break;
+                }
+            }
+
+            if (!contained) {
+                this.model.setEpsg(4326);
+            }
         }
 
         this.model.addObserver(this);
@@ -116,10 +127,15 @@ public class LayerOptionsController implements Observer {
         BoundingBox boundingBox = new BoundingBox(minLon,
                 minLat, maxLon, maxLat);
 
+        String url = model.getUrl();
+        if (layers.getSelectedLayer().getEpsgs() != null && layers.getSelectedLayer().getEpsgs().length > 0) {
+            url += "&crs=EPSG:" + model.getEpsg();
+        }
+
         // Load tiles
         LoadTilesTask.loadTiles(activity,
                 callback, active,
-                model.getGeopackageName(), model.getLayerName(), model.getUrl(), model.getMinZoom(),
+                model.getGeopackageName(), model.getLayerName(), url, model.getMinZoom(),
                 model.getMaxZoom(), compressFormat,
                 compressQuality, xyzTiles,
                 boundingBox, scaling,

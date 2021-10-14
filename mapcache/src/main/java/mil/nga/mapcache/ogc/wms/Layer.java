@@ -19,6 +19,11 @@ public class Layer {
     private String name = "";
 
     /**
+     * The different coordinate systems that are available for this layer.
+     */
+    private List<String> crs = new ArrayList<>();
+
+    /**
      * The child layers.
      */
     private List<Layer> layers = new ArrayList<>();
@@ -57,6 +62,15 @@ public class Layer {
      */
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    /**
+     * Gets the different coordinate systems that are available for this layer.
+     *
+     * @return The different coordinate systems available for this layer.
+     */
+    public List<String> getCRS() {
+        return crs;
     }
 
     /**

@@ -73,10 +73,9 @@ public class LayerOptionsController implements Observer {
         this.layers = layers;
 
         LayerModel layer = this.layers.getSelectedLayer();
-        if (layers.getSelectedLayer().getEpsgs() != null
-                && layers.getSelectedLayer().getEpsgs().length > 0) {
+        if (layer != null && layer.getEpsgs() != null && layer.getEpsgs().length > 0) {
             boolean contained = false;
-            for (long epsg : this.layers.getSelectedLayer().getEpsgs()) {
+            for (long epsg : layer.getEpsgs()) {
                 if (epsg == model.getEpsg()) {
                     contained = true;
                     break;
@@ -128,7 +127,8 @@ public class LayerOptionsController implements Observer {
                 minLat, maxLon, maxLat);
 
         String url = model.getUrl();
-        if (layers.getSelectedLayer().getEpsgs() != null && layers.getSelectedLayer().getEpsgs().length > 0) {
+        if (layers.getSelectedLayer() != null && layers.getSelectedLayer().getEpsgs() != null
+                && layers.getSelectedLayer().getEpsgs().length > 0) {
             url += "&crs=EPSG:" + model.getEpsg();
         }
 

@@ -150,7 +150,7 @@ public class TileBoundingBoxUI {
                                  String geoPackageName, String layerName, String url) {
         LayerOptionsUI layerOptions = new LayerOptionsUI(activity, context,
                 fragment, active, callback, boxManager,
-                geoPackageName, layerName, url);
+                geoPackageName, layerName, url, layers);
         layerOptions.show();
     }
 }

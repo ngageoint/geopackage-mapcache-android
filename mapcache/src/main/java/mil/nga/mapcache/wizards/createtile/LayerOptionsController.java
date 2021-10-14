@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -47,6 +48,11 @@ public class LayerOptionsController implements Observer {
     private FragmentActivity activity;
 
     /**
+     * The model containing the selected layer.
+     */
+    private LayersModel layers;
+
+    /**
      * Constructor.
      *
      * @param boxManager Contains the bounding box the user wants to put into the geopackage.
@@ -54,15 +60,23 @@ public class LayerOptionsController implements Observer {
      * @param active     The active geopackages.
      * @param activity   The activity to pass to the load tile task.
      * @param model      The model shared between the UI and controller.
+     * @param layers     The model containing the selected layer.
      */
     public LayerOptionsController(IBoundingBoxManager boxManager, ILoadTilesTask callback,
                                   GeoPackageDatabases active, FragmentActivity activity,
-                                  LayerOptionsModel model) {
+                                  LayerOptionsModel model, LayersModel layers) {
         this.boxManager = boxManager;
         this.callback = callback;
         this.active = active;
         this.activity = activity;
         this.model = model;
+        this.layers = layers;
+
+        LayerModel layer = this.layers.getSelectedLayer();
+        if (!Arrays.asList(layer.getEpsgs()).contains(this.model.getEpsg())) {
+            this.model.setEpsg(4326);
+        }
+
         this.model.addObserver(this);
     }
 

@@ -31,7 +31,7 @@ public class LayerOptionsModel extends NewTileLayerModel {
     /**
      * Either 4326 or 3857.
      */
-    private long epsg;
+    private long epsg = 3857;
 
     /**
      * Either geopackage or standard.

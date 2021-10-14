@@ -1,17 +1,12 @@
 package mil.nga.mapcache.ogc.wms;
 
-import android.renderscript.ScriptGroup;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;

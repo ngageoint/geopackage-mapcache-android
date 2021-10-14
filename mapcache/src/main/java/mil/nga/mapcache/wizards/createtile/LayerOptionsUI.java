@@ -80,6 +80,11 @@ public class LayerOptionsUI {
     private LayerOptionsController controller;
 
     /**
+     * The model containing the selected layer.
+     */
+    private LayersModel layers;
+
+    /**
      * Constructs a new layer options UI
      *
      * @param activity       Use The app context.
@@ -90,11 +95,12 @@ public class LayerOptionsUI {
      * @param geoPackageName The name of the geopackage.
      * @param layerName      The name of the layer.
      * @param url            The base url to the tile layer.
+     * @param layers         The model containing the selected layer.
      */
     public LayerOptionsUI(FragmentActivity activity, Context context, Fragment fragment,
                           GeoPackageDatabases active, ILoadTilesTask callback,
                           IBoundingBoxManager boxManager, String geoPackageName,
-                          String layerName, String url) {
+                          String layerName, String url, LayersModel layers) {
         this.activity = activity;
         this.context = context;
         this.fragment = fragment;
@@ -104,7 +110,8 @@ public class LayerOptionsUI {
         this.model.setGeopackageName(geoPackageName);
         this.model.setLayerName(layerName);
         this.model.setUrl(url);
-        controller = new LayerOptionsController(boxManager, callback, active, activity, model);
+        controller = new LayerOptionsController(
+                boxManager, callback, active, activity, model, layers);
     }
 
     /**
@@ -150,6 +157,10 @@ public class LayerOptionsUI {
             toggleSection(advancedExpand, advancedView);
         });
         RadioGroup srsGroup = (RadioGroup) tileView.findViewById(R.id.srsGroup);
+        if(model.getEpsg() != 3857) {
+            RadioButton radioButton = (RadioButton)tileView.findViewById(R.id.srs4326);
+            radioButton.setChecked(true);
+        }
         RadioGroup tileFormatGroup = (RadioGroup) tileView.findViewById(R.id.tileFormatGroup);
 
         // Open the dialog

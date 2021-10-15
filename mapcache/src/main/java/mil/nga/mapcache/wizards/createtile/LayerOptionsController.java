@@ -130,7 +130,14 @@ public class LayerOptionsController implements Observer {
         if (layers.getSelectedLayer() != null && layers.getSelectedLayer().getEpsgs() != null
                 && layers.getSelectedLayer().getEpsgs().length > 0) {
             url += "&crs=EPSG:" + model.getEpsg();
+
+            if (model.getEpsg() == 3857) {
+                url += "&bbox={minLon},{minLat},{maxLon},{maxLat}";
+            } else {
+                url += "&bbox={minLat},{minLon},{maxLat},{maxLon}";
+            }
         }
+
 
         // Load tiles
         LoadTilesTask.loadTiles(activity,

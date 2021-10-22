@@ -15,7 +15,7 @@ import mil.nga.mapcache.R;
 /**
  * Shows the user all of the available layers and allows the user to pick one.
  */
-public class LayersView {
+public abstract class LayersView {
 
     /**
      * The application context.
@@ -55,22 +55,6 @@ public class LayersView {
     }
 
     /**
-     * Gets the main view.
-     * @return The layers pick view.
-     */
-    public View getView() {
-        return view;
-    }
-
-    /**
-     * Gets the close x button in top left.
-     * @return The close button.
-     */
-    public ImageView getCloseLogo() {
-        return closeLogo;
-    }
-
-    /**
      * Shows the layers to the user for the user to make a selection.
      */
     public void show() {
@@ -82,30 +66,40 @@ public class LayersView {
         TextView title = view.findViewById(R.id.title);
         title.setText(model.getTitle());
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(
-                context, R.style.AppCompatAlertDialogStyle)
-                .setView(view);
-        final AlertDialog alertDialog = dialog.create();
-        alertDialog.setCanceledOnTouchOutside(false);
+
 
         layersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LayerModel layer = model.getLayers()[i];
                 model.setSelectedLayer(layer);
-                alertDialog.dismiss();
             }
         });
 
         closeLogo = (ImageView) view.findViewById(R.id.new_layer_close_logo);
-        // Click listener for close button
-        closeLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+    }
 
-        alertDialog.show();
+    /**
+     * Gets the application context.
+     * @return The application context.
+     */
+    protected Context getContext() {
+        return context;
+    }
+
+    /**
+     * Gets the main view.
+     * @return The layers pick view.
+     */
+    protected View getView() {
+        return view;
+    }
+
+    /**
+     * Gets the close x button in top left.
+     * @return The close button.
+     */
+    protected ImageView getCloseLogo() {
+        return closeLogo;
     }
 }

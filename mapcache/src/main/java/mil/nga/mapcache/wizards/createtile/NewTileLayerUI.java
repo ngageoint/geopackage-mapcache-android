@@ -28,6 +28,7 @@ import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.layersprovider.LayersProvider;
 import mil.nga.mapcache.layersprovider.LayersView;
+import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -295,7 +296,7 @@ public class NewTileLayerUI implements Observer {
                             && layers.getLayers().length > 0)) {
                 drawTileBoundingBox(layers);
             } else {
-                LayersView layersView = new LayersView(context, layers);
+                LayersView layersView = new LayersViewDialog(context, layers);
                 layersView.show();
             }
         } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {

@@ -15,6 +15,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.layersprovider.LayersView;
+import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
 
 /**
@@ -91,7 +92,7 @@ public class TileBoundingBoxUI {
                 @Override
                 public void onClick(View view) {
                     mapView.getTouchableMap().removeView(mapView.getTransBox());
-                    LayersView layersView = new LayersView(context, layers);
+                    LayersView layersView = new LayersViewDialog(context, layers);
                     layersView.show();
                 }
             });

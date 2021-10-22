@@ -23,6 +23,11 @@ public class LayersModel extends Observable {
     public static String IMAGE_FORMATS_PROP = "imageFormats";
 
     /**
+     * The title property.
+     */
+    public static String TITLE_PROP = "title";
+
+    /**
      * The available image formats for the tiles.
      */
     private String[] imageFormats;
@@ -36,6 +41,11 @@ public class LayersModel extends Observable {
      * The selected layer.
      */
     private LayerModel selectedLayer;
+
+    /**
+     * The title to display for the layers view.
+     */
+    private String title = "Choose your layer";
 
     /**
      * Gets the available layers from a server.
@@ -95,5 +105,23 @@ public class LayersModel extends Observable {
         this.imageFormats = imageFormats;
         setChanged();
         notifyObservers(IMAGE_FORMATS_PROP);
+    }
+
+    /**
+     * Gets the title.
+     * @return The title.
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title.
+     * @param title The title.
+     */
+    public void setTitle(String title) {
+        this.title = title;
+        setChanged();
+        notifyObservers();
     }
 }

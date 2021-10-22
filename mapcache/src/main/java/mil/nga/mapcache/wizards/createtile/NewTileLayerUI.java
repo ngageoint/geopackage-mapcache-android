@@ -25,6 +25,9 @@ import java.util.Observable;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayersModel;
+import mil.nga.mapcache.layersprovider.LayersProvider;
+import mil.nga.mapcache.layersprovider.LayersView;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;

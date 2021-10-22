@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**

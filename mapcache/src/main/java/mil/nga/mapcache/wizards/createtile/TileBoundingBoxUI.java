@@ -13,6 +13,8 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayersModel;
+import mil.nga.mapcache.layersprovider.LayersView;
 import mil.nga.mapcache.load.ILoadTilesTask;
 
 /**

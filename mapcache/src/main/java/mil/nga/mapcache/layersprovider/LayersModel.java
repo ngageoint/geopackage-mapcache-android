@@ -1,4 +1,4 @@
-package mil.nga.mapcache.wizards.createtile;
+package mil.nga.mapcache.layersprovider;
 
 import java.util.Observable;
 

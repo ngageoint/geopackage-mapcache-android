@@ -6,13 +6,14 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayerModel;
+import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.proj.ProjectionConstants;

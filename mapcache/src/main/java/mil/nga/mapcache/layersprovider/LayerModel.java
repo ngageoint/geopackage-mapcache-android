@@ -1,4 +1,4 @@
-package mil.nga.mapcache.wizards.createtile;
+package mil.nga.mapcache.layersprovider;
 
 import java.util.ArrayList;
 import java.util.List;

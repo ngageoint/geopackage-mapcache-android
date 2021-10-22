@@ -12,7 +12,7 @@ public class BasemapSettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
-        getSupportActionBar().setTitle("Saved Tile URLs");
+        getSupportActionBar().setTitle("Base maps");
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new TileUrlFragment()).commit();

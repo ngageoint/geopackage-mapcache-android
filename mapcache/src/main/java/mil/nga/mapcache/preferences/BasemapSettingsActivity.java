@@ -15,7 +15,7 @@ public class BasemapSettingsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Base maps");
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new TileUrlFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new BasemapSettingsFragment()).commit();
     }
 
     /**

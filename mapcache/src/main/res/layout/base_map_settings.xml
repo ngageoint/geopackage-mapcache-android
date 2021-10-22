@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/light_blue_background">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="0,1,2">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/imageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/map_type_default"
+                android:drawablePadding="20dp"
+                android:gravity="left|center_vertical"
+                android:text="Map" />
+
+            <Button
+                android:id="@+id/imageButton2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/map_type_satellite"
+                android:drawablePadding="20dp"
+                android:gravity="left|center_vertical"
+                android:text="@string/map_type_satellite" />
+
+            <Button
+                android:id="@+id/imageButton3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/map_type_terrain"
+                android:drawablePadding="20dp"
+                android:gravity="left|center_vertical"
+                android:text="@string/map_type_terrain" />
+        </TableRow>
+    </TableLayout>
+
+    <!--    Bottom half containing all urls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="24dp"
+        android:background="@color/light_blue_background"
+        android:orientation="vertical">
+
+        <!-- Saved url label and delete selected text -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/selected_urls_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="left"
+                android:text="Saved URLs"
+                android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
+            <!--            <TextView-->
+            <!--                android:id="@+id/delete_selected_urls"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:gravity="right"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:text="Delete Selected"-->
+            <!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
+            <!--                android:textColor="@color/black50"/>-->
+        </LinearLayout>
+
+        <ScrollView
+            android:id="@+id/scrollview_choices"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fadeScrollbars="false"
+            android:fillViewport="true">
+            <!-- All urls from shared prefs will be inserted in the below linear layout -->
+            <LinearLayout
+                android:id="@+id/item_list_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"></LinearLayout>
+        </ScrollView>
+
+
+    </LinearLayout>
+</LinearLayout>

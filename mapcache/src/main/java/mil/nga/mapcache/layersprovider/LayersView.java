@@ -72,7 +72,8 @@ public abstract class LayersView {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LayerModel layer = model.getLayers()[i];
-                model.setSelectedLayer(layer);
+                LayerModel[] layers = {layer};
+                model.setSelectedLayers(layers);
             }
         });
 

@@ -81,7 +81,7 @@ public class NewTileLayerController implements Observer, Comparator<String> {
     public void setUrl(LayersModel layersModel) {
         String format = getFormat(layersModel);
         model.setUrl(model.getUrl() + "?service=WMS&request=GetMap&layers="
-                + layersModel.getSelectedLayer().getName()
+                + layersModel.getSelectedLayers()[0].getName()
                 + "&styles=&format=" + format + "&transparent=true&width=256&"
                 + "height=256&version=1.3.0");
     }

@@ -292,14 +292,14 @@ public class NewTileLayerUI implements Observer {
             hideSpinningDialog();
             LayersModel layers = (LayersModel) observable;
             if (layers.getLayers() == null || layers.getLayers().length == 0 ||
-                    (layers.getSelectedLayer() != null && layers.getLayers() != null
+                    (layers.getSelectedLayers() != null && layers.getLayers() != null
                             && layers.getLayers().length > 0)) {
                 drawTileBoundingBox(layers);
             } else {
                 LayersView layersView = new LayersViewDialog(context, layers);
                 layersView.show();
             }
-        } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {
+        } else if (LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
             LayersModel layers = (LayersModel) observable;
             controller.setUrl(layers);
             drawTileBoundingBox(layers);

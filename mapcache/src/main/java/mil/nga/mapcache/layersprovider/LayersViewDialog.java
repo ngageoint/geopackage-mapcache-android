@@ -52,7 +52,7 @@ public class LayersViewDialog extends LayersView implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        if(LayersModel.SELECTED_LAYER_PROP.equals(o)) {
+        if(LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
             alertDialog.dismiss();
         }
     }

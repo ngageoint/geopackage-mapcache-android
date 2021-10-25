@@ -15,7 +15,7 @@ public class LayersModel extends Observable {
     /**
      * The selected layer.
      */
-    public static String SELECTED_LAYER_PROP = "selectedLayers";
+    public static String SELECTED_LAYERS_PROP = "selectedLayers";
 
     /**
      * The image formats property.
@@ -40,7 +40,7 @@ public class LayersModel extends Observable {
     /**
      * The selected layer.
      */
-    private LayerModel selectedLayer;
+    private LayerModel[] selectedLayers;
 
     /**
      * The title to display for the layers view.
@@ -72,8 +72,8 @@ public class LayersModel extends Observable {
      *
      * @return The selected layer.
      */
-    public LayerModel getSelectedLayer() {
-        return selectedLayer;
+    public LayerModel[] getSelectedLayers() {
+        return selectedLayers;
     }
 
     /**
@@ -81,10 +81,10 @@ public class LayersModel extends Observable {
      *
      * @param selectedLayer The selected layer.
      */
-    public void setSelectedLayer(LayerModel selectedLayer) {
-        this.selectedLayer = selectedLayer;
+    public void setSelectedLayers(LayerModel[] selectedLayer) {
+        this.selectedLayers = selectedLayer;
         setChanged();
-        notifyObservers(SELECTED_LAYER_PROP);
+        notifyObservers(SELECTED_LAYERS_PROP);
     }
 
     /**

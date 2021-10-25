@@ -1,5 +1,6 @@
 package mil.nga.mapcache.preferences;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -27,6 +28,8 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.HashSet;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 import mil.nga.mapcache.R;
@@ -36,7 +39,41 @@ import mil.nga.mapcache.utils.ViewAnimation;
  *  Fragment giving the user a way to modify a saved list of URLs, which will be used in the create
  *  tile layer wizard
  */
-public class BasemapSettingsFragment extends PreferenceFragmentCompat implements Preference.OnPreferenceChangeListener {
+public class BasemapSettingsFragment extends PreferenceFragmentCompat
+        implements Preference.OnPreferenceChangeListener, Observer {
+
+    /**
+     * The model.
+     */
+    private BasemapSettingsModel model = new BasemapSettingsModel();
+
+    /**
+     * The controller.
+     */
+    private BasemapSettingsController controller;
+
+    /**
+     * The list of available basemaps.
+     */
+    private LinearLayout listView;
+
+    /**
+     * Used to create each row view.
+     */
+    private LayoutInflater inflater;
+
+    /**
+     * The activity.
+     */
+    private Activity activity;
+
+    /**
+     * Constructor.
+     * @param activity The activity.
+     */
+    public BasemapSettingsFragment(Activity activity) {
+        this.activity = activity;
+    }
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -53,12 +90,40 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View urlView = inflater.inflate(R.layout.base_map_settings, container, false);
-        return urlView;
+        this.inflater = inflater;
+        View basemapView = inflater.inflate(R.layout.base_map_settings, container, false);
+        listView = basemapView.findViewById(R.id.item_list_layout);
+        this.controller = new BasemapSettingsController(
+                activity,
+                getPreferenceManager().getSharedPreferences(),
+                model);
+        model.addObserver(this);
+        refreshListView();
+        return basemapView;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         return false;
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if(BasemapSettingsModel.AVAILABLE_SERVERS_PROP.equals(o)) {
+            refreshListView();
+        }
+    }
+
+    /**
+     * Creates a row for each saved url.
+     */
+    private void refreshListView() {
+        listView.removeAllViews();
+        for(BasemapServerModel server : model.getAvailableServers()) {
+            View rowView = this.inflater.inflate(R.layout.layer_row_layout, null, true);
+            TextView textView = rowView.findViewById(R.id.layer_label);
+            textView.setText(server.getServerUrl());
+            listView.addView(rowView);
+        }
     }
 }

@@ -87,12 +87,16 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         String countText = System.lineSeparator() + "1 Layer";
         BasemapServerModel serverModel = model.getAvailableServers()[i];
         serverModel.getLayers().addObserver(this);
+
+        View simpleSwitch = view.findViewById(R.id.simpleSwitch);
         if (serverModel.getLayers().getLayers() != null
                 && serverModel.getLayers().getLayers().length > 1) {
             countText = System.lineSeparator() + serverModel.getLayers().getLayers().length + " Layers";
-            View simpleSwitch = view.findViewById(R.id.simpleSwitch);
             simpleSwitch.setVisibility(View.GONE);
+        } else {
+            simpleSwitch.setVisibility(View.VISIBLE);
         }
+
         TextView textView = view.findViewById(R.id.layer_label);
         textView.setText(serverModel.getServerUrl() + countText);
         return view;

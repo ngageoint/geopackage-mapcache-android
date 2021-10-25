@@ -10,9 +10,19 @@ import mil.nga.mapcache.layersprovider.LayersModel;
 public class BasemapServerModel extends Observable {
 
     /**
+     * The name property.
+     */
+    public static String NAME_PROP = "name";
+
+    /**
      * The server url property.
      */
-    public String SERVER_URL_PROP = "serverUrl";
+    public static String SERVER_URL_PROP = "serverUrl";
+
+    /**
+     * The name of the server.
+     */
+    private String name;
 
     /**
      * The server url.
@@ -28,6 +38,26 @@ public class BasemapServerModel extends Observable {
      * Constructor.
      */
     public BasemapServerModel() {
+    }
+
+    /**
+     * Gets the name of the server.
+     *
+     * @return The name of the server.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the name of the server.
+     *
+     * @param name The server name.
+     */
+    public void setName(String name) {
+        this.name = name;
+        setChanged();
+        notifyObservers(NAME_PROP);
     }
 
     /**
@@ -47,7 +77,7 @@ public class BasemapServerModel extends Observable {
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
         setChanged();
-        notifyObservers();
+        notifyObservers(SERVER_URL_PROP);
     }
 
     /**

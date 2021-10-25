@@ -25,9 +25,19 @@ public class BasemapSettingsModel extends Observable {
     public static String AVAILABLE_SERVERS_PROP = "availableServers";
 
     /**
+     * The exclusive servers property.
+     */
+    public static String EXCLUSIVE_SERVERS_PROP = "exclusiveServers";
+
+    /**
      * The selected basemap.
      */
     private BasemapServerModel[] selectedBasemap;
+
+    /**
+     * The map layers where only one can be selected.
+     */
+    private BasemapServerModel[] exclusiveServers;
 
     /**
      * The available basemap servers.
@@ -72,6 +82,26 @@ public class BasemapSettingsModel extends Observable {
         this.availableServers = availableServers;
         setChanged();
         notifyObservers(AVAILABLE_SERVERS_PROP);
+    }
+
+    /**
+     * Gets the map layers where only one can be selected.
+     *
+     * @return The layers where only one can be selected.
+     */
+    public BasemapServerModel[] getExclusiveServers() {
+        return exclusiveServers;
+    }
+
+    /**
+     * Sets the map layers where only one can be selected.
+     *
+     * @param exclusiveServers The layers where only one can be selected.
+     */
+    public void setExclusiveServers(BasemapServerModel[] exclusiveServers) {
+        this.exclusiveServers = exclusiveServers;
+        setChanged();
+        notifyObservers(EXCLUSIVE_SERVERS_PROP);
     }
 
     /**

@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -38,11 +39,11 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.utils.ViewAnimation;
 
 /**
- *  Fragment giving the user a way to modify a saved list of URLs, which will be used in the create
- *  tile layer wizard
+ * Fragment giving the user a way to modify a saved list of URLs, which will be used in the create
+ * tile layer wizard
  */
 public class BasemapSettingsFragment extends PreferenceFragmentCompat
-        implements Preference.OnPreferenceChangeListener, Observer {
+        implements Preference.OnPreferenceChangeListener {
 
     /**
      * The model.
@@ -57,7 +58,7 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
     /**
      * The list of available basemaps.
      */
-    private LinearLayout listView;
+    private ExpandableListView listView;
 
     /**
      * Used to create each row view.
@@ -70,12 +71,8 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
     private Activity activity;
 
     /**
-     * The rows of saved urls.
-     */
-    private List<BasemapSettingsRowView> rows = new ArrayList<>();
-
-    /**
      * Constructor.
+     *
      * @param activity The activity.
      */
     public BasemapSettingsFragment(Activity activity) {
@@ -89,8 +86,9 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
 
     /**
      * Create the parent view and set up listeners
-     * @param inflater Layout inflator
-     * @param container Main container
+     *
+     * @param inflater           Layout inflator
+     * @param container          Main container
      * @param savedInstanceState Saved instance state
      * @return Parent view for the fragment
      */
@@ -99,38 +97,17 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
                              Bundle savedInstanceState) {
         this.inflater = inflater;
         View basemapView = inflater.inflate(R.layout.base_map_settings, container, false);
-        listView = basemapView.findViewById(R.id.item_list_layout);
+        listView = basemapView.findViewById(R.id.expandableListView);
         this.controller = new BasemapSettingsController(
                 activity,
                 getPreferenceManager().getSharedPreferences(),
                 model);
-        model.addObserver(this);
-        refreshListView();
+        listView.setAdapter(new BasemapExpandableListAdapter(inflater, model));
         return basemapView;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         return false;
-    }
-
-    @Override
-    public void update(Observable observable, Object o) {
-        if(BasemapSettingsModel.AVAILABLE_SERVERS_PROP.equals(o)) {
-            refreshListView();
-        }
-    }
-
-    /**
-     * Creates a row for each saved url.
-     */
-    private void refreshListView() {
-        rows.clear();
-        listView.removeAllViews();
-        for(BasemapServerModel server : model.getAvailableServers()) {
-            BasemapSettingsRowView row = new BasemapSettingsRowView(inflater, server);
-            rows.add(row);
-            listView.addView(row.getView());
-        }
     }
 }

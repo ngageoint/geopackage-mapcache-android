@@ -110,6 +110,9 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         txtTitle.setText(layer.getTitle());
         txtDescription.setText(layer.getDescription());
 
+        View simpleSwitch = view.findViewById(R.id.simpleSwitch);
+        simpleSwitch.setVisibility(View.VISIBLE);
+
         return view;
     }
 

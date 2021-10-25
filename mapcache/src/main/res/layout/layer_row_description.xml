@@ -34,6 +34,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="0dp"
             android:layout_gravity="bottom|start"
+            android:layout_marginRight="44dp"
             android:layout_toRightOf="@id/layer_icon"
             android:layout_centerVertical="true">
 
@@ -51,5 +52,18 @@
                 android:text="This is for description"
                 android:textAppearance="@style/textAppearanceSubtitle2_light_heavy12" />
         </LinearLayout>
+
+        <!--Active layer switch-->
+        <Switch
+            android:id="@+id/simpleSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone" />
     </RelativeLayout>
 </LinearLayout>

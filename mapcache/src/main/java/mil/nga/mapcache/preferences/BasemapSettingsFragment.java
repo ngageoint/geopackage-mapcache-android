@@ -27,7 +27,9 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -66,6 +68,11 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      * The activity.
      */
     private Activity activity;
+
+    /**
+     * The rows of saved urls.
+     */
+    private List<BasemapSettingsRowView> rows = new ArrayList<>();
 
     /**
      * Constructor.
@@ -118,12 +125,12 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      * Creates a row for each saved url.
      */
     private void refreshListView() {
+        rows.clear();
         listView.removeAllViews();
         for(BasemapServerModel server : model.getAvailableServers()) {
-            View rowView = this.inflater.inflate(R.layout.layer_row_layout, null, true);
-            TextView textView = rowView.findViewById(R.id.layer_label);
-            textView.setText(server.getServerUrl());
-            listView.addView(rowView);
+            BasemapSettingsRowView row = new BasemapSettingsRowView(inflater, server);
+            rows.add(row);
+            listView.addView(row.getView());
         }
     }
 }

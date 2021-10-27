@@ -131,20 +131,25 @@ public class BasemapSettingsModel extends Observable {
      */
     public void fromString(String modelString) {
         String[] serverStrings = modelString.split(serverTag);
-        BasemapServerModel[] servers = new BasemapServerModel[serverStrings.length];
+        BasemapServerModel[] servers = new BasemapServerModel[serverStrings.length - 1];
         int index = 0;
         for (String serverString : serverStrings) {
-            BasemapServerModel server = new BasemapServerModel();
-            String[] props = serverString.split(",");
-            server.setServerUrl(props[0]);
-            LayerModel[] selectedLayers = new LayerModel[props.length - 1];
-            for (int i = 1; i < props.length; i++) {
-                LayerModel layer = new LayerModel();
-                layer.setName(props[i]);
-                selectedLayers[i - 1] = layer;
+            if (index > 0) {
+                BasemapServerModel server = new BasemapServerModel();
+                String[] props = serverString.split(",");
+                server.setServerUrl(props[0]);
+                LayerModel[] selectedLayers = new LayerModel[props.length - 1];
+                for (int i = 1; i < props.length; i++) {
+                    LayerModel layer = new LayerModel();
+                    layer.setName(props[i]);
+                    selectedLayers[i - 1] = layer;
+                }
+                server.getLayers().setSelectedLayers(selectedLayers);
+                servers[index - 1] = server;
             }
-            server.getLayers().setSelectedLayers(selectedLayers);
             index++;
         }
+
+        setSelectedBasemap(servers);
     }
 }

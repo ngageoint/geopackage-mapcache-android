@@ -19,30 +19,24 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/imageButton"
+                android:id="@+id/mapButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/map_type_default"
-                android:drawablePadding="20dp"
-                android:gravity="left|center_vertical"
+                android:drawableTop="@drawable/map_type_default"
                 android:text="Map" />
 
             <Button
-                android:id="@+id/imageButton2"
+                android:id="@+id/satButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/map_type_satellite"
-                android:drawablePadding="20dp"
-                android:gravity="left|center_vertical"
+                android:drawableTop="@drawable/map_type_satellite"
                 android:text="@string/map_type_satellite" />
 
             <Button
-                android:id="@+id/imageButton3"
+                android:id="@+id/terrainButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableLeft="@drawable/map_type_terrain"
-                android:drawablePadding="20dp"
-                android:gravity="left|center_vertical"
+                android:drawableTop="@drawable/map_type_terrain"
                 android:text="@string/map_type_terrain" />
         </TableRow>
     </TableLayout>

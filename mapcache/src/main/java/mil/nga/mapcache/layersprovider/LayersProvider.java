@@ -128,7 +128,14 @@ public class LayersProvider implements IResponseHandler {
             long[] epsgs = new long[layer.getCRS().size()];
             for (String crs : layer.getCRS()) {
                 String[] splitCRS = crs.split(":");
-                epsgs[index] = Long.valueOf(splitCRS[splitCRS.length - 1]);
+                try {
+                    epsgs[index] = Long.valueOf(splitCRS[splitCRS.length - 1]);
+                } catch (NumberFormatException e) {
+                    Log.e(
+                            LayersProvider.class.getSimpleName(),
+                            "Error parsing the EPSG for crs of " + crs,
+                            e);
+                }
                 index++;
             }
             model.setEpsgs(epsgs);

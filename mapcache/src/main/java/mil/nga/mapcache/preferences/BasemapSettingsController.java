@@ -38,9 +38,10 @@ public class BasemapSettingsController implements Observer {
 
     /**
      * Constructor.
+     *
      * @param activity The activity.
-     * @param prefs The preferences.
-     * @param model The model containing the available layers.
+     * @param prefs    The preferences.
+     * @param model    The model containing the available layers.
      */
     public BasemapSettingsController(Activity activity, SharedPreferences prefs, BasemapSettingsModel model) {
         this.activity = activity;
@@ -63,13 +64,13 @@ public class BasemapSettingsController implements Observer {
 
         // Satellite map
         BasemapServerModel satellite = new BasemapServerModel();
-        defaultMap.setServerUrl(String.valueOf(GoogleMap.MAP_TYPE_SATELLITE));
-        defaultMap.setName("Satellite");
+        satellite.setServerUrl(String.valueOf(GoogleMap.MAP_TYPE_SATELLITE));
+        satellite.setName("Satellite");
 
         // Terrain map
         BasemapServerModel terrain = new BasemapServerModel();
-        defaultMap.setServerUrl(String.valueOf(GoogleMap.MAP_TYPE_TERRAIN));
-        defaultMap.setName("Terrain");
+        terrain.setServerUrl(String.valueOf(GoogleMap.MAP_TYPE_TERRAIN));
+        terrain.setName("Terrain");
 
         BasemapServerModel[] exclusives = {defaultMap, satellite, terrain};
         model.setExclusiveServers(exclusives);
@@ -79,7 +80,7 @@ public class BasemapSettingsController implements Observer {
                 savedUrls);
         BasemapServerModel[] servers = new BasemapServerModel[savedUrls.size()];
         int index = 0;
-        for(String savedUrl : savedUrls) {
+        for (String savedUrl : savedUrls) {
             BasemapServerModel server = new BasemapServerModel();
             server.setServerUrl(savedUrl);
             LayersProvider provider = new LayersProvider(activity, server.getLayers());
@@ -94,10 +95,11 @@ public class BasemapSettingsController implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        if(BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)) {
+        if (BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)) {
             String selectedBasemapString = model.toString();
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);
+            editor.commit();
         }
     }
 }

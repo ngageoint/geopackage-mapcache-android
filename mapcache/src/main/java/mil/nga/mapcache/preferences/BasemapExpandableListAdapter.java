@@ -4,8 +4,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -108,14 +111,18 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
             view = inflater.inflate(R.layout.layer_row_description, null, true);
         }
 
-        LayerModel layer = model.getAvailableServers()[i].getLayers().getLayers()[i1];
+        final BasemapServerModel server = model.getAvailableServers()[i];
+        final LayerModel layer = model.getAvailableServers()[i].getLayers().getLayers()[i1];
         TextView txtTitle = (TextView) view.findViewById(R.id.title);
         TextView txtDescription = (TextView) view.findViewById(R.id.description);
         txtTitle.setText(layer.getTitle());
         txtDescription.setText(layer.getDescription());
 
-        View simpleSwitch = view.findViewById(R.id.simpleSwitch);
+        Switch simpleSwitch = (Switch)view.findViewById(R.id.simpleSwitch);
         simpleSwitch.setVisibility(View.VISIBLE);
+        simpleSwitch.setOnCheckedChangeListener(
+                (compoundButton, isChecked) ->
+                        layerSwitchChanged(compoundButton, isChecked, server, layer));
 
         return view;
     }
@@ -129,6 +136,31 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
     public void update(Observable observable, Object o) {
         if (LayersModel.LAYERS_PROP.equals(o)) {
             notifyDataSetChanged();
+        }
+    }
+
+    private void layerSwitchChanged(CompoundButton buttonView, boolean isChecked,
+                                    BasemapServerModel server, LayerModel layer) {
+        LayerModel[] selectedLayers = server.getLayers().getSelectedLayers();
+        if(isChecked) {
+            if (selectedLayers != null && selectedLayers.length > 0) {
+                LayerModel[] newSelectedLayers = Arrays.copyOf(selectedLayers, selectedLayers.length + 1);
+                server.getLayers().setSelectedLayers(newSelectedLayers);
+            } else {
+                LayerModel[] newSelectedLayers = new LayerModel[1];
+                newSelectedLayers[0] = layer;
+            }
+        } else {
+            int indexOf = -1;
+            for(LayerModel selected : selectedLayers) {
+                if(selected == layer) {
+                    break;
+                }
+                indexOf++;
+            }
+
+            LayerModel[] newSelectedLayers = new LayerModel[selectedLayers.length - 1];
+
         }
     }
 }

@@ -8,7 +8,9 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -98,6 +100,14 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
             simpleSwitch.setVisibility(View.GONE);
         } else {
             simpleSwitch.setVisibility(View.VISIBLE);
+            simpleSwitch.setOnCheckedChangeListener(null);
+            simpleSwitch.setChecked(false);
+            for (BasemapServerModel server : model.getSelectedBasemap()) {
+                if (serverModel.getServerUrl().equals(server.getServerUrl())) {
+                    simpleSwitch.setChecked(true);
+                    break;
+                }
+            }
             simpleSwitch.setOnCheckedChangeListener((compoundButton, isChecked)
                     -> serverSwitchChanged(compoundButton, isChecked, serverModel));
         }
@@ -122,6 +132,23 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
 
         Switch simpleSwitch = (Switch) view.findViewById(R.id.simpleSwitch);
         simpleSwitch.setVisibility(View.VISIBLE);
+        simpleSwitch.setOnCheckedChangeListener(null);
+        simpleSwitch.setChecked(false);
+        for (BasemapServerModel selectedServer : model.getSelectedBasemap()) {
+            if (server.getServerUrl().equals(selectedServer.getServerUrl())) {
+                for (LayerModel selectedLayer : selectedServer.getLayers().getSelectedLayers()) {
+                    if (layer.getName().equals(selectedLayer.getName())) {
+                        simpleSwitch.setChecked(true);
+                        break;
+                    }
+                }
+            }
+
+            if (simpleSwitch.isChecked()) {
+                break;
+            }
+        }
+
         simpleSwitch.setOnCheckedChangeListener(
                 (compoundButton, isChecked) ->
                         layerSwitchChanged(compoundButton, isChecked, server, layer));
@@ -160,7 +187,7 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
             newSelectedServers = new BasemapServerModel[selectedServers.length - 1];
             int index = 0;
             for (BasemapServerModel selectedServer : selectedServers) {
-                if (selectedServer != server) {
+                if (!selectedServer.getServerUrl().equals(server.getServerUrl())) {
                     newSelectedServers[index] = selectedServer;
                     index++;
                 }
@@ -176,49 +203,58 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
      *
      * @param buttonView The switch button.
      * @param isChecked  True if enabled, false if disabled.
-     * @param server     The server the layer belongs to.
+     * @param theServer  The server the layer belongs to.
      * @param layer      The layer that has either been enabled or disabled.
      */
     private void layerSwitchChanged(CompoundButton buttonView, boolean isChecked,
-                                    BasemapServerModel server, LayerModel layer) {
-        LayerModel[] selectedLayers = server.getLayers().getSelectedLayers();
-        if (isChecked) {
-            if (selectedLayers != null && selectedLayers.length > 0) {
+                                    BasemapServerModel theServer, LayerModel layer) {
+        LayerModel[] selectedLayers = null;
+        BasemapServerModel server = null;
+        for (BasemapServerModel selectedServer : model.getSelectedBasemap()) {
+            if (selectedServer.getServerUrl().equals(theServer.getServerUrl())) {
+                server = selectedServer;
+                selectedLayers = selectedServer.getLayers().getSelectedLayers();
+                break;
+            }
+        }
+
+        if (selectedLayers != null) {
+            if (isChecked && selectedLayers != null && selectedLayers.length > 0) {
                 LayerModel[] newSelectedLayers = Arrays.copyOf(selectedLayers, selectedLayers.length + 1);
-                newSelectedLayers[newSelectedLayers.length -1] = layer;
+                newSelectedLayers[newSelectedLayers.length - 1] = layer;
+                server.getLayers().setSelectedLayers(newSelectedLayers);
+            } else if (selectedLayers.length > 1) {
+                int index = 0;
+                LayerModel[] newSelectedLayers = new LayerModel[selectedLayers.length - 1];
+                for (LayerModel selected : selectedLayers) {
+                    if (!selected.getName().equals(layer.getName())) {
+                        newSelectedLayers[index] = selected;
+                        index++;
+                    }
+                }
+
                 server.getLayers().setSelectedLayers(newSelectedLayers);
             } else {
-                LayerModel[] newSelectedLayers = new LayerModel[1];
-                newSelectedLayers[0] = layer;
-                server.getLayers().setSelectedLayers(newSelectedLayers);
+                server.getLayers().setSelectedLayers(null);
                 BasemapServerModel[] selectedServers = model.getSelectedBasemap();
-                BasemapServerModel[] newSelectedServers = Arrays.copyOf(selectedServers, selectedServers.length + 1);
-                newSelectedServers[newSelectedServers.length - 1] = server;
-                model.setSelectedBasemap(newSelectedServers);
-            }
-        } else if (selectedLayers.length > 1) {
-            int index = 0;
-            LayerModel[] newSelectedLayers = new LayerModel[selectedLayers.length - 1];
-            for (LayerModel selected : selectedLayers) {
-                if (!selected.getName().equals(layer.getName())) {
-                    newSelectedLayers[index] = selected;
-                    index++;
+                List<BasemapServerModel> newSelectedServers = new ArrayList<>();
+                int index = 0;
+                for (BasemapServerModel selectedServer : selectedServers) {
+                    if (!selectedServer.getServerUrl().equals(server.getServerUrl())) {
+                        newSelectedServers.add(selectedServer);
+                        index++;
+                    }
                 }
-            }
 
+                model.setSelectedBasemap(newSelectedServers.toArray(new BasemapServerModel[0]));
+            }
+        } else if (isChecked) {
+            LayerModel[] newSelectedLayers = new LayerModel[1];
+            newSelectedLayers[0] = layer;
             server.getLayers().setSelectedLayers(newSelectedLayers);
-        } else {
-            server.getLayers().setSelectedLayers(null);
             BasemapServerModel[] selectedServers = model.getSelectedBasemap();
-            BasemapServerModel[] newSelectedServers = new BasemapServerModel[selectedServers.length - 1];
-            int index = 0;
-            for (BasemapServerModel selectedServer : selectedServers) {
-                if (!selectedServer.getServerUrl().equals(server.getServerUrl())) {
-                    newSelectedServers[index] = selectedServer;
-                    index++;
-                }
-            }
-
+            BasemapServerModel[] newSelectedServers = Arrays.copyOf(selectedServers, selectedServers.length + 1);
+            newSelectedServers[newSelectedServers.length - 1] = server;
             model.setSelectedBasemap(newSelectedServers);
         }
     }

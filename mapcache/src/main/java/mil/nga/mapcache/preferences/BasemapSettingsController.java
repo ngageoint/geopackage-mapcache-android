@@ -13,6 +13,7 @@ import java.util.Observer;
 import java.util.Set;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.layersprovider.LayersProvider;
 import mil.nga.mapcache.ogc.wms.Layer;
 
@@ -91,11 +92,22 @@ public class BasemapSettingsController implements Observer {
 
         model.setAvailableServers(servers);
         model.addObserver(this);
+        for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
+            selectedServers.getLayers().addObserver(this);
+        }
     }
 
     @Override
     public void update(Observable observable, Object o) {
-        if (BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)) {
+        if (BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)
+                || LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
+            if(BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)) {
+                for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
+                    selectedServers.getLayers().deleteObserver(this);
+                    selectedServers.getLayers().addObserver(this);
+                }
+            }
+
             String selectedBasemapString = model.toString();
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);

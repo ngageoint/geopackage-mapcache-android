@@ -16,6 +16,7 @@ import mil.nga.mapcache.layersprovider.LayerModel;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
 import mil.nga.proj.ProjectionConstants;
 
 /**
@@ -130,13 +131,7 @@ public class LayerOptionsController implements Observer {
         String url = model.getUrl();
         if (layers.getSelectedLayers() != null && layers.getSelectedLayers()[0].getEpsgs() != null
                 && layers.getSelectedLayers()[0].getEpsgs().length > 0) {
-            url += "&crs=EPSG:" + model.getEpsg();
-
-            if (model.getEpsg() == 3857) {
-                url += "&bbox={minLon},{minLat},{maxLon},{maxLat}";
-            } else {
-                url += "&bbox={minLat},{minLon},{maxLat},{maxLon}";
-            }
+            url = WMSUrlProvider.getInstance().getUrlBoundBoxCRS(url, String.valueOf(model.getEpsg()));
         }
 
 

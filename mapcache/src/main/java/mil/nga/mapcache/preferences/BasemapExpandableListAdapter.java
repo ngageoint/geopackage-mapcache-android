@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -93,23 +94,30 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         BasemapServerModel serverModel = model.getAvailableServers()[i];
         serverModel.getLayers().addObserver(this);
 
+        ProgressBar progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
         Switch simpleSwitch = (Switch) view.findViewById(R.id.simpleSwitch);
-        if (serverModel.getLayers().getLayers() != null
-                && serverModel.getLayers().getLayers().length > 1) {
-            countText = System.lineSeparator() + serverModel.getLayers().getLayers().length + " Layers";
-            simpleSwitch.setVisibility(View.GONE);
+        if(serverModel.getLayers().getLayers() == null) {
+            progressBar.setVisibility(View.VISIBLE);
+            simpleSwitch.setVisibility(View.INVISIBLE);
         } else {
+            progressBar.setVisibility(View.INVISIBLE);
             simpleSwitch.setVisibility(View.VISIBLE);
-            simpleSwitch.setOnCheckedChangeListener(null);
-            simpleSwitch.setChecked(false);
-            for (BasemapServerModel server : model.getSelectedBasemap()) {
-                if (serverModel.getServerUrl().equals(server.getServerUrl())) {
-                    simpleSwitch.setChecked(true);
-                    break;
+            if (serverModel.getLayers().getLayers().length > 1) {
+                countText = System.lineSeparator() + serverModel.getLayers().getLayers().length + " Layers";
+                simpleSwitch.setVisibility(View.GONE);
+            } else {
+                simpleSwitch.setVisibility(View.VISIBLE);
+                simpleSwitch.setOnCheckedChangeListener(null);
+                simpleSwitch.setChecked(false);
+                for (BasemapServerModel server : model.getSelectedBasemap()) {
+                    if (serverModel.getServerUrl().equals(server.getServerUrl())) {
+                        simpleSwitch.setChecked(true);
+                        break;
+                    }
                 }
+                simpleSwitch.setOnCheckedChangeListener((compoundButton, isChecked)
+                        -> serverSwitchChanged(compoundButton, isChecked, serverModel));
             }
-            simpleSwitch.setOnCheckedChangeListener((compoundButton, isChecked)
-                    -> serverSwitchChanged(compoundButton, isChecked, serverModel));
         }
 
         TextView textView = view.findViewById(R.id.layer_label);

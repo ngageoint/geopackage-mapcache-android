@@ -94,27 +94,36 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         BasemapServerModel serverModel = model.getAvailableServers()[i];
         serverModel.getLayers().addObserver(this);
 
-        ProgressBar progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
+        ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         Switch simpleSwitch = (Switch) view.findViewById(R.id.simpleSwitch);
-        if(serverModel.getLayers().getLayers() == null) {
+        if (serverModel.getLayers().getLayers() == null) {
             progressBar.setVisibility(View.VISIBLE);
             simpleSwitch.setVisibility(View.INVISIBLE);
         } else {
             progressBar.setVisibility(View.INVISIBLE);
             simpleSwitch.setVisibility(View.VISIBLE);
+
+            BasemapServerModel selectedServer = null;
+            for (BasemapServerModel server : model.getSelectedBasemap()) {
+                if (serverModel.getServerUrl().equals(server.getServerUrl())) {
+                    selectedServer = server;
+                    break;
+                }
+            }
+
             if (serverModel.getLayers().getLayers().length > 1) {
                 countText = System.lineSeparator() + serverModel.getLayers().getLayers().length + " Layers";
+                if (selectedServer != null && selectedServer.getLayers().getSelectedLayers() != null
+                        && selectedServer.getLayers().getSelectedLayers().length > 0) {
+                    countText += "   " + selectedServer.getLayers().getSelectedLayers().length +
+                            " Enabled";
+                }
                 simpleSwitch.setVisibility(View.GONE);
             } else {
                 simpleSwitch.setVisibility(View.VISIBLE);
                 simpleSwitch.setOnCheckedChangeListener(null);
                 simpleSwitch.setChecked(false);
-                for (BasemapServerModel server : model.getSelectedBasemap()) {
-                    if (serverModel.getServerUrl().equals(server.getServerUrl())) {
-                        simpleSwitch.setChecked(true);
-                        break;
-                    }
-                }
+                simpleSwitch.setChecked(selectedServer != null);
                 simpleSwitch.setOnCheckedChangeListener((compoundButton, isChecked)
                         -> serverSwitchChanged(compoundButton, isChecked, serverModel));
             }

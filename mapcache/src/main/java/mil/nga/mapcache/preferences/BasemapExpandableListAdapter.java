@@ -251,10 +251,10 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         } else if (isChecked) {
             LayerModel[] newSelectedLayers = new LayerModel[1];
             newSelectedLayers[0] = layer;
-            server.getLayers().setSelectedLayers(newSelectedLayers);
+            theServer.getLayers().setSelectedLayers(newSelectedLayers);
             BasemapServerModel[] selectedServers = model.getSelectedBasemap();
             BasemapServerModel[] newSelectedServers = Arrays.copyOf(selectedServers, selectedServers.length + 1);
-            newSelectedServers[newSelectedServers.length - 1] = server;
+            newSelectedServers[newSelectedServers.length - 1] = theServer;
             model.setSelectedBasemap(newSelectedServers);
         }
     }

@@ -3,8 +3,6 @@ package mil.nga.mapcache.preferences;
 import android.app.Activity;
 import android.content.SharedPreferences;
 
-import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.maps.GoogleMap;
 
 import java.util.HashSet;
@@ -15,7 +13,6 @@ import java.util.Set;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.layersprovider.LayersProvider;
-import mil.nga.mapcache.ogc.wms.Layer;
 
 /**
  * The controller for the basemap settings.
@@ -30,7 +27,7 @@ public class BasemapSettingsController implements Observer {
     /**
      * The model containing the available layers.
      */
-    private BasemapSettingsModel model;
+    private BasemapSettings model;
 
     /**
      * The activity.
@@ -44,7 +41,7 @@ public class BasemapSettingsController implements Observer {
      * @param prefs    The preferences.
      * @param model    The model containing the available layers.
      */
-    public BasemapSettingsController(Activity activity, SharedPreferences prefs, BasemapSettingsModel model) {
+    public BasemapSettingsController(Activity activity, SharedPreferences prefs, BasemapSettings model) {
         this.activity = activity;
         this.prefs = prefs;
         this.model = model;
@@ -55,8 +52,7 @@ public class BasemapSettingsController implements Observer {
      * Loads the model with the available layers and what basemaps have been selected.
      */
     private void loadModel() {
-        String basemapsString = prefs.getString(activity.getString(R.string.selectedBasemaps), "");
-        model.fromString(basemapsString);
+        BasemapSettingsLoader.getInstance().loadSettings(activity, prefs, model);
 
         // Default map
         BasemapServerModel defaultMap = new BasemapServerModel();
@@ -99,9 +95,9 @@ public class BasemapSettingsController implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        if (BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)
+        if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)
                 || LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
-            if(BasemapSettingsModel.SELECTED_BASEMAP_PROP.equals(o)) {
+            if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)) {
                 for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
                     selectedServers.getLayers().deleteObserver(this);
                     selectedServers.getLayers().addObserver(this);

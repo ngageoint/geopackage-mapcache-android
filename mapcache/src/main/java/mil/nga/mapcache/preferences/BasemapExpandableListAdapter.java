@@ -32,7 +32,7 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
     /**
      * Contains the servers and their layers.
      */
-    private BasemapSettingsModel model;
+    private BasemapSettings model;
 
     /**
      * Constructor.
@@ -40,7 +40,7 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
      * @param inflater The layout inflater.
      * @param model    Contains the servers and their layers.
      */
-    public BasemapExpandableListAdapter(LayoutInflater inflater, BasemapSettingsModel model) {
+    public BasemapExpandableListAdapter(LayoutInflater inflater, BasemapSettings model) {
         this.inflater = inflater;
         this.model = model;
     }

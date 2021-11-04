@@ -7,7 +7,7 @@ import mil.nga.mapcache.layersprovider.LayerModel;
 /**
  * Contains the available basemap servers and maintains which one the user has selected.
  */
-public class BasemapSettingsModel extends Observable {
+public class BasemapSettings extends Observable {
 
     /**
      * String used to seperate different servers when writing the selected servers to a string.

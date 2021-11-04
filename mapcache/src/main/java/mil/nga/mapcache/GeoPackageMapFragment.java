@@ -220,6 +220,7 @@ import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
+import mil.nga.mapcache.view.map.BasemapApplier;
 import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
 import mil.nga.mapcache.view.map.feature.PointView;
@@ -747,6 +748,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private ShareTask shareTask;
 
+    /**
+     * Controls user selected basemaps.
+     */
+    private BasemapApplier basemapApplier;
+
 
     /**
      * Constructor
@@ -850,6 +856,9 @@ public class GeoPackageMapFragment extends Fragment implements
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
+        if(basemapApplier != null) {
+            basemapApplier.applyBasemaps(map);
+        }
     }
 
     /**
@@ -2748,6 +2757,8 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
+        basemapApplier = new BasemapApplier(getActivity(),
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
         // Call the initial update to the settings
         settingsUpdate();
     }

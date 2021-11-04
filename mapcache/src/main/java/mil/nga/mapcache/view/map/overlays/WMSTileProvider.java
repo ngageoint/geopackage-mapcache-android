@@ -41,8 +41,8 @@ public class WMSTileProvider extends UrlTileProvider {
         double latDelta = 180 / numberOfGrids;
         double lonDelta = 360 / numberOfGrids;
 
-        double minLat = 90 - y * latDelta;
-        double maxLat = minLat + latDelta;
+        double maxLat = 90 - y * latDelta;
+        double minLat = maxLat - latDelta;
         double minLon = -180 + x * lonDelta;
         double maxLon = minLon + lonDelta;
 

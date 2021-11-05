@@ -4,7 +4,6 @@
 
 # Built application files
 *.apk
-!docs/legacy/*.apk
 *.ap_
 
 # Generated files

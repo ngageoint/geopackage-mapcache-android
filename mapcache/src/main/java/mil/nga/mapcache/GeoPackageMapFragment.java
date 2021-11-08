@@ -3976,6 +3976,7 @@ public class GeoPackageMapFragment extends Fragment implements
         map.clear();
         geoPackages.closeAll();
         featureDaos.clear();
+        basemapApplier.clear();
 
         if (zoom) {
             zoomToActiveBounds();
@@ -4152,6 +4153,9 @@ public class GeoPackageMapFragment extends Fragment implements
             toleranceDistance = (Double) params[3];
             filter = (Boolean) params[4];
             update(this, zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            getActivity().runOnUiThread(()->{
+                basemapApplier.applyBasemaps(map);
+            });
             return null;
         }
 

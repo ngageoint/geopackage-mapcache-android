@@ -9,12 +9,32 @@ import com.google.android.gms.maps.model.UrlTileProvider;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import mil.nga.geopackage.BoundingBox;
 import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
 
 /**
  * The url provider for wms tiles used by google maps.
  */
 public class WMSTileProvider extends UrlTileProvider {
+    /**
+     * The size of the map in meters.
+     */
+    private static final double MAP_SIZE = 20037508.34789244 * 2;
+
+    /**
+     * The starting meters for the longitude and latitude.
+     */
+    private static final double[] TILE_ORIGIN = {-20037508.34789244, 20037508.34789244};
+
+    /**
+     * The index of the longitude origin.
+     */
+    private static final int ORIG_X = 0;
+
+    /**
+     * The index of the latitude origin.
+     */
+    private static final int ORIG_Y = 1;
 
     /**
      * The wms url to retrieve a single tile. Needs the bounding box values though still.
@@ -46,10 +66,13 @@ public class WMSTileProvider extends UrlTileProvider {
         double minLon = -180 + x * lonDelta;
         double maxLon = minLon + lonDelta;
 
-        String tileUrl = urlNeedsBoundingBox.replace("{minLat}", String.valueOf(minLat));
-        tileUrl = tileUrl.replace("{minLon}", String.valueOf(minLon));
-        tileUrl = tileUrl.replace("{maxLat}", String.valueOf(maxLat));
-        tileUrl = tileUrl.replace("{maxLon}", String.valueOf(maxLon));
+        BoundingBox bounds = getBoundingBox(x, y, z);
+
+        String tileUrl = urlNeedsBoundingBox.replace("{minLat}",
+                String.valueOf(bounds.getMinLatitude()));
+        tileUrl = tileUrl.replace("{minLon}", String.valueOf(bounds.getMinLongitude()));
+        tileUrl = tileUrl.replace("{maxLat}", String.valueOf(bounds.getMaxLatitude()));
+        tileUrl = tileUrl.replace("{maxLon}", String.valueOf(bounds.getMaxLongitude()));
 
         URL theTileUrl = null;
         try {
@@ -59,5 +82,25 @@ public class WMSTileProvider extends UrlTileProvider {
         }
 
         return theTileUrl;
+    }
+
+    /**
+     * Given x,y,z gets the bounding box of the tile.
+     *
+     * @param x    The x value of the google tile.
+     * @param y    The y value of the google tile.
+     * @param zoom The zoom level of the google tile.
+     * @return The bounding box in 3857 for the tile.
+     */
+    private BoundingBox getBoundingBox(int x, int y, int zoom) {
+        double tileSize = MAP_SIZE / Math.pow(2, zoom);
+        double minx = TILE_ORIGIN[ORIG_X] + x * tileSize;
+        double maxx = TILE_ORIGIN[ORIG_X] + (x + 1) * tileSize;
+        double miny = TILE_ORIGIN[ORIG_Y] - (y + 1) * tileSize;
+        double maxy = TILE_ORIGIN[ORIG_Y] - y * tileSize;
+
+        BoundingBox bbox = new BoundingBox(minx, miny, maxx, maxy);
+
+        return bbox;
     }
 }

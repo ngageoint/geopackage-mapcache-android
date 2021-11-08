@@ -82,6 +82,7 @@ public class BasemapApplier {
                         if (provider != null) {
                             TileOverlayOptions options = new TileOverlayOptions();
                             options.tileProvider(provider);
+                            options.zIndex(-2);
                             serversProviders.put(layer.getName(), map.addTileOverlay(options));
                             newProviders.add(provider);
                         }
@@ -97,7 +98,9 @@ public class BasemapApplier {
                         Map<String, TileOverlay> singleLayer = new HashMap<>();
                         TileOverlayOptions options = new TileOverlayOptions();
                         options.tileProvider(provider);
-                        singleLayer.put(server.getServerUrl(), map.addTileOverlay(options));
+                        TileOverlay overlay = map.addTileOverlay(options);
+                        overlay.setVisible(true);
+                        singleLayer.put(server.getServerUrl(), overlay);
                         currentProviders.put(server.getServerUrl(), singleLayer);
                         newProviders.add(provider);
                     }
@@ -142,6 +145,13 @@ public class BasemapApplier {
     }
 
     /**
+     * Clears out any
+     */
+    public void clear() {
+        currentProviders.clear();
+    }
+
+    /**
      * Creates the TileProvider for the specific server based on the url format.
      *
      * @param baseUrl   The server's base url.
@@ -152,7 +162,7 @@ public class BasemapApplier {
         TileProvider tileProvider = null;
 
         if (baseUrl.toLowerCase(Locale.ROOT).contains("wmsserver")) {
-            tileProvider = new WMSTileProvider(baseUrl, layerName, "png");
+            tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png");
         }
 
         return tileProvider;

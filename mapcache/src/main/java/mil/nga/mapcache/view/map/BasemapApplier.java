@@ -3,6 +3,7 @@ package mil.nga.mapcache.view.map;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Tile;
@@ -61,6 +62,9 @@ public class BasemapApplier {
      * @param map The map to add basemaps too.
      */
     public void applyBasemaps(GoogleMap map) {
+        int mapType = prefs.getInt(BasemapSettingsLoader.MAP_TYPE_KEY, 1);
+        map.setMapType(mapType);
+
         BasemapSettings settings = BasemapSettingsLoader.getInstance().loadSettings(activity, prefs);
 
         Map<String, Set<String>> allProviders = new HashMap<>();
@@ -150,6 +154,21 @@ public class BasemapApplier {
      */
     public void clear() {
         currentProviders.clear();
+    }
+
+    /**
+     * Sets the map type.
+     *
+     * @param map     The google map to set the map type.
+     * @param mapType The base map type.
+     */
+    public void setMapType(GoogleMap map, int mapType) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(BasemapSettingsLoader.MAP_TYPE_KEY, mapType);
+        editor.commit();
+        if (map != null) {
+            map.setMapType(mapType);
+        }
     }
 
     /**

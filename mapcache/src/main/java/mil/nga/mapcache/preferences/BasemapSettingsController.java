@@ -107,6 +107,7 @@ public class BasemapSettingsController implements Observer {
             String selectedBasemapString = model.toString();
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);
+            editor.putInt(BasemapSettingsLoader.MAP_TYPE_KEY, Integer.valueOf(model.getSelectedBasemap()[0].getServerUrl()));
             editor.commit();
         }
     }

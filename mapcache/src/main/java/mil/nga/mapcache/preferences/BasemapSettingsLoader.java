@@ -16,6 +16,11 @@ public class BasemapSettingsLoader {
     private static BasemapSettingsLoader instance = new BasemapSettingsLoader();
 
     /**
+     * Map type key for saving to preferences
+     */
+    public static final String MAP_TYPE_KEY = "map_type_key";
+
+    /**
      * Gets the instance of this loader.
      *
      * @return
@@ -50,6 +55,8 @@ public class BasemapSettingsLoader {
     public void loadSettings(Activity activity, SharedPreferences prefs, BasemapSettings settings) {
         String basemapsString = prefs.getString(activity.getString(R.string.selectedBasemaps), "");
         settings.fromString(basemapsString);
+        int mapType = prefs.getInt(BasemapSettingsLoader.MAP_TYPE_KEY, 1);
+        settings.getSelectedBasemap()[0].setServerUrl(String.valueOf(mapType));
     }
 
     /**

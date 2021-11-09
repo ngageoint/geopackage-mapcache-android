@@ -23,6 +23,7 @@ import mil.nga.mapcache.preferences.BasemapServerModel;
 import mil.nga.mapcache.preferences.BasemapSettings;
 import mil.nga.mapcache.preferences.BasemapSettingsLoader;
 import mil.nga.mapcache.view.map.overlays.WMSTileProvider;
+import mil.nga.mapcache.view.map.overlays.XYZTileProvider;
 
 /**
  * Based on the settings applies various base maps to the map if the user has selected any custom
@@ -161,8 +162,10 @@ public class BasemapApplier {
     private TileProvider createProvider(String baseUrl, String layerName) {
         TileProvider tileProvider = null;
 
-        if (baseUrl.toLowerCase(Locale.ROOT).contains("wmsserver")) {
+        if (WMSTileProvider.canProvide(baseUrl)) {
             tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png");
+        } else if (XYZTileProvider.canProvide(baseUrl)) {
+            tileProvider = new XYZTileProvider(baseUrl);
         }
 
         return tileProvider;

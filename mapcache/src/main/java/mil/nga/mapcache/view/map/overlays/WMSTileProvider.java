@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.UrlTileProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Locale;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
@@ -52,6 +53,16 @@ public class WMSTileProvider extends UrlTileProvider {
         this.urlNeedsBoundingBox = WMSUrlProvider.getInstance().getUrlNoBoundingBox(
                 baseUrl, layerName, format);
         this.urlNeedsBoundingBox = WMSUrlProvider.getInstance().getUrlBoundBoxCRS(urlNeedsBoundingBox, "3857");
+    }
+
+    /**
+     * Checks if it can provide tiles for the base url.
+     *
+     * @param baseUrl The baseUrl to the server to test.
+     * @return True if this can provide tiles for the baseUrl, false if it can't.
+     */
+    public static boolean canProvide(String baseUrl) {
+        return baseUrl.toLowerCase(Locale.ROOT).contains("wmsserver");
     }
 
     @Nullable

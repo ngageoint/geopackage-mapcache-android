@@ -255,6 +255,7 @@ public class NewTileLayerUI implements Observer {
             public void onClick(View v) {
                 model.setLayerName(inputName.getText().toString());
                 model.setUrl(inputUrl.getText().toString());
+                model.setBaseUrl(model.getUrl());
                 if ((model.getLayerNameError() == null || model.getLayerNameError().isEmpty())
                         && (model.getUrlError() == null || model.getUrlError().isEmpty())) {
                     alertDialog.dismiss();

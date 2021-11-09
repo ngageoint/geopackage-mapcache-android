@@ -21,6 +21,11 @@ public class LayersViewDialog extends LayersView implements Observer {
     private AlertDialog alertDialog;
 
     /**
+     * The layers model.
+     */
+    private LayersModel model;
+
+    /**
      * Constructor.
      *
      * @param context The application context.
@@ -28,6 +33,7 @@ public class LayersViewDialog extends LayersView implements Observer {
      */
     public LayersViewDialog(Context context, LayersModel model) {
         super(context, model);
+        this.model = model;
         model.addObserver(this);
     }
 
@@ -43,6 +49,7 @@ public class LayersViewDialog extends LayersView implements Observer {
         getCloseLogo().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                model.setSelectedLayers(model.getSelectedLayers());
                 alertDialog.dismiss();
             }
         });
@@ -52,7 +59,7 @@ public class LayersViewDialog extends LayersView implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        if(LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
+        if (LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
             alertDialog.dismiss();
         }
     }

@@ -20,6 +20,11 @@ public class NewTileLayerModel extends Observable {
     public static String LAYER_NAME_ERROR_PROP = "layerNameError";
 
     /**
+     * The base url property.
+     */
+    public static String BASE_URL_PROP = "baseUrl";
+
+    /**
      * The url property.
      */
     public static String URL_PROP = "url";
@@ -48,6 +53,11 @@ public class NewTileLayerModel extends Observable {
      * Contains error message for layer name.
      */
     private String layerNameError = null;
+
+    /**
+     * The base url to the server.
+     */
+    private String baseUrl;
 
     /**
      * The base url to the layer.
@@ -112,6 +122,26 @@ public class NewTileLayerModel extends Observable {
         this.layerNameError = layerNameError;
         setChanged();
         notifyObservers(LAYER_NAME_ERROR_PROP);
+    }
+
+    /**
+     * Gets the base url to the server.
+     *
+     * @return The url to the server.
+     */
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    /**
+     * Sets the base url to the server.
+     *
+     * @param baseUrl The base url to the server.
+     */
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+        setChanged();
+        notifyObservers(BASE_URL_PROP);
     }
 
     /**

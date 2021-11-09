@@ -82,7 +82,7 @@ public class NewTileLayerController implements Observer, Comparator<String> {
     public void setUrl(LayersModel layersModel) {
         String format = getFormat(layersModel);
         String url = WMSUrlProvider.getInstance().getUrlNoBoundingBox(
-                model.getUrl(), layersModel.getSelectedLayers()[0].getName(), format);
+                model.getBaseUrl(), layersModel.getSelectedLayers()[0].getName(), format);
         model.setUrl(url);
     }
 

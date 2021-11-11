@@ -1,6 +1,7 @@
 package mil.nga.mapcache.preferences;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -109,12 +110,21 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         model.addObserver((observable, o) -> modelUpdate(observable, o));
         updateButtonColors();
 
+        Button newServerButton = basemapView.findViewById(R.id.button);
+        newServerButton.setOnClickListener(view -> launchSavedUrls());
+
         return basemapView;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         return false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.controller.loadModel();
     }
 
     /**
@@ -193,10 +203,19 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
     }
 
     /**
+     * Launches the saved urls settings page to allow user to add more tile servers.
+     */
+    private void launchSavedUrls() {
+        Intent myIntent = new Intent(this.activity, TileUrlActivity.class);
+        this.activity.startActivity(myIntent);
+    }
+
+    /**
      * Updates the button colors to reflect which base map is currently the defaulted one.
      */
     private void updateButtonColors() {
-        if (model.getSelectedBasemap() != null && model.getSelectedBasemap().length > 0) {
+        if (model.getSelectedBasemap() != null && model.getSelectedBasemap().length > 0
+            && model.getExclusiveServers() != null) {
             BasemapServerModel exclusiveLayer = model.getSelectedBasemap()[0];
             String name = "";
             for (BasemapServerModel anExclusive : model.getExclusiveServers()) {

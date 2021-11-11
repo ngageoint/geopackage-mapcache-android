@@ -41,48 +41,48 @@
         </TableRow>
     </TableLayout>
 
-    <!--    Bottom half containing all urls -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="24dp"
-        android:background="@color/light_blue_background"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        tools:context=".TurbooneFragment">
 
-        <!-- Saved url label and delete selected text -->
-        <LinearLayout
+            <!-- Saved url label and delete selected text -->
+
+            <LinearLayout
+                android:id="@+id/selectedUrls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/selected_urls_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="left"
+                    android:text="Saved URLs"
+                    android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
+            </LinearLayout>
+
+            <ExpandableListView
+                android:id="@+id/expandableListView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@android:color/darker_gray"
+                android:dividerHeight="0.5dp"
+                android:layout_below="@+id/selectedUrls"
+                android:layout_above="@id/button">
+
+            </ExpandableListView>
+
+        <Button
+            android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:background="@color/active_on"
+            android:text="@string/new_tile_server"
+            android:visibility="visible"
+            android:layout_alignParentBottom="true"/>
+    </RelativeLayout>
 
-            <TextView
-                android:id="@+id/selected_urls_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="left"
-                android:text="Saved URLs"
-                android:textAppearance="@style/textAppearanceSubtitle1Heavy" />
-            <!--            <TextView-->
-            <!--                android:id="@+id/delete_selected_urls"-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:gravity="right"-->
-            <!--                android:layout_weight="1"-->
-            <!--                android:text="Delete Selected"-->
-            <!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-            <!--                android:textColor="@color/black50"/>-->
-        </LinearLayout>
-
-        <ExpandableListView
-            android:id="@+id/expandableListView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="0.5dp" />
-
-
-    </LinearLayout>
 </LinearLayout>

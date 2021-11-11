@@ -43,11 +43,18 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
     public BasemapExpandableListAdapter(LayoutInflater inflater, BasemapSettings model) {
         this.inflater = inflater;
         this.model = model;
+        this.model.addObserver(this);
     }
 
     @Override
     public int getGroupCount() {
-        return this.model.getAvailableServers().length;
+        int groupCount = 0;
+
+        if(this.model.getAvailableServers() != null) {
+            groupCount = this.model.getAvailableServers().length;
+        }
+
+         return groupCount;
     }
 
     @Override
@@ -180,7 +187,7 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
 
     @Override
     public void update(Observable observable, Object o) {
-        if (LayersModel.LAYERS_PROP.equals(o)) {
+        if (LayersModel.LAYERS_PROP.equals(o) || BasemapSettings.AVAILABLE_SERVERS_PROP.equals(o)) {
             notifyDataSetChanged();
         }
     }

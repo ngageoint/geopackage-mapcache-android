@@ -45,13 +45,12 @@ public class BasemapSettingsController implements Observer {
         this.activity = activity;
         this.prefs = prefs;
         this.model = model;
-        loadModel();
     }
 
     /**
      * Loads the model with the available layers and what basemaps have been selected.
      */
-    private void loadModel() {
+    public void loadModel() {
         BasemapSettingsLoader.getInstance().loadSettings(activity, prefs, model);
 
         // Default map

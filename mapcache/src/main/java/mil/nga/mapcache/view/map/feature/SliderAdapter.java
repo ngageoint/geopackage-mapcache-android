@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.button.MaterialButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.mapcache.R;
@@ -26,12 +27,19 @@ import mil.nga.mapcache.listeners.DeleteImageListener;
  */
 class SliderAdapter extends RecyclerView.Adapter<SliderAdapter.SliderViewHolder> {
 
-    private final List<SliderItem> sliderItems;
+    /**
+     * List of items containing bitmap images
+     */
+    private List<SliderItem> sliderItems;
+
+    /**
+     * Listener for pressing delete on an image
+     */
     private final DeleteImageListener mDeleteImageListener;
 
-    public SliderAdapter(List<SliderItem> sliderItems, ViewPager2 viewPager2,
+    public SliderAdapter(ViewPager2 viewPager2,
                          DeleteImageListener deleteImageListener) {
-        this.sliderItems = sliderItems;
+        this.sliderItems = new ArrayList<SliderItem>();
         mDeleteImageListener = deleteImageListener;
     }
 
@@ -58,6 +66,16 @@ class SliderAdapter extends RecyclerView.Adapter<SliderAdapter.SliderViewHolder>
     @Override
     public int getItemCount() {
         return sliderItems.size();
+    }
+
+    public void setData(List<SliderItem> newItems){
+        if(sliderItems != null){
+            sliderItems.clear();
+            sliderItems.addAll(newItems);
+            notifyDataSetChanged();
+        } else {
+            sliderItems = newItems;
+        }
     }
 
     public List<SliderItem> getSliderItems(){

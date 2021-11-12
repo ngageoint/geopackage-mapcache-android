@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.maps.model.Marker;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -43,6 +45,7 @@ import mil.nga.geopackage.extension.related.media.MediaTable;
 import mil.nga.geopackage.extension.related.media.MediaTableMetadata;
 import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
+import mil.nga.geopackage.extension.schema.columns.DataColumns;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
 import mil.nga.geopackage.features.columns.GeometryColumns;
 import mil.nga.geopackage.features.user.FeatureColumn;
@@ -67,6 +70,7 @@ import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.FeatureViewObjects;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
@@ -653,6 +657,43 @@ public class GeoPackageRepository {
                     if (!dataColumnsDao.isTableExists()) {
                         dataColumnsDao = null;
                     }
+                    // Create feature column data by getting values from dao
+                    int geometryColumn = featureRow.getGeometryColumnIndex();
+                    for (int i = 0; i < featureRow.columnCount(); i++){
+                        if(i != geometryColumn){
+                            Object value = featureRow.getValue(i);
+                            FeatureColumn featureColumn = featureRow.getColumn(i);
+                            String columnName = featureColumn.getName();
+                            String tableName = featureRow.getTable().getTableName();
+                            if(dataColumnsDao != null){
+                                DataColumns dataColumn = dataColumnsDao.getDataColumn(
+                                        featureRow.getTable().getTableName(), columnName);
+                                if (dataColumn != null){
+                                    columnName = dataColumn.getName();
+                                }
+                            }
+
+                            if (value == null) {
+                                if (featureColumn.getDataType().equals(GeoPackageDataType.TEXT)) {
+                                    FcColumnDataObject fcRow = new FcColumnDataObject(columnName, "");
+                                    featureObjects.getFcObjects().add(fcRow);
+                                } else if(featureColumn.getDataType().equals(GeoPackageDataType.DOUBLE)){
+                                    FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0.0);
+                                    featureObjects.getFcObjects().add(fcRow);
+                                } else if(featureColumn.getDataType().equals(GeoPackageDataType.BOOLEAN)){
+                                    FcColumnDataObject fcRow = new FcColumnDataObject(columnName, false);
+                                    featureObjects.getFcObjects().add(fcRow);
+                                } else if(featureColumn.getDataType().equals(GeoPackageDataType.INTEGER)){
+                                    FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0);
+                                    featureObjects.getFcObjects().add(fcRow);
+                                }
+                            } else{
+                                FcColumnDataObject fcRow = new FcColumnDataObject(columnName, value);
+                                featureObjects.getFcObjects().add(fcRow);
+                            }
+                        }
+                    }
+
                 } catch (SQLException e) {
                     dataColumnsDao = null;
                     Log.e(GeoPackageMapFragment.class.getSimpleName(),
@@ -697,8 +738,7 @@ public class GeoPackageRepository {
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
      * @return true if it updates
      */
-    public HashMap<Long,Bitmap> saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
-        HashMap<Long,Bitmap> addedImages = new HashMap();
+    public void saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
         if(featureViewObjects.isValid()){
             try {
                 String tableName = featureViewObjects.getLayerName();
@@ -747,19 +787,16 @@ public class GeoPackageRepository {
                                 userMappingRow.setBaseId(featureViewObjects.getFeatureRow().getId());
                                 userMappingRow.setRelatedId(mediaRow.getId());
                                 mappingDao.create(userMappingRow);
-                                addedImages.put(mediaRowId,image);
                             }
                         }
                     }
                     geoPackage.close();
-                    return addedImages;
                 }
             }catch (Exception e){
                 Log.e(GeoPackageMapFragment.class.getSimpleName(),
                         "Error saving feature data: ", e);
             }
         }
-        return addedImages;
     }
 
 

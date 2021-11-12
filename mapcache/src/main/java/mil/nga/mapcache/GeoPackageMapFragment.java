@@ -6209,56 +6209,9 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param markerFeature
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
-//        final GeoPackage geoPackage = manager.open(markerFeature.getDatabase(), false);
-//        final FeatureDao featureDao = geoPackage
-//                .getFeatureDao(markerFeature.getTableName());
-//
-//        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.getFeatureId());
-//
-//        // If it has RTree extensions, it's indexed and we can't save feature column data.
-//        // Not currently supported for Android
-//        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
-//        boolean hasExtension = extension.has(markerFeature.getTableName());
-//
-//        if (featureRow != null) {
-//            final GeoPackageGeometryData geomData = featureRow.getGeometry();
-//            final GeometryType geometryType = geomData.getGeometry()
-//                    .getGeometryType();
-//
-//            String title = getTitle(geometryType, marker);
-//            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
-//            try {
-//                if (!dataColumnsDao.isTableExists()) {
-//                    dataColumnsDao = null;
-//                }
-//            } catch (SQLException e) {
-//                dataColumnsDao = null;
-//                Log.e(GeoPackageMapFragment.class.getSimpleName(),
-//                        "Failed to check if Data Columns table exists for GeoPackage: "
-//                                + geoPackage.getName(), e);
-//            }
-
-        // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
-
-//            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
-//                    geoPackage.getName(), markerFeature.getTableName(), !hasExtension);
-//            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
-//                @Override
-//                public void onClick(View view, List<FcColumnDataObject> values) {
-//                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
-//                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
-//
-//                }
-//            };
-//            pointView.setSaveListener(saveListener);
-//            pointView.showPointData();
         Intent intent = new Intent(getContext(), FeatureViewActivity.class);
         intent.putExtra(String.valueOf(R.string.marker_feature_param), markerFeature);
         startActivity(intent);
-
-//        } else {
-//            geoPackage.close();
-//        }
     }
 
 

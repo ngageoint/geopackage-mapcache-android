@@ -208,7 +208,7 @@ public class PointView {
         RecyclerView fcRecycler = alertView.findViewById(R.id.fc_recycler);
         LinearLayoutManager layoutManager = new LinearLayoutManager(alertView.getContext());
         fcRecycler.setLayoutManager(layoutManager);
-        fcAdapter = new FeatureColumnAdapter(fcObjects, context);
+        fcAdapter = new FeatureColumnAdapter(context);
         fcRecycler.setAdapter(fcAdapter);
 
         //  attachments slider gallery
@@ -223,7 +223,7 @@ public class PointView {
             sliderItems.add(new SliderItem(-1,flood1));
         sliderItems.add(new SliderItem(-1,flood1));
 
-        viewPager2.setAdapter(new SliderAdapter(sliderItems, viewPager2, null));
+        viewPager2.setAdapter(new SliderAdapter(viewPager2, null));
         viewPager2.setClipToPadding(false);
         viewPager2.setClipChildren(false);
         viewPager2.setOffscreenPageLimit(3);

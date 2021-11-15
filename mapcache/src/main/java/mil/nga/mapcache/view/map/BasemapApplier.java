@@ -67,6 +67,7 @@ public class BasemapApplier {
 
         BasemapSettings settings = BasemapSettingsLoader.getInstance().loadSettings(activity, prefs);
 
+        int zIndex = -2;
         Map<String, Set<String>> allProviders = new HashMap<>();
         List<TileProvider> newProviders = new ArrayList<>();
         for (BasemapServerModel server : settings.getSelectedBasemap()) {
@@ -87,11 +88,12 @@ public class BasemapApplier {
                         if (provider != null) {
                             TileOverlayOptions options = new TileOverlayOptions();
                             options.tileProvider(provider);
-                            options.zIndex(-2);
+                            options.zIndex(zIndex);
                             serversProviders.put(layer.getName(), map.addTileOverlay(options));
                             newProviders.add(provider);
                         }
                     }
+                    zIndex++;
                 }
             } else {
                 Set<String> layers = new HashSet<>();
@@ -103,6 +105,7 @@ public class BasemapApplier {
                         Map<String, TileOverlay> singleLayer = new HashMap<>();
                         TileOverlayOptions options = new TileOverlayOptions();
                         options.tileProvider(provider);
+                        options.zIndex(zIndex);
                         TileOverlay overlay = map.addTileOverlay(options);
                         overlay.setVisible(true);
                         singleLayer.put(server.getServerUrl(), overlay);
@@ -110,6 +113,7 @@ public class BasemapApplier {
                         newProviders.add(provider);
                     }
                 }
+                zIndex++;
             }
         }
 

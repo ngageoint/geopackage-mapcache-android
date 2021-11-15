@@ -313,8 +313,7 @@ public class NewTileLayerUI implements Observer {
     private void drawTileBoundingBox(LayersModel layers) {
         TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView,
                 boxManager, layers);
-        tileBoundsUI.show(activity, context, fragment, active, callback,
-                model.getGeopackageName(), model.getLayerName(), model.getUrl());
+        tileBoundsUI.show(activity, context, fragment, active, callback, model);
     }
 
     /**

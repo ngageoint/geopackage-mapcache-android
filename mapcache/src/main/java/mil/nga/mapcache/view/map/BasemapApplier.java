@@ -95,7 +95,6 @@ public class BasemapApplier {
                 layers.add("");
                 allProviders.put(server.getServerUrl(), layers);
                 if (!currentProviders.containsKey(server.getServerUrl())) {
-                    currentProviders.put(server.getServerUrl(), new HashMap<>());
                     addLayer(server.getServerUrl(), "", map);
                 }
             }
@@ -147,6 +146,10 @@ public class BasemapApplier {
             options.tileProvider(provider);
             options.zIndex(zIndex++);
             Map<String, TileOverlay> serversProviders = currentProviders.get(baseUrl);
+            if(serversProviders == null) {
+                serversProviders = new HashMap<>();
+                currentProviders.put(baseUrl, serversProviders);
+            }
             serversProviders.put(layerName, map.addTileOverlay(options));
         }
     }

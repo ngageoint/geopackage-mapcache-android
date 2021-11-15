@@ -48,6 +48,11 @@ public class BasemapApplier {
     private Map<String, Map<String, TileOverlay>> currentProviders = new HashMap<>();
 
     /**
+     * The current zIndex.
+     */
+    private int zIndex = -2;
+
+    /**
      * @param activity
      * @param prefs
      */
@@ -67,9 +72,7 @@ public class BasemapApplier {
 
         BasemapSettings settings = BasemapSettingsLoader.getInstance().loadSettings(activity, prefs);
 
-        int zIndex = -2;
         Map<String, Set<String>> allProviders = new HashMap<>();
-        List<TileProvider> newProviders = new ArrayList<>();
         for (BasemapServerModel server : settings.getSelectedBasemap()) {
             allProviders.put(server.getServerUrl(), new HashSet<>());
             if (server.getLayers().getSelectedLayers() != null
@@ -84,36 +87,17 @@ public class BasemapApplier {
                 for (LayerModel layer : server.getLayers().getSelectedLayers()) {
                     allProviders.get(server.getServerUrl()).add(layer.getName());
                     if (!serversProviders.containsKey(layer.getName())) {
-                        TileProvider provider = createProvider(server.getServerUrl(), layer.getName());
-                        if (provider != null) {
-                            TileOverlayOptions options = new TileOverlayOptions();
-                            options.tileProvider(provider);
-                            options.zIndex(zIndex);
-                            serversProviders.put(layer.getName(), map.addTileOverlay(options));
-                            newProviders.add(provider);
-                        }
+                        addLayer(server.getServerUrl(), layer.getName(), map);
                     }
-                    zIndex++;
                 }
             } else {
                 Set<String> layers = new HashSet<>();
-                layers.add(server.getServerUrl());
+                layers.add("");
                 allProviders.put(server.getServerUrl(), layers);
                 if (!currentProviders.containsKey(server.getServerUrl())) {
-                    TileProvider provider = createProvider(server.getServerUrl(), "");
-                    if (provider != null) {
-                        Map<String, TileOverlay> singleLayer = new HashMap<>();
-                        TileOverlayOptions options = new TileOverlayOptions();
-                        options.tileProvider(provider);
-                        options.zIndex(zIndex);
-                        TileOverlay overlay = map.addTileOverlay(options);
-                        overlay.setVisible(true);
-                        singleLayer.put(server.getServerUrl(), overlay);
-                        currentProviders.put(server.getServerUrl(), singleLayer);
-                        newProviders.add(provider);
-                    }
+                    currentProviders.put(server.getServerUrl(), new HashMap<>());
+                    addLayer(server.getServerUrl(), "", map);
                 }
-                zIndex++;
             }
         }
 
@@ -137,18 +121,50 @@ public class BasemapApplier {
         for (Map.Entry<String, List<String>> entry : layersToRemove.entrySet()) {
             Map<String, TileOverlay> providers = currentProviders.get(entry.getKey());
             for (String layerName : entry.getValue()) {
-                TileOverlay overlay = providers.remove(layerName);
-                overlay.setVisible(false);
-                overlay.remove();
+                removeLayer(entry.getKey(), layerName);
             }
         }
 
         for (String serverName : serversToRemove) {
-            Map<String, TileOverlay> providers = currentProviders.remove(serverName);
+            Map<String, TileOverlay> providers = currentProviders.get(serverName);
             for (Map.Entry<String, TileOverlay> entry : providers.entrySet()) {
-                TileOverlay overlay = entry.getValue();
-                overlay.setVisible(false);
-                overlay.remove();
+                removeLayer(serverName, entry.getKey());
+            }
+        }
+    }
+
+    /**
+     * Adds the specified tile layer to the map.
+     *
+     * @param baseUrl   The base url to the tile server.
+     * @param layerName The name of the layer or empty string if the url already points to a layer.
+     * @param map       The map to add the layer too.
+     */
+    public void addLayer(String baseUrl, String layerName, GoogleMap map) {
+        TileProvider provider = createProvider(baseUrl, layerName);
+        if (provider != null) {
+            TileOverlayOptions options = new TileOverlayOptions();
+            options.tileProvider(provider);
+            options.zIndex(zIndex++);
+            Map<String, TileOverlay> serversProviders = currentProviders.get(baseUrl);
+            serversProviders.put(layerName, map.addTileOverlay(options));
+        }
+    }
+
+    /**
+     * Removes the layer from the map.
+     * @param baseUrl The url to the tile server.
+     * @param layerName The name of the layer or empty string if the url already points to a layer.
+     */
+    public void removeLayer(String baseUrl, String layerName) {
+        Map<String, TileOverlay> providers = currentProviders.get(baseUrl);
+        if(providers != null) {
+            TileOverlay overlay = providers.remove(layerName);
+            overlay.setVisible(false);
+            overlay.remove();
+            zIndex--;
+            if (providers.isEmpty()) {
+                currentProviders.remove(baseUrl);
             }
         }
     }

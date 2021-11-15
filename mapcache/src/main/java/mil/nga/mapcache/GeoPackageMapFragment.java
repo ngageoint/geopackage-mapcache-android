@@ -2809,6 +2809,11 @@ public class GeoPackageMapFragment extends Fragment implements
         return map;
     }
 
+    @Override
+    public BasemapApplier getBaseApplier() {
+        return this.basemapApplier;
+    }
+
     /**
      * {@inheritDoc}
      */

@@ -180,7 +180,8 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      * @param o          The property that changed.
      */
     private void modelUpdate(Observable observable, Object o) {
-        if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)) {
+        if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)
+                || BasemapSettings.EXCLUSIVE_SERVERS_PROP.equals(o)) {
             updateButtonColors();
         }
     }

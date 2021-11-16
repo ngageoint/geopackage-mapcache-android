@@ -23,19 +23,14 @@ public class WMSTileProvider extends UrlTileProvider {
     private static final double MAP_SIZE = 20037508.34789244 * 2;
 
     /**
-     * The starting meters for the longitude and latitude.
+     * The starting meters for the longitude.
      */
-    private static final double[] TILE_ORIGIN = {-20037508.34789244, 20037508.34789244};
+    private static final double TILE_ORIGIN_LON = -20037508.34789244;
 
     /**
-     * The index of the longitude origin.
+     * The starting meters for the latitude.
      */
-    private static final int ORIG_X = 0;
-
-    /**
-     * The index of the latitude origin.
-     */
-    private static final int ORIG_Y = 1;
+    private static final double TILE_ORIGIN_LAT = 20037508.34789244;
 
     /**
      * The wms url to retrieve a single tile. Needs the bounding box values though still.
@@ -68,15 +63,6 @@ public class WMSTileProvider extends UrlTileProvider {
     @Nullable
     @Override
     public URL getTileUrl(int x, int y, int z) {
-        double numberOfGrids = Math.pow(2, z);
-        double latDelta = 180 / numberOfGrids;
-        double lonDelta = 360 / numberOfGrids;
-
-        double maxLat = 90 - y * latDelta;
-        double minLat = maxLat - latDelta;
-        double minLon = -180 + x * lonDelta;
-        double maxLon = minLon + lonDelta;
-
         BoundingBox bounds = getBoundingBox(x, y, z);
 
         String tileUrl = urlNeedsBoundingBox.replace("{minLat}",
@@ -104,13 +90,13 @@ public class WMSTileProvider extends UrlTileProvider {
      * @return The bounding box in 3857 for the tile.
      */
     private BoundingBox getBoundingBox(int x, int y, int zoom) {
-        double tileSize = MAP_SIZE / Math.pow(2, zoom);
-        double minx = TILE_ORIGIN[ORIG_X] + x * tileSize;
-        double maxx = TILE_ORIGIN[ORIG_X] + (x + 1) * tileSize;
-        double miny = TILE_ORIGIN[ORIG_Y] - (y + 1) * tileSize;
-        double maxy = TILE_ORIGIN[ORIG_Y] - y * tileSize;
+        double gridSize = MAP_SIZE / Math.pow(2, zoom);
+        double minLon = TILE_ORIGIN_LON + x * gridSize;
+        double minLat = TILE_ORIGIN_LAT- (y + 1) * gridSize;
+        double maxLon = TILE_ORIGIN_LON + (x + 1) * gridSize;
+        double maxLat = TILE_ORIGIN_LAT - y * gridSize;
 
-        BoundingBox bbox = new BoundingBox(minx, miny, maxx, maxy);
+        BoundingBox bbox = new BoundingBox(minLon, minLat, maxLon, maxLat);
 
         return bbox;
     }

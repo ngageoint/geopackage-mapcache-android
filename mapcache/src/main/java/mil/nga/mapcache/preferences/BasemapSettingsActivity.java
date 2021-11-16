@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
 
+/**
+ * The activity where the user can configure their basemaps.
+ */
 public class BasemapSettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -53,8 +53,10 @@ public class BasemapApplier {
     private int zIndex = -2;
 
     /**
-     * @param activity
-     * @param prefs
+     * Constructor.
+     *
+     * @param activity The current activity.
+     * @param prefs    Access to the preferences.
      */
     public BasemapApplier(Activity activity, SharedPreferences prefs) {
         this.activity = activity;
@@ -146,7 +148,7 @@ public class BasemapApplier {
             options.tileProvider(provider);
             options.zIndex(zIndex++);
             Map<String, TileOverlay> serversProviders = currentProviders.get(baseUrl);
-            if(serversProviders == null) {
+            if (serversProviders == null) {
                 serversProviders = new HashMap<>();
                 currentProviders.put(baseUrl, serversProviders);
             }
@@ -156,12 +158,13 @@ public class BasemapApplier {
 
     /**
      * Removes the layer from the map.
-     * @param baseUrl The url to the tile server.
+     *
+     * @param baseUrl   The url to the tile server.
      * @param layerName The name of the layer or empty string if the url already points to a layer.
      */
     public void removeLayer(String baseUrl, String layerName) {
         Map<String, TileOverlay> providers = currentProviders.get(baseUrl);
-        if(providers != null) {
+        if (providers != null) {
             TileOverlay overlay = providers.remove(layerName);
             overlay.setVisible(false);
             overlay.remove();

@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,6 +52,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
@@ -171,6 +173,41 @@ public class FeatureViewActivity extends AppCompatActivity {
                     }
                 }
             });
+
+    /**
+     * Uri for camera
+     */
+    private Uri cameraAppUri;
+
+    /**
+     * Result listener for taking an image from the camera
+     */
+    private ActivityResultLauncher<Uri> getImageFromCamera = registerForActivityResult(new ActivityResultContracts.TakePicture(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if(result){
+                        if(cameraAppUri != null) {
+                            try {
+                                ParcelFileDescriptor parcelFileDescriptor =
+                                        getContentResolver().openFileDescriptor(cameraAppUri, "r");
+                                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                                parcelFileDescriptor.close();
+                                try {
+                                    Bitmap rotatedImage = ImageUtils.rotateBitmap(image);
+                                    addImageToGallery(rotatedImage);
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            });
+
 
 
     /**
@@ -314,6 +351,7 @@ public class FeatureViewActivity extends AppCompatActivity {
                 featureViewModel.deleteImageFromFeature(featureViewObjects, rowId, markerFeature);
             } else {
                 featureViewObjects.getAddedBitmaps().remove(rowId);
+                updateImages();
             }
             sliderAdapter.remove(rowId);
         };
@@ -402,8 +440,21 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Open the camera to take a picture and return the image
      */
     private void takePicture(){
-        Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(takePicture, 0);
+        // Open the camera and get the photo
+        String fileName = "image_gallery_";
+        File outputDir = getCacheDir();
+        File file;
+        try{
+            file = File.createTempFile( fileName, ".jpg", outputDir );
+            String pkg = this.getApplicationContext().getPackageName();
+            cameraAppUri = FileProvider.getUriForFile(
+                    Objects.requireNonNull(getApplicationContext()),
+                    this.getApplicationContext().getPackageName()
+                            + ".fileprovider", file );
+            getImageFromCamera.launch(cameraAppUri);
+        } catch( Exception e ) {
+            Log.e("Error saving image: ", e.toString());
+        }
     }
 
 

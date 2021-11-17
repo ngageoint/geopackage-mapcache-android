@@ -25,6 +25,10 @@ import java.util.Observable;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayersModel;
+import mil.nga.mapcache.layersprovider.LayersProvider;
+import mil.nga.mapcache.layersprovider.LayersView;
+import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -251,6 +255,7 @@ public class NewTileLayerUI implements Observer {
             public void onClick(View v) {
                 model.setLayerName(inputName.getText().toString());
                 model.setUrl(inputUrl.getText().toString());
+                model.setBaseUrl(model.getUrl());
                 if ((model.getLayerNameError() == null || model.getLayerNameError().isEmpty())
                         && (model.getUrlError() == null || model.getUrlError().isEmpty())) {
                     alertDialog.dismiss();
@@ -288,14 +293,14 @@ public class NewTileLayerUI implements Observer {
             hideSpinningDialog();
             LayersModel layers = (LayersModel) observable;
             if (layers.getLayers() == null || layers.getLayers().length == 0 ||
-                    (layers.getSelectedLayer() != null && layers.getLayers() != null
+                    (layers.getSelectedLayers() != null && layers.getLayers() != null
                             && layers.getLayers().length > 0)) {
                 drawTileBoundingBox(layers);
             } else {
-                LayersView layersView = new LayersView(context, layers);
+                LayersView layersView = new LayersViewDialog(context, layers);
                 layersView.show();
             }
-        } else if (LayersModel.SELECTED_LAYER_PROP.equals(o)) {
+        } else if (LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
             LayersModel layers = (LayersModel) observable;
             controller.setUrl(layers);
             drawTileBoundingBox(layers);
@@ -308,8 +313,7 @@ public class NewTileLayerUI implements Observer {
     private void drawTileBoundingBox(LayersModel layers) {
         TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView,
                 boxManager, layers);
-        tileBoundsUI.show(activity, context, fragment, active, callback,
-                model.getGeopackageName(), model.getLayerName(), model.getUrl());
+        tileBoundsUI.show(activity, context, fragment, active, callback, model);
     }
 
     /**

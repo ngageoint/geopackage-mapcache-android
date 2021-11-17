@@ -442,5 +442,7 @@
     <string name="close">Close</string>
     <string name="delete">Delete</string>
     <string name="temp_file_name">tempBitmap.jpg</string>
+    <string name="selectedBasemaps">selectedBasemaps</string>
+    <string name="new_tile_server">New Tile Server</string>
 
 </resources>

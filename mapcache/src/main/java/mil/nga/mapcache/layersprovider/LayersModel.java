@@ -1,4 +1,4 @@
-package mil.nga.mapcache.wizards.createtile;
+package mil.nga.mapcache.layersprovider;
 
 import java.util.Observable;
 
@@ -15,12 +15,17 @@ public class LayersModel extends Observable {
     /**
      * The selected layer.
      */
-    public static String SELECTED_LAYER_PROP = "selectedLayers";
+    public static String SELECTED_LAYERS_PROP = "selectedLayers";
 
     /**
      * The image formats property.
      */
     public static String IMAGE_FORMATS_PROP = "imageFormats";
+
+    /**
+     * The title property.
+     */
+    public static String TITLE_PROP = "title";
 
     /**
      * The available image formats for the tiles.
@@ -35,7 +40,12 @@ public class LayersModel extends Observable {
     /**
      * The selected layer.
      */
-    private LayerModel selectedLayer;
+    private LayerModel[] selectedLayers;
+
+    /**
+     * The title to display for the layers view.
+     */
+    private String title = "Choose your layer";
 
     /**
      * Gets the available layers from a server.
@@ -62,8 +72,8 @@ public class LayersModel extends Observable {
      *
      * @return The selected layer.
      */
-    public LayerModel getSelectedLayer() {
-        return selectedLayer;
+    public LayerModel[] getSelectedLayers() {
+        return selectedLayers;
     }
 
     /**
@@ -71,10 +81,10 @@ public class LayersModel extends Observable {
      *
      * @param selectedLayer The selected layer.
      */
-    public void setSelectedLayer(LayerModel selectedLayer) {
-        this.selectedLayer = selectedLayer;
+    public void setSelectedLayers(LayerModel[] selectedLayer) {
+        this.selectedLayers = selectedLayer;
         setChanged();
-        notifyObservers(SELECTED_LAYER_PROP);
+        notifyObservers(SELECTED_LAYERS_PROP);
     }
 
     /**
@@ -95,5 +105,23 @@ public class LayersModel extends Observable {
         this.imageFormats = imageFormats;
         setChanged();
         notifyObservers(IMAGE_FORMATS_PROP);
+    }
+
+    /**
+     * Gets the title.
+     * @return The title.
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the title.
+     * @param title The title.
+     */
+    public void setTitle(String title) {
+        this.title = title;
+        setChanged();
+        notifyObservers();
     }
 }

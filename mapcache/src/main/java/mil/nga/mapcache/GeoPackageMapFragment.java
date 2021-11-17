@@ -206,6 +206,7 @@ import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
+import mil.nga.mapcache.preferences.BasemapSettings;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.sensors.SensorHandler;
@@ -220,6 +221,7 @@ import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
+import mil.nga.mapcache.view.map.BasemapApplier;
 import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
 import mil.nga.mapcache.view.map.feature.PointView;
@@ -253,11 +255,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Max features key for saving to preferences
      */
     private static final String MAX_FEATURES_KEY = "max_features_key";
-
-    /**
-     * Map type key for saving to preferences
-     */
-    private static final String MAP_TYPE_KEY = "map_type_key";
 
     /**
      * Key for using dark mode from preferences
@@ -747,6 +744,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private ShareTask shareTask;
 
+    /**
+     * Controls user selected basemaps.
+     */
+    private BasemapApplier basemapApplier;
+
 
     /**
      * Constructor
@@ -850,6 +852,9 @@ public class GeoPackageMapFragment extends Fragment implements
         setMapDarkMode(darkMode);
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
+        if (basemapApplier != null) {
+            basemapApplier.applyBasemaps(map);
+        }
     }
 
     /**
@@ -1488,9 +1493,9 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Set text for edit features mode
         MenuItem editFeaturesItem = pm.getMenu().findItem(R.id.features);
-        if(editFeaturesMode){
+        if (editFeaturesMode) {
             editFeaturesItem.setTitle("Stop editing");
-        } else{
+        } else {
             editFeaturesItem.setTitle("Edit Features");
         }
 
@@ -2713,10 +2718,6 @@ public class GeoPackageMapFragment extends Fragment implements
         setLoadTilesView();
         setEditFeaturesView();
 
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-        int mapType = settings.getInt(MAP_TYPE_KEY, 1);
-        map.setMapType(mapType);
         map.setOnMapLongClickListener(this);
         map.setOnMapClickListener(this);
         map.setOnMarkerClickListener(this);
@@ -2748,6 +2749,8 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
+        basemapApplier = new BasemapApplier(getActivity(),
+                PreferenceManager.getDefaultSharedPreferences(getActivity()));
         // Call the initial update to the settings
         settingsUpdate();
     }
@@ -2804,6 +2807,11 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public GoogleMap getMap() {
         return map;
+    }
+
+    @Override
+    public BasemapApplier getBaseApplier() {
+        return this.basemapApplier;
     }
 
     /**
@@ -3920,13 +3928,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param mapType
      */
     private void setMapType(int mapType) {
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
-        Editor editor = settings.edit();
-        editor.putInt(MAP_TYPE_KEY, mapType);
-        editor.commit();
-        if (map != null) {
-            map.setMapType(mapType);
+        if (basemapApplier != null) {
+            basemapApplier.setMapType(map, mapType);
         }
     }
 
@@ -3965,6 +3968,7 @@ public class GeoPackageMapFragment extends Fragment implements
         map.clear();
         geoPackages.closeAll();
         featureDaos.clear();
+        basemapApplier.clear();
 
         if (zoom) {
             zoomToActiveBounds();
@@ -4141,6 +4145,9 @@ public class GeoPackageMapFragment extends Fragment implements
             toleranceDistance = (Double) params[3];
             filter = (Boolean) params[4];
             update(this, zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            getActivity().runOnUiThread(() -> {
+                basemapApplier.applyBasemaps(map);
+            });
             return null;
         }
 

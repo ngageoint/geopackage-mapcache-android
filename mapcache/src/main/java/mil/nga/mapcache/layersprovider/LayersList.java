@@ -1,4 +1,4 @@
-package mil.nga.mapcache.wizards.createtile;
+package mil.nga.mapcache.layersprovider;
 
 import android.content.Context;
 import android.view.LayoutInflater;

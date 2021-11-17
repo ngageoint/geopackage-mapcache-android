@@ -6,15 +6,17 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayerModel;
+import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
+import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
 import mil.nga.proj.ProjectionConstants;
 
 /**
@@ -72,10 +74,10 @@ public class LayerOptionsController implements Observer {
         this.model = model;
         this.layers = layers;
 
-        LayerModel layer = this.layers.getSelectedLayer();
-        if (layer != null && layer.getEpsgs() != null && layer.getEpsgs().length > 0) {
+        LayerModel[] selectedLayers = this.layers.getSelectedLayers();
+        if (selectedLayers != null && selectedLayers[0].getEpsgs() != null && selectedLayers[0].getEpsgs().length > 0) {
             boolean contained = false;
-            for (long epsg : layer.getEpsgs()) {
+            for (long epsg : selectedLayers[0].getEpsgs()) {
                 if (epsg == model.getEpsg()) {
                     contained = true;
                     break;
@@ -127,15 +129,9 @@ public class LayerOptionsController implements Observer {
                 minLat, maxLon, maxLat);
 
         String url = model.getUrl();
-        if (layers.getSelectedLayer() != null && layers.getSelectedLayer().getEpsgs() != null
-                && layers.getSelectedLayer().getEpsgs().length > 0) {
-            url += "&crs=EPSG:" + model.getEpsg();
-
-            if (model.getEpsg() == 3857) {
-                url += "&bbox={minLon},{minLat},{maxLon},{maxLat}";
-            } else {
-                url += "&bbox={minLat},{minLon},{maxLat},{maxLon}";
-            }
+        if (layers.getSelectedLayers() != null && layers.getSelectedLayers()[0].getEpsgs() != null
+                && layers.getSelectedLayers()[0].getEpsgs().length > 0) {
+            url = WMSUrlProvider.getInstance().getUrlBoundBoxCRS(url, String.valueOf(model.getEpsg()));
         }
 
 

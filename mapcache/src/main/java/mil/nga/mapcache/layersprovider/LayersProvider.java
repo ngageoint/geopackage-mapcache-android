@@ -1,4 +1,4 @@
-package mil.nga.mapcache.wizards.createtile;
+package mil.nga.mapcache.layersprovider;
 
 import android.app.Activity;
 import android.util.Log;
@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -129,7 +128,14 @@ public class LayersProvider implements IResponseHandler {
             long[] epsgs = new long[layer.getCRS().size()];
             for (String crs : layer.getCRS()) {
                 String[] splitCRS = crs.split(":");
-                epsgs[index] = Long.valueOf(splitCRS[splitCRS.length - 1]);
+                try {
+                    epsgs[index] = Long.valueOf(splitCRS[splitCRS.length - 1]);
+                } catch (NumberFormatException e) {
+                    Log.e(
+                            LayersProvider.class.getSimpleName(),
+                            "Error parsing the EPSG for crs of " + crs,
+                            e);
+                }
                 index++;
             }
             model.setEpsgs(epsgs);

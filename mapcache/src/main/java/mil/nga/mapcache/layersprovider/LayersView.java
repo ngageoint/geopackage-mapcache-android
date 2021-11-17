@@ -1,4 +1,4 @@
-package mil.nga.mapcache.wizards.createtile;
+package mil.nga.mapcache.layersprovider;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -14,7 +15,7 @@ import mil.nga.mapcache.R;
 /**
  * Shows the user all of the available layers and allows the user to pick one.
  */
-public class LayersView {
+public abstract class LayersView {
 
     /**
      * The application context.
@@ -30,6 +31,16 @@ public class LayersView {
      * Used as a custom adapter for the list view.
      */
     private LayersList adapter;
+
+    /**
+     * The android view.
+     */
+    private View view;
+
+    /**
+     * The close x button in top left.
+     */
+    private ImageView closeLogo;
 
     /**
      * Constructor.
@@ -48,34 +59,48 @@ public class LayersView {
      */
     public void show() {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.layers_pick_list, null);
+        view = inflater.inflate(R.layout.layers_pick_list, null);
         ListView layersView = view.findViewById(R.id.layersPickView);
         layersView.setAdapter(adapter);
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(
-                context, R.style.AppCompatAlertDialogStyle)
-                .setView(view);
-        final AlertDialog alertDialog = dialog.create();
-        alertDialog.setCanceledOnTouchOutside(false);
+        TextView title = view.findViewById(R.id.title);
+        title.setText(model.getTitle());
+
+
 
         layersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LayerModel layer = model.getLayers()[i];
-                model.setSelectedLayer(layer);
-                alertDialog.dismiss();
+                LayerModel[] layers = {layer};
+                model.setSelectedLayers(layers);
             }
         });
 
-        ImageView closeLogo = (ImageView) view.findViewById(R.id.new_layer_close_logo);
-        // Click listener for close button
-        closeLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+        closeLogo = (ImageView) view.findViewById(R.id.new_layer_close_logo);
+    }
 
-        alertDialog.show();
+    /**
+     * Gets the application context.
+     * @return The application context.
+     */
+    protected Context getContext() {
+        return context;
+    }
+
+    /**
+     * Gets the main view.
+     * @return The layers pick view.
+     */
+    protected View getView() {
+        return view;
+    }
+
+    /**
+     * Gets the close x button in top left.
+     * @return The close button.
+     */
+    protected ImageView getCloseLogo() {
+        return closeLogo;
     }
 }

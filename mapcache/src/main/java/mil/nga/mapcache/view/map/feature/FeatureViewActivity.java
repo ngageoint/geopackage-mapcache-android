@@ -161,17 +161,9 @@ public class FeatureViewActivity extends AppCompatActivity {
             new ActivityResultCallback<Uri>() {
                 @Override
                 public void onActivityResult(Uri uri) {
-                    if(uri != null) {
-                        try {
-                            ParcelFileDescriptor parcelFileDescriptor =
-                                    getContentResolver().openFileDescriptor(uri, "r");
-                            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                            Bitmap rotatedImage = ImageUtils.rotateBitmap(BitmapFactory.decodeFileDescriptor(fileDescriptor));
-                            addImageToGallery(rotatedImage);
-                            parcelFileDescriptor.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                    Bitmap image = getImageResult(uri);
+                    if(image != null) {
+                        addImageToGallery(image);
                     }
                 }
             });
@@ -190,16 +182,9 @@ public class FeatureViewActivity extends AppCompatActivity {
                 public void onActivityResult(Boolean result) {
                     if(result){
                         if(cameraAppUri != null) {
-                            try {
-                                ParcelFileDescriptor parcelFileDescriptor =
-                                        getContentResolver().openFileDescriptor(cameraAppUri, "r");
-                                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-                                Bitmap rotatedImage = ImageUtils.rotateFromUri(cameraAppUri, getBaseContext(), image);
-                                parcelFileDescriptor.close();
-                                addImageToGallery(rotatedImage);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            Bitmap image = getImageResult(cameraAppUri);
+                            if(image != null) {
+                                addImageToGallery(image);
                             }
                         }
                     }
@@ -498,6 +483,29 @@ public class FeatureViewActivity extends AppCompatActivity {
         // Write to the geopackage from the repository
         featureViewModel.saveFeatureObjectValues(featureViewObjects, markerFeature);
 
+    }
+
+
+    /**
+     * Gets a correctly oriented Bitmap image from the Uri
+     * @param uri - Uri for an image
+     * @return - Bitmap, rotated if it needs to be
+     */
+    private Bitmap getImageResult(Uri uri){
+        if(uri != null) {
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContentResolver().openFileDescriptor(uri, "r");
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                Bitmap rotatedImage = ImageUtils.rotateFromUri(uri, getBaseContext(), image);
+                parcelFileDescriptor.close();
+                return rotatedImage;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
 

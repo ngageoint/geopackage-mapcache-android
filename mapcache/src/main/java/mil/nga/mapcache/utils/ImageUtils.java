@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import androidx.exifinterface.media.ExifInterface;
+
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -69,5 +71,31 @@ public class ImageUtils {
             Log.e("Error getting image: ", e.toString());
         }
         return newImage;
+    }
+
+    /**
+     * Pull exif data from Uri, and rotate the given image based on the exif data
+     */
+    public static Bitmap rotateFromUri(Uri uri, Context context, Bitmap image) throws IOException {
+        int orientation;
+        ExifInterface exif;
+        if(uri != null) {
+            try {
+                InputStream is = context.getContentResolver().openInputStream(uri);
+                if (is != null) {
+                    exif = new ExifInterface(is);
+                    orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                    if (orientation == ExifInterface.ORIENTATION_ROTATE_90) {
+                        Matrix matrix = new Matrix();
+                        matrix.postRotate(90);
+                        Bitmap rotatedBitmap = Bitmap.createBitmap(image, 0, 0, image.getWidth(), image.getHeight(), matrix, true);
+                        return rotatedBitmap;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("Error loading exif: ", e.toString());
+            }
+        }
+        return image;
     }
 }

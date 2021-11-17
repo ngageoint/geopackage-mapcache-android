@@ -29,6 +29,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
@@ -46,6 +47,7 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -193,13 +195,9 @@ public class FeatureViewActivity extends AppCompatActivity {
                                         getContentResolver().openFileDescriptor(cameraAppUri, "r");
                                 FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
                                 Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                                Bitmap rotatedImage = ImageUtils.rotateFromUri(cameraAppUri, getBaseContext(), image);
                                 parcelFileDescriptor.close();
-                                try {
-                                    Bitmap rotatedImage = ImageUtils.rotateBitmap(image);
-                                    addImageToGallery(rotatedImage);
-                                }catch (Exception e){
-                                    e.printStackTrace();
-                                }
+                                addImageToGallery(rotatedImage);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

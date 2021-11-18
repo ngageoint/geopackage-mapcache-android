@@ -291,7 +291,7 @@ public class FeatureViewActivity extends AppCompatActivity {
             // we can tell later if it's been assigned by us or created in the gpkg
             long newMediaId = -1;
             if(!sliderAdapter.getSliderItems().isEmpty()) {
-                newMediaId = (long) (sliderAdapter.getSliderItems().size()+1) * -1;
+                newMediaId = sliderAdapter.getNewUniqueKey();
             }
             sliderItems.add(new SliderItem(newMediaId,image));
             sliderAdapter.setData(sliderItems);
@@ -334,7 +334,15 @@ public class FeatureViewActivity extends AppCompatActivity {
                 featureViewModel.deleteImageFromFeature(featureViewObjects, rowId, markerFeature);
             } else {
                 featureViewObjects.getAddedBitmaps().remove(rowId);
-                updateImages();
+                int itemIndex = -1;
+                for(SliderItem item : sliderItems){
+                    if(item.getMediaId() == rowId){
+                        itemIndex = sliderItems.indexOf(item);
+                    }
+                }
+                if(itemIndex >= 0) {
+                    sliderItems.remove(itemIndex);
+                }
             }
             sliderAdapter.remove(rowId);
         };

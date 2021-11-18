@@ -95,6 +95,20 @@ class SliderAdapter extends RecyclerView.Adapter<SliderAdapter.SliderViewHolder>
         }
     }
 
+    /**
+     * Get a unique negative value key to be used when adding a new image to the list
+     * @return negative integer for a new slider Item
+     */
+    public int getNewUniqueKey(){
+        int key = -1;
+        for(SliderItem item : sliderItems){
+            if(item.getMediaId() <= key){
+                key = (int) (item.getMediaId() - 1);
+            }
+        }
+        return key;
+    }
+
 
 
     class SliderViewHolder extends ViewHolder implements View.OnClickListener{

@@ -1,8 +1,5 @@
 package mil.nga.mapcache.io.network;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import mil.nga.mapcache.utils.ThreadUtils;
 
 /**

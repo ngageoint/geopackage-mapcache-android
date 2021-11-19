@@ -59,6 +59,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -1449,6 +1450,7 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
+        MenuCompat.setGroupDividerEnabled(pm.getMenu(), true);
         pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {

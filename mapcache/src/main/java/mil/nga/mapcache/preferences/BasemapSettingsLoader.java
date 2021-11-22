@@ -56,6 +56,11 @@ public class BasemapSettingsLoader {
         String basemapsString = prefs.getString(activity.getString(R.string.selectedBasemaps), "");
         settings.fromString(basemapsString);
         int mapType = prefs.getInt(BasemapSettingsLoader.MAP_TYPE_KEY, 1);
+        if(settings.getSelectedBasemap() == null || settings.getSelectedBasemap().length == 0) {
+            BasemapServerModel [] selected = new BasemapServerModel[1];
+            selected[0] = new BasemapServerModel();
+            settings.setSelectedBasemap(selected);
+        }
         settings.getSelectedBasemap()[0].setServerUrl(String.valueOf(mapType));
     }
 

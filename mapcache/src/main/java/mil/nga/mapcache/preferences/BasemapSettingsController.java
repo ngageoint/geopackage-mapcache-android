@@ -87,6 +87,7 @@ public class BasemapSettingsController implements Observer {
 
         model.setAvailableServers(servers);
         model.addObserver(this);
+        model.getGridOverlaySettings().addObserver(this);
         for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
             selectedServers.getLayers().addObserver(this);
         }
@@ -95,7 +96,8 @@ public class BasemapSettingsController implements Observer {
     @Override
     public void update(Observable observable, Object o) {
         if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)
-                || LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
+                || LayersModel.SELECTED_LAYERS_PROP.equals(o)
+                || GridSettingsModel.SELECTED_GRID_PROPERTY.equals(o)) {
             if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)) {
                 for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
                     selectedServers.getLayers().deleteObserver(this);

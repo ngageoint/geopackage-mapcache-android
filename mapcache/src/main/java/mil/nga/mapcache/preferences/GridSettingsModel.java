@@ -20,7 +20,7 @@ public class GridSettingsModel extends Observable {
     /**
      * The selected grid.
      */
-    private Grid selectedGrid;
+    private Grid selectedGrid = Grid.NONE;
 
     /**
      * Gets the currently selected grid.
@@ -59,8 +59,13 @@ public class GridSettingsModel extends Observable {
      */
     public String fromString(String gridString) {
         String[] splitString = gridString.split(gridOverlayTag);
-        Grid grid = Grid.valueOf(splitString[1]);
-        setSelectedGrid(grid);
-        return splitString[splitString.length - 1];
+        String newString = gridString;
+        if (splitString.length > 1) {
+            Grid grid = Grid.valueOf(splitString[1]);
+            setSelectedGrid(grid);
+            newString = splitString[splitString.length - 1];
+        }
+
+        return newString;
     }
 }

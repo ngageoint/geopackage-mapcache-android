@@ -45,7 +45,7 @@ public class PolylineGridCreator {
             PolylineOptions polyline = new PolylineOptions();
             polyline.add(lowerLeft, lowerRight, upperRight, upperLeft, lowerLeft);
             polyline.width(5);
-            polyline.color(Color.RED);
+            polyline.color(Color.BLACK);
             polyline.geodesic(false);
             polylines.add(polyline);
         }

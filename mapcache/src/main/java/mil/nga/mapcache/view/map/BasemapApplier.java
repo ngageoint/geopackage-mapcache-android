@@ -3,10 +3,8 @@ package mil.nga.mapcache.view.map;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
@@ -15,14 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import mil.nga.mapcache.layersprovider.LayerModel;
 import mil.nga.mapcache.preferences.BasemapServerModel;
 import mil.nga.mapcache.preferences.BasemapSettings;
-import mil.nga.mapcache.preferences.BasemapSettingsLoader;
+import mil.nga.mapcache.preferences.BasemapSettingsIO;
+import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.view.map.grid.GridController;
 import mil.nga.mapcache.view.map.overlays.WMSTileProvider;
 import mil.nga.mapcache.view.map.overlays.XYZTileProvider;
@@ -77,7 +75,7 @@ public class BasemapApplier {
     public void applyBasemaps(GoogleMap map) {
         applyGoogleBasemap(map);
 
-        BasemapSettings settings = BasemapSettingsLoader.getInstance().loadSettings(activity, prefs);
+        BasemapSettings settings = BasemapSettingsIO.getInstance().loadSettings(activity, prefs);
         applyUserBasemap(map, settings);
         applyGridOverlay(map, settings);
     }
@@ -88,7 +86,7 @@ public class BasemapApplier {
      * @param map The map to apply basemap to.
      */
     private void applyGoogleBasemap(GoogleMap map) {
-        int mapType = prefs.getInt(BasemapSettingsLoader.MAP_TYPE_KEY, 1);
+        int mapType = prefs.getInt(BasemapSettingsIO.MAP_TYPE_KEY, 1);
         map.setMapType(mapType);
     }
 
@@ -229,11 +227,24 @@ public class BasemapApplier {
      */
     public void setMapType(GoogleMap map, int mapType) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(BasemapSettingsLoader.MAP_TYPE_KEY, mapType);
+        editor.putInt(BasemapSettingsIO.MAP_TYPE_KEY, mapType);
         editor.commit();
         if (map != null) {
             map.setMapType(mapType);
         }
+    }
+
+    /**
+     * Changes the grid overlay to the specified overlay.
+     *
+     * @param map      The map to apply the changes to.
+     * @param gridType The new grid overlay to apply to the map.
+     */
+    public void setGridType(GoogleMap map, GridType gridType) {
+        BasemapSettings settings = BasemapSettingsIO.getInstance().loadSettings(activity, prefs);
+        settings.getGridOverlaySettings().setSelectedGrid(gridType);
+        BasemapSettingsIO.getInstance().saveSettings(activity, prefs, settings);
+        applyGridOverlay(map, settings);
     }
 
     /**

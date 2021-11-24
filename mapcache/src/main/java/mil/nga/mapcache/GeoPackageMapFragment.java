@@ -207,6 +207,7 @@ import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.BasemapSettings;
+import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.sensors.SensorHandler;
@@ -1465,6 +1466,15 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     case R.id.terrain:
                         setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                        return true;
+                    case R.id.NoGrid:
+                        setGridType(GridType.NONE);
+                        return true;
+                    case R.id.GARSGrid:
+                        setGridType(GridType.GARS);
+                        return true;
+                    case R.id.MGRSGrid:
+                        setGridType(GridType.MGRS);
                         return true;
                 }
 
@@ -3932,6 +3942,17 @@ public class GeoPackageMapFragment extends Fragment implements
     private void setMapType(int mapType) {
         if (basemapApplier != null) {
             basemapApplier.setMapType(map, mapType);
+        }
+    }
+
+    /**
+     * Sets the new grid type.
+     *
+     * @param gridType The new grid type.
+     */
+    private void setGridType(GridType gridType) {
+        if (basemapApplier != null) {
+            basemapApplier.setGridType(map, gridType);
         }
     }
 

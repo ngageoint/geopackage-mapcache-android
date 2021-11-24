@@ -3,6 +3,7 @@ package mil.nga.mapcache.view.map.grid;
 import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -39,6 +40,11 @@ public abstract class GridCreator {
     private List<Polyline> mapPolylines = new ArrayList<>();
 
     /**
+     * Creates the polylines that can be added to the map.
+     */
+    private PolylineGridCreator lineCreator;
+
+    /**
      * Constructor
      *
      * @param model    This will contain all of the grid object to display on the map.
@@ -49,7 +55,8 @@ public abstract class GridCreator {
         this.gridModel = model;
         this.map = map;
         this.activity = activity;
-        this.gridModel.addObserver((observer, o)-> modelUpdate(observer, o));
+        this.lineCreator = new PolylineGridCreator(gridModel);
+        this.gridModel.addObserver((observer, o) -> modelUpdate(observer, o));
     }
 
     /**
@@ -71,6 +78,15 @@ public abstract class GridCreator {
     }
 
     /**
+     * Removes the grids from the map.
+     */
+    public void removeGrids() {
+        this.gridModel.setGrids(new Grid[0]);
+        this.gridModel.setPolylines(new PolylineOptions[0]);
+        this.gridModel.setLabels(new BitmapDescriptor[0]);
+    }
+
+    /**
      * Creates the grid object based on whatever grid this class is.
      *
      * @param bounds The bounding box of the grid.
@@ -82,7 +98,7 @@ public abstract class GridCreator {
      * Creates the polylines based on what is populated for the grids within the model.
      */
     private void createPolylines() {
-
+        lineCreator.createPolylines();
     }
 
     /**
@@ -94,14 +110,15 @@ public abstract class GridCreator {
 
     /**
      * Called any time the model is updated.
+     *
      * @param observer The gridModel
-     * @param o The property that changed
+     * @param o        The property that changed
      */
     private void modelUpdate(Observable observer, Object o) {
-        if(GridModel.POLYLINES_PROPERTY.equals(o)) {
+        if (GridModel.POLYLINES_PROPERTY.equals(o)) {
             this.activity.runOnUiThread(() -> updatePolylines());
-        } else if(GridModel.LABELS_PROPERTY.equals(o)) {
-            this.activity.runOnUiThread(()->updateLabels());
+        } else if (GridModel.LABELS_PROPERTY.equals(o)) {
+            this.activity.runOnUiThread(() -> updateLabels());
         }
     }
 
@@ -109,12 +126,12 @@ public abstract class GridCreator {
      * Updates the polylines on the map.
      */
     private void updatePolylines() {
-        for(Polyline polyline : mapPolylines) {
+        for (Polyline polyline : mapPolylines) {
             polyline.remove();
         }
         mapPolylines.clear();
 
-        for(PolylineOptions polylineOptions : this.gridModel.getPolylines()) {
+        for (PolylineOptions polylineOptions : this.gridModel.getPolylines()) {
             mapPolylines.add(map.addPolyline(polylineOptions));
         }
     }

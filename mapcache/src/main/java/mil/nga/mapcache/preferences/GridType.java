@@ -3,7 +3,7 @@ package mil.nga.mapcache.preferences;
 /**
  * The different grids user can overlay on map.
  */
-public enum Grid {
+public enum GridType {
     NONE,
     GARS,
     MGRS

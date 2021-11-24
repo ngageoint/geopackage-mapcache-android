@@ -8,7 +8,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.widget.RadioButton;
 
@@ -127,21 +126,21 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         this.gridNone = basemapView.findViewById(R.id.gridNone);
         this.gridNone.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
-                this.model.getGridOverlaySettings().setSelectedGrid(Grid.NONE);
+                this.model.getGridOverlaySettings().setSelectedGrid(GridType.NONE);
             }
         });
 
         this.gridGARS = basemapView.findViewById(R.id.gridGars);
         this.gridGARS.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
-                this.model.getGridOverlaySettings().setSelectedGrid(Grid.GARS);
+                this.model.getGridOverlaySettings().setSelectedGrid(GridType.GARS);
             }
         });
 
         this.gridMGRS = basemapView.findViewById(R.id.gridMGRS);
         this.gridMGRS.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
-                this.model.getGridOverlaySettings().setSelectedGrid(Grid.MGRS);
+                this.model.getGridOverlaySettings().setSelectedGrid(GridType.MGRS);
             }
         });
 
@@ -282,11 +281,11 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      * Updates which grid is selected.
      */
     private void updateGridChecked() {
-        if (model.getGridOverlaySettings().getSelectedGrid() == Grid.NONE) {
+        if (model.getGridOverlaySettings().getSelectedGrid() == GridType.NONE) {
             this.gridNone.setChecked(true);
-        } else if (model.getGridOverlaySettings().getSelectedGrid() == Grid.GARS) {
+        } else if (model.getGridOverlaySettings().getSelectedGrid() == GridType.GARS) {
             this.gridGARS.setChecked(true);
-        } else if (model.getGridOverlaySettings().getSelectedGrid() == Grid.MGRS) {
+        } else if (model.getGridOverlaySettings().getSelectedGrid() == GridType.MGRS) {
             this.gridMGRS.setChecked(true);
         }
     }

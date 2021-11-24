@@ -20,24 +20,24 @@ public class GridSettingsModel extends Observable {
     /**
      * The selected grid.
      */
-    private Grid selectedGrid = Grid.NONE;
+    private GridType selectedGridType = GridType.NONE;
 
     /**
      * Gets the currently selected grid.
      *
      * @return The selected grid.
      */
-    public Grid getSelectedGrid() {
-        return selectedGrid;
+    public GridType getSelectedGrid() {
+        return selectedGridType;
     }
 
     /**
      * Sets a new selected grid.
      *
-     * @param selectedGrid The new selected grid.
+     * @param selectedGridType The new selected grid.
      */
-    public void setSelectedGrid(Grid selectedGrid) {
-        this.selectedGrid = selectedGrid;
+    public void setSelectedGrid(GridType selectedGridType) {
+        this.selectedGridType = selectedGridType;
         setChanged();
         notifyObservers(SELECTED_GRID_PROPERTY);
     }
@@ -48,7 +48,7 @@ public class GridSettingsModel extends Observable {
      * @return String represention of this model.
      */
     public String toString() {
-        return gridOverlayTag + selectedGrid.toString() + gridOverlayTag;
+        return gridOverlayTag + selectedGridType.toString() + gridOverlayTag;
     }
 
     /**
@@ -61,8 +61,8 @@ public class GridSettingsModel extends Observable {
         String[] splitString = gridString.split(gridOverlayTag);
         String newString = gridString;
         if (splitString.length > 1) {
-            Grid grid = Grid.valueOf(splitString[1]);
-            setSelectedGrid(grid);
+            GridType gridType = GridType.valueOf(splitString[1]);
+            setSelectedGrid(gridType);
             newString = splitString[splitString.length - 1];
         }
 

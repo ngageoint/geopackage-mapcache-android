@@ -37,17 +37,17 @@ public class TestGridCreator extends GridCreator {
         lowerLeft.setText("Lower Left");
 
         Grid lowerRight = new Grid();
-        lowerLeft.setBounds(new BoundingBox(centLon, minLat, maxLon, centLon));
-        lowerLeft.setText("Lower Right");
+        lowerRight.setBounds(new BoundingBox(centLon, minLat, maxLon, centLon));
+        lowerRight.setText("Lower Right");
 
         Grid upperRight = new Grid();
-        lowerLeft.setBounds(new BoundingBox(centLon, centLat, maxLon, maxLat));
-        lowerLeft.setText("Upper Right");
+        upperRight.setBounds(new BoundingBox(centLon, centLat, maxLon, maxLat));
+        upperRight.setText("Upper Right");
 
         Grid upperLeft = new Grid();
-        lowerLeft.setBounds(new BoundingBox(minLon, centLat, centLon, maxLat));
-        lowerLeft.setText("Upper Left");
+        upperLeft.setBounds(new BoundingBox(minLon, centLat, centLon, maxLat));
+        upperLeft.setText("Upper Left");
 
-        return new Grid[0];
+        return new Grid[]{lowerLeft, lowerRight, upperRight, upperLeft};
     }
 }

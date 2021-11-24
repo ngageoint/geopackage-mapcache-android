@@ -56,7 +56,7 @@
             android:textAppearance="@style/textAppearanceBody1Medium" />
 
         <RadioButton
-            android:id="@+id/radioButton"
+            android:id="@+id/gridNone"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="15dp"
@@ -65,14 +65,14 @@
             android:text="None" />
 
         <RadioButton
-            android:id="@+id/radioButton2"
+            android:id="@+id/gridGars"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="GARS" />
 
         <RadioButton
-            android:id="@+id/radioButton3"
+            android:id="@+id/gridMGRS"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"

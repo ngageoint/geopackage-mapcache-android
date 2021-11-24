@@ -64,7 +64,7 @@ public class LabelMaker {
      */
     private BitmapDescriptor createLabel(String text) {
         Paint textPaint = new Paint();
-        textPaint.setTextSize(50);
+        textPaint.setTextSize(20);
 
         float textWidth = textPaint.measureText(text);
         float textHeight = textPaint.getTextSize();

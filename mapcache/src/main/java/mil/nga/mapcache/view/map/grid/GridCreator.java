@@ -4,6 +4,8 @@ import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -46,6 +48,16 @@ public abstract class GridCreator {
     private PolylineGridCreator lineCreator;
 
     /**
+     * The labels that are currently displayed on the map.
+     */
+    private List<Marker> mapLabels = new ArrayList<>();
+
+    /**
+     * Creates the labels for the grids.
+     */
+    private LabelMaker labelMaker;
+
+    /**
      * The observer on the model.
      */
     private Observer observer = (observer, o) -> modelUpdate(observer, o);
@@ -70,6 +82,9 @@ public abstract class GridCreator {
         this.gridModel.addObserver(observer);
     }
 
+    /**
+     * Removes any resources that may be left out there.
+     */
     public void destroy() {
         isDestroyed = true;
         this.gridModel.deleteObserver(observer);
@@ -99,6 +114,7 @@ public abstract class GridCreator {
      */
     private void removeGrids() {
         removePolylines();
+        removeLabels();
     }
 
     /**
@@ -109,6 +125,16 @@ public abstract class GridCreator {
             polyline.remove();
         }
         mapPolylines.clear();
+    }
+
+    /**
+     * Removes the labels from the map.
+     */
+    private void removeLabels() {
+        for (Marker marker : mapLabels) {
+            marker.remove();
+        }
+        mapLabels.clear();
     }
 
     /**
@@ -130,7 +156,7 @@ public abstract class GridCreator {
      * Creates the labels based on what is populated for the grids within the model.
      */
     private void createLabels() {
-
+        labelMaker.createLabels();
     }
 
     /**
@@ -152,7 +178,7 @@ public abstract class GridCreator {
      */
     private void updatePolylines() {
         removePolylines();
-        if(!isDestroyed) {
+        if (!isDestroyed) {
             for (PolylineOptions polylineOptions : this.gridModel.getPolylines()) {
                 mapPolylines.add(map.addPolyline(polylineOptions));
             }
@@ -163,6 +189,11 @@ public abstract class GridCreator {
      * Updates the labels on the map.
      */
     private void updateLabels() {
-
+        removeLabels();
+        if (!isDestroyed) {
+            for (MarkerOptions label : this.gridModel.getLabels()) {
+                mapLabels.add(map.addMarker(label));
+            }
+        }
     }
 }

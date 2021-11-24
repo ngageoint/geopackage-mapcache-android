@@ -54,11 +54,11 @@ public class GridController {
     public void gridChanged(GridType gridType) {
         if (gridType == GridType.NONE && gridCreator != null) {
             this.map.setOnCameraIdleListener(null);
-            this.gridCreator.removeGrids();
+            this.gridCreator.destroy();
             this.gridCreator = null;
-        } else {
+        } else if (gridType != GridType.NONE) {
             if (gridCreator != null) {
-                gridCreator.removeGrids();
+                gridCreator.destroy();
             }
             gridCreator = newCreator(gridType);
             this.map.setOnCameraIdleListener(() -> onCameraIdle());

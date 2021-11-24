@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.util.Observer;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.mapcache.utils.ThreadUtils;
@@ -45,6 +46,16 @@ public abstract class GridCreator {
     private PolylineGridCreator lineCreator;
 
     /**
+     * The observer on the model.
+     */
+    private Observer observer = (observer, o) -> modelUpdate(observer, o);
+
+    /**
+     * Indicates if this creator has been destroyed so no more map updates occur.
+     */
+    private boolean isDestroyed = false;
+
+    /**
      * Constructor
      *
      * @param model    This will contain all of the grid object to display on the map.
@@ -56,7 +67,13 @@ public abstract class GridCreator {
         this.map = map;
         this.activity = activity;
         this.lineCreator = new PolylineGridCreator(gridModel);
-        this.gridModel.addObserver((observer, o) -> modelUpdate(observer, o));
+        this.gridModel.addObserver(observer);
+    }
+
+    public void destroy() {
+        isDestroyed = true;
+        this.gridModel.deleteObserver(observer);
+        removeGrids();
     }
 
     /**
@@ -80,10 +97,18 @@ public abstract class GridCreator {
     /**
      * Removes the grids from the map.
      */
-    public void removeGrids() {
-        this.gridModel.setGrids(new Grid[0]);
-        this.gridModel.setPolylines(new PolylineOptions[0]);
-        this.gridModel.setLabels(new BitmapDescriptor[0]);
+    private void removeGrids() {
+        removePolylines();
+    }
+
+    /**
+     * Removes the polylines from the map.
+     */
+    private void removePolylines() {
+        for (Polyline polyline : mapPolylines) {
+            polyline.remove();
+        }
+        mapPolylines.clear();
     }
 
     /**
@@ -126,13 +151,11 @@ public abstract class GridCreator {
      * Updates the polylines on the map.
      */
     private void updatePolylines() {
-        for (Polyline polyline : mapPolylines) {
-            polyline.remove();
-        }
-        mapPolylines.clear();
-
-        for (PolylineOptions polylineOptions : this.gridModel.getPolylines()) {
-            mapPolylines.add(map.addPolyline(polylineOptions));
+        removePolylines();
+        if(!isDestroyed) {
+            for (PolylineOptions polylineOptions : this.gridModel.getPolylines()) {
+                mapPolylines.add(map.addPolyline(polylineOptions));
+            }
         }
     }
 

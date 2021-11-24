@@ -75,7 +75,6 @@ public class BasemapApplier {
      * @param map The map to add basemaps too.
      */
     public void applyBasemaps(GoogleMap map) {
-
         applyGoogleBasemap(map);
 
         BasemapSettings settings = BasemapSettingsLoader.getInstance().loadSettings(activity, prefs);

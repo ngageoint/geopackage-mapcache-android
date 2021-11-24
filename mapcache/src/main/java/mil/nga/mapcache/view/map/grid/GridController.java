@@ -52,12 +52,28 @@ public class GridController {
      * @param gridType The new type of grid to display on map.
      */
     public void gridChanged(GridType gridType) {
-        if (gridType == GridType.NONE) {
+        if (gridType == GridType.NONE && gridCreator != null) {
             this.map.setOnCameraIdleListener(null);
+            this.gridCreator.removeGrids();
+            this.gridCreator = null;
         } else {
-            gridCreator = new TestGridCreator(gridModel, map, activity);
+            if (gridCreator != null) {
+                gridCreator.removeGrids();
+            }
+            gridCreator = newCreator(gridType);
             this.map.setOnCameraIdleListener(() -> onCameraIdle());
+            onCameraIdle();
         }
+    }
+
+    /**
+     * Creates a new grid creator based on the specified grid type.
+     *
+     * @param gridType The type of grid to create.
+     * @return The grid creator.
+     */
+    private GridCreator newCreator(GridType gridType) {
+        return new TestGridCreator(gridModel, map, activity);
     }
 
     /**

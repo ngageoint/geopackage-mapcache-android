@@ -2,6 +2,7 @@ package mil.nga.mapcache.view.map.grid;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
@@ -63,13 +64,14 @@ public class LabelMaker {
      */
     private BitmapDescriptor createLabel(String text) {
         Paint textPaint = new Paint();
+        textPaint.setTextSize(50);
 
         float textWidth = textPaint.measureText(text);
         float textHeight = textPaint.getTextSize();
         int width = (int) (textWidth);
         int height = (int) (textHeight);
 
-        Bitmap image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Bitmap image = Bitmap.createBitmap(width, height + 15, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(image);
 
         canvas.translate(0, height);

@@ -81,7 +81,7 @@ public class GridController {
      */
     private void onCameraIdle() {
         LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
-        gridCreator.createGridForMap(new BoundingBox(bounds.northeast.longitude, bounds.southwest.latitude,
-                bounds.southwest.longitude, bounds.northeast.latitude));
+        gridCreator.createGridForMap(new BoundingBox(bounds.southwest.longitude, bounds.southwest.latitude,
+                bounds.northeast.longitude, bounds.northeast.latitude));
     }
 }

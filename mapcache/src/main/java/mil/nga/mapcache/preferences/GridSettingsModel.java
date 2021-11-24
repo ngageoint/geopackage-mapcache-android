@@ -10,7 +10,12 @@ public class GridSettingsModel extends Observable {
     /**
      * The selected grid property.
      */
-    private static String SELECTED_GRID_PROPERTY = "selectedGrid";
+    public static String SELECTED_GRID_PROPERTY = "selectedGrid";
+
+    /**
+     * String used to contain a grid overlay setting within a string.
+     */
+    private static String gridOverlayTag = ":GridOverlay:";
 
     /**
      * The selected grid.
@@ -35,5 +40,27 @@ public class GridSettingsModel extends Observable {
         this.selectedGrid = selectedGrid;
         setChanged();
         notifyObservers(SELECTED_GRID_PROPERTY);
+    }
+
+    /**
+     * Saves the values of this model into a parseable string.
+     *
+     * @return String represention of this model.
+     */
+    public String toString() {
+        return gridOverlayTag + selectedGrid.toString() + gridOverlayTag;
+    }
+
+    /**
+     * Populates this model from a previous toString of another GridSettingsModel class.
+     *
+     * @param gridString The parseable grid overlay string.
+     * @return A new string with all the grid overlay string removed.
+     */
+    public String fromString(String gridString) {
+        String[] splitString = gridString.split(gridOverlayTag);
+        Grid grid = Grid.valueOf(splitString[1]);
+        setSelectedGrid(grid);
+        return splitString[splitString.length - 1];
     }
 }

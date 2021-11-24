@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.map.grid;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Observable;
@@ -39,7 +40,7 @@ public class GridModel extends Observable {
     /**
      * The labels to add directly to the map.
      */
-    private BitmapDescriptor[] labels;
+    private MarkerOptions[] labels;
 
     /**
      * Gets the grids.
@@ -82,11 +83,11 @@ public class GridModel extends Observable {
     }
 
     /**
-     * Gets the labels to add directly to map.
+     * Gets the labßels to add directly to map.
      *
      * @return The labels for the grids.
      */
-    public BitmapDescriptor[] getLabels() {
+    public MarkerOptions[] getLabels() {
         return labels;
     }
 
@@ -95,7 +96,7 @@ public class GridModel extends Observable {
      *
      * @param labels The new labels.
      */
-    public void setLabels(BitmapDescriptor[] labels) {
+    public void setLabels(MarkerOptions[] labels) {
         this.labels = labels;
         setChanged();
         notifyObservers(LABELS_PROPERTY);

@@ -62,7 +62,7 @@ public class LabelMaker {
      * @return The marker's text image.
      */
     private BitmapDescriptor createLabel(String text) {
-        Paint textPaint = new Paint(); // Adapt to your needs
+        Paint textPaint = new Paint();
 
         float textWidth = textPaint.measureText(text);
         float textHeight = textPaint.getTextSize();

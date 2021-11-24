@@ -79,6 +79,7 @@ public abstract class GridCreator {
         this.map = map;
         this.activity = activity;
         this.lineCreator = new PolylineGridCreator(gridModel);
+        this.labelMaker = new LabelMaker(gridModel);
         this.gridModel.addObserver(observer);
     }
 

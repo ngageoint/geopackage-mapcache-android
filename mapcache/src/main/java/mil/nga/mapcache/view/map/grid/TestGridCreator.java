@@ -23,7 +23,7 @@ public class TestGridCreator extends GridCreator {
     }
 
     @Override
-    protected Grid[] createGrid(BoundingBox bounds) {
+    protected Grid[] createGrid(BoundingBox bounds, int zoom) {
 
         double minLat = bounds.getMinLatitude();
         double minLon = bounds.getMinLongitude();
@@ -34,19 +34,19 @@ public class TestGridCreator extends GridCreator {
 
         Grid lowerLeft = new Grid();
         lowerLeft.setBounds(new BoundingBox(minLon, minLat, centLon, centLat));
-        lowerLeft.setText("Lower Left");
+        lowerLeft.setText("Lower Left " + zoom);
 
         Grid lowerRight = new Grid();
         lowerRight.setBounds(new BoundingBox(centLon, minLat, maxLon, centLat));
-        lowerRight.setText("Lower Right");
+        lowerRight.setText("Lower Right " + zoom);
 
         Grid upperRight = new Grid();
         upperRight.setBounds(new BoundingBox(centLon, centLat, maxLon, maxLat));
-        upperRight.setText("Upper Right");
+        upperRight.setText("Upper Right " + zoom);
 
         Grid upperLeft = new Grid();
         upperLeft.setBounds(new BoundingBox(minLon, centLat, centLon, maxLat));
-        upperLeft.setText("Upper Left");
+        upperLeft.setText("Upper Left " + zoom);
 
         return new Grid[]{lowerLeft, lowerRight, upperRight, upperLeft};
     }

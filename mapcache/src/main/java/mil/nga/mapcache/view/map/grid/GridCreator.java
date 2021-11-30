@@ -98,8 +98,9 @@ public abstract class GridCreator {
      * @param bounds The bounds of the overlay to create.
      */
     public void createGridForMap(BoundingBox bounds) {
+        final int zoom = (int)this.map.getCameraPosition().zoom;
         ThreadUtils.getInstance().runBackground(() -> {
-            Grid[] grids = createGrid(bounds);
+            Grid[] grids = createGrid(bounds, zoom);
             this.gridModel.setGrids(grids);
 
             // Now spawn the label maker and polyline creator
@@ -144,7 +145,7 @@ public abstract class GridCreator {
      * @param bounds The bounding box of the grid.
      * @return The grids.
      */
-    protected abstract Grid[] createGrid(BoundingBox bounds);
+    protected abstract Grid[] createGrid(BoundingBox bounds, int zoom);
 
     /**
      * Creates the polylines based on what is populated for the grids within the model.

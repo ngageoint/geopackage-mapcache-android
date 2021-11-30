@@ -80,7 +80,7 @@ public class GARSGridCreator extends GridCreator {
 
                 String gridLabel = "";
                 if (labelGARs) {
-                    gridLabel = labelCalculator.latLng2GARS(bs, bw);
+                    gridLabel = labelCalculator.latLng2GARS(bs + increment / 2.0, bw + increment / 2.0);
                     gridLabel = gridLabel.substring(0, labelLength);
                 } else {
                     gridLabel = labelCalculator.latLng2Name(bs, bw, increment);

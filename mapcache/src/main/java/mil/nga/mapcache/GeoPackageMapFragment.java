@@ -1473,9 +1473,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     case R.id.GARSGrid:
                         setGridType(GridType.GARS);
                         return true;
-                    case R.id.MGRSGrid:
+                    /*case R.id.MGRSGrid:
                         setGridType(GridType.MGRS);
-                        return true;
+                        return true;*/
                 }
 
                 return true;

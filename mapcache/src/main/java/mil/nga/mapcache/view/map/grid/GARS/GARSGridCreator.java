@@ -36,26 +36,26 @@ public class GARSGridCreator extends GridCreator {
     @Override
     protected Grid[] createGrid(BoundingBox bounds, int zoom) {
         List<Grid> blocks = new ArrayList<>();
-        if (zoom >= 11 && zoom <= 20) {
-            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 0.25 / 3.0), 0.25 / 3.0, true));
+        if (zoom >= 10 && zoom <= 20) {
+            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 0.25 / 3.0), 0.25 / 3.0, true, 7));
         }
-        if (zoom >= 10 && zoom <= 10) {
+        if (zoom >= 9 && zoom <= 9) {
             //quadBlocks are .25 degree squares, 4 per bigBlock
-            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 0.25), 0.25, true));
+            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 0.25), 0.25, true, 6));
         }
-        if (zoom >= 8 && zoom <= 9) {
+        if (zoom >= 7 && zoom <= 8) {
             //Big blocks are 0.5x0.5 lat/lng squares
-            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 0.5), 0.5, true));
+            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 0.5), 0.5, true, 5));
         }
 
-        if (zoom >= 6 && zoom <= 7) {
-            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 5.0), 5.0, false));
+        if (zoom >= 5 && zoom <= 6) {
+            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 5.0), 5.0, false, -1));
         }
-        if (zoom >= 4 && zoom <= 5) {
-            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 10.0), 10.0, false));
+        if (zoom >= 3 && zoom <= 4) {
+            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 10.0), 10.0, false, -1));
         }
-        if (zoom >= 0 && zoom <= 3) {
-            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 20.0), 20.0, false));
+        if (zoom >= 0 && zoom <= 2) {
+            blocks.addAll(this.calculateBlocks(roundBounds(bounds, 20.0), 20.0, false, -1));
         }
 
         Grid[] grids = blocks.toArray(new Grid[0]);
@@ -69,9 +69,10 @@ public class GARSGridCreator extends GridCreator {
      * @param increment The increment per grid.
      * @param labelGARs True if we should use the GARs notation for grid labels otherwise it will use
      *                  a generic latitude longitude label.
+     * @param labelLength The max length for the label.
      * @return The grids within the bounding box.
      */
-    private List<Grid> calculateBlocks(BoundingBox bounds, double increment, boolean labelGARs) {
+    private List<Grid> calculateBlocks(BoundingBox bounds, double increment, boolean labelGARs, int labelLength) {
         List<Grid> grids = new ArrayList<>();
         for (double bw = bounds.getMinLongitude(); bw < bounds.getMaxLongitude(); bw += increment) {
             for (double bs = bounds.getMinLatitude(); bs < bounds.getMaxLatitude(); bs += increment) {
@@ -80,6 +81,7 @@ public class GARSGridCreator extends GridCreator {
                 String gridLabel = "";
                 if (labelGARs) {
                     gridLabel = labelCalculator.latLng2GARS(bs, bw);
+                    gridLabel = gridLabel.substring(0, labelLength);
                 } else {
                     gridLabel = labelCalculator.latLng2Name(bs, bw, increment);
                 }

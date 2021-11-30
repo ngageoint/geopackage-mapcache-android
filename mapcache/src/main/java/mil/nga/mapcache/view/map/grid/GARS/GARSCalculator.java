@@ -33,8 +33,8 @@ public class GARSCalculator {
         longitude = fixLongitude((longitude));
         char longitudeCardinal = longitude >= 0 && longitude < 180.0 ? 'E' : 'W';
         char latitudeCardinal = lat >= 0 ? 'N' : 'S';
-        return String.valueOf(Math.abs(longitude)) + String.valueOf(longitudeCardinal)
-                + String.valueOf(latitude) + String.valueOf(latitudeCardinal);
+        return String.valueOf(Math.abs((int)longitude)) + String.valueOf(longitudeCardinal)
+                + String.valueOf((int)latitude) + String.valueOf(latitudeCardinal);
     }
 
     /**

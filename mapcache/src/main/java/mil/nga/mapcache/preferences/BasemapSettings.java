@@ -45,6 +45,11 @@ public class BasemapSettings extends Observable {
     private BasemapServerModel[] availableServers;
 
     /**
+     * Contains the selected grid overlay.
+     */
+    private GridSettingsModel gridOverlaySettings = new GridSettingsModel();
+
+    /**
      * Gets the selected basemap.
      *
      * @return The selected basemap or null if nothing has been selected.
@@ -105,12 +110,21 @@ public class BasemapSettings extends Observable {
     }
 
     /**
+     * Gets the grid overlay settings.
+     *
+     * @return Contains the selected grid overlay.
+     */
+    public GridSettingsModel getGridOverlaySettings() {
+        return gridOverlaySettings;
+    }
+
+    /**
      * Saves the selected basemaps into a string.
      *
      * @return The selected basemaps in a string.
      */
     public String toString() {
-        String basemapsString = "";
+        String basemapsString = gridOverlaySettings.toString();
         for (BasemapServerModel selectedServer : selectedBasemap) {
             basemapsString += serverTag + selectedServer.getServerUrl();
             if (selectedServer.getLayers().getSelectedLayers() != null) {
@@ -130,7 +144,8 @@ public class BasemapSettings extends Observable {
      *                    constructed from a BasemapSettingsModel.toString call.
      */
     public void fromString(String modelString) {
-        String[] serverStrings = modelString.split(serverTag);
+        String withoutGrid = gridOverlaySettings.fromString(modelString);
+        String[] serverStrings = withoutGrid.split(serverTag);
         BasemapServerModel[] servers = new BasemapServerModel[serverStrings.length - 1];
         int index = 0;
         for (String serverString : serverStrings) {

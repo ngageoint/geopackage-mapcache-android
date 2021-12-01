@@ -8,12 +8,12 @@ import mil.nga.mapcache.R;
 /**
  * Loads the selected basemap settings.
  */
-public class BasemapSettingsLoader {
+public class BasemapSettingsIO {
 
     /**
      * The instance of the loader.
      */
-    private static BasemapSettingsLoader instance = new BasemapSettingsLoader();
+    private static BasemapSettingsIO instance = new BasemapSettingsIO();
 
     /**
      * Map type key for saving to preferences
@@ -25,7 +25,7 @@ public class BasemapSettingsLoader {
      *
      * @return
      */
-    public static BasemapSettingsLoader getInstance() {
+    public static BasemapSettingsIO getInstance() {
         return instance;
     }
 
@@ -55,9 +55,9 @@ public class BasemapSettingsLoader {
     public void loadSettings(Activity activity, SharedPreferences prefs, BasemapSettings settings) {
         String basemapsString = prefs.getString(activity.getString(R.string.selectedBasemaps), "");
         settings.fromString(basemapsString);
-        int mapType = prefs.getInt(BasemapSettingsLoader.MAP_TYPE_KEY, 1);
-        if(settings.getSelectedBasemap() == null || settings.getSelectedBasemap().length == 0) {
-            BasemapServerModel [] selected = new BasemapServerModel[1];
+        int mapType = prefs.getInt(BasemapSettingsIO.MAP_TYPE_KEY, 1);
+        if (settings.getSelectedBasemap() == null || settings.getSelectedBasemap().length == 0) {
+            BasemapServerModel[] selected = new BasemapServerModel[1];
             selected[0] = new BasemapServerModel();
             settings.setSelectedBasemap(selected);
         }
@@ -65,9 +65,23 @@ public class BasemapSettingsLoader {
     }
 
     /**
+     * Saves the basemap settings to the preferences.
+     *
+     * @param activity Used to get string constants.
+     * @param prefs    The preferences to save to.
+     * @param settings The new settings to save.
+     */
+    public void saveSettings(Activity activity, SharedPreferences prefs, BasemapSettings settings) {
+        String selectedBasemapString = settings.toString();
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);
+        editor.commit();
+    }
+
+    /**
      * Private constructor helps keep it a singleton.
      */
-    private BasemapSettingsLoader() {
+    private BasemapSettingsIO() {
 
     }
 }

@@ -1,7 +1,6 @@
 package mil.nga.mapcache.io.network;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import mil.nga.mapcache.utils.ThreadUtils;
 
 /**
  * Makes http requests asynchronously.
@@ -12,11 +11,6 @@ public class HttpClient {
      * The instance of this class.
      */
     private static final HttpClient instance = new HttpClient();
-
-    /**
-     * The thread pool.
-     */
-    private ExecutorService executor = Executors.newFixedThreadPool(4);
 
     /**
      * Gets the instance of this class.
@@ -35,7 +29,7 @@ public class HttpClient {
      */
     public void sendGet(String url, IResponseHandler handler) {
         HttpGetRequest request = new HttpGetRequest(url, handler);
-        executor.execute(request);
+        ThreadUtils.getInstance().runBackground(request);
     }
 
     /**

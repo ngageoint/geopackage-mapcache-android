@@ -3,10 +3,8 @@ package mil.nga.mapcache.view.map;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
@@ -15,14 +13,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import mil.nga.mapcache.layersprovider.LayerModel;
 import mil.nga.mapcache.preferences.BasemapServerModel;
 import mil.nga.mapcache.preferences.BasemapSettings;
-import mil.nga.mapcache.preferences.BasemapSettingsLoader;
+import mil.nga.mapcache.preferences.BasemapSettingsIO;
+import mil.nga.mapcache.preferences.GridType;
+import mil.nga.mapcache.view.map.grid.GridController;
 import mil.nga.mapcache.view.map.overlays.WMSTileProvider;
 import mil.nga.mapcache.view.map.overlays.XYZTileProvider;
 
@@ -53,6 +52,11 @@ public class BasemapApplier {
     private int zIndex = -2;
 
     /**
+     * Draws the selected grid overlay on the map, if any are selected.
+     */
+    private GridController grid;
+
+    /**
      * Constructor.
      *
      * @param activity The current activity.
@@ -69,11 +73,30 @@ public class BasemapApplier {
      * @param map The map to add basemaps too.
      */
     public void applyBasemaps(GoogleMap map) {
-        int mapType = prefs.getInt(BasemapSettingsLoader.MAP_TYPE_KEY, 1);
+        applyGoogleBasemap(map);
+
+        BasemapSettings settings = BasemapSettingsIO.getInstance().loadSettings(activity, prefs);
+        applyUserBasemap(map, settings);
+        applyGridOverlay(map, settings);
+    }
+
+    /**
+     * Applies the google map type setting to the map.
+     *
+     * @param map The map to apply basemap to.
+     */
+    private void applyGoogleBasemap(GoogleMap map) {
+        int mapType = prefs.getInt(BasemapSettingsIO.MAP_TYPE_KEY, 1);
         map.setMapType(mapType);
+    }
 
-        BasemapSettings settings = BasemapSettingsLoader.getInstance().loadSettings(activity, prefs);
-
+    /**
+     * Applies a user specified tile server as a base map to the map.
+     *
+     * @param map      The map to apply basemap to.
+     * @param settings The basemap settings configured by user.
+     */
+    private void applyUserBasemap(GoogleMap map, BasemapSettings settings) {
         Map<String, Set<String>> allProviders = new HashMap<>();
         for (BasemapServerModel server : settings.getSelectedBasemap()) {
             allProviders.put(server.getServerUrl(), new HashSet<>());
@@ -135,6 +158,20 @@ public class BasemapApplier {
     }
 
     /**
+     * Applies a grid overlay basemap if selected by the user.
+     *
+     * @param map      The map to apply the overlay to.
+     * @param settings Contains the user selected grid overlay settings.
+     */
+    private void applyGridOverlay(GoogleMap map, BasemapSettings settings) {
+        if (grid == null) {
+            grid = new GridController(map, this.activity, settings.getGridOverlaySettings().getSelectedGrid());
+        } else {
+            grid.gridChanged(settings.getGridOverlaySettings().getSelectedGrid());
+        }
+    }
+
+    /**
      * Adds the specified tile layer to the map.
      *
      * @param baseUrl   The base url to the tile server.
@@ -190,11 +227,24 @@ public class BasemapApplier {
      */
     public void setMapType(GoogleMap map, int mapType) {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(BasemapSettingsLoader.MAP_TYPE_KEY, mapType);
+        editor.putInt(BasemapSettingsIO.MAP_TYPE_KEY, mapType);
         editor.commit();
         if (map != null) {
             map.setMapType(mapType);
         }
+    }
+
+    /**
+     * Changes the grid overlay to the specified overlay.
+     *
+     * @param map      The map to apply the changes to.
+     * @param gridType The new grid overlay to apply to the map.
+     */
+    public void setGridType(GoogleMap map, GridType gridType) {
+        BasemapSettings settings = BasemapSettingsIO.getInstance().loadSettings(activity, prefs);
+        settings.getGridOverlaySettings().setSelectedGrid(gridType);
+        BasemapSettingsIO.getInstance().saveSettings(activity, prefs, settings);
+        applyGridOverlay(map, settings);
     }
 
     /**

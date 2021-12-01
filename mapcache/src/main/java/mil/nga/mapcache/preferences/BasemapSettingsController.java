@@ -51,7 +51,7 @@ public class BasemapSettingsController implements Observer {
      * Loads the model with the available layers and what basemaps have been selected.
      */
     public void loadModel() {
-        BasemapSettingsLoader.getInstance().loadSettings(activity, prefs, model);
+        BasemapSettingsIO.getInstance().loadSettings(activity, prefs, model);
 
         // Default map
         BasemapServerModel defaultMap = new BasemapServerModel();
@@ -87,6 +87,7 @@ public class BasemapSettingsController implements Observer {
 
         model.setAvailableServers(servers);
         model.addObserver(this);
+        model.getGridOverlaySettings().addObserver(this);
         for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
             selectedServers.getLayers().addObserver(this);
         }
@@ -95,7 +96,8 @@ public class BasemapSettingsController implements Observer {
     @Override
     public void update(Observable observable, Object o) {
         if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)
-                || LayersModel.SELECTED_LAYERS_PROP.equals(o)) {
+                || LayersModel.SELECTED_LAYERS_PROP.equals(o)
+                || GridSettingsModel.SELECTED_GRID_PROPERTY.equals(o)) {
             if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)) {
                 for (BasemapServerModel selectedServers : model.getSelectedBasemap()) {
                     selectedServers.getLayers().deleteObserver(this);
@@ -103,11 +105,7 @@ public class BasemapSettingsController implements Observer {
                 }
             }
 
-            String selectedBasemapString = model.toString();
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);
-            editor.putInt(BasemapSettingsLoader.MAP_TYPE_KEY, Integer.valueOf(model.getSelectedBasemap()[0].getServerUrl()));
-            editor.commit();
+            BasemapSettingsIO.getInstance().saveSettings(activity, prefs, model);
         }
     }
 }

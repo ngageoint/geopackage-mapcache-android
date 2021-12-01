@@ -41,6 +41,44 @@
         </TableRow>
     </TableLayout>
 
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Grid overlay"
+            android:textAppearance="@style/textAppearanceBody1Medium" />
+
+        <RadioButton
+            android:id="@+id/gridNone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_weight="1"
+            android:checked="true"
+            android:text="None" />
+
+        <RadioButton
+            android:id="@+id/gridGars"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="GARS" />
+
+        <!--<RadioButton
+            android:id="@+id/gridMGRS"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="MGRS" /> -->
+    </RadioGroup>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

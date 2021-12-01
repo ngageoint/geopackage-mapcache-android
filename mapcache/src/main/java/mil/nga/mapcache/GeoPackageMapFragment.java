@@ -59,6 +59,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
@@ -116,7 +117,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -207,10 +207,12 @@ import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.BasemapSettings;
+import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.sensors.SensorHandler;
 import mil.nga.mapcache.utils.SwipeController;
+import mil.nga.mapcache.utils.ThreadUtils;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
 import mil.nga.mapcache.view.detail.DetailActionUtil;
@@ -1449,6 +1451,7 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
+        MenuCompat.setGroupDividerEnabled(pm.getMenu(), true);
         pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -1464,6 +1467,15 @@ public class GeoPackageMapFragment extends Fragment implements
                     case R.id.terrain:
                         setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                         return true;
+                    case R.id.NoGrid:
+                        setGridType(GridType.NONE);
+                        return true;
+                    case R.id.GARSGrid:
+                        setGridType(GridType.GARS);
+                        return true;
+                    /*case R.id.MGRSGrid:
+                        setGridType(GridType.MGRS);
+                        return true;*/
                 }
 
                 return true;
@@ -3934,6 +3946,17 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
+     * Sets the new grid type.
+     *
+     * @param gridType The new grid type.
+     */
+    private void setGridType(GridType gridType) {
+        if (basemapApplier != null) {
+            basemapApplier.setGridType(map, gridType);
+        }
+    }
+
+    /**
      * Update the map by kicking off a background task
      *
      * @param zoom zoom flag
@@ -4408,16 +4431,6 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         }
 
-        // Get the thread pool size, or 0 if single threaded
-        int threadPoolSize = getActivity().getResources().getInteger(
-                R.integer.map_update_thread_pool_size);
-
-        // Create a thread pool for processing features
-        ExecutorService threadPool = null;
-        if (threadPoolSize > 0) {
-            threadPool = Executors.newFixedThreadPool(threadPoolSize);
-        }
-
         for (Map.Entry<String, List<String>> databaseFeaturesEntry : featureTables
                 .entrySet()) {
 
@@ -4441,7 +4454,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                         if (databaseFeatureDaos.containsKey(features)) {
 
-                            displayFeatures(task, threadPool,
+                            displayFeatures(task,
                                     geoPackage, styleCache, features, count,
                                     maxFeatures, editFeaturesMode, mapViewBoundingBox, toleranceDistance, filter);
                             if (task.isCancelled() || count.get() >= maxFeatures) {
@@ -4456,19 +4469,6 @@ public class GeoPackageMapFragment extends Fragment implements
 
             if (task.isCancelled()) {
                 break;
-            }
-        }
-
-        if (threadPool != null) {
-            threadPool.shutdown();
-            if (!task.isCancelled() && count.get() < maxFeatures) {
-                try {
-                    threadPool.awaitTermination(getActivity().getResources().getInteger(
-                            R.integer.map_update_thread_pool_finish_wait),
-                            TimeUnit.MILLISECONDS);
-                } catch (InterruptedException e) {
-                    Log.w(GeoPackageMapFragment.class.getSimpleName(), e);
-                }
             }
         }
 
@@ -4589,7 +4589,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Display features
      *
      * @param task
-     * @param threadPool
      * @param geoPackage
      * @param styleCache
      * @param features
@@ -4600,8 +4599,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param toleranceDistance
      * @param filter
      */
-    private void displayFeatures(MapFeaturesUpdateTask task,
-                                 ExecutorService threadPool, GeoPackage geoPackage, StyleCache styleCache, String features,
+    private void displayFeatures(MapFeaturesUpdateTask task, GeoPackage geoPackage, StyleCache styleCache, String features,
                                  AtomicInteger count, final int maxFeatures, final boolean editable,
                                  BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
@@ -4634,7 +4632,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
                 }
 
-                processFeatureIndexResults(task, threadPool, indexResults, database, featureDao, converter, styleCache,
+                processFeatureIndexResults(task, indexResults, database, featureDao, converter, styleCache,
                         count, maxFeatures, editable, filter);
 
             } else {
@@ -4665,17 +4663,11 @@ public class GeoPackageMapFragment extends Fragment implements
                             try {
                                 FeatureRow row = cursor.getRow();
 
-                                if (threadPool != null) {
-                                    // Process the feature row in the thread pool
-                                    FeatureRowProcessor processor = new FeatureRowProcessor(
-                                            task, database, featureDao, row, count, maxFeatures, editable, converter,
-                                            styleCache, filterBoundingBox, filterMaxLongitude, filter);
-                                    threadPool.execute(processor);
-                                } else {
-
-                                    processFeatureRow(task, database, featureDao, converter, styleCache, row, count, maxFeatures, editable,
-                                            filterBoundingBox, filterMaxLongitude, filter);
-                                }
+                                // Process the feature row in the thread pool
+                                FeatureRowProcessor processor = new FeatureRowProcessor(
+                                        task, database, featureDao, row, count, maxFeatures, editable, converter,
+                                        styleCache, filterBoundingBox, filterMaxLongitude, filter);
+                                ThreadUtils.getInstance().runBackground(processor);
                             } catch (Exception e) {
                                 Log.e(GeoPackageMapFragment.class.getSimpleName(),
                                         "Failed to display feature. database: " + database
@@ -4705,7 +4697,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Process the feature index results
      *
      * @param task
-     * @param threadPool
      * @param indexResults
      * @param database
      * @param featureDao
@@ -4716,7 +4707,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param editable
      * @param filter
      */
-    private void processFeatureIndexResults(MapFeaturesUpdateTask task, ExecutorService threadPool, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
+    private void processFeatureIndexResults(MapFeaturesUpdateTask task, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
                                             GoogleMapShapeConverter converter, StyleCache styleCache, AtomicInteger count, final int maxFeatures, final boolean editable,
                                             boolean filter) {
 
@@ -4729,16 +4720,11 @@ public class GeoPackageMapFragment extends Fragment implements
 
                 try {
 
-                    if (threadPool != null) {
-                        // Process the feature row in the thread pool
-                        FeatureRowProcessor processor = new FeatureRowProcessor(
-                                task, database, featureDao, row, count, maxFeatures, editable, converter,
-                                styleCache, null, 0, filter);
-                        threadPool.execute(processor);
-                    } else {
-
-                        processFeatureRow(task, database, featureDao, converter, styleCache, row, count, maxFeatures, editable, null, 0, filter);
-                    }
+                    // Process the feature row in the thread pool
+                    FeatureRowProcessor processor = new FeatureRowProcessor(
+                            task, database, featureDao, row, count, maxFeatures, editable, converter,
+                            styleCache, null, 0, filter);
+                    ThreadUtils.getInstance().runBackground(processor);
 
                 } catch (Exception e) {
                     Log.e(GeoPackageMapFragment.class.getSimpleName(),

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.RadioButton;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -56,6 +57,21 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      * List of the default map layers.
      */
     private List<Button> exclusiveButtons = new ArrayList<>();
+
+    /**
+     * The no grid radio button.
+     */
+    private RadioButton gridNone;
+
+    /**
+     * The GARS grid radio button.
+     */
+    private RadioButton gridGARS;
+
+    /**
+     * The MGRS grid radio button.
+     */
+    private RadioButton gridMGRS;
 
     /**
      * Constructor.
@@ -107,8 +123,31 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         terrainButton.setOnTouchListener((view, motionEvent) -> keepPressed(view, motionEvent));
         exclusiveButtons.add(terrainButton);
 
+        this.gridNone = basemapView.findViewById(R.id.gridNone);
+        this.gridNone.setOnCheckedChangeListener((button, isChecked) -> {
+            if (isChecked) {
+                this.model.getGridOverlaySettings().setSelectedGrid(GridType.NONE);
+            }
+        });
+
+        this.gridGARS = basemapView.findViewById(R.id.gridGars);
+        this.gridGARS.setOnCheckedChangeListener((button, isChecked) -> {
+            if (isChecked) {
+                this.model.getGridOverlaySettings().setSelectedGrid(GridType.GARS);
+            }
+        });
+
+        /*this.gridMGRS = basemapView.findViewById(R.id.gridMGRS);
+        this.gridMGRS.setOnCheckedChangeListener((button, isChecked) -> {
+            if (isChecked) {
+                this.model.getGridOverlaySettings().setSelectedGrid(GridType.MGRS);
+            }
+        });*/
+
         model.addObserver((observable, o) -> modelUpdate(observable, o));
+        model.getGridOverlaySettings().addObserver((observable, o) -> modelUpdate(observable, o));
         updateButtonColors();
+        updateGridChecked();
 
         Button newServerButton = basemapView.findViewById(R.id.button);
         newServerButton.setOnClickListener(view -> launchSavedUrls());
@@ -183,6 +222,8 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         if (BasemapSettings.SELECTED_BASEMAP_PROP.equals(o)
                 || BasemapSettings.EXCLUSIVE_SERVERS_PROP.equals(o)) {
             updateButtonColors();
+        } else if (GridSettingsModel.SELECTED_GRID_PROPERTY.equals(o)) {
+            updateGridChecked();
         }
     }
 
@@ -216,7 +257,7 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      */
     private void updateButtonColors() {
         if (model.getSelectedBasemap() != null && model.getSelectedBasemap().length > 0
-            && model.getExclusiveServers() != null) {
+                && model.getExclusiveServers() != null) {
             BasemapServerModel exclusiveLayer = model.getSelectedBasemap()[0];
             String name = "";
             for (BasemapServerModel anExclusive : model.getExclusiveServers()) {
@@ -233,6 +274,19 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
                     exclusiveButton.setPressed(false);
                 }
             }
+        }
+    }
+
+    /**
+     * Updates which grid is selected.
+     */
+    private void updateGridChecked() {
+        if (model.getGridOverlaySettings().getSelectedGrid() == GridType.NONE) {
+            this.gridNone.setChecked(true);
+        } else if (model.getGridOverlaySettings().getSelectedGrid() == GridType.GARS) {
+            this.gridGARS.setChecked(true);
+        } else if (model.getGridOverlaySettings().getSelectedGrid() == GridType.MGRS) {
+            this.gridMGRS.setChecked(true);
         }
     }
 }

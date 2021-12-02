@@ -3410,6 +3410,10 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onResume() {
         settingsUpdate();
+        if(visible) {
+            visible = false;
+            showMyLocation();
+        }
         super.onResume();
     }
 

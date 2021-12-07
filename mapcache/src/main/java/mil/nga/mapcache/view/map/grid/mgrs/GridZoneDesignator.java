@@ -192,7 +192,7 @@ public class GridZoneDesignator {
      * @param precision   The precision.
      * @return The list of grids for the zone.
      */
-    private List<Grid> polygonsAndLabelsInBounds(BoundingBox boundingBox, double precision) {
+    public List<Grid> polygonsAndLabelsInBounds(BoundingBox boundingBox, double precision) {
         List<Grid> grids = new ArrayList<>();
         if (precision == 0) {
             Grid grid = this.generatePolygon(zoneBounds);

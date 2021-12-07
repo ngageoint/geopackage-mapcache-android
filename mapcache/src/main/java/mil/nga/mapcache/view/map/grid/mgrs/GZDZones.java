@@ -199,7 +199,7 @@ public class GZDZones {
      * @param interestingOnly True if we only want interesting zones.
      * @return A list of grid zones within the bounding box.
      */
-    private List<GridZoneDesignator> zonesWithin(BoundingBox bbox, boolean interestingOnly) {
+    public List<GridZoneDesignator> zonesWithin(BoundingBox bbox, boolean interestingOnly) {
         List<BoundingBox> bboxes = determineBoundingBoxesInRange(bbox);
         List<GridZoneDesignator> zones = new ArrayList<>();
         for (Map.Entry<String, double[]> entry : latitudeGZDZones.entrySet()) {

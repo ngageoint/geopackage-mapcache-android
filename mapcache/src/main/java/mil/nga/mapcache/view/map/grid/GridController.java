@@ -8,6 +8,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.view.map.grid.GARS.GARSGridCreator;
+import mil.nga.mapcache.view.map.grid.mgrs.MGRSGridCreator;
 
 /**
  * Manages the grids that are being displayed on the map.
@@ -78,7 +79,7 @@ public class GridController {
         if(gridType == GridType.GARS) {
             gridCreator = new GARSGridCreator(gridModel, map, activity);
         } else if(gridType == GridType.MGRS) {
-            gridCreator = new TestGridCreator(gridModel, map, activity);
+            gridCreator = new MGRSGridCreator(gridModel, map, activity);
         }
 
         return gridCreator;

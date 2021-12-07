@@ -164,12 +164,6 @@ public class GZDZones {
             bboxes.add(new BoundingBox(minLon, bbox.getMinLatitude(), maxLon, bbox.getMaxLatitude()));
         }
 
-        if (bbox.getMinLongitude() < -180 && bbox.getMinLatitude() > 180) {
-            bboxes.add(new BoundingBox(LatLonUtils.getInstance().fixLongitude(bbox.getMinLongitude()), bbox.getMinLatitude(), 180.0, bbox.getMaxLatitude()));
-            bboxes.add(new BoundingBox(-180.0, bbox.getMinLatitude(), bbox.getMaxLongitude(), bbox.getMaxLatitude()));
-        } else {
-            bboxes.add(bbox);
-        }
         return bboxes;
     }
 
@@ -250,7 +244,7 @@ public class GZDZones {
                     overlap = false;
                     for (int j = 0; j < bboxes.size() && !overlap; j++) {
                         BoundingBox abox = bboxes.get(j);
-                        if (rangesOverlap(lngRange, new double[]{abox.getMinLongitude(), abox.getMinLongitude()})) {
+                        if (rangesOverlap(lngRange, new double[]{abox.getMinLongitude(), abox.getMaxLongitude()})) {
                             overlap = true;
                         }
                     }

@@ -5,15 +5,14 @@ import android.graphics.Color;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.locationtech.jts.geom.Polygon;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import kotlin.random.jdk8.PlatformThreadLocalRandom;
-import mil.nga.geopackage.BoundingBox;
 
 /**
  * Creates the polylines that can be added to the map.
@@ -43,11 +42,11 @@ public class PolylineGridCreator {
         Map<LatLng, Set<LatLng>> existingPolylines = new HashMap<>();
 
         for (Grid grid : gridModel.getGrids()) {
-            BoundingBox box = grid.getBounds();
-            LatLng lowerLeft = new LatLng(box.getMinLatitude(), box.getMinLongitude());
-            LatLng lowerRight = new LatLng(box.getMinLatitude(), box.getMaxLongitude());
-            LatLng upperRight = new LatLng(box.getMaxLatitude(), box.getMaxLongitude());
-            LatLng upperLeft = new LatLng(box.getMaxLatitude(), box.getMinLongitude());
+            Polygon box = grid.getBounds();
+            LatLng lowerLeft = new LatLng(box.getCoordinates()[0].y, box.getCoordinates()[0].x);
+            LatLng lowerRight = new LatLng(box.getCoordinates()[1].y, box.getCoordinates()[1].x);
+            LatLng upperRight = new LatLng(box.getCoordinates()[2].y, box.getCoordinates()[2].x);
+            LatLng upperLeft = new LatLng(box.getCoordinates()[3].y, box.getCoordinates()[3].x);
 
             PolylineOptions polyline = new PolylineOptions();
 

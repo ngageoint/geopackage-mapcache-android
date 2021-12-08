@@ -4,6 +4,9 @@ import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+
 import mil.nga.geopackage.BoundingBox;
 
 /**
@@ -33,19 +36,36 @@ public class TestGridCreator extends GridCreator {
         double centLon = (minLon + maxLon) / 2.;
 
         Grid lowerLeft = new Grid();
-        lowerLeft.setBounds(new BoundingBox(minLon, minLat, centLon, centLat));
+        GeometryFactory factory = new GeometryFactory();
+        lowerLeft.setBounds(factory.createPolygon(new Coordinate[]{new Coordinate(minLon, minLat),
+                new Coordinate(centLon, minLat),
+                new Coordinate(centLon, centLat),
+                new Coordinate(minLon, centLat),
+                new Coordinate(minLon, minLat)}));
         lowerLeft.setText("Lower Left " + zoom);
 
         Grid lowerRight = new Grid();
-        lowerRight.setBounds(new BoundingBox(centLon, minLat, maxLon, centLat));
+        lowerRight.setBounds(factory.createPolygon(new Coordinate[]{new Coordinate(centLon, minLat),
+                new Coordinate(maxLon, minLat),
+                new Coordinate(maxLon, centLat),
+                new Coordinate(centLon, centLat),
+                new Coordinate(centLon, minLat)}));
         lowerRight.setText("Lower Right " + zoom);
 
         Grid upperRight = new Grid();
-        upperRight.setBounds(new BoundingBox(centLon, centLat, maxLon, maxLat));
+        upperRight.setBounds(factory.createPolygon(new Coordinate[]{new Coordinate(centLon, centLat),
+                new Coordinate(maxLon, centLat),
+                new Coordinate(maxLon, maxLat),
+                new Coordinate(centLon, maxLat),
+                new Coordinate(centLon, centLat)}));
         upperRight.setText("Upper Right " + zoom);
 
         Grid upperLeft = new Grid();
-        upperLeft.setBounds(new BoundingBox(minLon, centLat, centLon, maxLat));
+        upperLeft.setBounds(factory.createPolygon(new Coordinate[]{new Coordinate(minLon, centLat),
+                new Coordinate(centLon, centLat),
+                new Coordinate(centLon, maxLat),
+                new Coordinate(minLon, maxLat),
+                new Coordinate(minLon, centLat)}));
         upperLeft.setText("Upper Left " + zoom);
 
         return new Grid[]{lowerLeft, lowerRight, upperRight, upperLeft};

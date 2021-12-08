@@ -10,6 +10,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.locationtech.jts.geom.Polygon;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,9 +43,9 @@ public class LabelMaker {
         List<MarkerOptions> labels = new ArrayList<>();
 
         for (Grid grid : gridModel.getGrids()) {
-            BoundingBox box = grid.getBounds();
-            double centerLat = (box.getMaxLatitude() + box.getMinLatitude()) / 2;
-            double centerLon = (box.getMaxLongitude() + box.getMinLongitude()) / 2;
+            Polygon box = grid.getBounds();
+            double centerLat = (box.getCoordinates()[2].y + box.getCoordinates()[0].y) / 2;
+            double centerLon = (box.getCoordinates()[1].x + box.getCoordinates()[0].x) / 2;
             MarkerOptions marker = new MarkerOptions();
             marker.position(new LatLng(centerLat, centerLon));
 

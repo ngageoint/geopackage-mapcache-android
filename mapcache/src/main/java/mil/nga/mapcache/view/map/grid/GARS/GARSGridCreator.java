@@ -4,6 +4,10 @@ import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,9 +109,18 @@ public class GARSGridCreator extends GridCreator {
      */
     private List<Grid> calculateBlocks(BoundingBox bounds, double increment, boolean labelGARs, int labelLength) {
         List<Grid> grids = new ArrayList<>();
+        GeometryFactory factory = new GeometryFactory();
         for (double bw = bounds.getMinLongitude(); bw < bounds.getMaxLongitude(); bw += increment) {
             for (double bs = bounds.getMinLatitude(); bs < bounds.getMaxLatitude(); bs += increment) {
-                BoundingBox rect = new BoundingBox(bw, bs, bw + increment, bs + increment);
+                double be = bw + increment;
+                double bn = bs + increment;
+                Polygon rect = factory.createPolygon(new Coordinate[]{
+                        new Coordinate(bw, bs),
+                        new Coordinate(be, bs),
+                        new Coordinate(be, bn),
+                        new Coordinate(bw, bn),
+                        new Coordinate(bw, bs)
+                });
 
                 String gridLabel = "";
                 if (labelGARs) {

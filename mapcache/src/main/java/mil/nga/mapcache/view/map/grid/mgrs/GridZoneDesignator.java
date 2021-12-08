@@ -8,6 +8,12 @@ import java.util.List;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.mapcache.view.map.grid.Grid;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Polygon;
+
 /**
  * A GridZoneDesignator.
  */
@@ -40,7 +46,7 @@ public class GridZoneDesignator {
     /**
      * The zones grid.
      */
-    private Grid zonePolygon;
+    private Polygon zonePolygon;
 
     /**
      * Constructs a new grid zone designator.
@@ -65,7 +71,12 @@ public class GridZoneDesignator {
                 Math.max(lr.getEasting(), ur.getEasting()),
                 Math.max(ul.getNorthing(), ur.getNorthing())
         };
-        this.zonePolygon = this.generatePolygon(zoneBounds);
+        LatLng[] boundsLatLngs = {new LatLng(zoneBounds.getMinLatitude(), zoneBounds.getMinLongitude()),
+                new LatLng(zoneBounds.getMinLatitude(), zoneBounds.getMaxLongitude()),
+                new LatLng(zoneBounds.getMaxLatitude(), zoneBounds.getMaxLongitude()),
+                new LatLng(zoneBounds.getMaxLatitude(), zoneBounds.getMinLongitude()),
+                new LatLng(zoneBounds.getMinLatitude(), zoneBounds.getMinLongitude())};
+        this.zonePolygon = this.generatePolygon(boundsLatLngs);
     }
 
     /**
@@ -126,16 +137,21 @@ public class GridZoneDesignator {
     }
 
     /**
-     * Generates a grid for the specified bounds.
+     * Generates a polygon for the specified coordinates.
      *
-     * @param zoneBounds The bounds to create a grid for.
-     * @return The new grid.
+     * @param latLngs The coordinates for the polygons.
+     * @return The new polygon.
      */
-    private Grid generatePolygon(BoundingBox zoneBounds) {
-        Grid grid = new Grid();
-        grid.setBounds(zoneBounds);
+    private Polygon generatePolygon(LatLng[] latLngs) {
+        Coordinate[] coords = new Coordinate[latLngs.length];
+        for (int i = 0; i < latLngs.length; i++) {
+            coords[i] = new Coordinate(latLngs[i].longitude, latLngs[i].latitude);
+        }
 
-        return grid;
+        GeometryFactory factory = new GeometryFactory();
+        Polygon polygon = factory.createPolygon(coords);
+
+        return polygon;
     }
 
     /**
@@ -154,10 +170,9 @@ public class GridZoneDesignator {
         LatLng ul = new UTM(this.zoneNumber, this.hemisphere, easting, newNorthing).toLatLng();
         LatLng ur = new UTM(this.zoneNumber, this.hemisphere, newEasting, newNorthing).toLatLng();
         LatLng lr = new UTM(this.zoneNumber, this.hemisphere, newEasting, northing).toLatLng();
-  /*      boundingBox.
-    const intersection = intersect(this.generatePolygon([[ll.asArray(), ul.asArray(), ur.asArray(), lr.asArray(), ll.asArray()]]), this.zonePolygon)
-        if (intersection != null) {
-            polygons.push(intersection)
+        Geometry intersection = this.generatePolygon(new LatLng[]{ll, ul, ur, lr, ll}).intersection(zonePolygon);
+        if (!intersection.isEmpty()) {
+        /*    polygons.push(intersection)
             ll = new LatLng(intersection.geometry.coordinates[0][0][1], intersection.geometry.coordinates[0][0][0])
             ul = new LatLng(intersection.geometry.coordinates[0][1][1], intersection.geometry.coordinates[0][1][0])
             ur = new LatLng(intersection.geometry.coordinates[0][2][1], intersection.geometry.coordinates[0][2][0])
@@ -181,8 +196,8 @@ public class GridZoneDesignator {
                         Math.max(ul.latitude, ur.latitude)
         ]
                 labels.push(new Label(get100KId(easting, northing, this.zoneNumber), labelCenter, intersectionBounds, this.zoneLetter, this.zoneNumber))
-            }
-        }*/
+            }*/
+        }
     }
 
     /**
@@ -195,7 +210,8 @@ public class GridZoneDesignator {
     public List<Grid> polygonsAndLabelsInBounds(BoundingBox boundingBox, double precision) {
         List<Grid> grids = new ArrayList<>();
         if (precision == 0) {
-            Grid grid = this.generatePolygon(zoneBounds);
+            Grid grid = new Grid();
+            grid.setBounds(this.zonePolygon);
             grid.setText(getLabelText());
             grids.add(grid);
         } else {

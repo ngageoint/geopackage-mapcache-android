@@ -1,5 +1,7 @@
 package mil.nga.mapcache.view.map.grid;
 
+import org.locationtech.jts.geom.Polygon;
+
 import mil.nga.geopackage.BoundingBox;
 
 /**
@@ -10,7 +12,7 @@ public class Grid {
     /**
      * The latitude and longitude bounds of the grid.
      */
-    private BoundingBox bounds;
+    private Polygon bounds;
 
     /**
      * The text of the grid.
@@ -22,7 +24,7 @@ public class Grid {
      *
      * @return The bounds of the grid.
      */
-    public BoundingBox getBounds() {
+    public Polygon getBounds() {
         return bounds;
     }
 
@@ -31,7 +33,7 @@ public class Grid {
      *
      * @param bounds The new bounds of the grid.
      */
-    public void setBounds(BoundingBox bounds) {
+    public void setBounds(Polygon bounds) {
         this.bounds = bounds;
     }
 

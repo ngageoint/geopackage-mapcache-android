@@ -13,6 +13,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayersModel;
+import mil.nga.mapcache.layersprovider.LayersView;
+import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
 
 /**
@@ -64,13 +67,10 @@ public class TileBoundingBoxUI {
      * @param fragment       The fragment this UI is apart of, used to get resource strings.
      * @param active         The active GeoPackages
      * @param callback       The callback to pass to LoadTilesTask.
-     * @param geoPackageName The name of the geopackage.
-     * @param layerName      The name of the layer.
-     * @param url            The base url to the tile layer.
+     * @param model          Contains various information about the layer.
      */
     public void show(FragmentActivity activity, Context context, Fragment fragment,
-                     GeoPackageDatabases active, ILoadTilesTask callback, String geoPackageName,
-                     String layerName, String url) {
+                     GeoPackageDatabases active, ILoadTilesTask callback, NewTileLayerModel model) {
         // prepare the screen by shrinking bottom sheet, hide fab and map buttons, show zoom level
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -82,6 +82,13 @@ public class TileBoundingBoxUI {
         transBox.setVisibility(View.VISIBLE);
         mapView.getTouchableMap().addView(mapView.getTransBox());
 
+        final String layerName = layers.getSelectedLayers() != null
+                && layers.getSelectedLayers().length > 0
+                ? layers.getSelectedLayers()[0].getName() : "";
+
+        mapView.getBaseApplier().addLayer(
+                model.getBaseUrl(), layerName, mapView.getMap());
+
         View layersButton = transBox.findViewById(R.id.layersButton);
         if (layers.getLayers() != null && layers.getLayers().length > 0) {
             layersButton.setVisibility(View.VISIBLE);
@@ -89,7 +96,9 @@ public class TileBoundingBoxUI {
                 @Override
                 public void onClick(View view) {
                     mapView.getTouchableMap().removeView(mapView.getTransBox());
-                    LayersView layersView = new LayersView(context, layers);
+                    mapView.getBaseApplier().removeLayer(
+                            model.getBaseUrl(), layerName);
+                    LayersView layersView = new LayersViewDialog(context, layers);
                     layersView.show();
                 }
             });
@@ -103,6 +112,8 @@ public class TileBoundingBoxUI {
             public void onClick(View view) {
                 // Remove transparent box and show the fab and map buttons again
                 mapView.getTouchableMap().removeView(mapView.getTransBox());
+                mapView.getBaseApplier().removeLayer(
+                        model.getBaseUrl(), layerName);
                 mapView.showMapIcons();
             }
         });
@@ -127,9 +138,11 @@ public class TileBoundingBoxUI {
                 }
                 mapView.showMapIcons();
                 mapView.getTouchableMap().removeView(mapView.getTransBox());
+                mapView.getBaseApplier().removeLayer(
+                        model.getBaseUrl(), layerName);
                 // continue to create layer
-                createTileFinal(activity, context, fragment, active, callback, geoPackageName,
-                        layerName, url);
+                createTileFinal(activity, context, fragment, active, callback,
+                        model.getGeopackageName(), model.getLayerName(), model.getUrl());
             }
         });
     }

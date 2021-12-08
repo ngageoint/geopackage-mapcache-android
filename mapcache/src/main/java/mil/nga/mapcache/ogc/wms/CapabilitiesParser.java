@@ -64,6 +64,11 @@ public class CapabilitiesParser extends DefaultHandler {
     private String currentElementName;
 
     /**
+     * The current CRS string being built.
+     */
+    private String currentCRS = null;
+
+    /**
      * The current stack of all parent layers.
      */
     private Stack<Layer> parentLayers = new Stack<>();
@@ -108,7 +113,11 @@ public class CapabilitiesParser extends DefaultHandler {
                         new String(ch, start, length));
             }
         } else if (CRS_ELEMENT.equals(currentElementName)) {
-            currentLayer.getCRS().add(new String(ch, start, length));
+            if(currentCRS == null) {
+                currentCRS = "";
+            }
+            String crs = new String(ch, start, length);
+            currentCRS += crs;
         }
     }
 
@@ -139,6 +148,9 @@ public class CapabilitiesParser extends DefaultHandler {
             } else {
                 currentLayer = parentLayers.pop();
             }
+        } else if(CRS_ELEMENT.equals(localName)) {
+            currentLayer.getCRS().add(currentCRS);
+            currentCRS = null;
         }
     }
 

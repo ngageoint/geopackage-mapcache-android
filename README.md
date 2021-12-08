@@ -15,8 +15,6 @@ Software source code previously released under an open source license and then m
     <img src="https://github.com/ngageoint/GeoPackage/raw/master/docs/images/google-play-badge.png" height=50>
 </a>
 
-[Download the latest Legacy APK](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.29)
-
 ### About ###
 
 [GeoPackage MapCache](http://ngageoint.github.io/geopackage-mapcache-android/) is a [GeoPackage Library](http://ngageoint.github.io/GeoPackage/) app for Android that utilizes and demonstrates the functionality in [GeoPackage Android](https://github.com/ngageoint/geopackage-android) and [GeoPackage Android Map](https://github.com/ngageoint/geopackage-android-map).  The GeoPackage SDKs are Android library implementations of the Open Geospatial Consortium [GeoPackage](http://www.geopackage.org/) [spec](http://www.geopackage.org/spec/). The app and SDK are listed as [OGC GeoPackage Implementations](http://www.geopackage.org/#implementations_nga) by the National Geospatial-Intelligence Agency.
@@ -69,3 +67,9 @@ In your `gradle.properties`, add your API Key (replacing the example keys)
 RELEASE_MAPS_MAPCACHE_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
 DEBUG_MAPS_API_KEY=AIzaSyBdVl-cTICSwYKrZ95SuvNw7dbMuDt1KG0
 ```
+
+### Legacy ###
+
+The original MapCache app is minimally maintained on the [legacy branch](https://github.com/ngageoint/geopackage-mapcache-android/tree/legacy).
+
+[Download the latest Legacy APK](https://ngageoint.github.io/geopackage-mapcache-android/legacy/mapcache.zip)

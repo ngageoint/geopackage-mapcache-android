@@ -5,6 +5,7 @@ import android.view.View;
 import com.google.android.gms.maps.GoogleMap;
 
 import mil.nga.mapcache.GeoPackageMapFragment;
+import mil.nga.mapcache.view.map.BasemapApplier;
 
 /**
  * Interface to the view that shows the map.
@@ -55,4 +56,11 @@ public interface IMapView {
      * @return The map.
      */
     public GoogleMap getMap();
+
+    /**
+     * Gets the object that manages adding and removing basemaps to the map.
+     *
+     * @return The BasemapApplier.
+     */
+    public BasemapApplier getBaseApplier();
 }

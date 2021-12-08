@@ -2,7 +2,6 @@ package mil.nga.mapcache.wizards.createtile;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -18,20 +17,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.button.MaterialButton;
 
-import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.extension.nga.scale.TileScaling;
-import mil.nga.mapcache.GeoPackageMapFragment;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
-import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.detail.NewLayerUtil;
-import mil.nga.proj.ProjectionConstants;
 
 /**
  * UI that allows the user to pick which zoom levels to save to a geopackage and various other

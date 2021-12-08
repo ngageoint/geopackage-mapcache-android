@@ -50,7 +50,7 @@ public class LabelMaker {
                 MarkerOptions marker = new MarkerOptions();
                 marker.position(new LatLng(centerLat, centerLon));
 
-                BitmapDescriptor textIcon = createLabel(grid.getText());
+                BitmapDescriptor textIcon = createLabel(grid);
                 marker.icon(textIcon);
                 labels.add(marker);
             }
@@ -65,14 +65,15 @@ public class LabelMaker {
     /**
      * Create a bitmap containing the text to be used for the marker.
      *
-     * @param text The text.
+     * @param grid The grid to put a label for.
      * @return The marker's text image.
      */
-    private BitmapDescriptor createLabel(String text) {
+    private BitmapDescriptor createLabel(Grid grid) {
         Paint textPaint = new Paint();
         textPaint.setTextSize(20);
+        textPaint.setColor(grid.getColor());
 
-        float textWidth = textPaint.measureText(text);
+        float textWidth = textPaint.measureText(grid.getText());
         float textHeight = textPaint.getTextSize();
         int width = (int) (textWidth);
         int height = (int) (textHeight);
@@ -82,7 +83,7 @@ public class LabelMaker {
 
         canvas.translate(0, height);
 
-        canvas.drawText(text, 0, 0, textPaint);
+        canvas.drawText(grid.getText(), 0, 0, textPaint);
         BitmapDescriptor icon = BitmapDescriptorFactory.fromBitmap(image);
         return icon;
     }

@@ -1,5 +1,7 @@
 package mil.nga.mapcache.view.map.grid;
 
+import android.graphics.Color;
+
 import org.locationtech.jts.geom.Polygon;
 
 import mil.nga.geopackage.BoundingBox;
@@ -18,6 +20,11 @@ public class Grid {
      * The text of the grid.
      */
     private String text;
+
+    /**
+     * The color of the grid.
+     */
+    private int color = Color.BLACK;
 
     /**
      * Gets the latitude and longitude bounds of the grid.
@@ -53,5 +60,23 @@ public class Grid {
      */
     public void setText(String text) {
         this.text = text;
+    }
+
+    /**
+     * Gets the color of the grid.
+     *
+     * @return The grids color.
+     */
+    public int getColor() {
+        return color;
+    }
+
+    /**
+     * Sets the color of the grid.
+     *
+     * @param color The grids color.
+     */
+    public void setColor(int color) {
+        this.color = color;
     }
 }

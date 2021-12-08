@@ -53,7 +53,7 @@ public class PolylineGridCreator {
             if (!existingPolylines.containsKey(lowerLeft) || !existingPolylines.get(lowerLeft).contains(lowerRight)) {
                 polyline.add(lowerLeft, lowerRight);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 
@@ -68,7 +68,7 @@ public class PolylineGridCreator {
                 polyline = new PolylineOptions();
                 polyline.add(lowerRight, upperRight);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 
@@ -83,7 +83,7 @@ public class PolylineGridCreator {
                 polyline = new PolylineOptions();
                 polyline.add(upperRight, upperLeft);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 
@@ -98,7 +98,7 @@ public class PolylineGridCreator {
                 polyline = new PolylineOptions();
                 polyline.add(upperLeft, lowerLeft);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 

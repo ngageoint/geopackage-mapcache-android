@@ -1,6 +1,7 @@
 package mil.nga.mapcache.view.map.grid.mgrs;
 
 import android.app.Activity;
+import android.graphics.Color;
 
 import com.google.android.gms.maps.GoogleMap;
 
@@ -23,7 +24,7 @@ public class MGRSGridCreator extends GridCreator {
     /**
      * The gzd grid options.
      */
-    private GridOptions gzd = new GridOptions(0, 20, true);
+    private GridOptions gzd = new GridOptions(0, 20, true, 0, Color.RED);
 
     /**
      * Grid options for the one hundred kilometers scale.
@@ -71,21 +72,21 @@ public class MGRSGridCreator extends GridCreator {
         List<Grid> blocks = new ArrayList<>();
         List<GridZoneDesignator> zones = zonesCalc.zonesWithin(bounds, false);
 
-        // handle GZD zones
-        if (zoom >= gzd.getMinZoom() && zoom <= gzd.getMaxZoom()) {
-            blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, 0, gzd, zoom > 3));
+        GridOptions[] grids = {ten_meter, one_hundred_meter, one_km};
+
+        for (GridOptions grid : grids) {
+            if (zoom >= grid.getMinZoom() && zoom <= grid.getMaxZoom()) {
+                blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, grid.getPrecision(), grid, false));
+            }
         }
 
         if (zoom >= one_hundred_km.getMinZoom() && zoom <= one_hundred_km.getMaxZoom()) {
             blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, one_hundred_km.getPrecision(), one_hundred_km, zoom > 6));
         }
 
-        GridOptions[] grids = {ten_km, one_km, one_hundred_meter, ten_meter};
-
-        for (GridOptions grid : grids) {
-            if (zoom >= grid.getMinZoom() && zoom <= grid.getMaxZoom()) {
-                blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, grid.getPrecision(), grid, false));
-            }
+        // handle GZD zones
+        if (zoom >= gzd.getMinZoom() && zoom <= gzd.getMaxZoom()) {
+            blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, 0, gzd, zoom > 3));
         }
 
         return blocks.toArray(new Grid[0]);
@@ -106,6 +107,10 @@ public class MGRSGridCreator extends GridCreator {
         for (GridZoneDesignator zone : zones) {
             List<Grid> grids = zone.polygonsAndLabelsInBounds(bounds, precision);
             ret.addAll(grids);
+        }
+
+        for(Grid grid : ret) {
+            grid.setColor(options.getColor());
         }
 
         return ret;

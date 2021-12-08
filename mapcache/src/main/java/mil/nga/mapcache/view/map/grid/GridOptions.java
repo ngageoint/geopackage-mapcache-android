@@ -1,5 +1,7 @@
 package mil.nga.mapcache.view.map.grid;
 
+import android.graphics.Color;
+
 /**
  * Class that contains certain options unique to various zoom levels.
  */
@@ -26,6 +28,11 @@ public class GridOptions {
     private boolean showLabel;
 
     /**
+     * The color of this grid.
+     */
+    private int color = Color.BLACK;
+
+    /**
      * Constructs new grid options.
      *
      * @param minZoom   The minimum zoom level this option applies to.
@@ -49,6 +56,23 @@ public class GridOptions {
         this.maxZoom = maxZoom;
         this.showLabel = showLabel;
         this.precision = precision;
+    }
+
+    /**
+     * Constructs new grid options.
+     *
+     * @param minZoom   The minimum zoom level this option applies to.
+     * @param maxZoom   The maximum zoom level this option applies to.
+     * @param showLabel Indicates if the labels should be shown at the specified zoom levels.
+     * @param precision The precision for the grid at the specified zoom levels.
+     * @param color     The color of the grid.
+     */
+    public GridOptions(int minZoom, int maxZoom, boolean showLabel, int precision, int color) {
+        this.minZoom = minZoom;
+        this.maxZoom = maxZoom;
+        this.showLabel = showLabel;
+        this.precision = precision;
+        this.color = color;
     }
 
     /**
@@ -85,5 +109,14 @@ public class GridOptions {
      */
     public boolean isShowLabel() {
         return showLabel;
+    }
+
+    /**
+     * Gets the color of the grid.
+     *
+     * @return The grid color.
+     */
+    public int getColor() {
+        return color;
     }
 }

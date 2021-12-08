@@ -43,19 +43,23 @@ public class LabelMaker {
         List<MarkerOptions> labels = new ArrayList<>();
 
         for (Grid grid : gridModel.getGrids()) {
-            Polygon box = grid.getBounds();
-            double centerLat = (box.getCoordinates()[2].y + box.getCoordinates()[0].y) / 2;
-            double centerLon = (box.getCoordinates()[1].x + box.getCoordinates()[0].x) / 2;
-            MarkerOptions marker = new MarkerOptions();
-            marker.position(new LatLng(centerLat, centerLon));
+            if(grid.getText() != null) {
+                Polygon box = grid.getBounds();
+                double centerLat = (box.getCoordinates()[2].y + box.getCoordinates()[0].y) / 2;
+                double centerLon = (box.getCoordinates()[1].x + box.getCoordinates()[0].x) / 2;
+                MarkerOptions marker = new MarkerOptions();
+                marker.position(new LatLng(centerLat, centerLon));
 
-            BitmapDescriptor textIcon = createLabel(grid.getText());
-            marker.icon(textIcon);
-            labels.add(marker);
+                BitmapDescriptor textIcon = createLabel(grid.getText());
+                marker.icon(textIcon);
+                labels.add(marker);
+            }
         }
 
-        MarkerOptions[] newLabels = labels.toArray(new MarkerOptions[0]);
-        gridModel.setLabels(newLabels);
+        if(!labels.isEmpty()) {
+            MarkerOptions[] newLabels = labels.toArray(new MarkerOptions[0]);
+            gridModel.setLabels(newLabels);
+        }
     }
 
     /**

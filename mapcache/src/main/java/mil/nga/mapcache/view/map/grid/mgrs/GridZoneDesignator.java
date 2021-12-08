@@ -170,10 +170,17 @@ public class GridZoneDesignator {
         LatLng ul = new UTM(this.zoneNumber, this.hemisphere, easting, newNorthing).toLatLng();
         LatLng ur = new UTM(this.zoneNumber, this.hemisphere, newEasting, newNorthing).toLatLng();
         LatLng lr = new UTM(this.zoneNumber, this.hemisphere, newEasting, northing).toLatLng();
-        Geometry intersection = this.generatePolygon(new LatLng[]{ll, ul, ur, lr, ll}).intersection(zonePolygon);
-        if (!intersection.isEmpty()) {
-        /*    polygons.push(intersection)
-            ll = new LatLng(intersection.geometry.coordinates[0][0][1], intersection.geometry.coordinates[0][0][0])
+
+        Polygon gridPoly = this.generatePolygon(new LatLng[]{ll, ul, ur, lr, ll});
+        Geometry intersection = zonePolygon.intersection(gridPoly);
+        if(!intersection.isEmpty() && intersection instanceof Polygon) {
+            gridPoly = (Polygon)intersection;
+            Grid newGrid = new Grid();
+            newGrid.setBounds(gridPoly);
+            polygons.add(newGrid);
+        }
+
+            /*ll = new LatLng(intersection.geometry.coordinates[0][0][1], intersection.geometry.coordinates[0][0][0])
             ul = new LatLng(intersection.geometry.coordinates[0][1][1], intersection.geometry.coordinates[0][1][0])
             ur = new LatLng(intersection.geometry.coordinates[0][2][1], intersection.geometry.coordinates[0][2][0])
             lr = new LatLng(intersection.geometry.coordinates[0][3][1], intersection.geometry.coordinates[0][3][0])
@@ -197,7 +204,6 @@ public class GridZoneDesignator {
         ]
                 labels.push(new Label(get100KId(easting, northing, this.zoneNumber), labelCenter, intersectionBounds, this.zoneLetter, this.zoneNumber))
             }*/
-        }
     }
 
     /**
@@ -217,7 +223,7 @@ public class GridZoneDesignator {
         } else {
             double minLat = Math.max(boundingBox.getMinLatitude(), this.zoneBounds.getMinLatitude());
             double maxLat = Math.min(boundingBox.getMaxLatitude(), this.zoneBounds.getMaxLatitude());
-            double minLon = Math.max(boundingBox.getMinLongitude(), this.zoneBounds.getMaxLongitude());
+            double minLon = Math.max(boundingBox.getMinLongitude(), this.zoneBounds.getMinLongitude());
             double maxLon = Math.min(boundingBox.getMaxLatitude(), this.zoneBounds.getMaxLongitude());
 
             if (this.hemisphere.equals(UTM.HEMISPHERE_NORTH)) {

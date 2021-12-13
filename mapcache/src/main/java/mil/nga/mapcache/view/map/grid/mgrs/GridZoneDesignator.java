@@ -173,37 +173,39 @@ public class GridZoneDesignator {
 
         Polygon gridPoly = this.generatePolygon(new LatLng[]{ll, ul, ur, lr, ll});
         Geometry intersection = zonePolygon.intersection(gridPoly);
-        if(!intersection.isEmpty() && intersection instanceof Polygon) {
-            gridPoly = (Polygon)intersection;
+        if (!intersection.isEmpty() && intersection instanceof Polygon) {
+            gridPoly = (Polygon) intersection;
             Grid newGrid = new Grid();
             newGrid.setBounds(gridPoly);
             polygons.add(newGrid);
-        }
 
-            /*ll = new LatLng(intersection.geometry.coordinates[0][0][1], intersection.geometry.coordinates[0][0][0])
-            ul = new LatLng(intersection.geometry.coordinates[0][1][1], intersection.geometry.coordinates[0][1][0])
-            ur = new LatLng(intersection.geometry.coordinates[0][2][1], intersection.geometry.coordinates[0][2][0])
-            lr = new LatLng(intersection.geometry.coordinates[0][3][1], intersection.geometry.coordinates[0][3][0])
-            if (precision === 100000) {
+
+            if (precision == 100000) {
+                /*ll = new LatLng(intersection.getCoordinates()[0].getY(), intersection.getCoordinates()[0].getX());
+                ul = new LatLng(intersection.getCoordinates()[1].getY(), intersection.getCoordinates()[1].getX());
+                ur = new LatLng(intersection.getCoordinates()[2].getY(), intersection.getCoordinates()[2].getX());
+                lr = new LatLng(intersection.getCoordinates()[3].getY(), intersection.getCoordinates()[3].getX());
                 // determine center easting/northing given the bounds, then convert to lat/lng
-        const utm1 = UTM.from(ll, this.zoneNumber, this.hemisphere)
-        const utm2 = UTM.from(ul, this.zoneNumber, this.hemisphere)
-        const utm3 = UTM.from(ur, this.zoneNumber, this.hemisphere)
-        const utm4 = UTM.from(lr, this.zoneNumber, this.hemisphere)
-        const minEasting = Math.min(utm1.getEasting(), utm2.getEasting())
-        const maxEasting = Math.max(utm3.getEasting(), utm4.getEasting())
-        const minNorthing = Math.min(utm1.getNorthing(), utm4.getNorthing())
-        const maxNorthing = Math.max(utm2.getNorthing(), utm3.getNorthing())
-        const labelCenter = LatLng.from(new UTM(this.zoneNumber, this.hemisphere, minEasting + ((maxEasting - minEasting) / 2), minNorthing + ((maxNorthing - minNorthing) / 2)))
+                UTM utm1 = UTM.from(ll, this.zoneNumber, this.hemisphere);
+                UTM utm2 = UTM.from(ul, this.zoneNumber, this.hemisphere);
+                UTM utm3 = UTM.from(ur, this.zoneNumber, this.hemisphere);
+                UTM utm4 = UTM.from(lr, this.zoneNumber, this.hemisphere);
+                double minEasting = Math.min(utm1.getEasting(), utm2.getEasting());
+                double maxEasting = Math.max(utm3.getEasting(), utm4.getEasting());
+                double minNorthing = Math.min(utm1.getNorthing(), utm4.getNorthing());
+                double maxNorthing = Math.max(utm2.getNorthing(), utm3.getNorthing());
+                //const labelCenter = LatLng.from(new UTM(this.zoneNumber, this.hemisphere, minEasting + ((maxEasting - minEasting) / 2), minNorthing + ((maxNorthing - minNorthing) / 2)));
 
-        const intersectionBounds = [
-                Math.min(ll.longitude, ul.longitude),
-                        Math.min(ll.latitude, lr.latitude),
-                        Math.max(lr.longitude, ur.longitude),
-                        Math.max(ul.latitude, ur.latitude)
-        ]
-                labels.push(new Label(get100KId(easting, northing, this.zoneNumber), labelCenter, intersectionBounds, this.zoneLetter, this.zoneNumber))
-            }*/
+            /*const intersectionBounds = [
+                    Math.min(ll.longitude, ul.longitude),
+                            Math.min(ll.latitude, lr.latitude),
+                            Math.max(lr.longitude, ur.longitude),
+                            Math.max(ul.latitude, ur.latitude)
+            ]*/
+                String label = MGRS.get100KId(easting, northing, this.zoneNumber);
+                newGrid.setText(label);
+            }
+        }
     }
 
     /**

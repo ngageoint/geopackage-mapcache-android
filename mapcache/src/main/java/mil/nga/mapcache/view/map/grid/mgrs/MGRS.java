@@ -14,22 +14,22 @@ public class MGRS {
     /*
      * Latitude bands C..X 8° each, covering 80°S to 84°N
      */
-    private String latBands = "CDEFGHJKLMNPQRSTUVWXX"; // X is repeated for 80-84°N
+    private static String latBands = "CDEFGHJKLMNPQRSTUVWXX"; // X is repeated for 80-84°N
 
     /*
      * 100km grid square column (‘e’) letters repeat every third zone
      */
-    private String[] e100kLetters = {"ABCDEFGH", "JKLMNPQR", "STUVWXYZ"};
+    private static String[] e100kLetters = {"ABCDEFGH", "JKLMNPQR", "STUVWXYZ"};
 
     /*
      * 100km grid square row (‘n’) letters repeat every other zone
      */
-    private String[] n100kLetters = {"ABCDEFGHJKLMNPQRSTUV", "FGHJKLMNPQRSTUVABCDE"};
+    private static String[] n100kLetters = {"ABCDEFGHJKLMNPQRSTUV", "FGHJKLMNPQRSTUVABCDE"};
 
     /**
      * An mgrs pattern.
      */
-    private Pattern mgrsPattern = Pattern.compile("^(\\d{1,2})([^ABIOYZabioyz])([A-Za-z]{2})([0-9][0-9]+$)");
+    private static Pattern mgrsPattern = Pattern.compile("^(\\d{1,2})([^ABIOYZabioyz])([A-Za-z]{2})([0-9][0-9]+$)");
 
     /**
      * The zone of this MGRS coordinate.
@@ -223,7 +223,7 @@ public class MGRS {
      * @return the two letter 100k designator for the given UTM location.
      * @private
      */
-    private String get100KId(double easting, double northing, int zoneNumber) {
+    public static String get100KId(double easting, double northing, int zoneNumber) {
         // columns in zone 1 are A-H, zone 2 J-R, zone 3 S-Z, then repeating every 3rd zone
         int column = (int) Math.floor(easting / 100000);
         char e100k = e100kLetters[(zoneNumber - 1) % 3].charAt(column - 1); // col-1 since 1*100e3 -> A (index 0), 2*100e3 -> B (index 1), etc.

@@ -81,6 +81,8 @@ public class LabelMaker {
         if(!labels.isEmpty()) {
             MarkerOptions[] newLabels = labels.toArray(new MarkerOptions[0]);
             gridModel.setLabels(newLabels);
+        } else {
+            gridModel.setLabels(new MarkerOptions[0]);
         }
     }
 

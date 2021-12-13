@@ -29,27 +29,27 @@ public class MGRSGridCreator extends GridCreator {
     /**
      * Grid options for the one hundred kilometers scale.
      */
-    private GridOptions one_hundred_km = new GridOptions(6, 9, true, 100000);
+    private GridOptions one_hundred_km = new GridOptions(5, 8, true, 100000);
 
     /**
      * Grid options for the ten kilometer scale.
      */
-    private GridOptions ten_km = new GridOptions(10, 12, false, 10000);
+    private GridOptions ten_km = new GridOptions(9, 11, false, 10000);
 
     /**
      * Grid options for the one kilometer scale.
      */
-    private GridOptions one_km = new GridOptions(13, 15, false, 1000);
+    private GridOptions one_km = new GridOptions(12, 14, false, 1000);
 
     /**
      * Grid options for the one hundred meter scale.
      */
-    private GridOptions one_hundred_meter = new GridOptions(16, 18, false, 100);
+    private GridOptions one_hundred_meter = new GridOptions(15, 17, false, 100);
 
     /**
      * Grid options for the ten meter scale.
      */
-    private GridOptions ten_meter = new GridOptions(19, 20, false, 10);
+    private GridOptions ten_meter = new GridOptions(18, 20, false, 10);
 
     /**
      * Calculates the zones in the visible bounds and zoom level.
@@ -72,21 +72,21 @@ public class MGRSGridCreator extends GridCreator {
         List<Grid> blocks = new ArrayList<>();
         List<GridZoneDesignator> zones = zonesCalc.zonesWithin(bounds, false);
 
-        GridOptions[] grids = {ten_meter, one_hundred_meter, one_km};
+        GridOptions[] grids = {ten_meter, one_hundred_meter, one_km, ten_km};
 
         for (GridOptions grid : grids) {
             if (zoom >= grid.getMinZoom() && zoom <= grid.getMaxZoom()) {
-                blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, grid.getPrecision(), grid, false));
+                blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, grid.getPrecision(), grid, grid.isShowLabel()));
             }
         }
 
         if (zoom >= one_hundred_km.getMinZoom() && zoom <= one_hundred_km.getMaxZoom()) {
-            blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, one_hundred_km.getPrecision(), one_hundred_km, zoom > 6));
+            blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, one_hundred_km.getPrecision(), one_hundred_km, zoom > 5));
         }
 
         // handle GZD zones
         if (zoom >= gzd.getMinZoom() && zoom <= gzd.getMaxZoom()) {
-            blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, 0, gzd, zoom > 3));
+            blocks.addAll(this.getGridZoneDesignatorPolygons(zones, bounds, 0, gzd, zoom > 2));
         }
 
         return blocks.toArray(new Grid[0]);
@@ -111,6 +111,9 @@ public class MGRSGridCreator extends GridCreator {
 
         for(Grid grid : ret) {
             grid.setColor(options.getColor());
+            if(!showLabel) {
+                grid.setText(null);
+            }
         }
 
         return ret;

@@ -150,7 +150,7 @@ public class MGRS {
      * @param latLngIn
      * @return mgrs.
      */
-    private MGRS from(LatLng latLngIn) {
+    public static MGRS from(LatLng latLngIn) {
         LatLng latLng = new LatLng(latLngIn.latitude, LatLonUtils.getInstance().fixLongitude(latLngIn.longitude));
         UTM utm = UTM.from(latLng, null, null);
 
@@ -175,7 +175,7 @@ public class MGRS {
     @Override
     public String toString() {
         return String.valueOf(this.zone) + this.band + " " + this.e100k + this.n100k + " "
-                + this.easting + " " + this.northing;
+                + (int)this.easting + " " + (int)this.northing;
     }
 
     /**

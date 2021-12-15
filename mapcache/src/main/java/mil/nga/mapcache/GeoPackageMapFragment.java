@@ -701,6 +701,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private TextView zoomLevelText;
 
     /**
+     * Shows the coordinates at the center of the screen.
+     */
+    private TextView coordText;
+
+    /**
      * Floating Action Button for creating geopackages
      */
     private FloatingActionButton fab;
@@ -1821,6 +1826,7 @@ public class GeoPackageMapFragment extends Fragment implements
         });
 
         zoomLevelText = (TextView) view.findViewById(R.id.zoomLevelText);
+        coordText = (TextView) view.findViewById(R.id.coordText);
 
         zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
         zoomOutButton.setOnClickListener(new View.OnClickListener() {
@@ -2762,7 +2768,7 @@ public class GeoPackageMapFragment extends Fragment implements
         });
 
         basemapApplier = new BasemapApplier(getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+                PreferenceManager.getDefaultSharedPreferences(getActivity()), coordText);
         // Call the initial update to the settings
         settingsUpdate();
     }

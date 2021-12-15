@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Color;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,6 +91,12 @@ public class MGRSGridCreator extends GridCreator {
         }
 
         return blocks.toArray(new Grid[0]);
+    }
+
+    @Override
+    public String coordinatesAt(LatLng latLng) {
+        MGRS mgrs = MGRS.from(latLng);
+        return "MGRS: " + mgrs.toString();
     }
 
     /**

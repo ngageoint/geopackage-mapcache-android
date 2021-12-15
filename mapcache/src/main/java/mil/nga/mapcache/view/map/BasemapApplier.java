@@ -3,6 +3,7 @@ package mil.nga.mapcache.view.map;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -57,14 +58,20 @@ public class BasemapApplier {
     private GridController grid;
 
     /**
+     * The text view that shows the current coordinates of the center of the screen.
+     */
+    private TextView coordText;
+
+    /**
      * Constructor.
      *
      * @param activity The current activity.
      * @param prefs    Access to the preferences.
      */
-    public BasemapApplier(Activity activity, SharedPreferences prefs) {
+    public BasemapApplier(Activity activity, SharedPreferences prefs, TextView coordTextView) {
         this.activity = activity;
         this.prefs = prefs;
+        this.coordText = coordTextView;
     }
 
     /**
@@ -165,7 +172,11 @@ public class BasemapApplier {
      */
     private void applyGridOverlay(GoogleMap map, BasemapSettings settings) {
         if (grid == null) {
-            grid = new GridController(map, this.activity, settings.getGridOverlaySettings().getSelectedGrid());
+            grid = new GridController(
+                    map,
+                    this.activity,
+                    settings.getGridOverlaySettings().getSelectedGrid(),
+                    this.coordText);
         } else {
             grid.gridChanged(settings.getGridOverlaySettings().getSelectedGrid());
         }

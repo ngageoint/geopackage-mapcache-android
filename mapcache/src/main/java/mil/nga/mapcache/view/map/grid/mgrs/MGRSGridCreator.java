@@ -34,22 +34,22 @@ public class MGRSGridCreator extends GridCreator {
     /**
      * Grid options for the ten kilometer scale.
      */
-    private GridOptions ten_km = new GridOptions(9, 11, false, 10000);
+    private GridOptions ten_km = new GridOptions(9, 11, false, 10000, Color.LTGRAY);
 
     /**
      * Grid options for the one kilometer scale.
      */
-    private GridOptions one_km = new GridOptions(12, 14, false, 1000);
+    private GridOptions one_km = new GridOptions(12, 14, false, 1000, Color.LTGRAY);
 
     /**
      * Grid options for the one hundred meter scale.
      */
-    private GridOptions one_hundred_meter = new GridOptions(15, 17, false, 100);
+    private GridOptions one_hundred_meter = new GridOptions(15, 17, false, 100, Color.LTGRAY);
 
     /**
      * Grid options for the ten meter scale.
      */
-    private GridOptions ten_meter = new GridOptions(18, 20, false, 10);
+    private GridOptions ten_meter = new GridOptions(18, 20, false, 10, Color.LTGRAY);
 
     /**
      * Calculates the zones in the visible bounds and zoom level.

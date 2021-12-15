@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import mil.nga.geopackage.BoundingBox;
+import mil.nga.mapcache.utils.PolygonUtils;
+
 /**
  * Creates the polylines that can be added to the map.
  */
@@ -42,11 +45,12 @@ public class PolylineGridCreator {
         Map<LatLng, Set<LatLng>> existingPolylines = new HashMap<>();
 
         for (Grid grid : gridModel.getGrids()) {
-            Polygon box = grid.getBounds();
-            LatLng lowerLeft = new LatLng(box.getCoordinates()[0].y, box.getCoordinates()[0].x);
-            LatLng lowerRight = new LatLng(box.getCoordinates()[1].y, box.getCoordinates()[1].x);
-            LatLng upperRight = new LatLng(box.getCoordinates()[2].y, box.getCoordinates()[2].x);
-            LatLng upperLeft = new LatLng(box.getCoordinates()[3].y, box.getCoordinates()[3].x);
+            Polygon poly = grid.getBounds();
+            LatLng[] corners = PolygonUtils.getInstance().getBounds(poly);
+            LatLng lowerLeft = corners[0];
+            LatLng lowerRight = corners[1];
+            LatLng upperRight = corners[2];
+            LatLng upperLeft = corners[3];
 
             PolylineOptions polyline = new PolylineOptions();
 

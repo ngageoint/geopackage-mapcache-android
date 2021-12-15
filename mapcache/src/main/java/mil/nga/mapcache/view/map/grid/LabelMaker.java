@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.mapcache.utils.PolygonUtils;
 
 /**
  * Creates labels that will be visible in the center of the grid.
@@ -46,29 +47,9 @@ public class LabelMaker {
         for (Grid grid : gridModel.getGrids()) {
             if(grid.getText() != null) {
                 Polygon box = grid.getBounds();
-                double maxLat = -90;
-                double maxLon = -180;
-                double minLat = 90;
-                double minLon = 180;
-                for(Coordinate coord : box.getCoordinates()) {
-                    if(coord.y > maxLat) {
-                        maxLat = coord.y;
-                    }
-
-                    if(coord.y < minLat) {
-                        minLat = coord.y;
-                    }
-
-                    if(coord.x > maxLon) {
-                        maxLon = coord.x;
-                    }
-
-                    if(coord.x < minLon) {
-                        minLon = coord.x;
-                    }
-                }
-                double centerLat = (maxLat + minLat) / 2;
-                double centerLon = (maxLon + minLon) / 2;
+                LatLng[] corners = PolygonUtils.getInstance().getBounds(box);
+                double centerLat = (corners[2].latitude + corners[0].latitude) / 2;
+                double centerLon = (corners[2].longitude + corners[0].longitude) / 2;
                 MarkerOptions marker = new MarkerOptions();
                 marker.position(new LatLng(centerLat, centerLon));
 

@@ -24,7 +24,7 @@ public class MGRSGridCreator extends GridCreator {
     /**
      * The gzd grid options.
      */
-    private GridOptions gzd = new GridOptions(0, 20, true, 0, Color.RED);
+    private GridOptions gzd = new GridOptions(0, 21, true, 0, Color.RED);
 
     /**
      * Grid options for the one hundred kilometers scale.
@@ -49,7 +49,7 @@ public class MGRSGridCreator extends GridCreator {
     /**
      * Grid options for the ten meter scale.
      */
-    private GridOptions ten_meter = new GridOptions(18, 20, false, 10, Color.LTGRAY);
+    private GridOptions ten_meter = new GridOptions(18, 21, false, 10, Color.LTGRAY);
 
     /**
      * Calculates the zones in the visible bounds and zoom level.

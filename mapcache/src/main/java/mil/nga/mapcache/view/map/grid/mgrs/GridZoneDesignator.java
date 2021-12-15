@@ -226,7 +226,7 @@ public class GridZoneDesignator {
             double minLat = Math.max(boundingBox.getMinLatitude(), this.zoneBounds.getMinLatitude());
             double maxLat = Math.min(boundingBox.getMaxLatitude(), this.zoneBounds.getMaxLatitude());
             double minLon = Math.max(boundingBox.getMinLongitude(), this.zoneBounds.getMinLongitude());
-            double maxLon = Math.min(boundingBox.getMaxLatitude(), this.zoneBounds.getMaxLongitude());
+            double maxLon = Math.min(boundingBox.getMaxLongitude(), this.zoneBounds.getMaxLongitude());
 
             if (this.hemisphere.equals(UTM.HEMISPHERE_NORTH)) {
                 UTM lowerLeftUTM = UTM.from(new LatLng(minLat, minLon), this.zoneNumber, this.hemisphere);

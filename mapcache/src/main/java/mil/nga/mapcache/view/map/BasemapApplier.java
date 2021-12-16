@@ -65,8 +65,9 @@ public class BasemapApplier {
     /**
      * Constructor.
      *
-     * @param activity The current activity.
-     * @param prefs    Access to the preferences.
+     * @param activity      The current activity.
+     * @param prefs         Access to the preferences.
+     * @param coordTextView The text view that is meant to show current coordinates to the user.
      */
     public BasemapApplier(Activity activity, SharedPreferences prefs, TextView coordTextView) {
         this.activity = activity;

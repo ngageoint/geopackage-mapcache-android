@@ -179,29 +179,7 @@ public class GridZoneDesignator {
             newGrid.setBounds(gridPoly);
             polygons.add(newGrid);
 
-
             if (precision == 100000) {
-                /*ll = new LatLng(intersection.getCoordinates()[0].getY(), intersection.getCoordinates()[0].getX());
-                ul = new LatLng(intersection.getCoordinates()[1].getY(), intersection.getCoordinates()[1].getX());
-                ur = new LatLng(intersection.getCoordinates()[2].getY(), intersection.getCoordinates()[2].getX());
-                lr = new LatLng(intersection.getCoordinates()[3].getY(), intersection.getCoordinates()[3].getX());
-                // determine center easting/northing given the bounds, then convert to lat/lng
-                UTM utm1 = UTM.from(ll, this.zoneNumber, this.hemisphere);
-                UTM utm2 = UTM.from(ul, this.zoneNumber, this.hemisphere);
-                UTM utm3 = UTM.from(ur, this.zoneNumber, this.hemisphere);
-                UTM utm4 = UTM.from(lr, this.zoneNumber, this.hemisphere);
-                double minEasting = Math.min(utm1.getEasting(), utm2.getEasting());
-                double maxEasting = Math.max(utm3.getEasting(), utm4.getEasting());
-                double minNorthing = Math.min(utm1.getNorthing(), utm4.getNorthing());
-                double maxNorthing = Math.max(utm2.getNorthing(), utm3.getNorthing());
-                //const labelCenter = LatLng.from(new UTM(this.zoneNumber, this.hemisphere, minEasting + ((maxEasting - minEasting) / 2), minNorthing + ((maxNorthing - minNorthing) / 2)));
-
-            /*const intersectionBounds = [
-                    Math.min(ll.longitude, ul.longitude),
-                            Math.min(ll.latitude, lr.latitude),
-                            Math.max(lr.longitude, ur.longitude),
-                            Math.max(ul.latitude, ur.latitude)
-            ]*/
                 String label = MGRS.get100KId(easting, northing, this.zoneNumber);
                 newGrid.setText(label);
             }

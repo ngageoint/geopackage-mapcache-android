@@ -49,7 +49,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -97,7 +96,6 @@ import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -122,7 +120,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -137,7 +134,6 @@ import mil.nga.geopackage.extension.nga.link.FeatureTileTableLinker;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.extension.nga.scale.TileTableScaling;
 import mil.nga.geopackage.extension.nga.style.FeatureStyle;
-import mil.nga.geopackage.extension.rtree.RTreeIndexExtension;
 import mil.nga.geopackage.extension.schema.SchemaExtension;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
 import mil.nga.geopackage.extension.schema.columns.DataColumnsDao;
@@ -199,7 +195,6 @@ import mil.nga.mapcache.listeners.FeatureColumnListener;
 import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
-import mil.nga.mapcache.listeners.SaveFeatureColumnListener;
 import mil.nga.mapcache.listeners.SensorCallback;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
@@ -219,20 +214,16 @@ import mil.nga.mapcache.view.detail.DetailActionUtil;
 import mil.nga.mapcache.view.detail.DetailPageAdapter;
 import mil.nga.mapcache.view.detail.DetailPageHeaderObject;
 import mil.nga.mapcache.view.detail.DetailPageLayerObject;
-import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.view.map.BasemapApplier;
 import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
-import mil.nga.mapcache.view.map.feature.PointView;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.mapcache.wizards.createtile.IBoundingBoxManager;
 import mil.nga.mapcache.wizards.createtile.IMapView;
-import mil.nga.mapcache.wizards.createtile.LayerOptionsUI;
 import mil.nga.mapcache.wizards.createtile.NewTileLayerUI;
-import mil.nga.mapcache.wizards.createtile.TileBoundingBoxUI;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
 import mil.nga.proj.ProjectionTransform;
@@ -6218,56 +6209,9 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param markerFeature
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
-//        final GeoPackage geoPackage = manager.open(markerFeature.getDatabase(), false);
-//        final FeatureDao featureDao = geoPackage
-//                .getFeatureDao(markerFeature.getTableName());
-//
-//        final FeatureRow featureRow = featureDao.queryForIdRow(markerFeature.getFeatureId());
-//
-//        // If it has RTree extensions, it's indexed and we can't save feature column data.
-//        // Not currently supported for Android
-//        RTreeIndexExtension extension = new RTreeIndexExtension(geoPackage);
-//        boolean hasExtension = extension.has(markerFeature.getTableName());
-//
-//        if (featureRow != null) {
-//            final GeoPackageGeometryData geomData = featureRow.getGeometry();
-//            final GeometryType geometryType = geomData.getGeometry()
-//                    .getGeometryType();
-//
-//            String title = getTitle(geometryType, marker);
-//            DataColumnsDao dataColumnsDao = (new SchemaExtension(geoPackage)).getDataColumnsDao();
-//            try {
-//                if (!dataColumnsDao.isTableExists()) {
-//                    dataColumnsDao = null;
-//                }
-//            } catch (SQLException e) {
-//                dataColumnsDao = null;
-//                Log.e(GeoPackageMapFragment.class.getSimpleName(),
-//                        "Failed to check if Data Columns table exists for GeoPackage: "
-//                                + geoPackage.getName(), e);
-//            }
-
-        // infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
-
-//            PointView pointView = new PointView(getContext(), geometryType, featureRow, dataColumnsDao,
-//                    geoPackage.getName(), markerFeature.getTableName(), !hasExtension);
-//            SaveFeatureColumnListener saveListener = new SaveFeatureColumnListener() {
-//                @Override
-//                public void onClick(View view, List<FcColumnDataObject> values) {
-//                    saveFeatureColumnChanges(featureRow, pointView.getFcObjects(), featureDao, geoPackage, values);
-//                    Toast.makeText(getActivity(), "Changes saved", Toast.LENGTH_SHORT).show();
-//
-//                }
-//            };
-//            pointView.setSaveListener(saveListener);
-//            pointView.showPointData();
         Intent intent = new Intent(getContext(), FeatureViewActivity.class);
         intent.putExtra(String.valueOf(R.string.marker_feature_param), markerFeature);
         startActivity(intent);
-
-//        } else {
-//            geoPackage.close();
-//        }
     }
 
 

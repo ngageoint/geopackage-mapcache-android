@@ -15,8 +15,8 @@ android {
         resValue "string", "applicationId", applicationId
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 38
-        versionName '2.1.0'
+        versionCode 39
+        versionName '2.1.1'
         multiDexEnabled true
     }
     buildTypes {

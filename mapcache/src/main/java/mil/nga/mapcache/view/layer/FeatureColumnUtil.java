@@ -39,9 +39,6 @@ public class FeatureColumnUtil {
         alertLogo.setBackgroundResource(R.drawable.material_delete);
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.delete_feature_column_text);
-        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
-        actionLabel.setText(columnDetailObject.getName());
-        actionLabel.setVisibility(View.INVISIBLE);
 
         AlertDialog deleteDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)

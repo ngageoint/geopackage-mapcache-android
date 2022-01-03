@@ -1,5 +1,7 @@
 package mil.nga.mapcache.view.map.grid.GARS;
 
+import mil.nga.mapcache.utils.LatLonUtils;
+
 /**
  * Calculates the GARs labels based on latitude and longitude.
  */
@@ -30,7 +32,7 @@ public class GARSCalculator {
         double longitude = Math.floor(lng);
         longitude -= longitude % rounding;
 
-        longitude = fixLongitude((longitude));
+        longitude = LatLonUtils.getInstance().fixLongitude(longitude);
         char longitudeCardinal = longitude >= 0 && longitude < 180.0 ? 'E' : 'W';
         char latitudeCardinal = lat >= 0 ? 'N' : 'S';
         return String.valueOf(Math.abs((int)longitude)) + String.valueOf(longitudeCardinal)
@@ -46,7 +48,7 @@ public class GARSCalculator {
      */
     public String latLng2GARS(double lat, double lng) {
         double latitude = lat;
-        double longitude = fixLongitude(lng);
+        double longitude = LatLonUtils.getInstance().fixLongitude(lng);
         /* North pole is an exception, read over and down */
         if (latitude == 90.0) {
             latitude = 89.99999999999;
@@ -115,21 +117,5 @@ public class GARSCalculator {
                 [(int) Math.floor(((latitude + 90) * 60.0) % 30 % 15 / 5.0)];
 
         return strLongBand + strLatBand + quadrant + keypad;
-    }
-
-    /**
-     * Normalizes the longitude.
-     *
-     * @param lng The longitude to normalize.
-     * @return The normalized longitude.
-     */
-    private double fixLongitude(double lng) {
-        while (lng > 180.0) {
-            lng -= 360.0;
-        }
-        while (lng < -180.0) {
-            lng += 360.0;
-        }
-        return lng;
     }
 }

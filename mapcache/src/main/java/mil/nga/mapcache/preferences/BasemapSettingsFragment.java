@@ -137,12 +137,12 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
             }
         });
 
-        /*this.gridMGRS = basemapView.findViewById(R.id.gridMGRS);
+        this.gridMGRS = basemapView.findViewById(R.id.gridMGRS);
         this.gridMGRS.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
                 this.model.getGridOverlaySettings().setSelectedGrid(GridType.MGRS);
             }
-        });*/
+        });
 
         model.addObserver((observable, o) -> modelUpdate(observable, o));
         model.getGridOverlaySettings().addObserver((observable, o) -> modelUpdate(observable, o));

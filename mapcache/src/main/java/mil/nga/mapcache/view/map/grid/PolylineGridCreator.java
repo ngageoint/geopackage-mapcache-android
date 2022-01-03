@@ -5,6 +5,8 @@ import android.graphics.Color;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.locationtech.jts.geom.Polygon;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import kotlin.random.jdk8.PlatformThreadLocalRandom;
 import mil.nga.geopackage.BoundingBox;
+import mil.nga.mapcache.utils.PolygonUtils;
 
 /**
  * Creates the polylines that can be added to the map.
@@ -43,18 +45,19 @@ public class PolylineGridCreator {
         Map<LatLng, Set<LatLng>> existingPolylines = new HashMap<>();
 
         for (Grid grid : gridModel.getGrids()) {
-            BoundingBox box = grid.getBounds();
-            LatLng lowerLeft = new LatLng(box.getMinLatitude(), box.getMinLongitude());
-            LatLng lowerRight = new LatLng(box.getMinLatitude(), box.getMaxLongitude());
-            LatLng upperRight = new LatLng(box.getMaxLatitude(), box.getMaxLongitude());
-            LatLng upperLeft = new LatLng(box.getMaxLatitude(), box.getMinLongitude());
+            Polygon poly = grid.getBounds();
+            LatLng[] corners = PolygonUtils.getInstance().getBounds(poly);
+            LatLng lowerLeft = corners[0];
+            LatLng lowerRight = corners[1];
+            LatLng upperRight = corners[2];
+            LatLng upperLeft = corners[3];
 
             PolylineOptions polyline = new PolylineOptions();
 
             if (!existingPolylines.containsKey(lowerLeft) || !existingPolylines.get(lowerLeft).contains(lowerRight)) {
                 polyline.add(lowerLeft, lowerRight);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 
@@ -69,7 +72,7 @@ public class PolylineGridCreator {
                 polyline = new PolylineOptions();
                 polyline.add(lowerRight, upperRight);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 
@@ -84,7 +87,7 @@ public class PolylineGridCreator {
                 polyline = new PolylineOptions();
                 polyline.add(upperRight, upperLeft);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 
@@ -99,7 +102,7 @@ public class PolylineGridCreator {
                 polyline = new PolylineOptions();
                 polyline.add(upperLeft, lowerLeft);
                 polyline.width(5);
-                polyline.color(Color.BLACK);
+                polyline.color(grid.getColor());
                 polyline.geodesic(false);
                 polylines.add(polyline);
 

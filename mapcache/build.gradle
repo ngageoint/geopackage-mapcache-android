@@ -60,6 +60,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
+    implementation 'org.locationtech.jts:jts-core:1.18.2'
     testImplementation 'androidx.multidex:multidex:2.0.1'
     testImplementation 'junit:junit:4.13.1'
     implementation 'com.github.matomo-org:matomo-sdk-android:v2.0.0'

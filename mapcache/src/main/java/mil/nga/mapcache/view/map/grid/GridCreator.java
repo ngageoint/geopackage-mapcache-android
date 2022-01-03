@@ -4,6 +4,7 @@ import android.app.Activity;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -146,6 +147,15 @@ public abstract class GridCreator {
      * @return The grids.
      */
     protected abstract Grid[] createGrid(BoundingBox bounds, int zoom);
+
+    /**
+     * Gets the coordinate string at the specified location.
+     * @param latLng The location to get coordinate string for.
+     * @return The latLng in the grids
+     */
+    public String coordinatesAt(LatLng latLng) {
+        return null;
+    }
 
     /**
      * Creates the polylines based on what is populated for the grids within the model.

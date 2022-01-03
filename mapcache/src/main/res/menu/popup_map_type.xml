@@ -35,10 +35,10 @@
             android:title="GARS"
             app:showAsAction="never" />
 
-        <!-- <item
+        <item
             android:id="@+id/MGRSGrid"
             android:icon="@drawable/ic_grid_icon_red"
             android:title="MGRS"
-            app:showAsAction="never" />-->
+            app:showAsAction="never" />
     </group>
 </menu>

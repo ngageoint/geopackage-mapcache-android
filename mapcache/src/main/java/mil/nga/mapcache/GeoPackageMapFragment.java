@@ -701,6 +701,16 @@ public class GeoPackageMapFragment extends Fragment implements
     private TextView zoomLevelText;
 
     /**
+     * Shows the coordinates at the center of the screen.
+     */
+    private TextView coordText;
+
+    /**
+     * Contains the coordinates text view.
+     */
+    private View coordTextCard;
+
+    /**
      * Floating Action Button for creating geopackages
      */
     private FloatingActionButton fab;
@@ -1473,9 +1483,9 @@ public class GeoPackageMapFragment extends Fragment implements
                     case R.id.GARSGrid:
                         setGridType(GridType.GARS);
                         return true;
-                    /*case R.id.MGRSGrid:
+                    case R.id.MGRSGrid:
                         setGridType(GridType.MGRS);
-                        return true;*/
+                        return true;
                 }
 
                 return true;
@@ -1821,6 +1831,8 @@ public class GeoPackageMapFragment extends Fragment implements
         });
 
         zoomLevelText = (TextView) view.findViewById(R.id.zoomLevelText);
+        coordText = (TextView) view.findViewById(R.id.coordText);
+        coordTextCard = view.findViewById(R.id.coordTextCard);
 
         zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
         zoomOutButton.setOnClickListener(new View.OnClickListener() {
@@ -2762,7 +2774,7 @@ public class GeoPackageMapFragment extends Fragment implements
         });
 
         basemapApplier = new BasemapApplier(getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()));
+                PreferenceManager.getDefaultSharedPreferences(getActivity()), coordText, coordTextCard);
         // Call the initial update to the settings
         settingsUpdate();
     }
@@ -3410,6 +3422,10 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onResume() {
         settingsUpdate();
+        if (visible) {
+            visible = false;
+            showMyLocation();
+        }
         super.onResume();
     }
 

@@ -41,7 +41,12 @@ public class GridController {
     /**
      * The coordinates text view.
      */
-    private TextView coordsTextView;
+    private TextView coordTextView;
+
+    /**
+     * Contains the coordiantes text view.
+     */
+    private View coordTextCard;
 
     /**
      * Constructor.
@@ -49,12 +54,14 @@ public class GridController {
      * @param map            The map that we display grid overlays on.
      * @param activity       Used to run on the UI thread.
      * @param gridType       The type of grid to display on map.
-     * @param coordsTextView The text view to display current center of screen coordinates.
+     * @param coordTextView The text view to display current center of screen coordinates.
+     * @param coordTextCard Contains the coordiantes text view.
      */
-    public GridController(GoogleMap map, Activity activity, GridType gridType, TextView coordsTextView) {
+    public GridController(GoogleMap map, Activity activity, GridType gridType, TextView coordTextView, View coordTextCard) {
         this.map = map;
         this.activity = activity;
-        this.coordsTextView = coordsTextView;
+        this.coordTextView = coordTextView;
+        this.coordTextCard = coordTextCard;
         gridChanged(gridType);
     }
 
@@ -69,8 +76,7 @@ public class GridController {
             this.map.setOnCameraMoveListener(null);
             this.gridCreator.destroy();
             this.gridCreator = null;
-            this.coordsTextView.setText("");
-            this.coordsTextView.setVisibility(View.GONE);
+            this.coordTextCard.setVisibility(View.GONE);
         } else if (gridType != GridType.NONE) {
             if (gridCreator != null) {
                 gridCreator.destroy();
@@ -116,10 +122,11 @@ public class GridController {
         LatLng center = map.getCameraPosition().target;
         String coordinate = gridCreator.coordinatesAt(center);
         if (coordinate != null) {
-            coordsTextView.setVisibility(View.VISIBLE);
-            coordsTextView.setText(coordinate);
+            coordTextCard.setVisibility(View.VISIBLE);
+            coordTextView.setVisibility(View.VISIBLE);
+            coordTextView.setText(coordinate);
         } else {
-            coordsTextView.setVisibility(View.GONE);
+            coordTextCard.setVisibility(View.GONE);
         }
     }
 }

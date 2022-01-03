@@ -3,6 +3,7 @@ package mil.nga.mapcache.view.map;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -63,16 +64,23 @@ public class BasemapApplier {
     private TextView coordText;
 
     /**
+     * Contains the coordiantes text view.
+     */
+    private View coordTextCard;
+
+    /**
      * Constructor.
      *
      * @param activity      The current activity.
      * @param prefs         Access to the preferences.
      * @param coordTextView The text view that is meant to show current coordinates to the user.
+     * @param coordTextCard Contains the coordiantes text view.
      */
-    public BasemapApplier(Activity activity, SharedPreferences prefs, TextView coordTextView) {
+    public BasemapApplier(Activity activity, SharedPreferences prefs, TextView coordTextView, View coordTextCard) {
         this.activity = activity;
         this.prefs = prefs;
         this.coordText = coordTextView;
+        this.coordTextCard = coordTextCard;
     }
 
     /**
@@ -177,7 +185,8 @@ public class BasemapApplier {
                     map,
                     this.activity,
                     settings.getGridOverlaySettings().getSelectedGrid(),
-                    this.coordText);
+                    this.coordText,
+                    this.coordTextCard);
         } else {
             grid.gridChanged(settings.getGridOverlaySettings().getSelectedGrid());
         }

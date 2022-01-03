@@ -28,12 +28,14 @@
 
     <!--Text to show current zoom level-->
     <androidx.cardview.widget.CardView
+        android:id="@+id/coordTextCard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="false"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="130dp"
+        android:visibility="gone"
         app:cardCornerRadius="16dp"
         app:cardElevation="6dp">
 
@@ -43,7 +45,7 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="MGRS: 13S ED 8755 86425"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </androidx.cardview.widget.CardView>
 
     <!--Text to show current zoom level-->

@@ -69,6 +69,7 @@ public class GridController {
             this.map.setOnCameraMoveListener(null);
             this.gridCreator.destroy();
             this.gridCreator = null;
+            this.coordsTextView.setText("");
             this.coordsTextView.setVisibility(View.GONE);
         } else if (gridType != GridType.NONE) {
             if (gridCreator != null) {

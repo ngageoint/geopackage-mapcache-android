@@ -43,6 +43,16 @@
                 android:targetPackage="@string/applicationId"/>
         </Preference>
 
+        <Preference
+            app:key="basemaps"
+            app:title="Base maps"
+            android:summary="Manage base maps">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="mil.nga.mapcache.preferences.BasemapSettingsActivity"
+                android:targetPackage="@string/applicationId"/>
+        </Preference>
+
     </PreferenceCategory>
 
     <PreferenceCategory

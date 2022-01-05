@@ -4,55 +4,65 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingLeft="24dp">
+    android:paddingLeft="35dp">
 
-<!--    Right aligned enable switch-->
+    <!--    Right aligned enable switch-->
     <RelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/RelativeLayout01"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true">
 
-    <!--Layer type icon-->
-    <ImageView
-        android:id="@+id/layer_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_centerVertical="true"
-        android:src="@drawable/colored_layers" >
-    </ImageView>
+        <!--Layer type icon-->
+        <ImageView
+            android:id="@+id/layer_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/colored_layers"></ImageView>
 
 
-    <!--Layer name-->
-    <TextView
-        android:id="@+id/layer_label"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="layer"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="0dp"
-        android:layout_marginRight="88dp"
-        android:layout_gravity="bottom|start"
-        android:layout_toRightOf="@id/layer_icon"
-        android:layout_centerVertical="true"
-        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy">
-    </TextView>
+        <!--Layer name-->
+        <TextView
+            android:id="@+id/layer_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="bottom|start"
+            android:layout_marginRight="88dp"
+            android:layout_toRightOf="@id/layer_icon"
+            android:paddingLeft="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="0dp"
+            android:paddingBottom="16dp"
+            android:text="layer"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"></TextView>
 
-    <!--Active layer switch-->
-    <Switch
-        android:id="@+id/simpleSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerInParent="true"
-        android:paddingRight="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="16dp"
-        android:gravity="center_vertical"/>
+        <!--Active layer switch-->
+        <Switch
+            android:id="@+id/simpleSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerInParent="true"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp"
+            android:visibility="invisible" />
     </RelativeLayout>
 
 </LinearLayout>

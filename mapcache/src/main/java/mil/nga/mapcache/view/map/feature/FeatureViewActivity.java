@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -19,10 +21,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
@@ -36,15 +43,18 @@ import com.google.android.material.button.MaterialButton;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import mil.nga.geopackage.db.GeoPackageDataType;
 import mil.nga.geopackage.extension.schema.columns.DataColumns;
@@ -67,8 +77,11 @@ public class FeatureViewActivity extends AppCompatActivity {
     /**
      * We'll generate a list of FCObjects to hold our data for the recycler
      */
-    private final List<FcColumnDataObject> fcObjects = new ArrayList<>();
+    private List<FcColumnDataObject> fcObjects = new ArrayList<>();
 
+    /**
+     * recycler adapter for feature column data
+     */
     private FeatureColumnAdapter fcAdapter;
 
     /**
@@ -109,7 +122,7 @@ public class FeatureViewActivity extends AppCompatActivity {
     /**
      * List of images to be put into the sliderAdapter
      */
-    private List<SliderItem> sliderItems;
+    private List<SliderItem> sliderItems = new ArrayList<SliderItem>();
 
     /**
      * Marker feature that was selected
@@ -120,6 +133,11 @@ public class FeatureViewActivity extends AppCompatActivity {
      * ViewModel for accessing data from the repository
      */
     private GeoPackageViewModel geoPackageViewModel;
+
+    /**
+     * ViewModel for accessing data from the repository
+     */
+    private FeatureViewModel featureViewModel;
 
     /**
      * Contains all objects from the geopackage that we need to generate this view
@@ -135,6 +153,44 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Listener for clicking the delete button on the images
      */
     private DeleteImageListener deleteImageListener;
+
+    /**
+     * result listener for selecting images from the gallery
+     */
+    private ActivityResultLauncher<String> getImageFromGallery = registerForActivityResult(new ActivityResultContracts.GetContent(),
+            new ActivityResultCallback<Uri>() {
+                @Override
+                public void onActivityResult(Uri uri) {
+                    Bitmap image = getImageResult(uri);
+                    if(image != null) {
+                        addImageToGallery(image);
+                    }
+                }
+            });
+
+    /**
+     * Uri for camera
+     */
+    private Uri cameraAppUri;
+
+    /**
+     * Result listener for taking an image from the camera
+     */
+    private ActivityResultLauncher<Uri> getImageFromCamera = registerForActivityResult(new ActivityResultContracts.TakePicture(),
+            new ActivityResultCallback<Boolean>() {
+                @Override
+                public void onActivityResult(Boolean result) {
+                    if(result){
+                        if(cameraAppUri != null) {
+                            Bitmap image = getImageResult(cameraAppUri);
+                            if(image != null) {
+                                addImageToGallery(image);
+                            }
+                        }
+                    }
+                }
+            });
+
 
 
     /**
@@ -153,13 +209,6 @@ public class FeatureViewActivity extends AppCompatActivity {
             markerFeature = (MarkerFeature)extras.getSerializable(String.valueOf(R.string.marker_feature_param));
         }
 
-        // Pull needed data out of the geopackage
-        geoPackageViewModel = new ViewModelProvider(this).get(GeoPackageViewModel.class);
-        geoPackageViewModel.init();
-        if(markerFeature != null){
-            featureViewObjects = geoPackageViewModel.getFeatureViewObjects(markerFeature);
-        }
-
         // Set up all buttons
         cameraButton = (MaterialButton) findViewById(R.id.add_from_camera);
         galleryButton = (MaterialButton) findViewById(R.id.add_from_gallery);
@@ -168,13 +217,31 @@ public class FeatureViewActivity extends AppCompatActivity {
         closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
         createButtonListeners();
 
-        // Set up data from retreived geopackage
-        setFieldData();
+        // Create recycler for feature column data
+        setColumnRecycler();
+        setImageRecycler();
+
+
+        // Pull needed data out of the geopackage
+        geoPackageViewModel = new ViewModelProvider(this).get(GeoPackageViewModel.class);
+        geoPackageViewModel.init();
+        if(markerFeature != null){
+            featureViewObjects = geoPackageViewModel.getFeatureViewObjects(markerFeature);
+        }
+
+        // Get data about this feature point from the view model and subscribe to changes
+        featureViewModel = new ViewModelProvider(this).get(FeatureViewModel.class);
+        featureViewModel.init(markerFeature);
+        if(featureViewModel != null){
+            featureViewModel.getFeatureViewObjects().observe(this,
+                    featureViewObjects -> {
+                        this.featureViewObjects = featureViewObjects;
+                        setFieldData();
+                        updateImages();
+                    });
+        }
 
         // set up the image gallery
-        imageGalleryPager = findViewById(R.id.attachmentPager);
-        sliderItems = new ArrayList<>();
-        sliderAdapter = new SliderAdapter(sliderItems, imageGalleryPager, deleteImageListener);
         createImageGallery();
     }
 
@@ -223,12 +290,11 @@ public class FeatureViewActivity extends AppCompatActivity {
             // We can put negative values for the id since it's assigned during saving.  Make it negative so
             // we can tell later if it's been assigned by us or created in the gpkg
             long newMediaId = -1;
-            if(!featureViewObjects.getAddedBitmaps().isEmpty()) {
-                newMediaId = (long) (featureViewObjects.getAddedBitmaps().size()+1) * -1;
+            if(!sliderAdapter.getSliderItems().isEmpty()) {
+                newMediaId = sliderAdapter.getNewUniqueKey();
             }
-            featureViewObjects.getAddedBitmaps().put(newMediaId,image);
             sliderItems.add(new SliderItem(newMediaId,image));
-            sliderAdapter.notifyDataSetChanged();
+            sliderAdapter.setData(sliderItems);
         }
     }
 
@@ -261,15 +327,22 @@ public class FeatureViewActivity extends AppCompatActivity {
                 }
             });
         }
-        // Create delete listener
+        // Remove image from our local copy in featureViewObjects and tell the slider adapter
+        // to delete as well
         deleteImageListener = (view, actionType, rowId) -> {
-            if(rowId >= 0){
-                boolean deletedImage = geoPackageViewModel.deleteImageFromFeature(featureViewObjects, rowId);
-                if(deletedImage){
-                    featureViewObjects.getBitmaps().remove(rowId);
-                }
+            if(rowId >= 0) {
+                featureViewModel.deleteImageFromFeature(featureViewObjects, rowId, markerFeature);
             } else {
                 featureViewObjects.getAddedBitmaps().remove(rowId);
+                int itemIndex = -1;
+                for(SliderItem item : sliderItems){
+                    if(item.getMediaId() == rowId){
+                        itemIndex = sliderItems.indexOf(item);
+                    }
+                }
+                if(itemIndex >= 0) {
+                    sliderItems.remove(itemIndex);
+                }
             }
             sliderAdapter.remove(rowId);
         };
@@ -287,58 +360,69 @@ public class FeatureViewActivity extends AppCompatActivity {
             geoNameText.setText(markerFeature.getDatabase());
             TextView layerNameText = (TextView) findViewById(R.id.fc_layer_name);
             layerNameText.setText(markerFeature.getTableName());
-
-            // Feature Column recycler
-            int geometryColumn = featureViewObjects.getFeatureRow().getGeometryColumnIndex();
-            for (int i = 0; i < featureViewObjects.getFeatureRow().columnCount(); i++) {
-                if (i != geometryColumn) {
-                    Object value = featureViewObjects.getFeatureRow().getValue(i);
-
-                    FeatureColumn featureColumn = featureViewObjects.getFeatureRow().getColumn(i);
-
-                    String columnName = featureColumn.getName();
-                    if (featureViewObjects.getDataColumnsDao() != null) {
-                        try {
-                            DataColumns dataColumn = featureViewObjects.getDataColumnsDao()
-                                            .getDataColumn(featureViewObjects.getFeatureRow().getTable()
-                                            .getTableName(), columnName);
-                            if (dataColumn != null) {
-                                columnName = dataColumn.getName();
-                            }
-                        } catch (SQLException e) {
-                            Log.e(GeoPackageMapFragment.class.getSimpleName(),
-                                    "Failed to search for Data Column name for column: " + columnName
-                                            + ", Feature Table: " + featureViewObjects.getFeatureRow()
-                                            .getTable().getTableName(), e);
-                        }
-                    }
-
-                    if (value == null) {
-                        if(featureColumn.getDataType().equals(GeoPackageDataType.TEXT)){
-                            FcColumnDataObject fcRow = new FcColumnDataObject(columnName, "");
-                            fcObjects.add(fcRow);
-                        } else if(featureColumn.getDataType().equals(GeoPackageDataType.DOUBLE)){
-                            FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0.0);
-                            fcObjects.add(fcRow);
-                        } else if(featureColumn.getDataType().equals(GeoPackageDataType.BOOLEAN)){
-                            FcColumnDataObject fcRow = new FcColumnDataObject(columnName, false);
-                            fcObjects.add(fcRow);
-                        } else if(featureColumn.getDataType().equals(GeoPackageDataType.INTEGER)){
-                            FcColumnDataObject fcRow = new FcColumnDataObject(columnName, 0);
-                            fcObjects.add(fcRow);
-                        }
-                    } else{
-                        FcColumnDataObject fcRow = new FcColumnDataObject(columnName, value);
-                        fcObjects.add(fcRow);
-                    }
-                }
+            if(fcAdapter != null){
+                fcAdapter.setData(featureViewObjects.getFcObjects());
             }
-            fcRecycler = findViewById(R.id.fc_recycler);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            fcRecycler.setLayoutManager(layoutManager);
-            fcAdapter = new FeatureColumnAdapter(fcObjects, this);
-            fcRecycler.setAdapter(fcAdapter);
         }
+    }
+
+
+    /**
+     * Create the Feature Column Ryclerview
+     */
+    private void setColumnRecycler(){
+        fcRecycler = findViewById(R.id.fc_recycler);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        fcRecycler.setLayoutManager(layoutManager);
+        fcAdapter = new FeatureColumnAdapter(this);
+        fcRecycler.setAdapter(fcAdapter);
+    }
+
+    /**
+     * Create the image gallery recyclerview
+     */
+    private void setImageRecycler(){
+        imageGalleryPager = findViewById(R.id.attachmentPager);
+        sliderAdapter = new SliderAdapter(imageGalleryPager, deleteImageListener);
+        if(imageGalleryPager != null){
+            imageGalleryPager.setAdapter(sliderAdapter);
+            imageGalleryPager.setClipToPadding(false);
+            imageGalleryPager.setClipChildren(false);
+            imageGalleryPager.setOffscreenPageLimit(3);
+
+            // Formatting how the view pager looks
+            float pageMarginPx = getResources().getDimension(R.dimen.pageMargin);
+            float offsetPx = getResources().getDimension(R.dimen.offset);
+            CompositePageTransformer compositePageTransformer = new CompositePageTransformer();
+            compositePageTransformer.addTransformer((page, position) -> {
+                ViewParent viewPager = page.getParent().getParent();
+                float offset = position * -(2 * offsetPx + pageMarginPx);
+                if(ViewCompat.getLayoutDirection((View) viewPager) == ViewCompat.LAYOUT_DIRECTION_RTL){
+                    page.setTranslationX(-offset);
+                } else{
+                    page.setTranslationX(offset);
+                }
+            });
+            compositePageTransformer.addTransformer((page, position) -> {
+                float r = 1 - Math.abs(position);
+                page.setScaleY(0.85f + r * 0.15f);
+            });
+            imageGalleryPager.setPageTransformer(compositePageTransformer);
+        }
+    }
+
+    /**
+     * Updates the images in the gallery view pager
+     */
+    private void updateImages(){
+        if(featureViewObjects != null){
+            sliderItems.clear();
+            featureViewObjects.getAddedBitmaps().clear();
+            for(Map.Entry map  :  featureViewObjects.getBitmaps().entrySet() ){
+                sliderItems.add(new SliderItem((long)map.getKey(),(Bitmap)map.getValue()));
+            }
+        }
+        sliderAdapter.setData(sliderItems);
     }
 
 
@@ -347,8 +431,21 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Open the camera to take a picture and return the image
      */
     private void takePicture(){
-        Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(takePicture, 0);
+        // Open the camera and get the photo
+        String fileName = "image_gallery_";
+        File outputDir = getCacheDir();
+        File file;
+        try{
+            file = File.createTempFile( fileName, ".jpg", outputDir );
+            String pkg = this.getApplicationContext().getPackageName();
+            cameraAppUri = FileProvider.getUriForFile(
+                    Objects.requireNonNull(getApplicationContext()),
+                    this.getApplicationContext().getPackageName()
+                            + ".fileprovider", file );
+            getImageFromCamera.launch(cameraAppUri);
+        } catch( Exception e ) {
+            Log.e("Error saving image: ", e.toString());
+        }
     }
 
 
@@ -357,8 +454,7 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Open the phone's image gallery to add an image
      */
     private void addFromGallery(){
-        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(pickPhoto, 1);
+        getImageFromGallery.launch("image/*");
     }
 
 
@@ -382,18 +478,42 @@ public class FeatureViewActivity extends AppCompatActivity {
                 }
             }
         }
-        int newImageCount = featureViewObjects.getAddedBitmaps().size();
-        // Call the repository to Save the data
-        // We get a list of saved images back because if there are new images to save, we need to
-        // have the new media id to assign to those values
-        HashMap<Long,Bitmap> addedImages = geoPackageViewModel.saveFeatureObjectValues(featureViewObjects);
-        if(addedImages.isEmpty() && newImageCount > 0) {
-            Toast.makeText(this, "Error saving", Toast.LENGTH_SHORT).show();
-        } else{
-            // Update our local arrays to merge the newly added images to the existing image list
-            featureViewObjects.getBitmaps().putAll(addedImages);
-            featureViewObjects.getAddedBitmaps().clear();
+
+        // When saving, the only images that will be added to the geopackage will come from
+        // featureViewObjects.getAddedBitmaps.  First add all "new" images to that list from
+        // the slider adapter
+        featureViewObjects.getAddedBitmaps().clear();
+        for(SliderItem imageItem : sliderAdapter.getSliderItems()){
+            if(imageItem.getMediaId() < 0){
+                featureViewObjects.getAddedBitmaps().put(imageItem.getMediaId(), imageItem.getImage());
+            }
         }
+        // Write to the geopackage from the repository
+        featureViewModel.saveFeatureObjectValues(featureViewObjects, markerFeature);
+
+    }
+
+
+    /**
+     * Gets a correctly oriented Bitmap image from the Uri
+     * @param uri - Uri for an image
+     * @return - Bitmap, rotated if it needs to be
+     */
+    private Bitmap getImageResult(Uri uri){
+        if(uri != null) {
+            try {
+                ParcelFileDescriptor parcelFileDescriptor =
+                        getContentResolver().openFileDescriptor(uri, "r");
+                FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                Bitmap rotatedImage = ImageUtils.rotateFromUri(uri, getBaseContext(), image);
+                parcelFileDescriptor.close();
+                return rotatedImage;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
 

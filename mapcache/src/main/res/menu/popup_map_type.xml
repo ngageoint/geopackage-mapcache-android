@@ -3,23 +3,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".GeoPackageMapFragment">
+    <group android:id="@+id/googleMaps">
+        <item
+            android:id="@+id/map"
+            android:icon="@drawable/map_type_default"
+            android:title="Map"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/map"
-        android:icon="@drawable/map_type_default"
-        android:title="Map"
-        app:showAsAction="never"/>
+        <item
+            android:id="@+id/satellite"
+            android:icon="@drawable/map_type_satellite"
+            android:title="Satellite"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/satellite"
-        android:icon="@drawable/map_type_satellite"
-        android:title="Satellite"
-        app:showAsAction="never"
-        />
+        <item
+            android:id="@+id/terrain"
+            android:icon="@drawable/map_type_terrain"
+            android:title="Terrain"
+            app:showAsAction="never" />
+    </group>
+    <group android:id="@+id/gridOverlays">
+        <item
+            android:id="@+id/NoGrid"
+            android:icon="@drawable/ic_grid_icon_off"
+            android:title="No Grid"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/terrain"
-        android:icon="@drawable/map_type_terrain"
-        android:title="Terrain"
-        app:showAsAction="never"/>
+        <item
+            android:id="@+id/GARSGrid"
+            android:icon="@drawable/ic_grid_icon"
+            android:title="GARS"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/MGRSGrid"
+            android:icon="@drawable/ic_grid_icon_red"
+            android:title="MGRS"
+            app:showAsAction="never" />
+    </group>
 </menu>

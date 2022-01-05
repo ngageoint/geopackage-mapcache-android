@@ -35,6 +35,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--Button in bottom left corner of transparent box that shows the layers selection view -->
+    <ImageView
+        android:id="@+id/layersButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="58dp"
+        android:layout_marginBottom="53dp"
+        android:background="#00BCD4"
+        android:src="@drawable/ic_layers"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/transparent_box"
+        app:layout_constraintStart_toStartOf="@+id/transparent_box" />
+
     <!--Layout holding the bottom bottons and text-->
     <LinearLayout
         android:orientation="vertical"

@@ -24,6 +24,8 @@ public class FeatureViewObjects {
     private boolean hasExtension;
     private String geopackageName;
     private String layerName;
+    private List<FcColumnDataObject> fcObjects = new ArrayList<>();
+
 
     /**
      * Allows us to validate that this object has all fields set, meaning, when the geopackage was
@@ -35,6 +37,14 @@ public class FeatureViewObjects {
             return false;
         }
         return true;
+    }
+
+    public List<FcColumnDataObject> getFcObjects() {
+        return fcObjects;
+    }
+
+    public void setFcObjects(List<FcColumnDataObject> fcObjects) {
+        this.fcObjects = fcObjects;
     }
 
     public HashMap<Long,Bitmap> getAddedBitmaps() {

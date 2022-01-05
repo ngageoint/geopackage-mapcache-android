@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mil.nga.mapcache.R;
@@ -30,15 +31,18 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     /**
      * List of FeatureColumn objects associated with a single feature
      */
-    private final List<FcColumnDataObject> mItems;
+    private List<FcColumnDataObject> mItems;
 
+    /**
+     * Context
+     */
     private final Context context;
 
     /**
      * Constructor
      */
-    public FeatureColumnAdapter(List<FcColumnDataObject> items, Context context){
-        mItems = items;
+    public FeatureColumnAdapter(Context context){
+        mItems = new ArrayList<FcColumnDataObject>();
         this.context = context;
     }
 
@@ -53,7 +57,7 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof FeatureColumnViewHolder){
             FeatureColumnViewHolder fcHolder = (FeatureColumnViewHolder)holder;
-            fcHolder.setData(mItems.get(position));
+            fcHolder.setData(mItems.get(position), position);
             fcHolder.editTextListener.setPosition(position);
             fcHolder.switchListener.setPosition(position);
         }
@@ -66,6 +70,16 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     public List<FcColumnDataObject> getmItems(){
         return mItems;
+    }
+
+    public void setData(List<FcColumnDataObject> fcObjects){
+        if(mItems !=  null){
+            mItems.clear();
+            mItems.addAll(fcObjects);
+            notifyDataSetChanged();
+        } else{
+            mItems = fcObjects;
+        }
     }
 
     // Listener for text changes
@@ -133,7 +147,11 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
          *
          * @param data FcColumnDataObject with name and value
          */
-        public void setData(FcColumnDataObject data) {
+        public void setData(FcColumnDataObject data, int newPosition) {
+            editTextListener.setPosition(newPosition);
+            switchListener.setPosition(newPosition);
+            valueText.addTextChangedListener(editTextListener);
+            checkboxSwitch.setOnCheckedChangeListener(switchListener);
             if(data.getmValue() instanceof Boolean){
                 toggleCheckboxVisibility(true);
                 checkboxLabel.setText(data.getmName());
@@ -144,10 +162,10 @@ class FeatureColumnAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 valueLabel.setHint(data.getmName());
                 if(data.getmName().equalsIgnoreCase("id")){
                     valueText.setEnabled(false);
+                } else {
+                    valueText.setEnabled(true);
                 }
             }
-            valueText.addTextChangedListener(editTextListener);
-            checkboxSwitch.setOnCheckedChangeListener(switchListener);
         }
 
         /**

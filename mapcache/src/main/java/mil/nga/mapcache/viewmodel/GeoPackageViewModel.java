@@ -271,25 +271,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
 
-    /**
-     * Open the geopackage and update the featureDao with the given featureViewObjects data
-     * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
-     * @return true if it updates
-     */
-    public HashMap<Long, Bitmap> saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
-        return repository.saveFeatureObjectValues(featureViewObjects);
-    }
-
-
-    /**
-     * Delete the associated media row from the given feature
-     * @param featureViewObjects
-     * @param rowId
-     * @return
-     */
-    public boolean deleteImageFromFeature(FeatureViewObjects featureViewObjects, long rowId) {
-        return repository.deleteImageFromFeature(featureViewObjects, rowId);
-    }
 
 
         /**

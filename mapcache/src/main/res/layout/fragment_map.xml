@@ -13,7 +13,6 @@
 
 <RelativeLayout
     android:id="@+id/map_view_holder"
-    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true" >
@@ -26,6 +25,28 @@
         android:layout_alignParentTop="true"
         android:layout_marginBottom="105dp"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+    <!--Text to show current zoom level-->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/coordTextCard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="130dp"
+        android:visibility="gone"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="6dp">
+
+        <TextView
+            android:id="@+id/coordText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="MGRS: 13S ED 8755 86425"
+            android:visibility="visible" />
+    </androidx.cardview.widget.CardView>
 
     <!--Text to show current zoom level-->
     <androidx.cardview.widget.CardView
@@ -428,7 +449,8 @@
         android:id="@+id/layer_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="64dp"
         android:src="@drawable/material_tile_add"
         android:visibility="gone"
         app:backgroundTint="@color/nga_accent_primary"

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PowerManager;
 
 import mil.nga.geopackage.BoundingBox;
@@ -23,6 +24,7 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.utils.HttpUtils;
 import mil.nga.proj.Projection;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
@@ -67,8 +69,12 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
         Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bbox = transform(boundingBox, projection);
 
-        TileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
+        UrlTileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
                 tableName, tileUrl, minZoom, maxZoom, bbox, projection);
+        tileGenerator.addHTTPHeaderValue(
+                HttpUtils.getInstance().getUserAgentKey(),
+                HttpUtils.getInstance().getUserAgentValue(activity));
+
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, boundingBox, scaling);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
@@ -320,7 +326,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     protected String doInBackground(String... params) {
         try {
             int count = tileGenerator.generateTiles();
-            if(count == 0){
+            if (count == 0) {
                 return "No tiles were generated for your new layer.  This could be an issue with your tile URL or the tile server.  Please verify the server URL and try again.";
             }
             if (count > 0) {

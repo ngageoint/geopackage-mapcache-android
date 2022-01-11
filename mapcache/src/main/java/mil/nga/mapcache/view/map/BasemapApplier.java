@@ -281,7 +281,7 @@ public class BasemapApplier {
         if (WMSTileProvider.canProvide(baseUrl)) {
             tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png");
         } else if (XYZTileProvider.canProvide(baseUrl)) {
-            tileProvider = new XYZTileProvider(baseUrl);
+            tileProvider = new XYZTileProvider(baseUrl, activity);
         }
 
         return tileProvider;

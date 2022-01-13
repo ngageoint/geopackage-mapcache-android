@@ -94,6 +94,12 @@ public class LayersProvider implements IResponseHandler {
                         "Unable to parse WMS GetCapabilities document", e);
             }
         } else {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    model.setLayers(new LayerModel[0]);
+                }
+            });
             Log.e(
                     LayersProvider.class.getSimpleName(),
                     "Unable to download WMS GetCapabilities document http response " + responseCode);

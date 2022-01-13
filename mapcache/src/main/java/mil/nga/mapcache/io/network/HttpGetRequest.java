@@ -36,7 +36,7 @@ public class HttpGetRequest implements Runnable {
         try {
             URL url = new URL(this.urlString);
             URLConnection connection = url.openConnection();
-            this.handler.handleResponse(connection.getInputStream());
+            this.handler.handleResponse(connection.getInputStream(), 200);
         } catch (IOException e) {
             this.handler.handleException(e);
         }

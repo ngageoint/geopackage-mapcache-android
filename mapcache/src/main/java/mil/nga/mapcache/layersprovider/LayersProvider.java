@@ -7,6 +7,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -68,28 +69,34 @@ public class LayersProvider implements IResponseHandler {
     }
 
     @Override
-    public void handleResponse(InputStream stream) {
-        CapabilitiesParser parser = new CapabilitiesParser();
-        try {
-            final WMSCapabilities capabilities = parser.parse(stream);
-            List<LayerModel> allLayers = new ArrayList<>();
-            Stack<Layer> parents = new Stack<>();
-            for (Layer layer : capabilities.getCapability().getLayer()) {
-                getLayers(allLayers, layer, parents);
-            }
-            final LayerModel[] allLayersArray = allLayers.toArray(new LayerModel[allLayers.size()]);
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    model.setImageFormats(capabilities.getCapability().getRequest().getGetMap()
-                            .getFormat().toArray(new String[0]));
-                    model.setLayers(allLayersArray);
+    public void handleResponse(InputStream stream, int responseCode) {
+        if(stream != null && responseCode == HttpURLConnection.HTTP_OK) {
+            CapabilitiesParser parser = new CapabilitiesParser();
+            try {
+                final WMSCapabilities capabilities = parser.parse(stream);
+                List<LayerModel> allLayers = new ArrayList<>();
+                Stack<Layer> parents = new Stack<>();
+                for (Layer layer : capabilities.getCapability().getLayer()) {
+                    getLayers(allLayers, layer, parents);
                 }
-            });
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            model.setLayers(new LayerModel[0]);
-            Log.e(LayersProvider.class.getSimpleName(),
-                    "Unable to parse WMS GetCapabilities document", e);
+                final LayerModel[] allLayersArray = allLayers.toArray(new LayerModel[allLayers.size()]);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.setImageFormats(capabilities.getCapability().getRequest().getGetMap()
+                                .getFormat().toArray(new String[0]));
+                        model.setLayers(allLayersArray);
+                    }
+                });
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                model.setLayers(new LayerModel[0]);
+                Log.e(LayersProvider.class.getSimpleName(),
+                        "Unable to parse WMS GetCapabilities document", e);
+            }
+        } else {
+            Log.e(
+                    LayersProvider.class.getSimpleName(),
+                    "Unable to download WMS GetCapabilities document http response " + responseCode);
         }
     }
 

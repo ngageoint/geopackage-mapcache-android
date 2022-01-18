@@ -21,6 +21,8 @@ import java.net.URL;
 import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.io.network.HttpClient;
+import mil.nga.mapcache.io.network.IResponseHandler;
 import mil.nga.mapcache.utils.HttpUtils;
 
 /**
@@ -54,6 +56,11 @@ public class XYZTileProvider implements TileProvider {
     private String xyzUrl;
 
     /**
+     * The tile image bytes.
+     */
+    private byte[] bytes = null;
+
+    /**
      * Constructor.
      *
      * @param xyzUrl The url containing the {x}, {y}, {z} string value to be replaced.
@@ -78,7 +85,7 @@ public class XYZTileProvider implements TileProvider {
     public Tile getTile(int x, int y, int z) {
         Tile tile = null;
 
-        URL url = getTileUrl(x, y, z);
+        String url = getTileUrl(x, y, z);
         if (url != null) {
             byte[] image = downloadImage(url);
             if (image != null) {
@@ -99,18 +106,12 @@ public class XYZTileProvider implements TileProvider {
      * @return The tile's image url, or null if it doesn't have an image.
      */
     @Nullable
-    private URL getTileUrl(int x, int y, int z) {
+    private String getTileUrl(int x, int y, int z) {
         String replacedUrl = xyzUrl.replace(xReplace, String.valueOf(x));
         replacedUrl = replacedUrl.replace(yReplace, String.valueOf(y));
         replacedUrl = replacedUrl.replace(zReplace, String.valueOf(z));
 
-        URL url = null;
-        try {
-            url = new URL(replacedUrl);
-        } catch (MalformedURLException e) {
-            Log.e(XYZTileProvider.class.getSimpleName(), "Invalid url", e);
-        }
-        return url;
+        return replacedUrl;
     }
 
     /**
@@ -119,42 +120,18 @@ public class XYZTileProvider implements TileProvider {
      * @param url The location of the image.
      * @return The image data.
      */
-    private byte[] downloadImage(URL url) {
-        HttpURLConnection connection = null;
-        byte[] bytes = null;
-        try {
-            connection = (HttpURLConnection) url.openConnection();
-            configureRequest(connection);
-            connection.connect();
+    private synchronized byte[] downloadImage(String url) {
+        XYZResponseHandler handler = new XYZResponseHandler();
+        synchronized (handler) {
+            HttpClient.getInstance().sendGet(url.toString(), handler, this.activity);
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
-                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
-                    || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
-                String redirect = connection.getHeaderField("Location");
-                connection.disconnect();
-                url = new URL(redirect);
-                connection = (HttpURLConnection) url.openConnection();
-                configureRequest(connection);
-                connection.connect();
-            }
-
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                Log.e(XYZTileProvider.class.getSimpleName(), "Failed to download tile. URL: " + url);
-            } else {
-                InputStream geoPackageStream = connection.getInputStream();
-                bytes = GeoPackageIOUtils.streamBytes(geoPackageStream);
-            }
-
-        } catch (IOException e) {
-            Log.e(XYZTileProvider.class.getSimpleName(), e.getMessage(), e);
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
+            try {
+                handler.wait();
+            } catch (InterruptedException e) {
+                Log.d(XYZTileProvider.class.getSimpleName(), e.getMessage(), e);
             }
         }
-
-        return bytes;
+        return handler.getBytes();
     }
 
     /**

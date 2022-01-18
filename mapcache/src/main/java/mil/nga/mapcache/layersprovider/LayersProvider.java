@@ -62,7 +62,7 @@ public class LayersProvider implements IResponseHandler {
     public void retrieveLayers(String url) {
         if (url.toLowerCase().contains("wms")) {
             String capabilitiesUrl = url + "?request=GetCapabilities&version=1.3.0&service=WMS";
-            HttpClient.getInstance().sendGet(capabilitiesUrl, this);
+            HttpClient.getInstance().sendGet(capabilitiesUrl, this, this.activity);
         } else {
             model.setLayers(new LayerModel[0]);
         }

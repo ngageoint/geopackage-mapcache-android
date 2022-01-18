@@ -1,5 +1,7 @@
 package mil.nga.mapcache.io.network;
 
+import android.app.Activity;
+
 import mil.nga.mapcache.utils.ThreadUtils;
 
 /**
@@ -26,9 +28,10 @@ public class HttpClient {
      *
      * @param url     The url to send a get request to.
      * @param handler The response handler, called when request is complete.
+     * @param activity Used to get the app name and version for the user agent.
      */
-    public void sendGet(String url, IResponseHandler handler) {
-        HttpGetRequest request = new HttpGetRequest(url, handler);
+    public void sendGet(String url, IResponseHandler handler, Activity activity) {
+        HttpGetRequest request = new HttpGetRequest(url, handler, activity);
         ThreadUtils.getInstance().runBackground(request);
     }
 

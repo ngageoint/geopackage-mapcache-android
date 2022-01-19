@@ -1,17 +1,13 @@
 package mil.nga.mapcache.io.network;
 
 import android.app.Activity;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 
-import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.mapcache.utils.HttpUtils;
-import mil.nga.mapcache.view.map.overlays.XYZTileProvider;
 
 /**
  * An http get request class that performs any specified http get.
@@ -56,6 +52,10 @@ public class HttpGetRequest implements Runnable {
             connection.connect();
 
             int responseCode = connection.getResponseCode();
+            if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                addBasicAuth(connection);
+            }
+
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -81,6 +81,13 @@ public class HttpGetRequest implements Runnable {
                 connection.disconnect();
             }
         }
+    }
+
+    /**
+     * Adds basic auth to the connection.
+     * @param connection The connection to add basic auth to.
+     */
+    private void addBasicAuth(HttpURLConnection connection) {
     }
 
     /**

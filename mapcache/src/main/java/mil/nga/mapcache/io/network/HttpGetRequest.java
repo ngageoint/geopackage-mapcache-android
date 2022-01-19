@@ -1,5 +1,6 @@
 package mil.nga.mapcache.io.network;
 
+import android.accounts.Account;
 import android.app.Activity;
 
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import mil.nga.mapcache.auth.UserPassProvider;
 import mil.nga.mapcache.utils.HttpUtils;
 
 /**
@@ -28,6 +30,11 @@ public class HttpGetRequest implements Runnable {
      * Used to get the app name and version for the user agent.
      */
     private Activity activity;
+
+    /**
+     * Provides the username and password for a given server.
+     */
+    private UserPassProvider passwordProvider = null;
 
     /**
      * Constructs a new HttpGetRequest.
@@ -88,6 +95,10 @@ public class HttpGetRequest implements Runnable {
      * @param connection The connection to add basic auth to.
      */
     private void addBasicAuth(HttpURLConnection connection) {
+        if(passwordProvider == null) {
+            passwordProvider = new UserPassProvider(activity);
+        }
+        Account account = passwordProvider.getAccount(connection.getURL());
     }
 
     /**

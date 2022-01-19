@@ -57,7 +57,7 @@ public class WMSTileProvider extends UrlTileProvider {
      * @return True if this can provide tiles for the baseUrl, false if it can't.
      */
     public static boolean canProvide(String baseUrl) {
-        return baseUrl.toLowerCase(Locale.ROOT).contains("wmsserver");
+        return baseUrl.toLowerCase(Locale.ROOT).contains("/wms");
     }
 
     @Nullable

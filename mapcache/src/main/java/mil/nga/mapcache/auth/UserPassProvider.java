@@ -16,13 +16,14 @@ public class UserPassProvider {
     public Account getAccount(URL url) {
         Account account = null;
 
-        activity.runOnUiThread(()->askUser());
+        activity.runOnUiThread(()->askUser(url));
 
         return account;
     }
 
-    private void askUser() {
-        UserPassDialog dialog = new UserPassDialog(this.activity);
+    private void askUser(URL url) {
+        String host = url.getHost();
+        UserPassDialog dialog = new UserPassDialog(this.activity, host);
         dialog.show();
     }
 }

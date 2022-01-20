@@ -11,13 +11,21 @@ import androidx.annotation.Nullable;
  */
 public class AuthenticatorService extends Service {
 
+    // Instance field that stores the authenticator object
+    // Notice, this is the same Authenticator class we defined earlier
+    private AccountAuthenticator authenticator;
+
     @Override
     public void onCreate() {
+        // Create a new authenticator object
+        authenticator = new AccountAuthenticator(this);
     }
-
-    @Nullable
+    /*
+     * When the system binds to this Service to make the RPC call
+     * return the authenticator's IBinder.
+     */
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return authenticator.getIBinder();
     }
 }

@@ -15,7 +15,7 @@ public class UserLoggerInner {
     /**
      *
      */
-    private static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache.test";
+    private static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache";
 
     /**
      * The applications activity.

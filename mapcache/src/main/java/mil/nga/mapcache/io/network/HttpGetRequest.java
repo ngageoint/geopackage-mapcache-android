@@ -2,19 +2,22 @@ package mil.nga.mapcache.io.network;
 
 import android.accounts.Account;
 import android.app.Activity;
+import android.util.Base64;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import mil.nga.mapcache.auth.UserPassProvider;
+import mil.nga.mapcache.auth.Authenticator;
+import mil.nga.mapcache.auth.UserLoggerInner;
 import mil.nga.mapcache.utils.HttpUtils;
 
 /**
  * An http get request class that performs any specified http get.
  */
-public class HttpGetRequest implements Runnable {
+public class HttpGetRequest implements Runnable, Authenticator {
 
     /**
      * The url of the get request.
@@ -32,15 +35,20 @@ public class HttpGetRequest implements Runnable {
     private Activity activity;
 
     /**
-     * Provides the username and password for a given server.
+     * Retrieves the user's username and password then calls back for authentication.
      */
-    private UserPassProvider passwordProvider = null;
+    private UserLoggerInner loggerInner = null;
+
+    /**
+     * The http connection.
+     */
+    private HttpURLConnection connection = null;
 
     /**
      * Constructs a new HttpGetRequest.
      *
-     * @param url     The url of the get request.
-     * @param handler Object this is called when request is completed.
+     * @param url      The url of the get request.
+     * @param handler  Object this is called when request is completed.
      * @param activity Used to get the app name and version for the user agent.
      */
     public HttpGetRequest(String url, IResponseHandler handler, Activity activity) {
@@ -51,7 +59,6 @@ public class HttpGetRequest implements Runnable {
 
     @Override
     public void run() {
-        HttpURLConnection connection = null;
         try {
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -59,8 +66,9 @@ public class HttpGetRequest implements Runnable {
             connection.connect();
 
             int responseCode = connection.getResponseCode();
-            if(responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 addBasicAuth(connection);
+                responseCode = connection.getResponseCode();
             }
 
             if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
@@ -92,13 +100,14 @@ public class HttpGetRequest implements Runnable {
 
     /**
      * Adds basic auth to the connection.
+     *
      * @param connection The connection to add basic auth to.
      */
     private void addBasicAuth(HttpURLConnection connection) {
-        if(passwordProvider == null) {
-            passwordProvider = new UserPassProvider(activity);
+        if (loggerInner == null) {
+            loggerInner = new UserLoggerInner(activity);
         }
-        Account account = passwordProvider.getAccount(connection.getURL());
+        loggerInner.login(connection.getURL(), this);
     }
 
     /**
@@ -110,5 +119,29 @@ public class HttpGetRequest implements Runnable {
         connection.addRequestProperty(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
+    }
+
+    @Override
+    public boolean authenticate(URL url, String userName, String password) {
+        boolean authorized = false;
+
+        try {
+            if (connection != null) {
+                connection.disconnect();
+            }
+
+            connection = (HttpURLConnection) url.openConnection();
+            configureRequest(connection);
+
+            String usernamePass = userName + ":" + password;
+            String authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
+            connection.addRequestProperty("Authorization", authorization);
+            connection.connect();
+            authorized = connection.getResponseCode() != HttpURLConnection.HTTP_UNAUTHORIZED;
+        } catch (IOException e) {
+            Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
+        }
+
+        return authorized;
     }
 }

@@ -43,9 +43,9 @@ public class UserLoggerInner {
      * prompt the user for a username and password authenticate and then store it for later use.
      *
      * @param url
-     * @param authenticator
+     * @param IAuthenticator
      */
-    public void login(URL url, Authenticator authenticator) {
+    public void login(URL url, Authenticator IAuthenticator) {
         String host = url.getHost();
         AccountManager accountManager = AccountManager.get(this.activity);
         Account[] accounts = accountManager.getAccountsByType(MAPCACHE_ACCOUNT_TYPE);
@@ -55,7 +55,7 @@ public class UserLoggerInner {
             Account account = accounts[0];
             String userName = account.name;
             String password = accountManager.getPassword(account);
-            authenticated = authenticator.authenticate(url, userName, password);
+            authenticated = IAuthenticator.authenticate(url, userName, password);
         }
 
         while (!authenticated) {
@@ -63,7 +63,7 @@ public class UserLoggerInner {
             String username = model.getUsername();
             String password = model.getPassword();
             if (username != null && password != null) {
-                authenticated = authenticator.authenticate(url, username, password);
+                authenticated = IAuthenticator.authenticate(url, username, password);
                 if (authenticated) {
                     Account newAccount = new Account(username, MAPCACHE_ACCOUNT_TYPE);
                     accountManager.addAccountExplicitly(newAccount, password, null);

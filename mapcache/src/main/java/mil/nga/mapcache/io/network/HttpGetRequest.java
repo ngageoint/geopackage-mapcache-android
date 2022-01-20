@@ -1,6 +1,5 @@
 package mil.nga.mapcache.io.network;
 
-import android.accounts.Account;
 import android.app.Activity;
 import android.util.Base64;
 import android.util.Log;

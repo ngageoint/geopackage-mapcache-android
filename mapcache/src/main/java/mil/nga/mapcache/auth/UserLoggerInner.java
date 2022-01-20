@@ -46,16 +46,21 @@ public class UserLoggerInner {
      * @param IAuthenticator
      */
     public void login(URL url, Authenticator IAuthenticator) {
-        String host = url.getHost();
+        String host = url.getAuthority();
         AccountManager accountManager = AccountManager.get(this.activity);
         Account[] accounts = accountManager.getAccountsByType(MAPCACHE_ACCOUNT_TYPE);
 
         boolean authenticated = false;
         if (accounts != null && accounts.length > 0) {
-            Account account = accounts[0];
-            String userName = account.name;
-            String password = accountManager.getPassword(account);
-            authenticated = IAuthenticator.authenticate(url, userName, password);
+            for(Account account : accounts) {
+                String[] split = account.name.split(" - ");
+                if(split[1].equals(host)) {
+                    String userName = split[0];
+                    String password = accountManager.getPassword(account);
+                    authenticated = IAuthenticator.authenticate(url, userName, password);
+                    break;
+                }
+            }
         }
 
         while (!authenticated) {
@@ -65,7 +70,7 @@ public class UserLoggerInner {
             if (username != null && password != null) {
                 authenticated = IAuthenticator.authenticate(url, username, password);
                 if (authenticated) {
-                    Account newAccount = new Account(username, MAPCACHE_ACCOUNT_TYPE);
+                    Account newAccount = new Account(username + " - " + host, MAPCACHE_ACCOUNT_TYPE);
                     accountManager.addAccountExplicitly(newAccount, password, null);
                 }
             } else {

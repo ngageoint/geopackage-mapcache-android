@@ -17,6 +17,7 @@ public class HttpUtils {
 
     /**
      * Gets the instance of this class.
+     *
      * @return The instance of this class.
      */
     public static HttpUtils getInstance() {
@@ -25,6 +26,7 @@ public class HttpUtils {
 
     /**
      * Gets the http User Agent key.
+     *
      * @return The http user agent key.
      */
     public String getUserAgentKey() {
@@ -32,7 +34,17 @@ public class HttpUtils {
     }
 
     /**
+     * Gets the http basic authorization header key.
+     *
+     * @return The http basic authorization key.
+     */
+    public String getBasicAuthKey() {
+        return "Authorization";
+    }
+
+    /**
      * Gets this apps user agent value.
+     *
      * @param activity Used to get the apps name and version.
      * @return This apps user agent value.
      */

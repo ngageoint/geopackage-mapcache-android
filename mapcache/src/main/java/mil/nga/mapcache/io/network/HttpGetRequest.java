@@ -143,7 +143,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
             String usernamePass = userName + ":" + password;
             authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
-            connection.addRequestProperty("Authorization", authorization);
+            connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             connection.connect();
             authorized = connection.getResponseCode() != HttpURLConnection.HTTP_UNAUTHORIZED;
         } catch (IOException e) {

@@ -56,12 +56,14 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      * @param scaling
      * @param authority
      * @param code
+     * @param authorization
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, String database, String tableName,
                                  String tileUrl, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
-                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
+                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code,
+                                 String authorization) {
 
         GeoPackageManager manager = GeoPackageFactory.getManager(activity);
         GeoPackage geoPackage = manager.open(database);
@@ -75,9 +77,42 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
 
+        if (authorization != null && !authorization.isEmpty()) {
+            tileGenerator.addHTTPHeaderValue(HttpUtils.getInstance().getBasicAuthKey(), authorization);
+        }
+
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, boundingBox, scaling);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
+    }
+
+    /**
+     * Load tiles from a URL
+     *
+     * @param activity
+     * @param callback
+     * @param active
+     * @param database
+     * @param tableName
+     * @param tileUrl
+     * @param minZoom
+     * @param maxZoom
+     * @param compressFormat
+     * @param compressQuality
+     * @param xyzTiles
+     * @param boundingBox
+     * @param scaling
+     * @param authority
+     * @param code
+     */
+    public static void loadTiles(Activity activity, ILoadTilesTask callback,
+                                 GeoPackageDatabases active, String database, String tableName,
+                                 String tileUrl, int minZoom, int maxZoom,
+                                 CompressFormat compressFormat, Integer compressQuality,
+                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
+
+        loadTiles(activity, callback, active, database, tableName, tileUrl, minZoom, maxZoom,
+                compressFormat, compressQuality, xyzTiles, boundingBox, scaling, authority, code);
     }
 
     /**

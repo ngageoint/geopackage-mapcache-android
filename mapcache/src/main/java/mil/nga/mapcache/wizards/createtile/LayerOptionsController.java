@@ -142,6 +142,7 @@ public class LayerOptionsController implements Observer {
                 model.getMaxZoom(), compressFormat,
                 compressQuality, xyzTiles,
                 boundingBox, scaling,
-                ProjectionConstants.AUTHORITY_EPSG, String.valueOf(model.getEpsg()));
+                ProjectionConstants.AUTHORITY_EPSG, String.valueOf(model.getEpsg()),
+                layers.getAuthorization());
     }
 }

@@ -23,9 +23,19 @@ public class LayersModel extends Observable {
     public static String IMAGE_FORMATS_PROP = "imageFormats";
 
     /**
+     * The authorization property.
+     */
+    public static String AUTORIZATION_PROP = "authorization";
+
+    /**
      * The title property.
      */
     public static String TITLE_PROP = "title";
+
+    /**
+     * Contains the basic authorization used when retrieving the layers.
+     */
+    private String authorization = null;
 
     /**
      * The available image formats for the tiles.
@@ -46,6 +56,24 @@ public class LayersModel extends Observable {
      * The title to display for the layers view.
      */
     private String title = "Choose your layer";
+
+    /**
+     * Gets the basic authorization used when retrieving the layers.
+     *
+     * @return The basic authorization value, or null if one was not used.
+     */
+    public String getAuthorization() {
+        return authorization;
+    }
+
+    /**
+     * @param authorization
+     */
+    public void setAuthorization(String authorization) {
+        this.authorization = authorization;
+        setChanged();
+        notifyObservers();
+    }
 
     /**
      * Gets the available layers from a server.
@@ -109,6 +137,7 @@ public class LayersModel extends Observable {
 
     /**
      * Gets the title.
+     *
      * @return The title.
      */
     public String getTitle() {
@@ -117,6 +146,7 @@ public class LayersModel extends Observable {
 
     /**
      * Sets the title.
+     *
      * @param title The title.
      */
     public void setTitle(String title) {

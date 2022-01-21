@@ -44,6 +44,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
     private HttpURLConnection connection = null;
 
     /**
+     * The authorization string from previous Http request.
+     */
+    private String authorization = null;
+
+    /**
      * Constructs a new HttpGetRequest.
      *
      * @param url      The url of the get request.
@@ -59,6 +64,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     @Override
     public void run() {
         try {
+            authorization = null;
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
             configureRequest(connection);
@@ -86,6 +92,9 @@ public class HttpGetRequest implements Runnable, Authenticator {
             } else {
                 InputStream stream = connection.getInputStream();
                 this.handler.handleResponse(stream, responseCode);
+                if (this.handler instanceof AuthorizationConsumer) {
+                    ((AuthorizationConsumer) this.handler).setAuthorizationValue(this.authorization);
+                }
             }
 
         } catch (IOException e) {
@@ -133,7 +142,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             configureRequest(connection);
 
             String usernamePass = userName + ":" + password;
-            String authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
+            authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
             connection.addRequestProperty("Authorization", authorization);
             connection.connect();
             authorized = connection.getResponseCode() != HttpURLConnection.HTTP_UNAUTHORIZED;

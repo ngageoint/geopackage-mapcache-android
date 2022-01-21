@@ -1,9 +1,12 @@
 package mil.nga.mapcache.view.map.overlays;
 
+import android.app.Activity;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
 
 import java.net.MalformedURLException;
@@ -16,7 +19,7 @@ import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
 /**
  * The url provider for wms tiles used by google maps.
  */
-public class WMSTileProvider extends UrlTileProvider {
+public class WMSTileProvider extends BaseTileProvider {
     /**
      * The size of the map in meters.
      */
@@ -43,8 +46,8 @@ public class WMSTileProvider extends UrlTileProvider {
      * @param baseUrl   The url to a wms server.
      * @param layerName The name of the layer.
      */
-    public WMSTileProvider(String baseUrl, String layerName, String format) {
-        super(256, 256);
+    public WMSTileProvider(String baseUrl, String layerName, String format, Activity activity) {
+        super(activity);
         this.urlNeedsBoundingBox = WMSUrlProvider.getInstance().getUrlNoBoundingBox(
                 baseUrl, layerName, format);
         this.urlNeedsBoundingBox = WMSUrlProvider.getInstance().getUrlBoundBoxCRS(urlNeedsBoundingBox, "3857");
@@ -62,7 +65,7 @@ public class WMSTileProvider extends UrlTileProvider {
 
     @Nullable
     @Override
-    public URL getTileUrl(int x, int y, int z) {
+    protected String getTileUrl(int x, int y, int z) {
         BoundingBox bounds = getBoundingBox(x, y, z);
 
         String tileUrl = urlNeedsBoundingBox.replace("{minLat}",
@@ -71,14 +74,7 @@ public class WMSTileProvider extends UrlTileProvider {
         tileUrl = tileUrl.replace("{maxLat}", String.valueOf(bounds.getMaxLatitude()));
         tileUrl = tileUrl.replace("{maxLon}", String.valueOf(bounds.getMaxLongitude()));
 
-        URL theTileUrl = null;
-        try {
-            theTileUrl = new URL(tileUrl);
-        } catch (MalformedURLException e) {
-            Log.e(WMSTileProvider.class.getSimpleName(), "Invalid url", e);
-        }
-
-        return theTileUrl;
+        return tileUrl;
     }
 
     /**

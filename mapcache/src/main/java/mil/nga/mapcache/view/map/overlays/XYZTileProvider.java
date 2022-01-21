@@ -28,7 +28,7 @@ import mil.nga.mapcache.utils.HttpUtils;
 /**
  * A UrlTileProvider for x,y,z tile servers.
  */
-public class XYZTileProvider implements TileProvider {
+public class XYZTileProvider extends BaseTileProvider {
 
     /**
      * The x string value to replace.
@@ -46,11 +46,6 @@ public class XYZTileProvider implements TileProvider {
     private static String zReplace = "{z}";
 
     /**
-     * Used to get app name and version.
-     */
-    private Activity activity;
-
-    /**
      * The url containing the {x}, {y}, {z} string value to be replaced.
      */
     private String xyzUrl;
@@ -66,8 +61,8 @@ public class XYZTileProvider implements TileProvider {
      * @param xyzUrl The url containing the {x}, {y}, {z} string value to be replaced.
      */
     public XYZTileProvider(String xyzUrl, Activity activity) {
+        super(activity);
         this.xyzUrl = xyzUrl;
-        this.activity = activity;
     }
 
     /**
@@ -80,33 +75,10 @@ public class XYZTileProvider implements TileProvider {
         return baseUrl.contains(xReplace) && baseUrl.contains(yReplace) && baseUrl.contains(zReplace);
     }
 
+
     @Nullable
     @Override
-    public Tile getTile(int x, int y, int z) {
-        Tile tile = null;
-
-        String url = getTileUrl(x, y, z);
-        if (url != null) {
-            byte[] image = downloadImage(url);
-            if (image != null) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-                tile = new Tile(bitmap.getWidth(), bitmap.getHeight(), image);
-            }
-        }
-
-        return tile;
-    }
-
-    /**
-     * Gets the tile's image url.
-     *
-     * @param x The x coordinate of the tile.
-     * @param y The y coordinate of the tile.
-     * @param z The z coordinate of the tile.
-     * @return The tile's image url, or null if it doesn't have an image.
-     */
-    @Nullable
-    private String getTileUrl(int x, int y, int z) {
+    protected String getTileUrl(int x, int y, int z) {
         String replacedUrl = xyzUrl.replace(xReplace, String.valueOf(x));
         replacedUrl = replacedUrl.replace(yReplace, String.valueOf(y));
         replacedUrl = replacedUrl.replace(zReplace, String.valueOf(z));
@@ -114,34 +86,5 @@ public class XYZTileProvider implements TileProvider {
         return replacedUrl;
     }
 
-    /**
-     * Downloads the image at the specified url.
-     *
-     * @param url The location of the image.
-     * @return The image data.
-     */
-    private synchronized byte[] downloadImage(String url) {
-        XYZResponseHandler handler = new XYZResponseHandler();
-        synchronized (handler) {
-            HttpClient.getInstance().sendGet(url.toString(), handler, this.activity);
 
-            try {
-                handler.wait();
-            } catch (InterruptedException e) {
-                Log.d(XYZTileProvider.class.getSimpleName(), e.getMessage(), e);
-            }
-        }
-        return handler.getBytes();
-    }
-
-    /**
-     * Adds the user agent to the http header.
-     *
-     * @param connection The connection to add the user agent to.
-     */
-    private void configureRequest(HttpURLConnection connection) {
-        connection.addRequestProperty(
-                HttpUtils.getInstance().getUserAgentKey(),
-                HttpUtils.getInstance().getUserAgentValue(activity));
-    }
 }

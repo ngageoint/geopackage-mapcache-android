@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import mil.nga.mapcache.auth.Authenticator;
 import mil.nga.mapcache.auth.UserLoggerInner;
@@ -127,6 +129,18 @@ public class HttpGetRequest implements Runnable, Authenticator {
         connection.addRequestProperty(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
+
+        // Used for debugging connection issues
+        connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        connection.addRequestProperty("Accept-Language", "en-US,en;q=0.9");
+        connection.addRequestProperty("Cache-Control", "no-cache");
+        connection.addRequestProperty("Connection", "keep-alive");
+        connection.addRequestProperty("Host", connection.getURL().getAuthority());
+        connection.addRequestProperty("Sec-Fetch-Dest", "document");
+        connection.addRequestProperty("Sec-Fetch-Mode", "navigate");
+        connection.addRequestProperty("Sec-Fetch-Site", "none");
+        connection.addRequestProperty("Sec-Fetch-User", "?1");
+        connection.addRequestProperty("Upgrade-Insecure-Requests", "1");
     }
 
     @Override
@@ -146,6 +160,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             connection.connect();
             authorized = connection.getResponseCode() != HttpURLConnection.HTTP_UNAUTHORIZED;
+            if(!authorized) {
+                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                    Log.e(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                }
+            }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
         }

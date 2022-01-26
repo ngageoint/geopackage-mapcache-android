@@ -69,16 +69,15 @@ public class HttpGetRequest implements Runnable, Authenticator {
             authorization = null;
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
+            connection.setInstanceFollowRedirects(false);
             configureRequest(connection);
+            Log.i(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
             connection.connect();
 
             int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                addBasicAuth(connection);
-                responseCode = connection.getResponseCode();
-            }
 
-            if (responseCode == HttpURLConnection.HTTP_MOVED_PERM
+            Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+            while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
                 String redirect = connection.getHeaderField("Location");
@@ -86,7 +85,15 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 url = new URL(redirect);
                 connection = (HttpURLConnection) url.openConnection();
                 configureRequest(connection);
+                Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
                 connection.connect();
+                responseCode = connection.getResponseCode();
+                Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+            }
+
+            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                addBasicAuth(connection);
+                responseCode = connection.getResponseCode();
             }
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -158,12 +165,13 @@ public class HttpGetRequest implements Runnable, Authenticator {
             String usernamePass = userName + ":" + password;
             authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
+            Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + url);
             connection.connect();
-            authorized = connection.getResponseCode() != HttpURLConnection.HTTP_UNAUTHORIZED;
-            if(!authorized) {
-                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                    Log.e(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
-                }
+            int responseCode = connection.getResponseCode();
+            Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+            authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;
+            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                Log.e(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);

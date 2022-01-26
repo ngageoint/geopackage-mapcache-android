@@ -58,6 +58,9 @@ public class UserLoggerInner {
                     String userName = split[0];
                     String password = accountManager.getPassword(account);
                     authenticated = IAuthenticator.authenticate(url, userName, password);
+                    if(!authenticated) {
+                        accountManager.removeAccount(account, null, null);
+                    }
                     break;
                 }
             }

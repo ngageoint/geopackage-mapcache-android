@@ -195,11 +195,9 @@ public class HttpGetRequest implements Runnable, Authenticator {
      */
     private void checkCookie() {
         String setCookie = connection.getHeaderField(HttpUtils.getInstance().getSetCookieKey());
-        if(setCookie != null && setCookie.isEmpty()) {
+        if(setCookie != null && !setCookie.isEmpty()) {
             cookie = setCookie;
             Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
-        } else {
-            cookie = null;
         }
     }
 
@@ -214,7 +212,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
             String usernamePass = userName + ":" + password;
             authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
-            Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + url);
+            Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + urlString);
             connect();
             int responseCode = connection.getResponseCode();
             authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;

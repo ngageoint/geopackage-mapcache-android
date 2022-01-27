@@ -7,6 +7,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -67,30 +68,9 @@ public class HttpGetRequest implements Runnable, Authenticator {
     public void run() {
         try {
             authorization = null;
-            URL url = new URL(urlString);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setInstanceFollowRedirects(false);
-            configureRequest(connection);
-            Log.i(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
-            connection.connect();
+            connect();
 
             int responseCode = connection.getResponseCode();
-
-            Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
-            while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
-                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
-                    || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
-                String redirect = connection.getHeaderField("Location");
-                connection.disconnect();
-                url = new URL(redirect);
-                connection = (HttpURLConnection) url.openConnection();
-                configureRequest(connection);
-                Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
-                connection.connect();
-                responseCode = connection.getResponseCode();
-                Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
-            }
-
             if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 addBasicAuth(connection);
                 responseCode = connection.getResponseCode();
@@ -105,7 +85,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     ((AuthorizationConsumer) this.handler).setAuthorizationValue(this.authorization);
                 }
             }
-
         } catch (IOException e) {
             this.handler.handleException(e);
         } finally {
@@ -148,6 +127,46 @@ public class HttpGetRequest implements Runnable, Authenticator {
         connection.addRequestProperty("Sec-Fetch-Site", "none");
         connection.addRequestProperty("Sec-Fetch-User", "?1");
         connection.addRequestProperty("Upgrade-Insecure-Requests", "1");
+
+        if(authorization != null) {
+            connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
+        }
+    }
+
+    private void connect() {
+        try {
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setInstanceFollowRedirects(false);
+            configureRequest(connection);
+            Log.i(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
+            connection.connect();
+
+            int responseCode = connection.getResponseCode();
+
+            Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+            }
+            while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                    || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                    || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
+                String redirect = connection.getHeaderField("Location");
+                connection.disconnect();
+                url = new URL(redirect);
+                connection = (HttpURLConnection) url.openConnection();
+                configureRequest(connection);
+                Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
+                connection.connect();
+                responseCode = connection.getResponseCode();
+                Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                    Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                }
+            }
+        } catch (IOException e) {
+            Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
+        }
     }
 
     @Override
@@ -159,20 +178,12 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 connection.disconnect();
             }
 
-            connection = (HttpURLConnection) url.openConnection();
-            configureRequest(connection);
-
             String usernamePass = userName + ":" + password;
             authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
-            connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + url);
-            connection.connect();
+            connect();
             int responseCode = connection.getResponseCode();
-            Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
             authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;
-            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                Log.e(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
-            }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
         }

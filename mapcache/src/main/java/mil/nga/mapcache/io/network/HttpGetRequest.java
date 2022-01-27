@@ -172,6 +172,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 connection.disconnect();
                 url = new URL(redirect);
                 connection = (HttpURLConnection) url.openConnection();
+                connection.setInstanceFollowRedirects(false);
                 configureRequest(connection);
                 Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
                 for(Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {

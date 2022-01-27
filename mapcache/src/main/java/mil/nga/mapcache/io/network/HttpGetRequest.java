@@ -169,6 +169,12 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
                 String redirect = connection.getHeaderField(HttpUtils.getInstance().getLocationKey());
+                if(!redirect.startsWith("http")) {
+                    URL original = new URL(urlString);
+                    String hostAndPort = original.getAuthority();
+                    String protocol = original.getProtocol();
+                    redirect = protocol + "://" + hostAndPort + redirect;
+                }
                 connection.disconnect();
                 url = new URL(redirect);
                 connection = (HttpURLConnection) url.openConnection();

@@ -134,10 +134,12 @@ public class HttpGetRequest implements Runnable, Authenticator {
         connection.addRequestProperty("Sec-Fetch-User", "?1");
         connection.addRequestProperty("Upgrade-Insecure-Requests", "1");
 
+        if(authorization != null) {
+            connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
+        }
+
         if(cookie != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
-        } else if(authorization != null) {
-            connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
         }
     }
 
@@ -172,6 +174,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     String hostAndPort = original.getAuthority();
                     String protocol = original.getProtocol();
                     redirect = protocol + "://" + hostAndPort + redirect;
+                    authorization = null;
                 }
                 connection.disconnect();
                 url = new URL(redirect);

@@ -139,8 +139,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
         }
 
         if(cookies != null) {
+            int index = 0;
             for(String cookie : cookies) {
-                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
+                if(index == 1)
+                    connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
+                index++;
             }
         }
     }

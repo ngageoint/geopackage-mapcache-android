@@ -52,6 +52,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
     private String authorization = null;
 
     /**
+     * A cookie to set in request if need be.
+     */
+    private String cookie = null;
+
+    /**
      * Constructs a new HttpGetRequest.
      *
      * @param url      The url of the get request.
@@ -68,6 +73,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     public void run() {
         try {
             authorization = null;
+            cookie = null;
             connect();
 
             int responseCode = connection.getResponseCode();
@@ -131,6 +137,10 @@ public class HttpGetRequest implements Runnable, Authenticator {
         if(authorization != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
         }
+
+        if(cookie != null) {
+            connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
+        }
     }
 
     private void connect() {
@@ -139,7 +149,13 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(false);
             configureRequest(connection);
+            Log.i(HttpGetRequest.class.getSimpleName(), " ");
+            Log.i(HttpGetRequest.class.getSimpleName(), " ");
+            Log.i(HttpGetRequest.class.getSimpleName(), " ");
             Log.i(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
+            for(Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+                Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+            }
             connection.connect();
 
             int responseCode = connection.getResponseCode();
@@ -148,17 +164,22 @@ public class HttpGetRequest implements Runnable, Authenticator {
             for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
                 Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
             }
+            checkCookie();
             while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
-                String redirect = connection.getHeaderField("Location");
+                String redirect = connection.getHeaderField(HttpUtils.getInstance().getLocationKey());
                 connection.disconnect();
                 url = new URL(redirect);
                 connection = (HttpURLConnection) url.openConnection();
                 configureRequest(connection);
                 Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
+                for(Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+                    Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+                }
                 connection.connect();
                 responseCode = connection.getResponseCode();
+                checkCookie();
                 Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
                 for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
                     Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
@@ -166,6 +187,19 @@ public class HttpGetRequest implements Runnable, Authenticator {
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Checks to see if the response has a cookie.
+     */
+    private void checkCookie() {
+        String setCookie = connection.getHeaderField(HttpUtils.getInstance().getSetCookieKey());
+        if(setCookie != null && setCookie.isEmpty()) {
+            cookie = setCookie;
+            Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
+        } else {
+            cookie = null;
         }
     }
 

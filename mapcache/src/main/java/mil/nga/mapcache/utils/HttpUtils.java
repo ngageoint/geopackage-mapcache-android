@@ -43,6 +43,33 @@ public class HttpUtils {
     }
 
     /**
+     * Gets the cookie key.
+     *
+     * @return The header key for a cookie.
+     */
+    public String getCookieKey() {
+        return "Cookie";
+    }
+
+    /**
+     * Gets the location header key.
+     *
+     * @return The location header key.
+     */
+    public String getLocationKey() {
+        return "Location";
+    }
+
+    /**
+     * Gets the set cookie header key.
+     *
+     * @return The set cookie header key.
+     */
+    public String getSetCookieKey() {
+        return "Set-Cookie";
+    }
+
+    /**
      * Gets this apps user agent value.
      *
      * @param activity Used to get the apps name and version.

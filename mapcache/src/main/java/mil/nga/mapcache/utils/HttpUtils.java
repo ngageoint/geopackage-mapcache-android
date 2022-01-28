@@ -85,9 +85,10 @@ public class HttpUtils {
      * @return This apps user agent value.
      */
     public String getUserAgentValue(Activity activity) {
-        return activity.getString(R.string.app_name)
+        /*return activity.getString(R.string.app_name)
                 + " " + activity.getString(R.string.app_version)
-                + " Android " + Build.VERSION.RELEASE_OR_CODENAME;
+                + " Android " + Build.VERSION.RELEASE_OR_CODENAME;*/
+        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) mapcache/1.2.0 Chrome/96.0.4664.110 Electron/16.0.7 Safari/537.36";
     }
 
     /**

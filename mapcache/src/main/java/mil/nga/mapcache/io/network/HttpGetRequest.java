@@ -12,6 +12,7 @@ import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -146,17 +147,14 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             authorization = null;
         } else if (cookies != null) {
-            if(cookies.size() == 1)
-                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookies.get(0));
-            else if(cookies.size() > 1) {
-                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookies.get(1));
+            for (String cookie : cookies) {
+                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
             }
         }
     }
 
     private void connect(URL url) {
         try {
-            CookieHandler.setDefault( new CookieManager( null, CookiePolicy.ACCEPT_ALL ) );
             connection = (HttpURLConnection) url.openConnection();
             //connection.setInstanceFollowRedirects(false);
             configureRequest(connection);
@@ -193,7 +191,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 connection.disconnect();
                 url = new URL(redirect);
 
-                if (!backToOrigin && index == 1) {
+                if (!backToOrigin && needsAuthorization()) {
                     addBasicAuth(url);
                     break;
                 } else {
@@ -245,7 +243,10 @@ public class HttpGetRequest implements Runnable, Authenticator {
     private void checkCookie() {
         List<String> cookies = connection.getHeaderFields().get(HttpUtils.getInstance().getSetCookieKey());
         if (cookies != null && !cookies.isEmpty()) {
-            this.cookies = cookies;
+            if (this.cookies == null) {
+                this.cookies = new ArrayList<>();
+            }
+            this.cookies.addAll(cookies);
             for (String cookie : cookies) {
                 Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
             }

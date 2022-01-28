@@ -122,7 +122,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
      *
      * @param connection The connection to add the user agent to.
      */
-    private void configureRequest(HttpURLConnection connection) {
+    private void configureRequest(HttpURLConnection connection, String host) {
         connection.addRequestProperty(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
@@ -132,8 +132,8 @@ public class HttpGetRequest implements Runnable, Authenticator {
         connection.addRequestProperty("Accept-Encoding", "gzip, deflate, br");
         connection.addRequestProperty("Accept-Language", "en-US");
         connection.addRequestProperty("Connection", "keep-alive");
-        connection.addRequestProperty("Host", connection.getURL().getAuthority());
-        connection.addRequestProperty("Origin", null);
+        connection.addRequestProperty("Host", host);
+        connection.addRequestProperty("Origin", "null");
         connection.addRequestProperty("Sec-Fetch-Dest", "empty");
         connection.addRequestProperty("Sec-Fetch-Mode", "cors");
         connection.addRequestProperty("Sec-Fetch-Site", "cross-site");
@@ -157,7 +157,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(false);
-            configureRequest(connection);
+            configureRequest(connection, url.getHost());
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
@@ -174,6 +174,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
             }
             checkCookie();
+            String host = null;
             while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -184,12 +185,16 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     String protocol = original.getProtocol();
                     redirect = protocol + "://" + hostAndPort + redirect;
                     authorization = null;
+                    host = null;
                 }
                 connection.disconnect();
                 url = new URL(redirect);
+                if(host == null) {
+                    host = url.getHost();
+                }
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setInstanceFollowRedirects(false);
-                configureRequest(connection);
+                configureRequest(connection, host);
                 Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
                 for(Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
                     Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());

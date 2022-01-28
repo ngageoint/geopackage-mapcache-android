@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -220,9 +221,15 @@ public class HttpGetRequest implements Runnable, Authenticator {
         boolean needsAuthorizing = false;
 
         List<String> allowHeaders = connection.getHeaderFields().get(HttpUtils.getInstance().getAllowHeadersKey());
-        if (allowHeaders != null && allowHeaders.contains("authorization")) {
-            needsAuthorizing = true;
-            Log.i(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
+        if (allowHeaders != null) {
+            for(String allowHeader : allowHeaders) {
+                Log.i(HttpGetRequest.class.getSimpleName(), "Allow header: " + allowHeader);
+                if("authorization".equals(allowHeader.toLowerCase(Locale.ROOT))) {
+                    needsAuthorizing = true;
+                    Log.i(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
+                    break;
+                }
+            }
         }
 
         return needsAuthorizing;

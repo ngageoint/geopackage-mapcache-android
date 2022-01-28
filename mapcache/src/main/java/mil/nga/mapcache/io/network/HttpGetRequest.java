@@ -56,7 +56,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * A cookie to set in request if need be.
      */
-    private String cookies = null;
+    private List<String> cookies = null;
 
     /**
      * Constructs a new HttpGetRequest.
@@ -143,7 +143,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             authorization = null;
         } else if (cookies != null) {
-            connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookies);
+            if(cookies.size() == 1)
+                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookies.get(0));
+            else if(cookies.size() > 1) {
+                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookies.get(1));
+            }
         }
     }
 
@@ -172,17 +176,19 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
                 String redirect = connection.getHeaderField(HttpUtils.getInstance().getLocationKey());
+                boolean backToOrigin = false;
                 if (!redirect.startsWith("http")) {
                     URL original = new URL(urlString);
                     String hostAndPort = original.getAuthority();
                     String protocol = original.getProtocol();
                     redirect = protocol + "://" + hostAndPort + redirect;
                     authorization = null;
+                    backToOrigin = true;
                 }
                 connection.disconnect();
                 url = new URL(redirect);
 
-                if (needsAuthorization()) {
+                if (!backToOrigin && needsAuthorization()) {
                     addBasicAuth(url);
                     break;
                 } else {
@@ -218,7 +224,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
         String allowHeaders = connection.getHeaderField(HttpUtils.getInstance().getAllowHeadersKey());
         if (allowHeaders != null) {
             Log.i(HttpGetRequest.class.getSimpleName(), "Allow header: " + allowHeaders);
-            if(allowHeaders.toLowerCase(Locale.ROOT).contains("authorization")) {
+            if (allowHeaders.toLowerCase(Locale.ROOT).contains("authorization")) {
                 needsAuthorizing = true;
                 Log.i(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
             }
@@ -231,10 +237,12 @@ public class HttpGetRequest implements Runnable, Authenticator {
      * Checks to see if the response has a cookie.
      */
     private void checkCookie() {
-        String cookies = connection.getHeaderField(HttpUtils.getInstance().getSetCookieKey());
+        List<String> cookies = connection.getHeaderFields().get(HttpUtils.getInstance().getSetCookieKey());
         if (cookies != null && !cookies.isEmpty()) {
             this.cookies = cookies;
-            Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookies);
+            for (String cookie : cookies) {
+                Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
+            }
         }
     }
 

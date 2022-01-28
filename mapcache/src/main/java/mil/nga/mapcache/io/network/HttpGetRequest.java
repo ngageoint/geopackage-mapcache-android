@@ -56,7 +56,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * A cookie to set in request if need be.
      */
-    private List<String> cookies = null;
+    private String cookies = null;
 
     /**
      * Constructs a new HttpGetRequest.
@@ -143,12 +143,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             authorization = null;
         } else if (cookies != null) {
-            int index = 0;
-            for (String cookie : cookies) {
-                if (index == 1)
-                    connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
-                index++;
-            }
+            connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookies);
         }
     }
 
@@ -236,7 +231,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
      * Checks to see if the response has a cookie.
      */
     private void checkCookie() {
-        List<String> cookies = connection.getHeaderFields().get(HttpUtils.getInstance().getSetCookieKey());
+        String cookies = connection.getHeaderField(HttpUtils.getInstance().getSetCookieKey());
         if (cookies != null && !cookies.isEmpty()) {
             this.cookies = cookies;
             Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookies);

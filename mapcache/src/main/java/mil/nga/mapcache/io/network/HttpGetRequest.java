@@ -6,6 +6,9 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -153,8 +156,9 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
     private void connect(URL url) {
         try {
+            CookieHandler.setDefault( new CookieManager( null, CookiePolicy.ACCEPT_ALL ) );
             connection = (HttpURLConnection) url.openConnection();
-            connection.setInstanceFollowRedirects(false);
+            //connection.setInstanceFollowRedirects(false);
             configureRequest(connection);
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
@@ -194,7 +198,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     break;
                 } else {
                     connection = (HttpURLConnection) url.openConnection();
-                    connection.setInstanceFollowRedirects(false);
+                    //connection.setInstanceFollowRedirects(false);
                     configureRequest(connection);
                     Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
                     for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {

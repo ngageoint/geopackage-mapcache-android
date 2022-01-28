@@ -25,6 +25,15 @@ public class HttpUtils {
     }
 
     /**
+     * Gets the allow headers header key.
+     *
+     * @return The allow headers key.
+     */
+    public String getAllowHeadersKey() {
+        return "Access-Control-Allow-Headers";
+    }
+
+    /**
      * Gets the http User Agent key.
      *
      * @return The http user agent key.

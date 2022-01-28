@@ -75,11 +75,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
         try {
             authorization = null;
             cookies = null;
-            connect();
+            connect(new URL(urlString));
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
-                addBasicAuth(connection);
+                addBasicAuth(connection.getURL());
                 responseCode = connection.getResponseCode();
             }
 
@@ -88,7 +88,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             } else {
                 InputStream stream = connection.getInputStream();
                 String encoding = connection.getHeaderField(HttpUtils.getInstance().getContentEncodingKey());
-                if(encoding != null && encoding.equals("gzip")) {
+                if (encoding != null && encoding.equals("gzip")) {
                     stream = new GZIPInputStream(stream);
                 }
                 this.handler.handleResponse(stream, responseCode);
@@ -108,13 +108,13 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Adds basic auth to the connection.
      *
-     * @param connection The connection to add basic auth to.
+     * @param url The connection to add basic auth to.
      */
-    private void addBasicAuth(HttpURLConnection connection) {
+    private void addBasicAuth(URL url) {
         if (loggerInner == null) {
             loggerInner = new UserLoggerInner(activity);
         }
-        loggerInner.login(connection.getURL(), this);
+        loggerInner.login(url, this);
     }
 
     /**
@@ -138,23 +138,21 @@ public class HttpGetRequest implements Runnable, Authenticator {
         connection.addRequestProperty("Sec-Fetch-Mode", "cors");
         connection.addRequestProperty("Sec-Fetch-Site", "cross-site");
 
-        if(authorization != null) {
+        if (authorization != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
-        }
-
-        if(cookies != null) {
+            authorization = null;
+        } else if (cookies != null) {
             int index = 0;
-            for(String cookie : cookies) {
-                if(index == 1)
+            for (String cookie : cookies) {
+                if (index == 1)
                     connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
                 index++;
             }
         }
     }
 
-    private void connect() {
+    private void connect(URL url) {
         try {
-            URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(false);
             configureRequest(connection);
@@ -162,7 +160,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
             Log.i(HttpGetRequest.class.getSimpleName(), " ");
             Log.i(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
-            for(Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+            for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
                 Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
             }
             connection.connect();
@@ -178,7 +176,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
                 String redirect = connection.getHeaderField(HttpUtils.getInstance().getLocationKey());
-                if(!redirect.startsWith("http")) {
+                if (!redirect.startsWith("http")) {
                     URL original = new URL(urlString);
                     String hostAndPort = original.getAuthority();
                     String protocol = original.getProtocol();
@@ -187,20 +185,26 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 }
                 connection.disconnect();
                 url = new URL(redirect);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setInstanceFollowRedirects(false);
-                configureRequest(connection);
-                Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
-                for(Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
-                    Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+
+                if (needsAuthorization()) {
+                    addBasicAuth(url);
+                    break;
+                } else {
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setInstanceFollowRedirects(false);
+                    configureRequest(connection);
+                    Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
+                    for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+                        Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+                    }
+                    connection.connect();
+                    responseCode = connection.getResponseCode();
+                    Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+                    for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                        Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                    }
+                    checkCookie();
                 }
-                connection.connect();
-                responseCode = connection.getResponseCode();
-                Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
-                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                    Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
-                }
-                checkCookie();
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
@@ -208,11 +212,28 @@ public class HttpGetRequest implements Runnable, Authenticator {
     }
 
     /**
+     * Checks to see the redirect needs a username and password.
+     *
+     * @return True if the redirect needs a password, false otherwise.
+     */
+    private boolean needsAuthorization() {
+        boolean needsAuthorizing = false;
+
+        List<String> allowHeaders = connection.getHeaderFields().get(HttpUtils.getInstance().getAllowHeadersKey());
+        if (allowHeaders != null && allowHeaders.contains("authorization")) {
+            needsAuthorizing = true;
+            Log.i(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
+        }
+
+        return needsAuthorizing;
+    }
+
+    /**
      * Checks to see if the response has a cookie.
      */
     private void checkCookie() {
         List<String> cookies = connection.getHeaderFields().get(HttpUtils.getInstance().getSetCookieKey());
-        if(cookies != null && !cookies.isEmpty()) {
+        if (cookies != null && !cookies.isEmpty()) {
             this.cookies = cookies;
             Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookies);
         }
@@ -230,7 +251,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             String usernamePass = userName + ":" + password;
             authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
             Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + urlString);
-            connect();
+            connect(url);
             int responseCode = connection.getResponseCode();
             authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;
         } catch (IOException e) {

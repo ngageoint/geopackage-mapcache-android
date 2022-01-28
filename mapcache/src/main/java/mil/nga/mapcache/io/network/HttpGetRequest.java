@@ -220,15 +220,12 @@ public class HttpGetRequest implements Runnable, Authenticator {
     private boolean needsAuthorization() {
         boolean needsAuthorizing = false;
 
-        List<String> allowHeaders = connection.getHeaderFields().get(HttpUtils.getInstance().getAllowHeadersKey());
+        String allowHeaders = connection.getHeaderField(HttpUtils.getInstance().getAllowHeadersKey());
         if (allowHeaders != null) {
-            for(String allowHeader : allowHeaders) {
-                Log.i(HttpGetRequest.class.getSimpleName(), "Allow header: " + allowHeader);
-                if("authorization".equals(allowHeader.toLowerCase(Locale.ROOT))) {
-                    needsAuthorizing = true;
-                    Log.i(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
-                    break;
-                }
+            Log.i(HttpGetRequest.class.getSimpleName(), "Allow header: " + allowHeaders);
+            if(allowHeaders.toLowerCase(Locale.ROOT).contains("authorization")) {
+                needsAuthorizing = true;
+                Log.i(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
             }
         }
 

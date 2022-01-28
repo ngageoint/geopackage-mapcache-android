@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPInputStream;
 
 import mil.nga.mapcache.auth.Authenticator;
 import mil.nga.mapcache.auth.UserLoggerInner;
@@ -86,6 +87,10 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 this.handler.handleResponse(null, responseCode);
             } else {
                 InputStream stream = connection.getInputStream();
+                String encoding = connection.getHeaderField(HttpUtils.getInstance().getContentEncodingKey());
+                if(encoding != null && encoding.equals("gzip")) {
+                    stream = new GZIPInputStream(stream);
+                }
                 this.handler.handleResponse(stream, responseCode);
                 if (this.handler instanceof AuthorizationConsumer) {
                     ((AuthorizationConsumer) this.handler).setAuthorizationValue(this.authorization);
@@ -123,16 +128,15 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 HttpUtils.getInstance().getUserAgentValue(activity));
 
         // Used for debugging connection issues
-        connection.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-        connection.addRequestProperty("Accept-Language", "en-US,en;q=0.9");
-        connection.addRequestProperty("Cache-Control", "no-cache");
+        connection.addRequestProperty("Accept", "application/json, text/plain, */*");
+        connection.addRequestProperty("Accept-Encoding", "gzip, deflate, br");
+        connection.addRequestProperty("Accept-Language", "en-US");
         connection.addRequestProperty("Connection", "keep-alive");
         connection.addRequestProperty("Host", connection.getURL().getAuthority());
-        connection.addRequestProperty("Sec-Fetch-Dest", "document");
-        connection.addRequestProperty("Sec-Fetch-Mode", "navigate");
-        connection.addRequestProperty("Sec-Fetch-Site", "none");
-        connection.addRequestProperty("Sec-Fetch-User", "?1");
-        connection.addRequestProperty("Upgrade-Insecure-Requests", "1");
+        connection.addRequestProperty("Origin", null);
+        connection.addRequestProperty("Sec-Fetch-Dest", "empty");
+        connection.addRequestProperty("Sec-Fetch-Mode", "cors");
+        connection.addRequestProperty("Sec-Fetch-Site", "cross-site");
 
         if(authorization != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
@@ -192,11 +196,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 }
                 connection.connect();
                 responseCode = connection.getResponseCode();
-                checkCookie();
                 Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
                 for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
                     Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
                 }
+                checkCookie();
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);

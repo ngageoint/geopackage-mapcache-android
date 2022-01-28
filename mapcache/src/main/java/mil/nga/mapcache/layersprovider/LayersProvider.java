@@ -63,6 +63,7 @@ public class LayersProvider implements IResponseHandler, AuthorizationConsumer {
     public void retrieveLayers(String url) {
         if (url.toLowerCase().contains("wms")) {
             String capabilitiesUrl = url + "?request=GetCapabilities&version=1.3.0&service=WMS";
+            this.url = capabilitiesUrl;
             HttpClient.getInstance().sendGet(capabilitiesUrl, this, this.activity);
         } else {
             model.setLayers(new LayerModel[0]);
@@ -92,7 +93,7 @@ public class LayersProvider implements IResponseHandler, AuthorizationConsumer {
             } catch (ParserConfigurationException | SAXException | IOException e) {
                 model.setLayers(new LayerModel[0]);
                 Log.e(LayersProvider.class.getSimpleName(),
-                        "Unable to parse WMS GetCapabilities document", e);
+                        "Unable to parse WMS GetCapabilities document for " + this.url, e);
             }
         } else {
             activity.runOnUiThread(new Runnable() {

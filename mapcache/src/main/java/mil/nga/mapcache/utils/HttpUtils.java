@@ -70,6 +70,15 @@ public class HttpUtils {
     }
 
     /**
+     * Gets the content encoding header key.
+     *
+     * @return The content encoding header key.
+     */
+    public String getContentEncodingKey() {
+        return "Content-Encoding";
+    }
+
+    /**
      * Gets this apps user agent value.
      *
      * @param activity Used to get the apps name and version.

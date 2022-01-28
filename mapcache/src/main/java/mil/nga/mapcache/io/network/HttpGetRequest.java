@@ -172,6 +172,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
             }
             checkCookie();
+            int index = 0;
             while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -188,7 +189,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 connection.disconnect();
                 url = new URL(redirect);
 
-                if (!backToOrigin && needsAuthorization()) {
+                if (!backToOrigin && index == 1) {
                     addBasicAuth(url);
                     break;
                 } else {
@@ -206,6 +207,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                         Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
                     }
                     checkCookie();
+                    index++;
                 }
             }
         } catch (IOException e) {

@@ -48,15 +48,15 @@ public class HttpClient {
      * @param activity Used to get the app name and version for the user agent.
      */
     public void sendGet(String url, IResponseHandler handler, Activity activity) {
-        //HttpGetRequest request = new HttpGetRequest(url, handler, activity);
-        //hreadUtils.getInstance().runBackground(request);
-        if(queue == null) {
+        HttpGetRequest request = new HttpGetRequest(url, handler, activity);
+        ThreadUtils.getInstance().runBackground(request);
+        /*if(queue == null) {
             queue = Volley.newRequestQueue(activity);
         }
 
         // Request a string response from the provided URL.
         VolleyGetRequest request = new VolleyGetRequest(url, handler);
-        queue.add(request);
+        queue.add(request);*/
     }
 
     /**

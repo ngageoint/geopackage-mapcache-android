@@ -222,6 +222,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
+                authorization = null;
                 String redirect = connection.getHeaderField(HttpUtils.getInstance().getLocationKey());
                 boolean backToOrigin = false;
                 if (!redirect.startsWith("http")) {
@@ -255,8 +256,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     checkCookie();
                     index++;
                 }
-
-                authorization = null;
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);

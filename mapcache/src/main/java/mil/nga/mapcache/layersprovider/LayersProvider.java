@@ -73,7 +73,7 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
 
     @Override
     public void handleResponse(InputStream stream, int responseCode) {
-        if(stream != null && responseCode == HttpURLConnection.HTTP_OK) {
+        if (stream != null && responseCode == HttpURLConnection.HTTP_OK) {
             CapabilitiesParser parser = new CapabilitiesParser();
             try {
                 final WMSCapabilities capabilities = parser.parse(stream);
@@ -92,7 +92,12 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
                     }
                 });
             } catch (ParserConfigurationException | SAXException | IOException e) {
-                model.setLayers(new LayerModel[0]);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.setLayers(new LayerModel[0]);
+                    }
+                });
                 Log.e(LayersProvider.class.getSimpleName(),
                         "Unable to parse WMS GetCapabilities document for " + this.url, e);
             }

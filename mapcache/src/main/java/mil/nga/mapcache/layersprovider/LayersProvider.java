@@ -10,11 +10,12 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import mil.nga.mapcache.io.network.AuthorizationConsumer;
+import mil.nga.mapcache.io.network.RequestHeaderConsumer;
 import mil.nga.mapcache.io.network.HttpClient;
 import mil.nga.mapcache.io.network.IResponseHandler;
 import mil.nga.mapcache.ogc.wms.CapabilitiesParser;
@@ -25,7 +26,7 @@ import mil.nga.mapcache.ogc.wms.WMSCapabilities;
  * Provides the layers from a particular tile server if that tile server has multiple layers.
  * Otherwise it will populate the model with an empty array of layers.
  */
-public class LayersProvider implements IResponseHandler, AuthorizationConsumer {
+public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
 
     /**
      * The activity used to get back on the main thread.
@@ -168,7 +169,7 @@ public class LayersProvider implements IResponseHandler, AuthorizationConsumer {
     }
 
     @Override
-    public void setAuthorizationValue(String value) {
-        model.setAuthorization(value);
+    public void setRequestHeaders(Map<String, List<String>> headers) {
+        model.setRequestHeaders(headers);
     }
 }

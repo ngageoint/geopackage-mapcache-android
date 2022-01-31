@@ -1,5 +1,7 @@
 package mil.nga.mapcache.layersprovider;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 
 /**
@@ -25,7 +27,7 @@ public class LayersModel extends Observable {
     /**
      * The authorization property.
      */
-    public static String AUTORIZATION_PROP = "authorization";
+    public static String REQUEST_HEADERS_PROP = "requestHeaders";
 
     /**
      * The title property.
@@ -33,9 +35,9 @@ public class LayersModel extends Observable {
     public static String TITLE_PROP = "title";
 
     /**
-     * Contains the basic authorization used when retrieving the layers.
+     * Contains the request headers used when retrieving the layers.
      */
-    private String authorization = null;
+    private Map<String, List<String>> requestHeaders = null;
 
     /**
      * The available image formats for the tiles.
@@ -58,21 +60,23 @@ public class LayersModel extends Observable {
     private String title = "Choose your layer";
 
     /**
-     * Gets the basic authorization used when retrieving the layers.
+     * Gets the request headers used when retrieving the layers.
      *
-     * @return The basic authorization value, or null if one was not used.
+     * @return The request headers, or null if one was not used.
      */
-    public String getAuthorization() {
-        return authorization;
+    public Map<String, List<String>> getRequestHeaders() {
+        return requestHeaders;
     }
 
     /**
-     * @param authorization
+     * Sets the request headers used when retrieving the layers.
+     *
+     * @param requestHeaders The request header.
      */
-    public void setAuthorization(String authorization) {
-        this.authorization = authorization;
+    public void setRequestHeaders(Map<String, List<String>> requestHeaders) {
+        this.requestHeaders = requestHeaders;
         setChanged();
-        notifyObservers();
+        notifyObservers(REQUEST_HEADERS_PROP);
     }
 
     /**

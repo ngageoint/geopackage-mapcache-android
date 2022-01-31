@@ -6,9 +6,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -105,8 +102,21 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     stream = new GZIPInputStream(stream);
                 }
                 this.handler.handleResponse(stream, responseCode);
-                if (this.handler instanceof AuthorizationConsumer) {
-                    ((AuthorizationConsumer) this.handler).setAuthorizationValue(this.authorization);
+                if (this.handler instanceof RequestHeaderConsumer) {
+                    Map<String, List<String>> headers = new HashMap<>();
+                    if(this.authorization != null) {
+                        headers.put(HttpUtils.getInstance().getBasicAuthKey(), new ArrayList<>());
+                        headers.get(HttpUtils.getInstance().getBasicAuthKey()).add(this.authorization);
+                    }
+
+                    if(this.cookies != null) {
+                        List<String> cookieValues = new ArrayList<>();
+                        for(String cookie : this.cookies.values()) {
+                            cookieValues.add(cookie);
+                        }
+                        headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
+                    }
+                    ((RequestHeaderConsumer) this.handler).setRequestHeaders(headers);
                 }
             }
         } catch (IOException e) {
@@ -175,7 +185,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
         if (authorization != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
-            authorization = null;
         } else if (cookies != null) {
             for (String cookie : cookies.values()) {
                 connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
@@ -246,6 +255,8 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     checkCookie();
                     index++;
                 }
+
+                authorization = null;
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);

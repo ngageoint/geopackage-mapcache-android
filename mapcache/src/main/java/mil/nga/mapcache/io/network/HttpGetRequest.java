@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * A cookie to set in request if need be.
      */
-    private List<String> cookies = null;
+    private Map<String, String> cookies = null;
 
     /**
      * Constructs a new HttpGetRequest.
@@ -110,6 +111,28 @@ public class HttpGetRequest implements Runnable, Authenticator {
         }
     }
 
+    @Override
+    public boolean authenticate(URL url, String userName, String password) {
+        boolean authorized = false;
+
+        try {
+            if (connection != null) {
+                connection.disconnect();
+            }
+
+            String usernamePass = userName + ":" + password;
+            authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
+            Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + urlString);
+            connect(url);
+            int responseCode = connection.getResponseCode();
+            authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;
+        } catch (IOException e) {
+            Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
+        }
+
+        return authorized;
+    }
+
     /**
      * Adds basic auth to the connection.
      *
@@ -147,12 +170,17 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
             authorization = null;
         } else if (cookies != null) {
-            for (String cookie : cookies) {
+            for (String cookie : cookies.values()) {
                 connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
             }
         }
     }
 
+    /**
+     * Connects to the specified url.
+     *
+     * @param url The url to connect to.
+     */
     private void connect(URL url) {
         try {
             connection = (HttpURLConnection) url.openConnection();
@@ -244,34 +272,13 @@ public class HttpGetRequest implements Runnable, Authenticator {
         List<String> cookies = connection.getHeaderFields().get(HttpUtils.getInstance().getSetCookieKey());
         if (cookies != null && !cookies.isEmpty()) {
             if (this.cookies == null) {
-                this.cookies = new ArrayList<>();
+                this.cookies = new HashMap<>();
             }
-            this.cookies.addAll(cookies);
             for (String cookie : cookies) {
                 Log.i(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
+                String [] nameValue = cookie.split("=", 2);
+                this.cookies.put(nameValue[0], cookie);
             }
         }
-    }
-
-    @Override
-    public boolean authenticate(URL url, String userName, String password) {
-        boolean authorized = false;
-
-        try {
-            if (connection != null) {
-                connection.disconnect();
-            }
-
-            String usernamePass = userName + ":" + password;
-            authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
-            Log.i(HttpGetRequest.class.getSimpleName(), "Authenticating to " + urlString);
-            connect(url);
-            int responseCode = connection.getResponseCode();
-            authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;
-        } catch (IOException e) {
-            Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
-        }
-
-        return authorized;
     }
 }

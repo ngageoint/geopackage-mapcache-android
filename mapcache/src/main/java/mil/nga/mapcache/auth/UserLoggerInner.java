@@ -42,8 +42,8 @@ public class UserLoggerInner {
      * and password is not found in the AccountManager or if authentication fails, we will then
      * prompt the user for a username and password authenticate and then store it for later use.
      *
-     * @param url
-     * @param IAuthenticator
+     * @param url            The url to login to.
+     * @param IAuthenticator Object that knows how to authenticate user against the url.
      */
     public void login(URL url, Authenticator IAuthenticator) {
         String host = url.getAuthority();
@@ -52,13 +52,13 @@ public class UserLoggerInner {
 
         boolean authenticated = false;
         if (accounts != null && accounts.length > 0) {
-            for(Account account : accounts) {
+            for (Account account : accounts) {
                 String[] split = account.name.split(" - ");
-                if(split[1].equals(host)) {
+                if (split[1].equals(host)) {
                     String userName = split[0];
                     String password = accountManager.getPassword(account);
                     authenticated = IAuthenticator.authenticate(url, userName, password);
-                    if(!authenticated) {
+                    if (!authenticated) {
                         accountManager.removeAccount(account, null, null);
                     }
                     break;

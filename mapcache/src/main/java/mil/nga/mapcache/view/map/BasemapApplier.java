@@ -167,8 +167,13 @@ public class BasemapApplier {
 
         for (String serverName : serversToRemove) {
             Map<String, TileOverlay> providers = currentProviders.get(serverName);
+            List<String> providersToRemove = new ArrayList<>();
             for (Map.Entry<String, TileOverlay> entry : providers.entrySet()) {
-                removeLayer(serverName, entry.getKey());
+                providersToRemove.add(entry.getKey());
+            }
+
+            for(String provider : providersToRemove) {
+                removeLayer(serverName, provider);
             }
         }
     }

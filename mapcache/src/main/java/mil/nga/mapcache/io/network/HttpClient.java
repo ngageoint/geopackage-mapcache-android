@@ -3,14 +3,6 @@ package mil.nga.mapcache.io.network;
 import android.app.Activity;
 import android.util.Base64;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +20,6 @@ public class HttpClient {
      * The instance of this class.
      */
     private static final HttpClient instance = new HttpClient();
-
-    private RequestQueue queue;
 
     /**
      * Gets the instance of this class.
@@ -50,13 +40,6 @@ public class HttpClient {
     public void sendGet(String url, IResponseHandler handler, Activity activity) {
         HttpGetRequest request = new HttpGetRequest(url, handler, activity);
         ThreadUtils.getInstance().runBackground(request);
-        /*if(queue == null) {
-            queue = Volley.newRequestQueue(activity);
-        }
-
-        // Request a string response from the provided URL.
-        VolleyGetRequest request = new VolleyGetRequest(url, handler);
-        queue.add(request);*/
     }
 
     /**

@@ -29,7 +29,11 @@ public class XYZResponseHandler implements IResponseHandler {
     @Override
     public synchronized void handleResponse(InputStream stream, int responseCode) {
         try {
-            bytes = GeoPackageIOUtils.streamBytes(stream);
+            if(stream != null) {
+                bytes = GeoPackageIOUtils.streamBytes(stream);
+            } else {
+                Log.e(XYZResponseHandler.class.getSimpleName(), "Stream is null, response code " + responseCode);
+            }
         } catch (IOException e) {
             Log.e(XYZResponseHandler.class.getSimpleName(), e.getMessage(), e);
         } finally {

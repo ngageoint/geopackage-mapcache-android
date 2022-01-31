@@ -64,24 +64,31 @@ public class HttpGetRequest implements Runnable, Authenticator {
     private Map<String, String> cookies = null;
 
     /**
+     * Contains any previously saved cookies.
+     */
+    private CookieJar allCookies;
+
+    /**
      * Constructs a new HttpGetRequest.
      *
      * @param url      The url of the get request.
      * @param handler  Object this is called when request is completed.
      * @param activity Used to get the app name and version for the user agent.
      */
-    public HttpGetRequest(String url, IResponseHandler handler, Activity activity) {
+    public HttpGetRequest(String url, IResponseHandler handler, CookieJar allCookies, Activity activity) {
         this.urlString = url;
         this.handler = handler;
         this.activity = activity;
+        this.allCookies = allCookies;
     }
 
     @Override
     public void run() {
         try {
             authorization = null;
-            cookies = null;
-            connect(new URL(urlString));
+            URL url = new URL(urlString);
+            cookies = allCookies.getCookies(url.getHost());
+            connect(url);
 
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
@@ -268,7 +275,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Checks to see if the response has a cookie.
      */
-    private void checkCookie() {
+    private void checkCookie() throws MalformedURLException {
         List<String> cookies = connection.getHeaderFields().get(HttpUtils.getInstance().getSetCookieKey());
         if (cookies != null && !cookies.isEmpty()) {
             if (this.cookies == null) {
@@ -279,6 +286,8 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 String [] nameValue = cookie.split("=", 2);
                 this.cookies.put(nameValue[0], cookie);
             }
+            URL originalUrl = new URL(urlString);
+            allCookies.storeCookies(originalUrl.getHost(), this.cookies);
         }
     }
 }

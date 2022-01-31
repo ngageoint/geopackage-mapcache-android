@@ -1,11 +1,6 @@
 package mil.nga.mapcache.io.network;
 
 import android.app.Activity;
-import android.util.Base64;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +38,7 @@ public class HttpClient implements CookieJar {
      * @param activity Used to get the app name and version for the user agent.
      */
     public void sendGet(String url, IResponseHandler handler, Activity activity) {
-        HttpGetRequest request = new HttpGetRequest(url, handler, activity);
+        HttpGetRequest request = new HttpGetRequest(url, handler, this, activity);
         ThreadUtils.getInstance().runBackground(request);
     }
 

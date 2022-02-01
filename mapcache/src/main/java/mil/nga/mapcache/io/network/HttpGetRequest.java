@@ -26,6 +26,11 @@ import mil.nga.mapcache.utils.HttpUtils;
 public class HttpGetRequest implements Runnable, Authenticator {
 
     /**
+     * Used to turn debug logging on.
+     */
+    private static boolean isDebug = false;
+
+    /**
      * The url of the get request.
      */
     private String urlString;
@@ -88,7 +93,8 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connect(url);
 
             int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && urlString.startsWith("https")) {
+            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
+                    && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
                 addBasicAuth(connection.getURL());
                 responseCode = connection.getResponseCode();
             }
@@ -104,14 +110,14 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 this.handler.handleResponse(stream, responseCode);
                 if (this.handler instanceof RequestHeaderConsumer) {
                     Map<String, List<String>> headers = new HashMap<>();
-                    if(this.authorization != null) {
+                    if (this.authorization != null) {
                         headers.put(HttpUtils.getInstance().getBasicAuthKey(), new ArrayList<>());
                         headers.get(HttpUtils.getInstance().getBasicAuthKey()).add(this.authorization);
                     }
 
-                    if(this.cookies != null) {
+                    if (this.cookies != null) {
                         List<String> cookieValues = new ArrayList<>();
-                        for(String cookie : this.cookies.values()) {
+                        for (String cookie : this.cookies.values()) {
                             cookieValues.add(cookie);
                         }
                         headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
@@ -139,7 +145,8 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
             String usernamePass = userName + ":" + password;
             authorization = "Basic " + Base64.encodeToString(usernamePass.getBytes(), Base64.NO_WRAP);
-            Log.d(HttpGetRequest.class.getSimpleName(), "Authenticating to " + urlString);
+            if (isDebug)
+                Log.d(HttpGetRequest.class.getSimpleName(), "Authenticating to " + urlString);
             connect(url);
             int responseCode = connection.getResponseCode();
             authorized = responseCode != HttpURLConnection.HTTP_UNAUTHORIZED;
@@ -202,20 +209,21 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(false);
             configureRequest(connection);
-            Log.d(HttpGetRequest.class.getSimpleName(), " ");
-            Log.d(HttpGetRequest.class.getSimpleName(), " ");
-            Log.d(HttpGetRequest.class.getSimpleName(), " ");
-            Log.d(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
-            for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
-                Log.d(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+            if (isDebug) {
+                Log.d(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
+                for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+                    Log.d(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+                }
             }
             connection.connect();
 
             int responseCode = connection.getResponseCode();
 
-            Log.d(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
-            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                Log.d(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+            if (isDebug) {
+                Log.d(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                    Log.d(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                }
             }
             checkCookie();
             int index = 0;
@@ -237,15 +245,19 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setInstanceFollowRedirects(false);
                 configureRequest(connection);
-                Log.d(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
-                for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
-                    Log.d(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+                if (isDebug) {
+                    Log.d(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
+                    for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+                        Log.d(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
+                    }
                 }
                 connection.connect();
                 responseCode = connection.getResponseCode();
-                Log.d(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
-                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                    Log.d(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                if (isDebug) {
+                    Log.d(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+                    for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                        Log.d(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                    }
                 }
                 checkCookie();
                 index++;
@@ -253,26 +265,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
         }
-    }
-
-    /**
-     * Checks to see the redirect needs a username and password.
-     *
-     * @return True if the redirect needs a password, false otherwise.
-     */
-    private boolean needsAuthorization() {
-        boolean needsAuthorizing = false;
-
-        String allowHeaders = connection.getHeaderField(HttpUtils.getInstance().getAllowHeadersKey());
-        if (allowHeaders != null) {
-            Log.d(HttpGetRequest.class.getSimpleName(), "Allow header: " + allowHeaders);
-            if (allowHeaders.toLowerCase(Locale.ROOT).contains("authorization")) {
-                needsAuthorizing = true;
-                Log.d(HttpGetRequest.class.getSimpleName(), "Needs authorizing");
-            }
-        }
-
-        return needsAuthorizing;
     }
 
     /**
@@ -285,8 +277,9 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 this.cookies = new HashMap<>();
             }
             for (String cookie : cookies) {
-                Log.d(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
-                String [] nameValue = cookie.split("=", 2);
+                if (isDebug)
+                    Log.d(HttpGetRequest.class.getSimpleName(), "Cookie found: " + cookie);
+                String[] nameValue = cookie.split("=", 2);
                 this.cookies.put(nameValue[0], cookie);
             }
             URL originalUrl = new URL(urlString);

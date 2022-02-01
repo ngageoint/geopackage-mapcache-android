@@ -11,6 +11,7 @@ import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
 
 import mil.nga.mapcache.io.network.HttpClient;
+import mil.nga.mapcache.io.network.HttpGetRequest;
 
 /**
  * Abstract TileProvider that handles downloading the image and creating tiles but depends on
@@ -19,15 +20,21 @@ import mil.nga.mapcache.io.network.HttpClient;
 public abstract class BaseTileProvider implements TileProvider {
 
     /**
+     * Used to turn debug logging on.
+     */
+    private static boolean isDebug = false;
+
+    /**
      * The activity used to ask username and password if necessary.
      */
     private Activity activity;
 
     /**
      * Constructor.
+     *
      * @param activity Used to ask username and password if necessary.
      */
-    public BaseTileProvider(Activity activity){
+    public BaseTileProvider(Activity activity) {
         this.activity = activity;
     }
 
@@ -37,13 +44,16 @@ public abstract class BaseTileProvider implements TileProvider {
         Tile tile = null;
 
         String url = getTileUrl(x, y, z);
-        Log.i(BaseTileProvider.class.getSimpleName(), "Downloading image from " + url);
+        if (isDebug)
+            Log.d(BaseTileProvider.class.getSimpleName(), "Downloading image from " + url);
         if (url != null) {
             byte[] image = downloadImage(url);
             if (image != null) {
-                Log.i(BaseTileProvider.class.getSimpleName(), url + " image bytes length " + image.length);
+                if (isDebug)
+                    Log.d(BaseTileProvider.class.getSimpleName(), url + " image bytes length " + image.length);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
-                Log.i(BaseTileProvider.class.getSimpleName(), url + " bitmap height and width " + bitmap.getHeight() + " " + bitmap.getWidth());
+                if (isDebug)
+                    Log.d(BaseTileProvider.class.getSimpleName(), url + " bitmap height and width " + bitmap.getHeight() + " " + bitmap.getWidth());
                 tile = new Tile(bitmap.getWidth(), bitmap.getHeight(), image);
             }
         }

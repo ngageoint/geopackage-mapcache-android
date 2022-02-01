@@ -37,10 +37,13 @@ public abstract class BaseTileProvider implements TileProvider {
         Tile tile = null;
 
         String url = getTileUrl(x, y, z);
+        Log.i(BaseTileProvider.class.getSimpleName(), "Downloading image from " + url);
         if (url != null) {
             byte[] image = downloadImage(url);
             if (image != null) {
+                Log.i(BaseTileProvider.class.getSimpleName(), url + " image bytes length " + image.length);
                 Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
+                Log.i(BaseTileProvider.class.getSimpleName(), url + " bitmap height and width " + bitmap.getHeight() + " " + bitmap.getWidth());
                 tile = new Tile(bitmap.getWidth(), bitmap.getHeight(), image);
             }
         }
@@ -66,7 +69,7 @@ public abstract class BaseTileProvider implements TileProvider {
      * @return The image data.
      */
     private synchronized byte[] downloadImage(String url) {
-        XYZResponseHandler handler = new XYZResponseHandler();
+        TileResponseHandler handler = new TileResponseHandler();
         synchronized (handler) {
             HttpClient.getInstance().sendGet(url.toString(), handler, this.activity);
 

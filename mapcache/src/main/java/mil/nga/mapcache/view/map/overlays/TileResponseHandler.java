@@ -11,7 +11,7 @@ import mil.nga.mapcache.io.network.IResponseHandler;
 /**
  * Response handler used for xyz tile downloads.
  */
-public class XYZResponseHandler implements IResponseHandler {
+public class TileResponseHandler implements IResponseHandler {
 
     /**
      * The tile's image bytes.
@@ -32,10 +32,10 @@ public class XYZResponseHandler implements IResponseHandler {
             if(stream != null) {
                 bytes = GeoPackageIOUtils.streamBytes(stream);
             } else {
-                Log.e(XYZResponseHandler.class.getSimpleName(), "Stream is null, response code " + responseCode);
+                Log.e(TileResponseHandler.class.getSimpleName(), "Stream is null, response code " + responseCode);
             }
         } catch (IOException e) {
-            Log.e(XYZResponseHandler.class.getSimpleName(), e.getMessage(), e);
+            Log.e(TileResponseHandler.class.getSimpleName(), e.getMessage(), e);
         } finally {
             notify();
         }
@@ -43,7 +43,7 @@ public class XYZResponseHandler implements IResponseHandler {
 
     @Override
     public synchronized void handleException(IOException exception) {
-        Log.e(XYZResponseHandler.class.getSimpleName(), exception.getMessage(), exception);
+        Log.e(TileResponseHandler.class.getSimpleName(), exception.getMessage(), exception);
         notify();
     }
 

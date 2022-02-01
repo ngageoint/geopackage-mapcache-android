@@ -110,7 +110,7 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
             });
             Log.e(
                     LayersProvider.class.getSimpleName(),
-                    "Unable to download WMS GetCapabilities document http response " + responseCode);
+                    "Unable to download WMS GetCapabilities document from " + url + " http response " + responseCode);
         }
     }
 
@@ -122,7 +122,7 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
                 model.setLayers(new LayerModel[0]);
             }
         });
-        Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed: ", exception);
+        Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed for " + url + ": ", exception);
     }
 
     /**

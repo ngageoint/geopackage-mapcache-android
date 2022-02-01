@@ -224,38 +224,31 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
                 authorization = null;
                 String redirect = connection.getHeaderField(HttpUtils.getInstance().getLocationKey());
-                boolean backToOrigin = false;
                 if (!redirect.startsWith("http")) {
                     URL original = new URL(urlString);
                     String hostAndPort = original.getAuthority();
                     String protocol = original.getProtocol();
                     redirect = protocol + "://" + hostAndPort + redirect;
                     authorization = null;
-                    backToOrigin = true;
                 }
                 connection.disconnect();
                 url = new URL(redirect);
 
-                if (!backToOrigin && needsAuthorization()) {
-                    addBasicAuth(url);
-                    break;
-                } else {
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setInstanceFollowRedirects(false);
-                    configureRequest(connection);
-                    Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
-                    for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
-                        Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
-                    }
-                    connection.connect();
-                    responseCode = connection.getResponseCode();
-                    Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
-                    for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-                        Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
-                    }
-                    checkCookie();
-                    index++;
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setInstanceFollowRedirects(false);
+                configureRequest(connection);
+                Log.i(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
+                for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
+                    Log.i(HttpGetRequest.class.getSimpleName(), entry.getKey() + ": " + entry.getValue());
                 }
+                connection.connect();
+                responseCode = connection.getResponseCode();
+                Log.i(HttpGetRequest.class.getSimpleName(), "Response code " + responseCode + " " + url);
+                for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                    Log.i(HttpGetRequest.class.getSimpleName(), entries.getKey() + ": " + entries.getValue());
+                }
+                checkCookie();
+                index++;
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);

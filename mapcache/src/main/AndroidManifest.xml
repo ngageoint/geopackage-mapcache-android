@@ -130,7 +130,7 @@
 
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" /> <!-- We haven't defined this -->
+                android:resource="@xml/authenticator" />
         </service>
     </application>
 

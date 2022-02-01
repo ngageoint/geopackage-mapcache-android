@@ -13,7 +13,7 @@ import java.net.URL;
 public class UserLoggerInner {
 
     /**
-     *
+     * Unique string identifying map cache saved accounts.
      */
     private static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache";
 

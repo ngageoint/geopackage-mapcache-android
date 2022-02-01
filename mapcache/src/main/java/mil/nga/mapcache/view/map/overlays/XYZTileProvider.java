@@ -51,11 +51,6 @@ public class XYZTileProvider extends BaseTileProvider {
     private String xyzUrl;
 
     /**
-     * The tile image bytes.
-     */
-    private byte[] bytes = null;
-
-    /**
      * Constructor.
      *
      * @param xyzUrl The url containing the {x}, {y}, {z} string value to be replaced.

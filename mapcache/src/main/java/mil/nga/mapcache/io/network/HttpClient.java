@@ -49,12 +49,12 @@ public class HttpClient implements CookieJar {
     }
 
     @Override
-    public void storeCookies(String host, Map<String, String> cookies) {
+    public synchronized void storeCookies(String host, Map<String, String> cookies) {
         allCookies.put(host, cookies);
     }
 
     @Override
-    public Map<String, String> getCookies(String host) {
+    public synchronized Map<String, String> getCookies(String host) {
         return allCookies.get(host);
     }
 }

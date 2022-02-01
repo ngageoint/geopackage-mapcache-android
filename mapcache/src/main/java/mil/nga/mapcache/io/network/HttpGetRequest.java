@@ -88,7 +88,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
             connect(url);
 
             int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED && urlString.startsWith("https")) {
                 addBasicAuth(connection.getURL());
                 responseCode = connection.getResponseCode();
             }

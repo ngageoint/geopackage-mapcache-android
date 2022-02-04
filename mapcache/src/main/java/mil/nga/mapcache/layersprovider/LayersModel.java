@@ -1,5 +1,7 @@
 package mil.nga.mapcache.layersprovider;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Observable;
 
 /**
@@ -23,9 +25,19 @@ public class LayersModel extends Observable {
     public static String IMAGE_FORMATS_PROP = "imageFormats";
 
     /**
+     * The authorization property.
+     */
+    public static String REQUEST_HEADERS_PROP = "requestHeaders";
+
+    /**
      * The title property.
      */
     public static String TITLE_PROP = "title";
+
+    /**
+     * Contains the request headers used when retrieving the layers.
+     */
+    private Map<String, List<String>> requestHeaders = null;
 
     /**
      * The available image formats for the tiles.
@@ -46,6 +58,26 @@ public class LayersModel extends Observable {
      * The title to display for the layers view.
      */
     private String title = "Choose your layer";
+
+    /**
+     * Gets the request headers used when retrieving the layers.
+     *
+     * @return The request headers, or null if one was not used.
+     */
+    public Map<String, List<String>> getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    /**
+     * Sets the request headers used when retrieving the layers.
+     *
+     * @param requestHeaders The request header.
+     */
+    public void setRequestHeaders(Map<String, List<String>> requestHeaders) {
+        this.requestHeaders = requestHeaders;
+        setChanged();
+        notifyObservers(REQUEST_HEADERS_PROP);
+    }
 
     /**
      * Gets the available layers from a server.
@@ -109,6 +141,7 @@ public class LayersModel extends Observable {
 
     /**
      * Gets the title.
+     *
      * @return The title.
      */
     public String getTitle() {
@@ -117,6 +150,7 @@ public class LayersModel extends Observable {
 
     /**
      * Sets the title.
+     *
      * @param title The title.
      */
     public void setTitle(String title) {

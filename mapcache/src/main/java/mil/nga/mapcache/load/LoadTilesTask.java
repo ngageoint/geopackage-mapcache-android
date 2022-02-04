@@ -6,7 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PowerManager;
+
+import java.util.List;
+import java.util.Map;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -23,6 +27,7 @@ import mil.nga.geopackage.tiles.features.FeatureTiles;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
+import mil.nga.mapcache.utils.HttpUtils;
 import mil.nga.proj.Projection;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
@@ -54,12 +59,14 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      * @param scaling
      * @param authority
      * @param code
+     * @param headers
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, String database, String tableName,
                                  String tileUrl, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
-                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
+                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code,
+                                 Map<String, List<String>> headers) {
 
         GeoPackageManager manager = GeoPackageFactory.getManager(activity);
         GeoPackage geoPackage = manager.open(database);
@@ -67,11 +74,50 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
         Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bbox = transform(boundingBox, projection);
 
-        TileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
+        UrlTileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
                 tableName, tileUrl, minZoom, maxZoom, bbox, projection);
+        tileGenerator.addHTTPHeaderValue(
+                HttpUtils.getInstance().getUserAgentKey(),
+                HttpUtils.getInstance().getUserAgentValue(activity));
+
+        for(Map.Entry<String, List<String>> header : headers.entrySet()) {
+            for(String value : header.getValue()) {
+                tileGenerator.addHTTPHeaderValue(header.getKey(), value);
+            }
+        }
+
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, boundingBox, scaling);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
+    }
+
+    /**
+     * Load tiles from a URL
+     *
+     * @param activity
+     * @param callback
+     * @param active
+     * @param database
+     * @param tableName
+     * @param tileUrl
+     * @param minZoom
+     * @param maxZoom
+     * @param compressFormat
+     * @param compressQuality
+     * @param xyzTiles
+     * @param boundingBox
+     * @param scaling
+     * @param authority
+     * @param code
+     */
+    public static void loadTiles(Activity activity, ILoadTilesTask callback,
+                                 GeoPackageDatabases active, String database, String tableName,
+                                 String tileUrl, int minZoom, int maxZoom,
+                                 CompressFormat compressFormat, Integer compressQuality,
+                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
+
+        loadTiles(activity, callback, active, database, tableName, tileUrl, minZoom, maxZoom,
+                compressFormat, compressQuality, xyzTiles, boundingBox, scaling, authority, code);
     }
 
     /**
@@ -320,7 +366,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     protected String doInBackground(String... params) {
         try {
             int count = tileGenerator.generateTiles();
-            if(count == 0){
+            if (count == 0) {
                 return "No tiles were generated for your new layer.  This could be an issue with your tile URL or the tile server.  Please verify the server URL and try again.";
             }
             if (count > 0) {

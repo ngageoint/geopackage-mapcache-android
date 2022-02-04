@@ -167,8 +167,13 @@ public class BasemapApplier {
 
         for (String serverName : serversToRemove) {
             Map<String, TileOverlay> providers = currentProviders.get(serverName);
+            List<String> providersToRemove = new ArrayList<>();
             for (Map.Entry<String, TileOverlay> entry : providers.entrySet()) {
-                removeLayer(serverName, entry.getKey());
+                providersToRemove.add(entry.getKey());
+            }
+
+            for(String provider : providersToRemove) {
+                removeLayer(serverName, provider);
             }
         }
     }
@@ -279,9 +284,9 @@ public class BasemapApplier {
         TileProvider tileProvider = null;
 
         if (WMSTileProvider.canProvide(baseUrl)) {
-            tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png");
+            tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png", activity);
         } else if (XYZTileProvider.canProvide(baseUrl)) {
-            tileProvider = new XYZTileProvider(baseUrl);
+            tileProvider = new XYZTileProvider(baseUrl, activity);
         }
 
         return tileProvider;

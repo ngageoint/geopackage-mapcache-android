@@ -4,14 +4,14 @@ def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? REL
 def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY: ''
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
 
     defaultConfig {
         applicationId "mil.nga.mapcache"
         minSdkVersion 19
-        targetSdkVersion 31
-        versionCode 35
-        versionName '1.34'
+        targetSdkVersion 32
+        versionCode 36
+        versionName '1.35'
         multiDexEnabled true
     }
 
@@ -31,13 +31,12 @@ android {
             resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", googleMapsApiKeyDebug
         }
     }
-
     packagingOptions {
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/NOTICE.txt'
+        resources {
+            excludes += ['META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+        }
     }
+
 }
 
 task androidAppVersion {
@@ -49,7 +48,7 @@ task androidAppVersion {
 
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'mil.nga.geopackage.map:geopackage-android-map:6.2.0' // comment out to build locally
+    api 'mil.nga.geopackage.map:geopackage-android-map:6.2.1' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'androidx.multidex:multidex:2.0.1'
     testImplementation 'androidx.multidex:multidex:2.0.1'

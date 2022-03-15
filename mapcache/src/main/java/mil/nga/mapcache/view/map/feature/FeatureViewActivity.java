@@ -471,6 +471,10 @@ public class FeatureViewActivity extends AppCompatActivity {
                     featureViewObjects.getFeatureRow().setValue(fc.getmName(), fc.getmValue());
                 } else if (Double.class.equals(fc.getFormat())) {
                     featureViewObjects.getFeatureRow().setValue(fc.getmName(), Double.parseDouble(fc.getmValue().toString()));
+                } else if (Integer.class.equals(fc.getFormat())) {
+                    featureViewObjects.getFeatureRow().setValue(fc.getmName(), Integer.parseInt(fc.getmValue().toString()));
+                } else if (Long.class.equals(fc.getFormat())) {
+                    featureViewObjects.getFeatureRow().setValue(fc.getmName(), Long.parseLong(fc.getmValue().toString()));
                 } else if (Boolean.class.equals(fc.getFormat())) {
                     featureViewObjects.getFeatureRow().setValue(fc.getmName(), (Boolean) fc.getmValue());
                 } else if (Date.class.equals(fc.getFormat())) {

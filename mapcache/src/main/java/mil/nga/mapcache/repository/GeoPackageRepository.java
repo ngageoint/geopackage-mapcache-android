@@ -770,6 +770,7 @@ public class GeoPackageRepository {
                             UserMappingDao userMappingDao = related.getMappingDao(relation);
                             int totalMappedCount = userMappingDao.count();
                             int totalMediaCount = mediaDao.count();
+                            RelationType relationType = relation.getRelationType();
                             for(Map.Entry map  :  featureViewObjects.getAddedBitmaps().entrySet() ){
                                 Bitmap image = (Bitmap)map.getValue();
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();

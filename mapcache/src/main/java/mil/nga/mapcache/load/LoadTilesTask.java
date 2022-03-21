@@ -79,10 +79,11 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
         tileGenerator.addHTTPHeaderValue(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
-
-        for(Map.Entry<String, List<String>> header : headers.entrySet()) {
-            for(String value : header.getValue()) {
-                tileGenerator.addHTTPHeaderValue(header.getKey(), value);
+        if(headers != null && !headers.isEmpty()) {
+            for (Map.Entry<String, List<String>> header : headers.entrySet()) {
+                for (String value : header.getValue()) {
+                    tileGenerator.addHTTPHeaderValue(header.getKey(), value);
+                }
             }
         }
 

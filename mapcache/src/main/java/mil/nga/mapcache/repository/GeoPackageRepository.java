@@ -765,12 +765,13 @@ public class GeoPackageRepository {
                     }
                     List<ExtendedRelation> relationList = related.getRelationships();
                     for(ExtendedRelation relation : relationList) {
-                        if (relation.getBaseTableName().equalsIgnoreCase(featureViewObjects.getLayerName())) {
+                        RelationType relationType = relation.getRelationType();
+                        if (relation.getBaseTableName().equalsIgnoreCase(featureViewObjects.getLayerName())
+                                && relationType.equals(RelationType.MEDIA)) {
                             MediaDao mediaDao = related.getMediaDao(relation);
                             UserMappingDao userMappingDao = related.getMappingDao(relation);
                             int totalMappedCount = userMappingDao.count();
                             int totalMediaCount = mediaDao.count();
-                            RelationType relationType = relation.getRelationType();
                             for(Map.Entry map  :  featureViewObjects.getAddedBitmaps().entrySet() ){
                                 Bitmap image = (Bitmap)map.getValue();
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();

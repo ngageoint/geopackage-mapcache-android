@@ -388,6 +388,8 @@
         android:layout_width="match_parent"
         android:layout_height="500dp"
         android:background="@drawable/gradient_vertical"
+        android:paddingBottom="90dp"
+        android:clipToPadding="false"
         app:layout_behavior="@string/bottom_sheet_behavior"
         app:behavior_peekHeight="110dp"
         />

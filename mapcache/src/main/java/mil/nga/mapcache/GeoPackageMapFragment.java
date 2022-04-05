@@ -2859,6 +2859,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
             // Add the feature overlay query
             FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
+            featureOverlayQuery.calculateStylePixelBounds();
             featureOverlayQueries.add(featureOverlayQuery);
         }
 
@@ -2957,6 +2958,7 @@ public class GeoPackageMapFragment extends Fragment implements
         featureOverlayTiles = true;
 
         FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
+        featureOverlayQuery.calculateStylePixelBounds();
         featureOverlayQueries.add(featureOverlayQuery);
 
         displayTiles(overlay, contents.getBoundingBox(), contents.getSrs(), -1, boundingBox);

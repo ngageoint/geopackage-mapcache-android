@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.1</string>
-    <string name="app_release_date">Released Jan 2022</string>
+    <string name="app_version">Version 2.1.2</string>
+    <string name="app_release_date">Released Apr 2022</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -373,12 +373,9 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.1\n \n
-        - New: GARS and MGRS grid overlays now available\n\n
-        - New: Configure new base maps from saved server URLs\n\n
-        - New: Download tiles and base maps using WMS urls\n\n
-        - Enabled forced app store updates when breaking changes are made\n\n
-        - Bug fixes for feature detail view - image attachments and crashes \n
+        Release Notes - 2.1.2\n \n
+        - UI Improvements\n\n
+        - Bug fixes for image attachments and tile downloads
         </string>
 
 

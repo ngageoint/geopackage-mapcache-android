@@ -4,10 +4,11 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
-## 1.36 - Legacy (TBD)
+## [1.36 - Legacy](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.36) (04-19-2022)
 
 * geopackage-android-map version 6.3.0
 * FeatureOverlayQuery calculateStylePixelBounds calls to query visualized feature styles
+* gradle plugin updated to 7.1.3
 
 ## [1.35 - Legacy](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.35) (03-11-2022)
 

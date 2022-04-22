@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
@@ -4885,7 +4886,8 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (!exists) {
 
-            GeoPackageGeometryData geometryData = row.getGeometry();
+            try {
+                GeoPackageGeometryData geometryData = row.getGeometry();
             if (geometryData != null && !geometryData.isEmpty()) {
 
                 final Geometry geometry = geometryData.getGeometry();
@@ -4918,6 +4920,15 @@ public class GeoPackageMapFragment extends Fragment implements
                         task.addToMap(featureId, database, featureDao.getTableName(), shape);
                     }
                 }
+            }
+            } catch(Exception e){
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast toast = Toast.makeText(getContext(), "Error loading geometry", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                });
             }
         }
     }

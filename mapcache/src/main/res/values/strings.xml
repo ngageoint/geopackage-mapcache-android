@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.2</string>
+    <string name="app_version">Version 2.1.3</string>
     <string name="app_release_date">Released Apr 2022</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
@@ -373,9 +373,8 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.2\n \n
-        - UI Improvements\n\n
-        - Bug fixes for image attachments and tile downloads
+        Release Notes - 2.1.3\n \n
+        - Bug fix for Geometry parsing errors
         </string>
 
 

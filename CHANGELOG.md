@@ -4,6 +4,10 @@ Adheres to [Semantic Versioning](http://semver.org/).
 
 ---
 
+## [1.37 - Legacy](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.37) (05-06-2022)
+
+* geopackage-android-map version 6.3.1
+
 ## [1.36 - Legacy](https://github.com/ngageoint/geopackage-mapcache-android/releases/tag/1.36) (04-19-2022)
 
 * geopackage-android-map version 6.3.0

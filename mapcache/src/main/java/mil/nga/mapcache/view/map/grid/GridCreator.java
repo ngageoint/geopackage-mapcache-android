@@ -149,15 +149,6 @@ public abstract class GridCreator {
     protected abstract Grid[] createGrid(BoundingBox bounds, int zoom);
 
     /**
-     * Gets the coordinate string at the specified location.
-     * @param latLng The location to get coordinate string for.
-     * @return The latLng in the grids
-     */
-    public String coordinatesAt(LatLng latLng) {
-        return null;
-    }
-
-    /**
      * Creates the polylines based on what is populated for the grids within the model.
      */
     private void createPolylines() {

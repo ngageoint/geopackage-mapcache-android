@@ -753,6 +753,16 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private BasemapApplier basemapApplier;
 
+    /**
+     * The camera move listener.
+     */
+    private GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
+        @Override
+        public void onCameraMove() {
+            String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
+            zoomLevelText.setText("Zoom Level " + zoomFormatted);
+        }
+    };
 
     /**
      * Constructor
@@ -2757,16 +2767,14 @@ public class GeoPackageMapFragment extends Fragment implements
         float zoom = MapUtils.getCurrentZoom(map);
 
         zoomLevelText.setText("Zoom Level " + zoom);
-        map.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
-            @Override
-            public void onCameraMove() {
-                String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
-                zoomLevelText.setText("Zoom Level " + zoomFormatted);
-            }
-        });
+        map.setOnCameraMoveListener(this.moveListener);
 
         basemapApplier = new BasemapApplier(getActivity(),
-                PreferenceManager.getDefaultSharedPreferences(getActivity()), coordText, coordTextCard);
+                PreferenceManager.getDefaultSharedPreferences(getActivity()),
+                coordText,
+                coordTextCard,
+                this,
+                this.moveListener);
         // Call the initial update to the settings
         settingsUpdate();
     }

@@ -759,8 +759,10 @@ public class GeoPackageMapFragment extends Fragment implements
     private GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
         @Override
         public void onCameraMove() {
-            String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
-            zoomLevelText.setText("Zoom Level " + zoomFormatted);
+            if(zoomLevelText.getVisibility() == View.VISIBLE) {
+                String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
+                zoomLevelText.setText("Zoom Level " + zoomFormatted);
+            }
         }
     };
 
@@ -2814,6 +2816,7 @@ public class GeoPackageMapFragment extends Fragment implements
     public void setZoomLevelVisible(boolean zoomVisible) {
         if (zoomVisible) {
             zoomLevelText.setVisibility(View.VISIBLE);
+            this.moveListener.onCameraMove();
         } else {
             zoomLevelText.setVisibility(View.GONE);
         }

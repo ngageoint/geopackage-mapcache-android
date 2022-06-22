@@ -59,6 +59,11 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
     private List<Button> exclusiveButtons = new ArrayList<>();
 
     /**
+     * List of the grid types
+     */
+    private List<Button> gridButtons = new ArrayList<>();
+
+    /**
      * The no grid radio button.
      */
     private RadioButton gridNone;
@@ -110,7 +115,6 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         Button mapButton = basemapView.findViewById(R.id.mapButton);
         mapButton.setOnClickListener(view -> exclusiveMapClicked(view));
         mapButton.setOnTouchListener((view, motionEvent) -> keepPressed(view, motionEvent));
-        mapButton.setPressed(true);
         exclusiveButtons.add(mapButton);
 
         Button satButton = basemapView.findViewById(R.id.satButton);
@@ -123,6 +127,11 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         terrainButton.setOnTouchListener((view, motionEvent) -> keepPressed(view, motionEvent));
         exclusiveButtons.add(terrainButton);
 
+        Button gridNoneButton = basemapView.findViewById(R.id.gridNoneButton);
+        gridNoneButton.setOnClickListener(view -> {
+            this.model.getGridOverlaySettings().setSelectedGrid(GridType.NONE);
+        });
+        gridButtons.add(gridNoneButton);
         this.gridNone = basemapView.findViewById(R.id.gridNone);
         this.gridNone.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
@@ -130,6 +139,11 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
             }
         });
 
+        Button gridGarsButton = basemapView.findViewById(R.id.gridGarsButton);
+        gridGarsButton.setOnClickListener(view -> {
+            this.model.getGridOverlaySettings().setSelectedGrid(GridType.GARS);
+        });
+        gridButtons.add(gridGarsButton);
         this.gridGARS = basemapView.findViewById(R.id.gridGars);
         this.gridGARS.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
@@ -137,6 +151,11 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
             }
         });
 
+        Button gridMgrsButton = basemapView.findViewById(R.id.gridMgrsButton);
+        gridMgrsButton.setOnClickListener(view -> {
+            this.model.getGridOverlaySettings().setSelectedGrid(GridType.MGRS);
+        });
+        gridButtons.add(gridMgrsButton);
         this.gridMGRS = basemapView.findViewById(R.id.gridMGRS);
         this.gridMGRS.setOnCheckedChangeListener((button, isChecked) -> {
             if (isChecked) {
@@ -237,7 +256,6 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
     private boolean keepPressed(View view, MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
             Button button = (Button) view;
-            button.setPressed(true);
             exclusiveMapClicked(view);
         }
 
@@ -268,10 +286,15 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
             }
 
             for (Button exclusiveButton : exclusiveButtons) {
-                if (exclusiveButton.getText().toString().equals(name)) {
-                    exclusiveButton.setPressed(true);
+                if (exclusiveButton.getText().toString().equalsIgnoreCase(name)) {
+                    exclusiveButton.setTextColor(getResources().getColor(R.color.nga_primary_light));
+                    exclusiveButton.setTextScaleX(1.2f);
+                    exclusiveButton.getCompoundDrawables()[1].setAlpha(255);
                 } else {
                     exclusiveButton.setPressed(false);
+                    exclusiveButton.setTextColor(getResources().getColor(R.color.black));
+                    exclusiveButton.setTextScaleX(1);
+                    exclusiveButton.getCompoundDrawables()[1].setAlpha(200);
                 }
             }
         }
@@ -281,6 +304,18 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
      * Updates which grid is selected.
      */
     private void updateGridChecked() {
+
+        GridType selectedGridType = model.getGridOverlaySettings().getSelectedGrid();
+        for(Button gridButton : gridButtons){
+            if(gridButton.getText().toString().equalsIgnoreCase(selectedGridType.toString())){
+                gridButton.setTextColor(getResources().getColor(R.color.nga_primary_light));
+                gridButton.setTextScaleX(1.2f);
+            } else {
+                gridButton.setTextColor(getResources().getColor(R.color.black));
+                gridButton.setTextScaleX(1);
+            }
+        }
+
         if (model.getGridOverlaySettings().getSelectedGrid() == GridType.NONE) {
             this.gridNone.setChecked(true);
         } else if (model.getGridOverlaySettings().getSelectedGrid() == GridType.GARS) {

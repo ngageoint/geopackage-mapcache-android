@@ -40,8 +40,13 @@
     <string name="map_max_features_message">Set the max number of features to draw on the map</string>
     <string name="map_type_normal">Normal</string>
     <string name="map_type_satellite">Satellite</string>
+    <string name="map_type_default">Default</string>
+    <string name="map_type_map">Map</string>
     <string name="map_type_terrain">Terrain</string>
     <string name="map_type_hybrid">Hybrid</string>
+    <string name="grid_type_none">None</string>
+    <string name="grid_type_gars">GARS</string>
+    <string name="grid_type_mgrs">MGRS</string>
     <string name="import_url_name_label">Name: </string>
     <string name="import_url_label">URL: </string>
     <string name="import_url_preloaded_label">Preloaded</string>

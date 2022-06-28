@@ -115,11 +115,6 @@ public class GeoPackageRepository {
         geos.setValue(new GeoPackageDatabases(context, "all"));
     }
 
-
-    /**
-     * GeoPackageDatabases Live Data (geos) ----
-     */
-
     /**
      * Get GeopackageDatabases object for tracking all geoPackages open in the application
      * @return GeoPackageDatabases object
@@ -144,7 +139,7 @@ public class GeoPackageRepository {
 
     /**
      * Add a GeoPackageDatabase with no tables to the Databases list
-     * @param dbName
+     * @param dbName The name of geopackage.
      */
     private void addEmptyDatabase(String dbName){
         GeoPackageDatabases currentGeos = geos.getValue();
@@ -159,7 +154,12 @@ public class GeoPackageRepository {
      */
     public boolean tableExistsInGeoPackage(String geoName, String tableName){
         GeoPackageDatabases currentGeos = geos.getValue();
-        return currentGeos.exists(geoName, tableName);
+        boolean exists = false;
+        if(currentGeos != null) {
+            exists = currentGeos.exists(geoName, tableName);
+        }
+
+        return exists;
     }
 
     /**
@@ -337,7 +337,7 @@ public class GeoPackageRepository {
             geo.close();
             return geo;
         } catch (Exception e) {
-
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
         return null;
     }
@@ -348,17 +348,20 @@ public class GeoPackageRepository {
      * @return true if the name is already taken
      */
     public boolean geoPackageNameExists(String name){
-        if(getGeos().getValue().geoPackageNameExists(name)){
-            return true;
+        GeoPackageDatabases dbs = getGeos().getValue();
+        boolean nameExists = false;
+        if(dbs != null){
+            nameExists = dbs.geoPackageNameExists(name);
         }
-        return false;
+        return nameExists;
     }
 
 
     public boolean setGeoPackageName(String oldName, String newName) {
+        GeoPackageDatabases dbs = getGeos().getValue();
         // If the new name already exists, but it's not renaming the old name, then exit to
         // prevent duplicating GeoPackages
-        if (getGeos().getValue().geoPackageNameExists(newName)) {
+        if (dbs != null && dbs.geoPackageNameExists(newName)) {
             if(!oldName.equalsIgnoreCase(newName)){
                 return false;
             }
@@ -384,8 +387,11 @@ public class GeoPackageRepository {
      */
     public List<List<GeoPackageTable>> regenerateTableList() {
         geoPackages.clear();
-        geos.getValue().getDatabases().clear();
-        List<List<GeoPackageTable>> databaseTables = new ArrayList<List<GeoPackageTable>>();
+        GeoPackageDatabases dbs = geos.getValue();
+        if(dbs != null) {
+            dbs.getDatabases().clear();
+        }
+        List<List<GeoPackageTable>> databaseTables = new ArrayList<>();
         StringBuilder errorMessage = new StringBuilder();
         Iterator<String> databasesIterator = manager.databases().iterator();
         while (databasesIterator.hasNext()) {
@@ -402,7 +408,7 @@ public class GeoPackageRepository {
                 // Read the feature and tile tables from the GeoPackage
                 List<Exception> exceptions = new ArrayList<>();
                 GeoPackage geoPackage = null;
-                List<GeoPackageTable> tables = new ArrayList<GeoPackageTable>();
+                List<GeoPackageTable> tables = new ArrayList<>();
                 // This is a simple list of layer names (will be assigned to the 'allTables' var)
                 List<String> tableNames = new ArrayList<>();
                 try {
@@ -415,6 +421,7 @@ public class GeoPackageRepository {
                         featureTables = geoPackage.getFeatureTables();
                     } catch (Exception e) {
                         exceptions.add(e);
+                        Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                     }
                     if (featureTables != null) {
                         try {
@@ -431,11 +438,15 @@ public class GeoPackageRepository {
                                     geometryType = geometryColumns.getGeometryType();
                                     description = contents.getDescription();
                                 } catch (Exception e) {
+                                    Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                                 }
                                 GeoPackageFeatureTable table = new GeoPackageFeatureTable(database,
                                         tableName, geometryType, count);
                                 table.setDescription(description);
-                                table.setActive(active.getValue().exists(table));
+                                dbs = active.getValue();
+                                if(dbs != null) {
+                                    table.setActive(dbs.exists(table));
+                                }
                                 table.setFeatureColumns(featureDao.getColumns());
                                 tables.add(table);
                                 // Update simple list of layer names
@@ -443,6 +454,7 @@ public class GeoPackageRepository {
                             }
                         } catch (Exception e) {
                             exceptions.add(e);
+                            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                         }
                     }
 
@@ -451,18 +463,23 @@ public class GeoPackageRepository {
                         tileTables = geoPackage.getTileTables();
                     } catch (Exception e) {
                         exceptions.add(e);
+                        Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                     }
                     if (tileTables != null) {
                         try {
                             for (String tableName : tileTables) {
                                 TileDao tileDao = geoPackage.getTileDao(tableName);
                                 int count = tileDao.count();
-                                GeoPackageTable table = new GeoPackageTileTable(database,
+                                GeoPackageTileTable table = new GeoPackageTileTable(database,
                                         tableName, count);
                                 table.setDescription("An image layer with " + count + " tiles");
-                                table.setActive(active.getValue().exists(table));
-                                ((GeoPackageTileTable) table).setMaxZoom(tileDao.getMaxZoom());
-                                ((GeoPackageTileTable) table).setMinZoom(tileDao.getMinZoom());
+                                boolean isActive = false;
+                                if(active.getValue() != null) {
+                                    isActive = active.getValue().exists(table);
+                                }
+                                table.setActive(isActive);
+                                table.setMaxZoom(tileDao.getMaxZoom());
+                                table.setMinZoom(tileDao.getMinZoom());
                                 tables.add(table);
                                 // Update simple list of layer names
                                 tableNames.add(table.getName());
@@ -470,6 +487,7 @@ public class GeoPackageRepository {
                             }
                         } catch (Exception e) {
                             exceptions.add(e);
+                            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                         }
                     }
 
@@ -481,13 +499,15 @@ public class GeoPackageRepository {
 //                            tables.add(table);
 //                        } catch (Exception e) {
 //                            exceptions.add(e);
+//                            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
 //                        }
 //                    }
 
                 } catch (Exception e) {
                     // If the error message contains "invalid geopackage", this GP will be labeled as invalid
-                    invalidGP = e.toString().indexOf("Invalid GeoPackage") != -1 ? true : false;
+                    invalidGP = e.toString().contains("Invalid GeoPackage");
                     exceptions.add(e);
+                    Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                 }
 
                 if (geoPackage != null) {
@@ -576,6 +596,7 @@ public class GeoPackageRepository {
             }
             return false;
         } catch (Exception e) {
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
             return false;
         }
     }
@@ -593,6 +614,7 @@ public class GeoPackageRepository {
             }
             return false;
         } catch (Exception e) {
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
             return false;
         }
     }
@@ -624,6 +646,7 @@ public class GeoPackageRepository {
             }
             return false;
         } catch (Exception e) {
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
             return false;
         }
     }
@@ -697,7 +720,7 @@ public class GeoPackageRepository {
 
                 } catch (SQLException e) {
                     dataColumnsDao = null;
-                    Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                    Log.e(GeoPackageRepository.class.getSimpleName(),
                             "Failed to check if Data Columns table exists for GeoPackage: "
                                     + geoPackage.getName(), e);
                 }
@@ -737,7 +760,6 @@ public class GeoPackageRepository {
     /**
      * Open the geopackage and update the featureDao with the given featureViewObjects data
      * @param featureViewObjects a FeatureViewObjects item containing a feature row to update
-     * @return true if it updates
      */
     public void saveFeatureObjectValues(FeatureViewObjects featureViewObjects){
         if(featureViewObjects.isValid()){
@@ -772,8 +794,8 @@ public class GeoPackageRepository {
                             UserMappingDao userMappingDao = related.getMappingDao(relation);
                             int totalMappedCount = userMappingDao.count();
                             int totalMediaCount = mediaDao.count();
-                            for(Map.Entry map  :  featureViewObjects.getAddedBitmaps().entrySet() ){
-                                Bitmap image = (Bitmap)map.getValue();
+                            for(Map.Entry<Long, Bitmap> map  :  featureViewObjects.getAddedBitmaps().entrySet() ){
+                                Bitmap image = map.getValue();
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                 image.compress(Bitmap.CompressFormat.PNG, 100, stream);
                                 byte[] mediaData = stream.toByteArray();
@@ -796,7 +818,7 @@ public class GeoPackageRepository {
                     geoPackage.close();
                 }
             }catch (Exception e){
-                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                Log.e(GeoPackageRepository.class.getSimpleName(),
                         "Error saving feature data: ", e);
             }
         }
@@ -862,9 +884,11 @@ public class GeoPackageRepository {
 //                                }
                 }
 
-                    geoPackage.close();
+                    if(geoPackage != null) {
+                        geoPackage.close();
+                    }
             }catch (Exception e){
-                Log.e(GeoPackageMapFragment.class.getSimpleName(),
+                Log.e(GeoPackageRepository.class.getSimpleName(),
                         "Error deleting feature image: ", e);
             }
         }
@@ -964,8 +988,8 @@ public class GeoPackageRepository {
         geometryColumns.setZ((byte) 0);
         geometryColumns.setM((byte) 0);
 
-        GeoPackage geoPackage = manager.open(gpName);
-        try {
+
+        try (GeoPackage geoPackage = manager.open(gpName)) {
             SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
                     .getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
             geometryColumns.setSrs(srs);
@@ -975,9 +999,7 @@ public class GeoPackageRepository {
                 return true;
             }
         }catch (SQLException e){
-            Log.i("Exception", e.toString());
-        } finally {
-            geoPackage.close();
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
         return false;
     }
@@ -993,7 +1015,7 @@ public class GeoPackageRepository {
             featureDao.addColumn(FeatureColumn.createColumn(columnName, type));
             created = true;
         } catch (Exception e) {
-            Log.i("Feature Column Error", e.toString());
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
         return created;
     }
@@ -1009,7 +1031,7 @@ public class GeoPackageRepository {
             featureDao.dropColumn(columnName);
             deleted = true;
         } catch (Exception e) {
-            Log.i("Feature Column Error", e.toString());
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
         return deleted;
     }
@@ -1023,7 +1045,7 @@ public class GeoPackageRepository {
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
             return featureDao.getColumns();
         } catch (Exception e) {
-            Log.i("Column Fetch Error", e.toString());
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
         return null;
     }
@@ -1031,11 +1053,10 @@ public class GeoPackageRepository {
 
     /**
      * Create a tile table in the given GeoPackage
-     * @return
+     * @return True if the creation occurred successfully, false otherwise.
      */
     public boolean createTileTable(String gpName, BoundingBox boundingBox, long epsg, String tableName, TileScaling scaling){
-        GeoPackage geoPackage = manager.open(gpName);
-        try {
+        try (GeoPackage geoPackage = manager.open(gpName)){
             // Create the srs if needed
             SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
             SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
@@ -1048,10 +1069,8 @@ public class GeoPackageRepository {
             TileTableScaling tileTableScaling = new TileTableScaling(geoPackage, tableName);
             tileTableScaling.createOrUpdate(scaling);
         } catch (Exception e) {
-            Log.i("Exception", e.toString());
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
             return false;
-        } finally {
-            geoPackage.close();
         }
         return true;
     }
@@ -1075,6 +1094,7 @@ public class GeoPackageRepository {
                             .getGeometryColumns();
                     geometryType = geometryColumns.getGeometryType();
                 } catch (Exception e) {
+                    Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                 }
 
                 GeoPackageTable table = new GeoPackageFeatureTable(gpName,
@@ -1092,6 +1112,7 @@ public class GeoPackageRepository {
                 try {
                     tileTables = geo.getTileTables();
                 } catch (Exception e) {
+                    Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                 }
                 if (tileTables != null) {
                     try {
@@ -1107,7 +1128,7 @@ public class GeoPackageRepository {
                             return table;
                         }
                     } catch (Exception e) {
-
+                        Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
                     }
                 }
             }
@@ -1122,21 +1143,15 @@ public class GeoPackageRepository {
      * Get table Contents object
      */
     public Contents getTableContents(String gpName, String tableName) {
-        GeoPackage geo = null;
-        try{
-            geo = manager.open(gpName);
+        try(GeoPackage geo = manager.open(gpName)){
+
             if(geo != null) {
                 ContentsDao contentsDao = geo.getContentsDao();
-                Contents contents = contentsDao.queryForId(tableName);
-                return contents;
+                return contentsDao.queryForId(tableName);
             }
 
         } catch (Exception e){
-
-        } finally {
-            if(geo !=  null){
-                geo.close();
-            }
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
         return null;
     }
@@ -1145,14 +1160,13 @@ public class GeoPackageRepository {
     /**
      * Create an alert dialog with a GeoPackage's details for viewing
      *
-     * @param geoPackageName
-     * @param activity
-     * @return
+     * @param geoPackageName The current name of the geopackage.
+     * @param activity The main android activity.
+     * @return The newly built detail dialog.
      */
     public AlertDialog getGeoPackageDetailDialog(String geoPackageName, Activity activity) {
         StringBuilder databaseInfo = new StringBuilder();
-        GeoPackage geoPackage = manager.open(geoPackageName, false);
-        try {
+        try (GeoPackage geoPackage = manager.open(geoPackageName, false)){
             SpatialReferenceSystemDao srsDao = geoPackage
                     .getSpatialReferenceSystemDao();
 
@@ -1175,29 +1189,19 @@ public class GeoPackageRepository {
 
         } catch (Exception e) {
             databaseInfo.append(e.getMessage());
-        } finally {
-            geoPackage.close();
+            Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
-        AlertDialog viewDialog = new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
+        return new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
                 .setTitle(geoPackageName)
-                .setPositiveButton(R.string.button_ok_label,
-
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).setMessage(databaseInfo.toString()).create();
-
-        return viewDialog;
-
+                .setPositiveButton(R.string.button_ok_label, (dialog, which) -> dialog.dismiss())
+                    .setMessage(databaseInfo.toString()).create();
     }
 
     /**
      * Add Spatial Reference System to the info
      *
-     * @param info
-     * @param srs
+     * @param info The string to append the srs information to.
+     * @param srs The srs to get information for.
      */
     private void addSrs(StringBuilder info, SpatialReferenceSystem srs) {
         info.append("\nSRS Name: ").append(srs.getSrsName());

@@ -26,6 +26,7 @@ import java.util.Map;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageCache;
 import mil.nga.geopackage.GeoPackageFactory;
 import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.Contents;
@@ -84,6 +85,12 @@ import mil.nga.sf.GeometryType;
 public class GeoPackageRepository {
 
     private GeoPackageManager manager;
+
+    /**
+     * Contains a cache of opened geopackages.
+     */
+    private GeoPackageCache cache;
+
     private List<GeoPackage> geoPackages = new ArrayList<>();
 
     /**
@@ -111,6 +118,7 @@ public class GeoPackageRepository {
     public GeoPackageRepository(@NonNull Application application) {
         context = application.getApplicationContext();
         manager = GeoPackageFactory.getManager(application);
+        cache = new GeoPackageCache(manager);
         active.setValue(new GeoPackageDatabases(context, "active"));
         geos.setValue(new GeoPackageDatabases(context, "all"));
     }
@@ -333,9 +341,7 @@ public class GeoPackageRepository {
 
     public GeoPackage getGeoPackageByName(String name) {
         try {
-            GeoPackage geo = manager.open(name);
-            geo.close();
-            return geo;
+            return cache.getOrOpen(name);
         } catch (Exception e) {
             Log.e(GeoPackageRepository.class.getSimpleName(), e.toString(), e);
         }
@@ -400,6 +406,7 @@ public class GeoPackageRepository {
 
             // Delete any databases with invalid headers
             if (!manager.validateHeader(database)) {
+                cache.removeAndClose(database);
                 if (manager.delete(database)) {
                     databasesIterator.remove();
                 }
@@ -412,7 +419,7 @@ public class GeoPackageRepository {
                 // This is a simple list of layer names (will be assigned to the 'allTables' var)
                 List<String> tableNames = new ArrayList<>();
                 try {
-                    geoPackage = manager.open(database, false);
+                    geoPackage = cache.getOrOpen(database, false);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
                     // Make sure the Database is added even if it has no tables
                     addEmptyDatabase(geoPackage.getName());
@@ -511,9 +518,7 @@ public class GeoPackageRepository {
                 }
 
                 if (geoPackage != null) {
-                    geoPackage.close();
                     geoPackages.add(geoPackage);
-
                 }
 
 
@@ -532,8 +537,11 @@ public class GeoPackageRepository {
                     setGeoSize(database, manager.readableSize(database));
                 } else {
                     // On exception, check the integrity of the database and delete if not valid
-                    if (!manager.validateIntegrity(database) && manager.delete(database)) {
-                        databasesIterator.remove();
+                    if (!manager.validateIntegrity(database)) {
+                        cache.removeAndClose(database);
+                        if( manager.delete(database)) {
+                            databasesIterator.remove();
+                        }
                     } else {
                         // If a geopackage is missing tables, it's invalid, don't add to the list.
                         // make sure it's deleteed
@@ -542,9 +550,9 @@ public class GeoPackageRepository {
                             addTablesToDatabases(tables);
 //                        geoAdapter.insertToEnd(tables);
                         } else {
+                            cache.removeAndClose(database);
                             manager.delete(database);
                         }
-
                     }
 
                     if (errorMessage.length() > 0) {
@@ -578,6 +586,7 @@ public class GeoPackageRepository {
      */
     public boolean deleteGeoPackage(String geoPackageName) {
         removeActiveForGeoPackage(geoPackageName);
+        cache.removeAndClose(geoPackageName);
         return manager.delete(geoPackageName);
     }
 
@@ -588,10 +597,9 @@ public class GeoPackageRepository {
     public boolean removeLayerFromGeo(String geoPackageName, String layerName) {
         try {
             removeLayerFromGeos(geoPackageName, layerName);
-            GeoPackage geo = manager.open(geoPackageName);
+            GeoPackage geo = cache.getOrOpen(geoPackageName);
             if (geo != null) {
                 geo.deleteTable(layerName);
-                geo.close();
                 return true;
             }
             return false;
@@ -606,10 +614,9 @@ public class GeoPackageRepository {
      */
     public boolean renameLayer(String geoPackageName, String layerName, String newLayerName){
         try {
-            GeoPackage geo = manager.open(geoPackageName);
+            GeoPackage geo = cache.getOrOpen(geoPackageName);
             if (geo != null) {
                 geo.renameTable(layerName, newLayerName);
-                geo.close();
                 return true;
             }
             return false;
@@ -638,10 +645,9 @@ public class GeoPackageRepository {
      */
     public boolean copyLayer(String geoPackageName, String layerName, String newLayerName) {
         try {
-            GeoPackage geo = manager.open(geoPackageName);
+            GeoPackage geo = cache.getOrOpen(geoPackageName);
             if (geo != null) {
                 geo.copyTable(layerName, newLayerName);
-                geo.close();
                 return true;
             }
             return false;
@@ -660,7 +666,7 @@ public class GeoPackageRepository {
         FeatureViewObjects featureObjects = new FeatureViewObjects();
         featureObjects.setGeopackageName(markerFeature.getDatabase());
         featureObjects.setLayerName(markerFeature.getTableName());
-        final GeoPackage geoPackage = manager.open(markerFeature.getDatabase(), false);
+        final GeoPackage geoPackage = cache.getOrOpen(markerFeature.getDatabase(), false);
         if(geoPackage != null) {
             final FeatureDao featureDao = geoPackage
                     .getFeatureDao(markerFeature.getTableName());
@@ -752,7 +758,6 @@ public class GeoPackageRepository {
                 featureObjects.setGeometryType(geometryType);
                 featureObjects.setDataColumnsDao(dataColumnsDao);
             }
-            geoPackage.close();
         }
             return featureObjects;
     }
@@ -766,7 +771,7 @@ public class GeoPackageRepository {
             try {
                 String tableName = featureViewObjects.getLayerName();
                 String mediaTableName = context.getString(R.string.media_table_tag);
-                final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
+                final GeoPackage geoPackage = cache.getOrOpen(featureViewObjects.getGeopackageName());
                 if (geoPackage != null) {
                     final FeatureDao featureDao = geoPackage
                             .getFeatureDao(featureViewObjects.getLayerName());
@@ -815,7 +820,6 @@ public class GeoPackageRepository {
                             }
                         }
                     }
-                    geoPackage.close();
                 }
             }catch (Exception e){
                 Log.e(GeoPackageRepository.class.getSimpleName(),
@@ -837,7 +841,7 @@ public class GeoPackageRepository {
             try {
                 String tableName = featureViewObjects.getLayerName();
                 String mediaTableName = "media_table";
-                final GeoPackage geoPackage = manager.open(featureViewObjects.getGeopackageName());
+                final GeoPackage geoPackage = cache.getOrOpen(featureViewObjects.getGeopackageName());
                 if (geoPackage != null) {
                     final FeatureDao featureDao = geoPackage
                             .getFeatureDao(featureViewObjects.getLayerName());
@@ -883,10 +887,6 @@ public class GeoPackageRepository {
 //                                    Log.i("Log", "test");
 //                                }
                 }
-
-                    if(geoPackage != null) {
-                        geoPackage.close();
-                    }
             }catch (Exception e){
                 Log.e(GeoPackageRepository.class.getSimpleName(),
                         "Error deleting feature image: ", e);
@@ -954,11 +954,9 @@ public class GeoPackageRepository {
      * Returns the list of tile tables for a geopackage
      */
     public List<String> getTileTables(String database){
-        GeoPackage geo = manager.open(database);
+        GeoPackage geo = cache.getOrOpen(database);
         if(geo != null) {
-            List<String> tiles = geo.getTileTables();
-            geo.close();
-            return tiles;
+            return geo.getTileTables();
         }
         return null;
     }
@@ -967,11 +965,9 @@ public class GeoPackageRepository {
      *  Returns the list of feature tables for a geopackage
      */
     public List<String> getFeatureTables(String database){
-        GeoPackage geo = manager.open(database);
+        GeoPackage geo = cache.getOrOpen(database);
         if(geo != null) {
-            List<String> features = geo.getFeatureTables();
-            geo.close();
-            return features;
+            return geo.getFeatureTables();
         }
         return null;
     }
@@ -988,8 +984,8 @@ public class GeoPackageRepository {
         geometryColumns.setZ((byte) 0);
         geometryColumns.setM((byte) 0);
 
-
-        try (GeoPackage geoPackage = manager.open(gpName)) {
+        GeoPackage geoPackage = cache.getOrOpen(gpName);
+        try {
             SpatialReferenceSystem srs = geoPackage.getSpatialReferenceSystemDao()
                     .getOrCreateFromEpsg(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
             geometryColumns.setSrs(srs);
@@ -1010,7 +1006,8 @@ public class GeoPackageRepository {
     public boolean createFeatureColumn(String gpName, String layerName, String columnName,
                                        GeoPackageDataType type){
         boolean created = false;
-        try (GeoPackage geoPackage = manager.open(gpName)) {
+        GeoPackage geoPackage = cache.getOrOpen(gpName);
+        try {
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
             featureDao.addColumn(FeatureColumn.createColumn(columnName, type));
             created = true;
@@ -1026,7 +1023,8 @@ public class GeoPackageRepository {
      */
     public boolean deleteFeatureColumn(String gpName, String layerName, String columnName){
         boolean deleted= false;
-        try (GeoPackage geoPackage = manager.open(gpName)) {
+        GeoPackage geoPackage = cache.getOrOpen(gpName);
+        try{
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
             featureDao.dropColumn(columnName);
             deleted = true;
@@ -1041,7 +1039,8 @@ public class GeoPackageRepository {
      * Get feature columns from table
      */
     public List<FeatureColumn> getFeatureColumnsFromTable(String gpName, String layerName){
-        try (GeoPackage geoPackage = manager.open(gpName)) {
+        GeoPackage geoPackage = cache.getOrOpen(gpName);
+        try {
             FeatureDao featureDao = geoPackage.getFeatureDao(layerName);
             return featureDao.getColumns();
         } catch (Exception e) {
@@ -1056,7 +1055,8 @@ public class GeoPackageRepository {
      * @return True if the creation occurred successfully, false otherwise.
      */
     public boolean createTileTable(String gpName, BoundingBox boundingBox, long epsg, String tableName, TileScaling scaling){
-        try (GeoPackage geoPackage = manager.open(gpName)){
+        GeoPackage geoPackage = cache.getOrOpen(gpName);
+        try{
             // Create the srs if needed
             SpatialReferenceSystemDao srsDao = geoPackage.getSpatialReferenceSystemDao();
             SpatialReferenceSystem srs = srsDao.getOrCreateFromEpsg(epsg);
@@ -1079,7 +1079,7 @@ public class GeoPackageRepository {
      * Get the given layer name
      */
     public GeoPackageTable getTableObject(String gpName, String tableName, Boolean setActive){
-        GeoPackage geo = manager.open(gpName);
+        GeoPackage geo = cache.getOrOpen(gpName);
         if(geo != null) {
             ContentsDao contentsDao = geo.getContentsDao();
             List<String> features = geo.getFeatureTables();
@@ -1103,7 +1103,6 @@ public class GeoPackageRepository {
                 if(setActive != null){
                     table.setActive(setActive);
                 }
-                geo.close();
                 return table;
             }
             List<String> tiles = geo.getTileTables();
@@ -1124,7 +1123,6 @@ public class GeoPackageRepository {
                             if(setActive != null){
                                 table.setActive(setActive);
                             }
-                            geo.close();
                             return table;
                         }
                     } catch (Exception e) {
@@ -1132,7 +1130,6 @@ public class GeoPackageRepository {
                     }
                 }
             }
-            geo.close();
             return null;
         }
         return null;
@@ -1143,8 +1140,8 @@ public class GeoPackageRepository {
      * Get table Contents object
      */
     public Contents getTableContents(String gpName, String tableName) {
-        try(GeoPackage geo = manager.open(gpName)){
-
+        GeoPackage geo = cache.getOrOpen(gpName);
+        try{
             if(geo != null) {
                 ContentsDao contentsDao = geo.getContentsDao();
                 return contentsDao.queryForId(tableName);
@@ -1166,7 +1163,8 @@ public class GeoPackageRepository {
      */
     public AlertDialog getGeoPackageDetailDialog(String geoPackageName, Activity activity) {
         StringBuilder databaseInfo = new StringBuilder();
-        try (GeoPackage geoPackage = manager.open(geoPackageName, false)){
+        GeoPackage geoPackage = cache.getOrOpen(geoPackageName, false);
+        try{
             SpatialReferenceSystemDao srsDao = geoPackage
                     .getSpatialReferenceSystemDao();
 

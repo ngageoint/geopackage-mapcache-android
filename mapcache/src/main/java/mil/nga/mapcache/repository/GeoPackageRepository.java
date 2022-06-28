@@ -573,14 +573,6 @@ public class GeoPackageRepository {
         return databaseTables;
     }
 
-
-    /**
-     * Returns the GeoPackage's size
-     */
-    public String getGeoPackageSize(String geoPackageName) {
-        return manager.readableSize(geoPackageName);
-    }
-
     /**
      * Delete a geoPackage by name
      */

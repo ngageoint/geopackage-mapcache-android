@@ -94,43 +94,6 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     }
 
     /**
-     * Load tiles from features
-     *
-     * @param activity The main activity.
-     * @param callback Called when the load tiles task has completed or was cancelled.
-     * @param active The active geopackages.
-     * @param geoPackage The geopackage to load tiles into.
-     * @param tableName The tile layer to load tiles into.
-     * @param featureTiles The feature tiles to load from.
-     * @param minZoom The minimum zoom.
-     * @param maxZoom The maximum zoom.
-     * @param compressFormat The image format to use.
-     * @param compressQuality The compression quality to use.
-     * @param xyzTiles True if xyz tiles, false if not.
-     * @param boundingBox The area we will download the tiles for.
-     * @param scaling Scaling information.
-     * @param authority The projection authority.
-     * @param code The projection code.
-     */
-    public static void loadTiles(Activity activity, ILoadTilesTask callback,
-                                 GeoPackageDatabases active, GeoPackage geoPackage, String tableName,
-                                 FeatureTiles featureTiles, int minZoom, int maxZoom,
-                                 CompressFormat compressFormat, Integer compressQuality,
-                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
-
-        GeoPackageUtils.prepareFeatureTiles(featureTiles);
-
-        Projection projection = ProjectionFactory.getProjection(authority, code);
-        BoundingBox bbox = transform(boundingBox, projection);
-
-        TileGenerator tileGenerator = new FeatureTileGenerator(activity, geoPackage,
-                tableName, featureTiles, minZoom, maxZoom, bbox, projection);
-        setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, scaling);
-
-        loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
-    }
-
-    /**
      * Transform the WGS84 bounding box to the provided projection
      *
      * @param boundingBox bounding box in WGS84

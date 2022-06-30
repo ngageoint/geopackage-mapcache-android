@@ -8,6 +8,7 @@ import android.graphics.Bitmap.CompressFormat;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
+import android.util.Log;
 
 import java.util.List;
 import java.util.Map;
@@ -44,22 +45,22 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     /**
      * Load tiles from a URL
      *
-     * @param activity
-     * @param callback
-     * @param active
-     * @param database
-     * @param tableName
-     * @param tileUrl
-     * @param minZoom
-     * @param maxZoom
-     * @param compressFormat
-     * @param compressQuality
-     * @param xyzTiles
-     * @param boundingBox
-     * @param scaling
-     * @param authority
-     * @param code
-     * @param headers
+     * @param activity The main activity.
+     * @param callback Called when the load tiles task has completed or was cancelled.
+     * @param active The active geopackages.
+     * @param database The geopackage name to load tiles for.
+     * @param tableName The tile layer to load tiles for.
+     * @param tileUrl The url to the server hosting the tiles.
+     * @param minZoom The minimum zoom.
+     * @param maxZoom The maximum zoom.
+     * @param compressFormat The image format to use.
+     * @param compressQuality The compression quality to use.
+     * @param xyzTiles True if xyz tiles, false if not.
+     * @param boundingBox The area we will download the tiles for.
+     * @param scaling Scaling information.
+     * @param authority The projection authority.
+     * @param code The projection code.
+     * @param headers Any header values that need to be added to the tile download requests.
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, String database, String tableName,
@@ -87,58 +88,29 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
             }
         }
 
-        setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, boundingBox, scaling);
+        setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, scaling);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
     }
 
     /**
-     * Load tiles from a URL
-     *
-     * @param activity
-     * @param callback
-     * @param active
-     * @param database
-     * @param tableName
-     * @param tileUrl
-     * @param minZoom
-     * @param maxZoom
-     * @param compressFormat
-     * @param compressQuality
-     * @param xyzTiles
-     * @param boundingBox
-     * @param scaling
-     * @param authority
-     * @param code
-     */
-    public static void loadTiles(Activity activity, ILoadTilesTask callback,
-                                 GeoPackageDatabases active, String database, String tableName,
-                                 String tileUrl, int minZoom, int maxZoom,
-                                 CompressFormat compressFormat, Integer compressQuality,
-                                 boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code) {
-
-        loadTiles(activity, callback, active, database, tableName, tileUrl, minZoom, maxZoom,
-                compressFormat, compressQuality, xyzTiles, boundingBox, scaling, authority, code);
-    }
-
-    /**
      * Load tiles from features
      *
-     * @param activity
-     * @param callback
-     * @param active
-     * @param geoPackage
-     * @param tableName
-     * @param featureTiles
-     * @param minZoom
-     * @param maxZoom
-     * @param compressFormat
-     * @param compressQuality
-     * @param xyzTiles
-     * @param boundingBox
-     * @param scaling
-     * @param authority
-     * @param code
+     * @param activity The main activity.
+     * @param callback Called when the load tiles task has completed or was cancelled.
+     * @param active The active geopackages.
+     * @param geoPackage The geopackage to load tiles into.
+     * @param tableName The tile layer to load tiles into.
+     * @param featureTiles The feature tiles to load from.
+     * @param minZoom The minimum zoom.
+     * @param maxZoom The maximum zoom.
+     * @param compressFormat The image format to use.
+     * @param compressQuality The compression quality to use.
+     * @param xyzTiles True if xyz tiles, false if not.
+     * @param boundingBox The area we will download the tiles for.
+     * @param scaling Scaling information.
+     * @param authority The projection authority.
+     * @param code The projection code.
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
                                  GeoPackageDatabases active, GeoPackage geoPackage, String tableName,
@@ -153,7 +125,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
 
         TileGenerator tileGenerator = new FeatureTileGenerator(activity, geoPackage,
                 tableName, featureTiles, minZoom, maxZoom, bbox, projection);
-        setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, boundingBox, scaling);
+        setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, scaling);
 
         loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
     }
@@ -182,19 +154,18 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     /**
      * Set the tile generator settings
      *
-     * @param activity
-     * @param tileGenerator
-     * @param minZoom
-     * @param maxZoom
-     * @param compressFormat
-     * @param compressQuality
-     * @param xyzTiles
-     * @param boundingBox
-     * @param scaling
+     * @param activity The main activity.
+     * @param tileGenerator The tile generator.
+     * @param minZoom The minimum zoom.
+     * @param maxZoom The maximum zoom.
+     * @param compressFormat The image format to use.
+     * @param compressQuality The compression quality to use.
+     * @param xyzTiles True if xyz tiles, false if not.
+     * @param scaling Scaling information.
      */
     private static void setTileGenerator(Activity activity, TileGenerator tileGenerator, int minZoom, int maxZoom,
                                          CompressFormat compressFormat, Integer compressQuality,
-                                         boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling) {
+                                         boolean xyzTiles, TileScaling scaling) {
 
         if (minZoom > maxZoom) {
             throw new GeoPackageException(
@@ -213,12 +184,12 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     /**
      * Load tiles
      *
-     * @param activity
-     * @param callback
-     * @param active
-     * @param geoPackage
-     * @param tableName
-     * @param tileGenerator
+     * @param activity The main activity.
+     * @param callback Called when the load tiles task has completed or was cancelled.
+     * @param active The active geopackages.
+     * @param geoPackage The geopackage to load tiles into.
+     * @param tableName The tile layer to load tiles into.
+     * @param tileGenerator The tile generator.
      */
     private static void loadTiles(Activity activity, ILoadTilesTask callback,
                                   GeoPackageDatabases active, GeoPackage geoPackage, String tableName, TileGenerator tileGenerator) {
@@ -241,12 +212,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
         progressDialog.setMax(tileGenerator.getTileCount());
         progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE,
                 activity.getString(R.string.button_cancel_label),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        loadTilesTask.cancel(true);
-                    }
-                });
+                (DialogInterface dialog, int which) -> loadTilesTask.cancel(true));
 
         loadTilesTask.execute();
     }
@@ -263,10 +229,10 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     /**
      * Constructor
      *
-     * @param activity
-     * @param callback
-     * @param progressDialog
-     * @param active
+     * @param activity The main activity.
+     * @param callback Called when the load tiles task has completed or was cancelled.
+     * @param progressDialog The progress dialog.
+     * @param active The active geopackages.
      */
     public LoadTilesTask(Activity activity, ILoadTilesTask callback,
                          ProgressDialog progressDialog, GeoPackageDatabases active) {
@@ -279,7 +245,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     /**
      * Set the tile generator
      *
-     * @param tileGenerator
+     * @param tileGenerator The tile generator.
      */
     public void setTileGenerator(TileGenerator tileGenerator) {
         this.tileGenerator = tileGenerator;
@@ -329,7 +295,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
                 .getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass()
                 .getName());
-        wakeLock.acquire();
+        wakeLock.acquire(43200000);
     }
 
     /**
@@ -378,6 +344,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
                         + max + ", Actual: " + count + ".  This is likely an issue with the tile server or a slow / intermittent network connection.";
             }
         } catch (final Exception e) {
+            Log.e(LoadTilesTask.class.getSimpleName(), e.getMessage(), e);
             return e.toString();
         }
         return null;

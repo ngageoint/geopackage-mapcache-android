@@ -14,7 +14,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.gms.maps.model.Marker;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.sql.SQLException;
@@ -82,7 +84,7 @@ import mil.nga.sf.GeometryType;
  *  Repository to provide access to stored GeoPackages.  Most of the data in the app is powered by
  *  the 'geos' object, and instance of GeoPackageDatabases
  */
-public class GeoPackageRepository {
+public class GeoPackageRepository implements Closeable {
 
     private GeoPackageManager manager;
 
@@ -1200,5 +1202,10 @@ public class GeoPackageRepository {
         info.append("\nCoordsys ID: ").append(srs.getOrganizationCoordsysId());
         info.append("\nDefinition: ").append(srs.getDefinition());
         info.append("\nDescription: ").append(srs.getDescription());
+    }
+
+    @Override
+    public void close() throws IOException {
+        cache.closeAll();
     }
 }

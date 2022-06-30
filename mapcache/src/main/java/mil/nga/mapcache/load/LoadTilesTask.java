@@ -253,9 +253,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      * {@inheritDoc}
      */
     private void publishProgress(Integer... progress) {
-        activity.runOnUiThread(() -> {
-            progressDialog.setProgress(progress[0]);
-        });
+        activity.runOnUiThread(() -> progressDialog.setProgress(progress[0]));
     }
 
     @Override

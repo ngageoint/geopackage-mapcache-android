@@ -29,6 +29,7 @@ import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.utils.HttpUtils;
+import mil.nga.mapcache.utils.ThreadUtils;
 import mil.nga.proj.Projection;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
@@ -39,8 +40,7 @@ import mil.nga.proj.ProjectionTransform;
  *
  * @author osbornb
  */
-public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
-        GeoPackageProgress {
+public class LoadTilesTask implements GeoPackageProgress, Runnable {
 
     /**
      * Load tiles from a URL
@@ -175,9 +175,10 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
         progressDialog.setMax(tileGenerator.getTileCount());
         progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE,
                 activity.getString(R.string.button_cancel_label),
-                (DialogInterface dialog, int which) -> loadTilesTask.cancel(true));
+                (DialogInterface dialog, int which) -> loadTilesTask.isCancelled = true);
 
-        loadTilesTask.execute();
+        progressDialog.show();
+        ThreadUtils.getInstance().runBackground(loadTilesTask);
     }
 
     private Activity activity;
@@ -188,6 +189,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     private ProgressDialog progressDialog;
     private GeoPackageDatabases active;
     private PowerManager.WakeLock wakeLock;
+    private boolean isCancelled = false;
 
     /**
      * Constructor
@@ -236,7 +238,7 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
      */
     @Override
     public boolean isActive() {
-        return !isCancelled();
+        return !isCancelled;
     }
 
     /**
@@ -250,67 +252,45 @@ public class LoadTilesTask extends AsyncTask<String, Integer, String> implements
     /**
      * {@inheritDoc}
      */
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-        progressDialog.show();
-        PowerManager pm = (PowerManager) activity
-                .getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass()
-                .getName());
-        wakeLock.acquire(43200000);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onProgressUpdate(Integer... progress) {
-        super.onProgressUpdate(progress);
-        progressDialog.setProgress(progress[0]);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onCancelled(String result) {
-        tileGenerator.close();
-        wakeLock.release();
-        progressDialog.dismiss();
-        callback.onLoadTilesCancelled(result);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onPostExecute(String result) {
-        tileGenerator.close();
-        wakeLock.release();
-        progressDialog.dismiss();
-        callback.onLoadTilesPostExecute(result);
+    private void publishProgress(Integer... progress) {
+        activity.runOnUiThread(() -> {
+            progressDialog.setProgress(progress[0]);
+        });
     }
 
     @Override
-    protected String doInBackground(String... params) {
+    public void run() {
         try {
+            PowerManager pm = (PowerManager) activity
+                    .getSystemService(Context.POWER_SERVICE);
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass()
+                    .getName());
+            wakeLock.acquire(43200000);
+
             int count = tileGenerator.generateTiles();
+            String result = null;
             if (count == 0) {
-                return "No tiles were generated for your new layer.  This could be an issue with your tile URL or the tile server.  Please verify the server URL and try again.";
+                result = "No tiles were generated for your new layer.  " +
+                        "This could be an issue with your tile URL or the tile server.  " +
+                        "Please verify the server URL and try again.";
             }
             if (count > 0) {
                 active.setModified(true);
             }
             if (count < max && !(tileGenerator instanceof FeatureTileGenerator)) {
-                return "Fewer tiles were generated than expected. Expected: "
-                        + max + ", Actual: " + count + ".  This is likely an issue with the tile server or a slow / intermittent network connection.";
+                result = "Fewer tiles were generated than " +
+                        "expected. Expected: " + max + ", Actual: " + count +
+                        ".  This is likely an issue with the tile server or a slow / " +
+                        "intermittent network connection.";
             }
+
+            callback.onLoadTilesPostExecute(result);
         } catch (final Exception e) {
             Log.e(LoadTilesTask.class.getSimpleName(), e.getMessage(), e);
-            return e.toString();
+        } finally {
+            tileGenerator.close();
+            wakeLock.release();
+            progressDialog.dismiss();
         }
-        return null;
     }
-
 }

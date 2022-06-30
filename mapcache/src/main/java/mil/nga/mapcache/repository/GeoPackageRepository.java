@@ -421,7 +421,7 @@ public class GeoPackageRepository implements Closeable {
                 // This is a simple list of layer names (will be assigned to the 'allTables' var)
                 List<String> tableNames = new ArrayList<>();
                 try {
-                    geoPackage = cache.getOrOpen(database, false);
+                    geoPackage = cache.getOrOpen(database);
                     ContentsDao contentsDao = geoPackage.getContentsDao();
                     // Make sure the Database is added even if it has no tables
                     addEmptyDatabase(geoPackage.getName());
@@ -660,7 +660,7 @@ public class GeoPackageRepository implements Closeable {
         FeatureViewObjects featureObjects = new FeatureViewObjects();
         featureObjects.setGeopackageName(markerFeature.getDatabase());
         featureObjects.setLayerName(markerFeature.getTableName());
-        final GeoPackage geoPackage = cache.getOrOpen(markerFeature.getDatabase(), false);
+        final GeoPackage geoPackage = cache.getOrOpen(markerFeature.getDatabase());
         if(geoPackage != null) {
             final FeatureDao featureDao = geoPackage
                     .getFeatureDao(markerFeature.getTableName());
@@ -1157,7 +1157,7 @@ public class GeoPackageRepository implements Closeable {
      */
     public AlertDialog getGeoPackageDetailDialog(String geoPackageName, Activity activity) {
         StringBuilder databaseInfo = new StringBuilder();
-        GeoPackage geoPackage = cache.getOrOpen(geoPackageName, false);
+        GeoPackage geoPackage = cache.getOrOpen(geoPackageName);
         try{
             SpatialReferenceSystemDao srsDao = geoPackage
                     .getSpatialReferenceSystemDao();

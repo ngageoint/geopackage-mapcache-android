@@ -21,7 +21,6 @@ import com.google.android.material.button.MaterialButton;
 
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
@@ -29,65 +28,50 @@ import mil.nga.mapcache.view.detail.NewLayerUtil;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
- * UI that allows the user to pick which zoom levels to save to a geopackage and various other
- * options.  Once user click finish, it saves the tile layer to the geopackage.
+ * UI that allows the user to pick which zoom levels to save to a geoPackage and various other
+ * options.  Once user click finish, it saves the tile layer to the geoPackage.
  */
 public class LayerOptionsUI {
 
     /**
      * Used to get the layout.
      */
-    private FragmentActivity activity;
+    private final FragmentActivity activity;
 
     /**
      * The app context.
      */
-    private Context context;
+    private final Context context;
 
     /**
      * The fragment this UI is apart of, used to get resource strings.
      */
-    private Fragment fragment;
-
-    /**
-     * Active GeoPackages
-     */
-    private GeoPackageDatabases active;
-
-    /**
-     * The callback to pass to LoadTilesTask.
-     */
-    private ILoadTilesTask callback;
+    private final Fragment fragment;
 
     /**
      * Contains a bounding box that is displayed to the user.
      */
-    private IBoundingBoxManager boxManager;
+    private final IBoundingBoxManager boxManager;
 
     /**
      * Contains the UI state.
      */
-    private LayerOptionsModel model = new LayerOptionsModel();
+    private final LayerOptionsModel model = new LayerOptionsModel();
 
     /**
      * Used to validate the model and execute the load tiles.
      */
-    private LayerOptionsController controller;
-
-    /**
-     * The model containing the selected layer.
-     */
-    private LayersModel layers;
+    private final LayerOptionsController controller;
 
     /**
      * Constructs a new layer options UI
      *
      * @param activity       Use The app context.
      * @param fragment       The fragment this UI is apart of, used to get resource strings.
-     * @param viewModel      Used to get the geopackage.
+     * @param viewModel      Used to get the geoPackage.
      * @param callback       The callback to pass to LoadTilesTask.
      * @param boxManager     Contains a bounding box that is displayed to the user.
-     * @param geoPackageName The name of the geopackage.
+     * @param geoPackageName The name of the geoPackage.
      * @param layerName      The name of the layer.
      * @param url            The base url to the tile layer.
      * @param layers         The model containing the selected layer.
@@ -99,8 +83,6 @@ public class LayerOptionsUI {
         this.activity = activity;
         this.context = context;
         this.fragment = fragment;
-        this.active = active;
-        this.callback = callback;
         this.boxManager = boxManager;
         this.model.setGeopackageName(geoPackageName);
         this.model.setLayerName(layerName);
@@ -116,15 +98,15 @@ public class LayerOptionsUI {
         // Create Alert window with basic input text layout
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View tileView = inflater.inflate(R.layout.new_tile_layer_final, null);
-        ImageView closeLogo = (ImageView) tileView.findViewById(R.id.final_layer_close_logo);
+        ImageView closeLogo = tileView.findViewById(R.id.final_layer_close_logo);
 
         // Set the spinner values for zoom levels
-        Spinner minSpinner = (Spinner) tileView.findViewById(R.id.min_zoom_spinner);
+        Spinner minSpinner = tileView.findViewById(R.id.min_zoom_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.zoom_levels, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         minSpinner.setAdapter(adapter);
-        Spinner maxSpinner = (Spinner) tileView.findViewById(R.id.max_zoom_spinner);
+        Spinner maxSpinner = tileView.findViewById(R.id.max_zoom_spinner);
         ArrayAdapter<CharSequence> maxAdapter = ArrayAdapter.createFromResource(getContext(),
                 R.array.zoom_levels, android.R.layout.simple_spinner_item);
         maxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -135,28 +117,26 @@ public class LayerOptionsUI {
         NewLayerUtil.setZoomLevelSyncListener(minSpinner, maxSpinner);
 
         // Name and url
-        TextView finalName = (TextView) tileView.findViewById(R.id.final_tile_name);
+        TextView finalName = tileView.findViewById(R.id.final_tile_name);
         finalName.setText(this.model.getLayerName());
-        TextView finalUrl = (TextView) tileView.findViewById(R.id.final_tile_url);
+        TextView finalUrl = tileView.findViewById(R.id.final_tile_url);
         finalUrl.setText(this.model.getUrl());
 
         // finish button
-        final MaterialButton drawButton = (MaterialButton) tileView.findViewById(
+        final MaterialButton drawButton = tileView.findViewById(
                 R.id.create_tile_button);
 
         // Advanced options
-        ImageButton advancedExpand = (ImageButton) tileView.findViewById(
+        ImageButton advancedExpand = tileView.findViewById(
                 R.id.advanced_expand_button);
-        View advancedView = (View) tileView.findViewById(R.id.advanceLayout);
-        advancedExpand.setOnClickListener((view) -> {
-            toggleSection(advancedExpand, advancedView);
-        });
-        RadioGroup srsGroup = (RadioGroup) tileView.findViewById(R.id.srsGroup);
+        View advancedView = tileView.findViewById(R.id.advanceLayout);
+        advancedExpand.setOnClickListener((view) -> toggleSection(advancedExpand, advancedView));
+        RadioGroup srsGroup = tileView.findViewById(R.id.srsGroup);
         if(model.getEpsg() != 3857) {
-            RadioButton radioButton = (RadioButton)tileView.findViewById(R.id.srs4326);
+            RadioButton radioButton = tileView.findViewById(R.id.srs4326);
             radioButton.setChecked(true);
         }
-        RadioGroup tileFormatGroup = (RadioGroup) tileView.findViewById(R.id.tileFormatGroup);
+        RadioGroup tileFormatGroup = tileView.findViewById(R.id.tileFormatGroup);
 
         // Open the dialog
         AlertDialog.Builder dialog = new AlertDialog.Builder(
@@ -166,48 +146,34 @@ public class LayerOptionsUI {
         alertDialog.setCanceledOnTouchOutside(false);
 
 
-        TextView srsLabel = (TextView) tileView.findViewById(R.id.srsLabel);
-        srsLabel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        TextView srsLabel = tileView.findViewById(R.id.srsLabel);
+        srsLabel.setOnClickListener((View view) -> {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setTitle(fragment.getString(R.string.srs_help_title));
                 builder.setMessage(fragment.getString(R.string.srs_help));
                 final AlertDialog srsDialog = builder.create();
 
-                builder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        srsDialog.dismiss();
-                    }
-                });
+                builder.setPositiveButton(R.string.button_ok_label,
+                        (DialogInterface dialogInterface, int i) -> srsDialog.dismiss());
                 builder.show();
-
-            }
         });
 
         // close button
-        closeLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        closeLogo.setOnClickListener((View v) -> {
                 alertDialog.dismiss();
                 boxManager.clearBoundingBox();
-
-            }
         });
 
         // finish button
-        drawButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                model.setMinZoom(Integer.valueOf(minSpinner.getSelectedItem().toString()));
-                model.setMaxZoom(Integer.valueOf(maxSpinner.getSelectedItem().toString()));
+        drawButton.setOnClickListener((View v) -> {
+                model.setMinZoom(Integer.parseInt(minSpinner.getSelectedItem().toString()));
+                model.setMaxZoom(Integer.parseInt(maxSpinner.getSelectedItem().toString()));
                 // Get values ready for creating the layer
-                RadioButton selectedSrs = (RadioButton) tileView.findViewById(
+                RadioButton selectedSrs = tileView.findViewById(
                         srsGroup.getCheckedRadioButtonId());
                 model.setEpsg(
-                        Integer.valueOf(selectedSrs.getText().subSequence(5, 9).toString()));
-                RadioButton selectedFormat = (RadioButton) tileView.findViewById(
+                        Integer.parseInt(selectedSrs.getText().subSequence(5, 9).toString()));
+                RadioButton selectedFormat = tileView.findViewById(
                         tileFormatGroup.getCheckedRadioButtonId());
                 model.setTileFormat(selectedFormat.getText().toString());
 
@@ -227,8 +193,6 @@ public class LayerOptionsUI {
                     alertDialog.dismiss();
                     boxManager.clearBoundingBox();
                 }
-
-            }
         });
         alertDialog.show();
     }
@@ -270,17 +234,13 @@ public class LayerOptionsUI {
     /**
      * Toggle for showing / hiding a view (used in the advanced section of create tile menu)
      *
-     * @param bt
-     * @param lyt
+     * @param bt The advanced options button.
+     * @param lyt The advanced options UI.
      */
     private void toggleSection(View bt, final View lyt) {
         boolean show = toggleArrow(bt);
         if (show) {
-            ViewAnimation.expand(lyt, new ViewAnimation.AnimListener() {
-                @Override
-                public void onFinish() {
-                }
-            });
+            ViewAnimation.expand(lyt, () -> {});
         } else {
             ViewAnimation.collapse(lyt);
         }

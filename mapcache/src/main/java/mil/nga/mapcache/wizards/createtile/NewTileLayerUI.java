@@ -66,9 +66,9 @@ public class NewTileLayerUI implements Observer {
     private Fragment fragment;
 
     /**
-     * Active GeoPackages
+     * Used to get the geopackage.
      */
-    private GeoPackageDatabases active;
+    private GeoPackageViewModel viewModel;
 
     /**
      * The callback to pass to LoadTilesTask.
@@ -125,14 +125,14 @@ public class NewTileLayerUI implements Observer {
      * @param activity           Use The app context.
      * @param context            The app context.
      * @param fragment           The fragment this UI is apart of, used to get resource strings.
-     * @param active             The active GeoPackages
+     * @param viewModel          Used to get the geopackage.
      * @param callback           The callback to pass to LoadTilesTask.
      * @param geoPackageName     The name of the geopackage.
      */
     public NewTileLayerUI(RecyclerView geoPackageRecycler, IMapView mapView,
                           IBoundingBoxManager boxManager,
                           FragmentActivity activity, Context context, Fragment fragment,
-                          GeoPackageDatabases active, GeoPackageViewModel geoPackageViewModel,
+                          GeoPackageViewModel viewModel,
                           ILoadTilesTask callback, String geoPackageName) {
         this.geoPackageRecycler = geoPackageRecycler;
         this.mapView = mapView;
@@ -140,11 +140,11 @@ public class NewTileLayerUI implements Observer {
         this.activity = activity;
         this.context = context;
         this.fragment = fragment;
-        this.active = active;
+        this.viewModel = viewModel;
         this.callback = callback;
         model.setGeopackageName(geoPackageName);
         model.addObserver(this);
-        this.controller = new NewTileLayerController(model, geoPackageViewModel, fragment,
+        this.controller = new NewTileLayerController(model, viewModel, fragment,
                 PreferenceManager.getDefaultSharedPreferences(activity));
     }
 
@@ -313,7 +313,7 @@ public class NewTileLayerUI implements Observer {
     private void drawTileBoundingBox(LayersModel layers) {
         TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView,
                 boxManager, layers);
-        tileBoundsUI.show(activity, context, fragment, active, callback, model);
+        tileBoundsUI.show(activity, context, fragment, viewModel, callback, model);
     }
 
     /**

@@ -123,6 +123,15 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     * Gets the geoPackage by name.
+     * @param name The name of the geoPackage to get.
+     * @return The geoPackage.
+     */
+    public GeoPackage getGeoPackage(String name) {
+        return repository.getGeoPackageByName(name);
+    }
+
+    /**
      * Returns the GeoPackage's featureTable size from the GeoPackageDatabases storage
      * @param geoPackageName Name of the geopackage to search for
      * @return count - int of the number of feature tables

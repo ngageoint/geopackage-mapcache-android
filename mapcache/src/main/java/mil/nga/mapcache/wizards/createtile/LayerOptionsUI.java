@@ -26,6 +26,7 @@ import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.detail.NewLayerUtil;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
  * UI that allows the user to pick which zoom levels to save to a geopackage and various other
@@ -83,7 +84,7 @@ public class LayerOptionsUI {
      *
      * @param activity       Use The app context.
      * @param fragment       The fragment this UI is apart of, used to get resource strings.
-     * @param active         The active GeoPackages
+     * @param viewModel      Used to get the geopackage.
      * @param callback       The callback to pass to LoadTilesTask.
      * @param boxManager     Contains a bounding box that is displayed to the user.
      * @param geoPackageName The name of the geopackage.
@@ -92,7 +93,7 @@ public class LayerOptionsUI {
      * @param layers         The model containing the selected layer.
      */
     public LayerOptionsUI(FragmentActivity activity, Context context, Fragment fragment,
-                          GeoPackageDatabases active, ILoadTilesTask callback,
+                          GeoPackageViewModel viewModel, ILoadTilesTask callback,
                           IBoundingBoxManager boxManager, String geoPackageName,
                           String layerName, String url, LayersModel layers) {
         this.activity = activity;
@@ -105,7 +106,7 @@ public class LayerOptionsUI {
         this.model.setLayerName(layerName);
         this.model.setUrl(url);
         controller = new LayerOptionsController(
-                boxManager, callback, active, activity, model, layers);
+                boxManager, callback, viewModel, activity, model, layers);
     }
 
     /**

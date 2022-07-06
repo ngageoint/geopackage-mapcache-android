@@ -17,6 +17,7 @@ import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.ProjectionConstants;
 
 /**
@@ -40,9 +41,9 @@ public class LayerOptionsController implements Observer {
     private ILoadTilesTask callback;
 
     /**
-     * The active geopackages.
+     * Used to get the geopackage.
      */
-    private GeoPackageDatabases active;
+    private GeoPackageViewModel viewModel;
 
     /**
      * The activity to pass to the load tile task.
@@ -59,17 +60,17 @@ public class LayerOptionsController implements Observer {
      *
      * @param boxManager Contains the bounding box the user wants to put into the geopackage.
      * @param callback   Callback for load tiles task.
-     * @param active     The active geopackages.
+     * @param viewModel  Used to get the geopackage.
      * @param activity   The activity to pass to the load tile task.
      * @param model      The model shared between the UI and controller.
      * @param layers     The model containing the selected layer.
      */
     public LayerOptionsController(IBoundingBoxManager boxManager, ILoadTilesTask callback,
-                                  GeoPackageDatabases active, FragmentActivity activity,
+                                  GeoPackageViewModel viewModel, FragmentActivity activity,
                                   LayerOptionsModel model, LayersModel layers) {
         this.boxManager = boxManager;
         this.callback = callback;
-        this.active = active;
+        this.viewModel = viewModel;
         this.activity = activity;
         this.model = model;
         this.layers = layers;
@@ -137,7 +138,7 @@ public class LayerOptionsController implements Observer {
 
         // Load tiles
         LoadTilesTask.loadTiles(activity,
-                callback, active,
+                callback, viewModel,
                 model.getGeopackageName(), model.getLayerName(), url, model.getMinZoom(),
                 model.getMaxZoom(), compressFormat,
                 compressQuality, xyzTiles,

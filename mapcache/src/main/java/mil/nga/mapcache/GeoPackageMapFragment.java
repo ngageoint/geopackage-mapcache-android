@@ -2237,7 +2237,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void newTileLayerWizard(final String geopackageName) {
         NewTileLayerUI newTileLayerUI = new NewTileLayerUI(geoPackageRecycler, this,
-                this, getActivity(), getContext(), this, active,
+                this, getActivity(), getContext(), this,
                 geoPackageViewModel, this, geopackageName);
         newTileLayerUI.show(geoPackageViewModel);
     }
@@ -3788,23 +3788,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param filter filter features flag
      */
     private void updateInBackground(boolean zoom, boolean filter) {
-
-        MapUpdateTask localUpdateTask = null;
-        updateLock.lock();
-        try {
-            if (updateTask != null) {
-                updateTask.cancel(false);
-            }
-            if (updateFeaturesTask != null) {
-                updateFeaturesTask.cancel(false);
-            }
-            updateTask = new MapUpdateTask();
-            localUpdateTask = updateTask;
-        } finally {
-            updateLock.unlock();
-        }
-
-        map.clear();
+        getActivity().runOnUiThread(() -> map.clear());
         geoPackages.closeAll();
         featureDaos.clear();
         basemapApplier.clear();
@@ -3821,11 +3805,27 @@ public class GeoPackageMapFragment extends Fragment implements
         markerIds.clear();
         int maxFeatures = getMaxFeatures();
 
-        BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
-        double toleranceDistance = MapUtils.getToleranceDistance(view, map);
+        getActivity().runOnUiThread(() -> {
+            BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
+            double toleranceDistance = MapUtils.getToleranceDistance(view, map);
 
-        localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            MapUpdateTask localUpdateTask = null;
+            updateLock.lock();
+            try {
+                if (updateTask != null) {
+                    updateTask.cancel(false);
+                }
+                if (updateFeaturesTask != null) {
+                    updateFeaturesTask.cancel(false);
+                }
+                updateTask = new MapUpdateTask();
+                localUpdateTask = updateTask;
+            } finally {
+                updateLock.unlock();
+            }
 
+            localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+        });
     }
 
     /**
@@ -6436,8 +6436,9 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onLoadTilesPostExecute(String result) {
         if (result != null) {
-            GeoPackageUtils.showMessage(getActivity(),
-                    getString(R.string.geopackage_create_tiles_label), result);
+            getActivity().runOnUiThread(() ->
+                GeoPackageUtils.showMessage(getActivity(),
+                        getString(R.string.geopackage_create_tiles_label), result));
         }
         loadTilesFinished();
     }

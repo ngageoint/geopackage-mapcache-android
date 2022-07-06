@@ -17,6 +17,7 @@ import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.layersprovider.LayersView;
 import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
  * The UI that allows the user to specify the tile bounding box of the area they want to export
@@ -65,12 +66,12 @@ public class TileBoundingBoxUI {
      *
      * @param activity       Use The app context.
      * @param fragment       The fragment this UI is apart of, used to get resource strings.
-     * @param active         The active GeoPackages
+     * @param viewModel      Used to get the geopackage
      * @param callback       The callback to pass to LoadTilesTask.
      * @param model          Contains various information about the layer.
      */
     public void show(FragmentActivity activity, Context context, Fragment fragment,
-                     GeoPackageDatabases active, ILoadTilesTask callback, NewTileLayerModel model) {
+                     GeoPackageViewModel viewModel, ILoadTilesTask callback, NewTileLayerModel model) {
         // prepare the screen by shrinking bottom sheet, hide fab and map buttons, show zoom level
         BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -141,7 +142,7 @@ public class TileBoundingBoxUI {
                 mapView.getBaseApplier().removeLayer(
                         model.getBaseUrl(), layerName);
                 // continue to create layer
-                createTileFinal(activity, context, fragment, active, callback,
+                createTileFinal(activity, context, fragment, viewModel, callback,
                         model.getGeopackageName(), model.getLayerName(), model.getUrl());
             }
         });
@@ -152,17 +153,17 @@ public class TileBoundingBoxUI {
      *
      * @param activity       Use The app context.
      * @param fragment       The fragment this UI is apart of, used to get resource strings.
-     * @param active         The active GeoPackages
+     * @param viewModel      Used to get the geopackage.
      * @param callback       The callback to pass to LoadTilesTask.
      * @param geoPackageName The name of the geopackage.
      * @param layerName      The name of the layer.
      * @param url            The base url to the tile layer.
      */
     private void createTileFinal(FragmentActivity activity, Context context, Fragment fragment,
-                                 GeoPackageDatabases active, ILoadTilesTask callback,
+                                 GeoPackageViewModel viewModel, ILoadTilesTask callback,
                                  String geoPackageName, String layerName, String url) {
         LayerOptionsUI layerOptions = new LayerOptionsUI(activity, context,
-                fragment, active, callback, boxManager,
+                fragment, viewModel, callback, boxManager,
                 geoPackageName, layerName, url, layers);
         layerOptions.show();
     }

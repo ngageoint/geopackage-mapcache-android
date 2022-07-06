@@ -30,6 +30,7 @@ import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.utils.HttpUtils;
 import mil.nga.mapcache.utils.ThreadUtils;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.Projection;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
@@ -47,7 +48,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      *
      * @param activity The main activity.
      * @param callback Called when the load tiles task has completed or was cancelled.
-     * @param active The active geopackages.
+     * @param viewModel Used to get the geopackage.
      * @param database The geopackage name to load tiles for.
      * @param tableName The tile layer to load tiles for.
      * @param tileUrl The url to the server hosting the tiles.
@@ -63,14 +64,13 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      * @param headers Any header values that need to be added to the tile download requests.
      */
     public static void loadTiles(Activity activity, ILoadTilesTask callback,
-                                 GeoPackageDatabases active, String database, String tableName,
+                                 GeoPackageViewModel viewModel, String database, String tableName,
                                  String tileUrl, int minZoom, int maxZoom,
                                  CompressFormat compressFormat, Integer compressQuality,
                                  boolean xyzTiles, BoundingBox boundingBox, TileScaling scaling, String authority, String code,
                                  Map<String, List<String>> headers) {
 
-        GeoPackageManager manager = GeoPackageFactory.getManager(activity);
-        GeoPackage geoPackage = manager.open(database);
+        GeoPackage geoPackage = viewModel.getGeoPackage(database);
 
         Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bbox = transform(boundingBox, projection);
@@ -90,7 +90,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
 
         setTileGenerator(activity, tileGenerator, minZoom, maxZoom, compressFormat, compressQuality, xyzTiles, scaling);
 
-        loadTiles(activity, callback, active, geoPackage, tableName, tileGenerator);
+        loadTiles(activity, callback, viewModel, geoPackage, tableName, tileGenerator);
     }
 
     /**
@@ -149,17 +149,17 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      *
      * @param activity The main activity.
      * @param callback Called when the load tiles task has completed or was cancelled.
-     * @param active The active geopackages.
+     * @param viewModel Used to get the geopackage.
      * @param geoPackage The geopackage to load tiles into.
      * @param tableName The tile layer to load tiles into.
      * @param tileGenerator The tile generator.
      */
     private static void loadTiles(Activity activity, ILoadTilesTask callback,
-                                  GeoPackageDatabases active, GeoPackage geoPackage, String tableName, TileGenerator tileGenerator) {
+                                  GeoPackageViewModel viewModel, GeoPackage geoPackage, String tableName, TileGenerator tileGenerator) {
 
         ProgressDialog progressDialog = new ProgressDialog(activity);
         final LoadTilesTask loadTilesTask = new LoadTilesTask(activity,
-                callback, progressDialog, active);
+                callback, progressDialog, viewModel);
 
         tileGenerator.setProgress(loadTilesTask);
 
@@ -187,7 +187,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
     private TileGenerator tileGenerator;
     private ILoadTilesTask callback;
     private ProgressDialog progressDialog;
-    private GeoPackageDatabases active;
+    private GeoPackageViewModel viewModel;
     private PowerManager.WakeLock wakeLock;
     private boolean isCancelled = false;
 
@@ -197,14 +197,14 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      * @param activity The main activity.
      * @param callback Called when the load tiles task has completed or was cancelled.
      * @param progressDialog The progress dialog.
-     * @param active The active geopackages.
+     * @param viewModel Used to get the geopackage.
      */
     public LoadTilesTask(Activity activity, ILoadTilesTask callback,
-                         ProgressDialog progressDialog, GeoPackageDatabases active) {
+                         ProgressDialog progressDialog, GeoPackageViewModel viewModel) {
         this.activity = activity;
         this.callback = callback;
         this.progressDialog = progressDialog;
-        this.active = active;
+        this.viewModel = viewModel;
     }
 
     /**
@@ -272,8 +272,8 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
                         "This could be an issue with your tile URL or the tile server.  " +
                         "Please verify the server URL and try again.";
             }
-            if (count > 0) {
-                active.setModified(true);
+            if (count > 0 && viewModel.getActive().getValue() != null) {
+                viewModel.getActive().getValue().setModified(true);
             }
             if (count < max && !(tileGenerator instanceof FeatureTileGenerator)) {
                 result = "Fewer tiles were generated than " +

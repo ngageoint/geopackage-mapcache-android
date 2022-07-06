@@ -62,6 +62,16 @@ public class GridController {
     private View coordTextCard;
 
     /**
+     * Any existing camera idle listeners.
+     */
+    private GoogleMap.OnCameraIdleListener idleListener;
+
+    /**
+     * Any existing camera move listeners.
+     */
+    private GoogleMap.OnCameraMoveListener moveListener;
+
+    /**
      * Constructor.
      *
      * @param map           The map that we display grid overlays on.
@@ -69,12 +79,22 @@ public class GridController {
      * @param gridType      The type of grid to display on map.
      * @param coordTextView The text view to display current center of screen coordinates.
      * @param coordTextCard Contains the coordiantes text view.
+     * @param idleListener  Any existing camera idle listeners.
+     * @param moveListener  Any existing camera move listeners.
      */
-    public GridController(GoogleMap map, Activity activity, GridType gridType, TextView coordTextView, View coordTextCard) {
+    public GridController(GoogleMap map,
+                          Activity activity,
+                          GridType gridType,
+                          TextView coordTextView,
+                          View coordTextCard,
+                          GoogleMap.OnCameraIdleListener idleListener,
+                          GoogleMap.OnCameraMoveListener moveListener) {
         this.map = map;
         this.activity = activity;
         this.coordTextView = coordTextView;
         this.coordTextCard = coordTextCard;
+        this.idleListener = idleListener;
+        this.moveListener = moveListener;
         gridChanged(gridType);
     }
 
@@ -98,8 +118,8 @@ public class GridController {
         }
 
         if (gridType == GridType.NONE) {
-            this.map.setOnCameraIdleListener(null);
-            this.map.setOnCameraMoveListener(null);
+            this.map.setOnCameraIdleListener(this.idleListener);
+            this.map.setOnCameraMoveListener(this.moveListener);
             this.coordTextCard.setVisibility(View.GONE);
         } else {
             switch (gridType) {
@@ -114,8 +134,8 @@ public class GridController {
             }
             onCameraIdle();
             onCameraMoved();
-            this.map.setOnCameraIdleListener(() -> onCameraIdle());
-            this.map.setOnCameraMoveListener(() -> onCameraMoved());
+            this.map.setOnCameraIdleListener(this::onCameraIdle);
+            this.map.setOnCameraMoveListener(this::onCameraMoved);
         }
 
     }
@@ -124,6 +144,10 @@ public class GridController {
      * Called when the globes camera stops moving.
      */
     private void onCameraIdle() {
+        if(this.idleListener != null) {
+            this.idleListener.onCameraIdle();
+        }
+
         if (gridCreator != null) {
             LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
             gridCreator.createGridForMap(new BoundingBox(bounds.southwest.longitude, bounds.southwest.latitude,
@@ -135,13 +159,14 @@ public class GridController {
      * Called when the globes camera moves.
      */
     private void onCameraMoved() {
+        if(this.moveListener != null) {
+            this.moveListener.onCameraMove();
+        }
+
         LatLng center = map.getCameraPosition().target;
         String coordinate = null;
-        switch (gridType) {
-            case MGRS:
-                coordinate = Point.create(center.longitude, center.latitude).toMGRS().coordinate();
-                break;
-            default:
+        if(gridType == GridType.MGRS) {
+            coordinate = Point.create(center.longitude, center.latitude).toMGRS().coordinate();
         }
         if (coordinate != null) {
             coordTextCard.setVisibility(View.VISIBLE);

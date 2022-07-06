@@ -112,6 +112,9 @@ public class TileBoundingBoxUI {
             @Override
             public void onClick(View view) {
                 // Remove transparent box and show the fab and map buttons again
+                if (!mapView.isZoomLevelVisible()) {
+                    mapView.setZoomLevelVisible(false);
+                }
                 mapView.getTouchableMap().removeView(mapView.getTransBox());
                 mapView.getBaseApplier().removeLayer(
                         model.getBaseUrl(), layerName);

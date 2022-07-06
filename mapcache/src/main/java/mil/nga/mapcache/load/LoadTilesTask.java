@@ -5,8 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap.CompressFormat;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -16,18 +14,13 @@ import java.util.Map;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.GeoPackageFactory;
-import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
-import mil.nga.geopackage.tiles.features.FeatureTiles;
-import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.utils.HttpUtils;
 import mil.nga.mapcache.utils.ThreadUtils;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -48,8 +41,8 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      *
      * @param activity The main activity.
      * @param callback Called when the load tiles task has completed or was cancelled.
-     * @param viewModel Used to get the geopackage.
-     * @param database The geopackage name to load tiles for.
+     * @param viewModel Used to get the geoPackage.
+     * @param database The geoPackage name to load tiles for.
      * @param tableName The tile layer to load tiles for.
      * @param tileUrl The url to the server hosting the tiles.
      * @param minZoom The minimum zoom.
@@ -73,10 +66,10 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
         GeoPackage geoPackage = viewModel.getGeoPackage(database);
 
         Projection projection = ProjectionFactory.getProjection(authority, code);
-        BoundingBox bbox = transform(boundingBox, projection);
+        BoundingBox bBox = transform(boundingBox, projection);
 
         UrlTileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
-                tableName, tileUrl, minZoom, maxZoom, bbox, projection);
+                tableName, tileUrl, minZoom, maxZoom, bBox, projection);
         tileGenerator.addHTTPHeaderValue(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
@@ -149,8 +142,8 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      *
      * @param activity The main activity.
      * @param callback Called when the load tiles task has completed or was cancelled.
-     * @param viewModel Used to get the geopackage.
-     * @param geoPackage The geopackage to load tiles into.
+     * @param viewModel Used to get the geoPackage.
+     * @param geoPackage The geoPackage to load tiles into.
      * @param tableName The tile layer to load tiles into.
      * @param tileGenerator The tile generator.
      */
@@ -181,13 +174,13 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
         ThreadUtils.getInstance().runBackground(loadTilesTask);
     }
 
-    private Activity activity;
+    private final Activity activity;
     private Integer max = null;
     private int progress = 0;
     private TileGenerator tileGenerator;
-    private ILoadTilesTask callback;
-    private ProgressDialog progressDialog;
-    private GeoPackageViewModel viewModel;
+    private final ILoadTilesTask callback;
+    private final ProgressDialog progressDialog;
+    private final GeoPackageViewModel viewModel;
     private PowerManager.WakeLock wakeLock;
     private boolean isCancelled = false;
 
@@ -197,7 +190,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      * @param activity The main activity.
      * @param callback Called when the load tiles task has completed or was cancelled.
      * @param progressDialog The progress dialog.
-     * @param viewModel Used to get the geopackage.
+     * @param viewModel Used to get the geoPackage.
      */
     public LoadTilesTask(Activity activity, ILoadTilesTask callback,
                          ProgressDialog progressDialog, GeoPackageViewModel viewModel) {

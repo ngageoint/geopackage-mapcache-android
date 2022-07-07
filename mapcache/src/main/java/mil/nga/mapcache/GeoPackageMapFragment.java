@@ -3,14 +3,12 @@ package mil.nga.mapcache;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -49,7 +47,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -116,8 +113,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -200,9 +195,7 @@ import mil.nga.mapcache.listeners.SensorCallback;
 import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
-import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.load.ShareTask;
-import mil.nga.mapcache.preferences.BasemapSettings;
 import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
@@ -277,11 +270,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private GeoPackageDatabases active;
 
     /**
-     * All GeoPackages
-     */
-    private GeoPackageDatabases allGeos;
-
-    /**
      * Google map
      */
     private GoogleMap map;
@@ -295,11 +283,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * View
      */
     private static View view;
-
-    /**
-     * Load tiles view
-     */
-    private static View loadTilesView;
 
     /**
      * Edit features view
@@ -325,7 +308,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Tracks the last calculated bearing from the sensors
      */
-    float mCompassLastMeasuredBearing = new Float(0.0f);
+    float mCompassLastMeasuredBearing = 0.0f;
 
     /**
      * Last location saved from location services
@@ -360,7 +343,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update lock for creating and cancelling update tasks
      */
-    private Lock updateLock = new ReentrantLock();
+    private final Lock updateLock = new ReentrantLock();
 
     /**
      * Mapping of open GeoPackages by name
@@ -370,7 +353,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Mapping of open GeoPackage feature DAOs
      */
-    private Map<String, Map<String, FeatureDao>> featureDaos = new HashMap<>();
+    private final Map<String, Map<String, FeatureDao>> featureDaos = new HashMap<>();
 
     /**
      * Vibrator
@@ -418,11 +401,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private MenuItem boundingBoxMenuItem;
 
     /**
-     * Bounding box clear button
-     */
-    private ImageButton boundingBoxClearButton;
-
-    /**
      * Edit Features menu item
      */
     private MenuItem editFeaturesMenuItem;
@@ -440,7 +418,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Feature shapes
      */
-    private FeatureShapes featureShapes = new FeatureShapes();
+    private final FeatureShapes featureShapes = new FeatureShapes();
 
     /**
      * Current zoom level
@@ -455,17 +433,17 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Mapping between marker ids and the feature ids
      */
-    private Map<String, Long> editFeatureIds = new HashMap<String, Long>();
+    private final Map<String, Long> editFeatureIds = new HashMap<>();
 
     /**
      * Mapping between marker ids and the features
      */
-    private Map<String, MarkerFeature> markerIds = new HashMap<String, MarkerFeature>();
+    private final Map<String, MarkerFeature> markerIds = new HashMap<>();
 
     /**
      * Mapping between marker ids and feature objects
      */
-    private Map<String, GoogleMapShape> editFeatureObjects = new HashMap<String, GoogleMapShape>();
+    private final Map<String, GoogleMapShape> editFeatureObjects = new HashMap<>();
 
     /**
      * Edit points type
@@ -477,19 +455,19 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private enum EditType {
 
-        POINT, LINESTRING, POLYGON, POLYGON_HOLE, EDIT_FEATURE;
+        POINT, LINESTRING, POLYGON, POLYGON_HOLE, EDIT_FEATURE
 
     }
 
     /**
      * Map of edit point marker ids and markers
      */
-    private Map<String, Marker> editPoints = new LinkedHashMap<String, Marker>();
+    private final Map<String, Marker> editPoints = new LinkedHashMap<>();
 
     /**
      * Map of edit point hole marker ids and markers
      */
-    private Map<String, Marker> editHolePoints = new LinkedHashMap<String, Marker>();
+    private final Map<String, Marker> editHolePoints = new LinkedHashMap<>();
 
     /**
      * Edit feature marker
@@ -529,7 +507,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * List of hold polygons
      */
-    private List<List<LatLng>> holePolygons = new ArrayList<List<LatLng>>();
+    private final List<List<LatLng>> holePolygons = new ArrayList<>();
 
     /**
      * Edit point button
@@ -579,7 +557,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Lock for concurrently updating the features bounding box
      */
-    private Lock featuresBoundingBoxLock = new ReentrantLock();
+    private final Lock featuresBoundingBoxLock = new ReentrantLock();
 
     /**
      * Bounding box around the tiles on the map
@@ -594,28 +572,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * List of Feature Overlay Queries for querying tile overlay clicks
      */
-    private List<FeatureOverlayQuery> featureOverlayQueries = new ArrayList<>();
-
-    /**
-     * GeoPackage name constant
-     */
-    public static final String GEO_PACKAGE_DETAIL = "mil.nga.mapcache.extra.GEOPACKAGEDETAIL";
-
-    /**
-     * View holding the recyler view list of geopackages
-     */
-    private RecyclerView geoPackageRecyclerView;
-
-    /**
-     * Views to show "no geopackages found" message when the list is empty
-     */
-    private TextView getStartedView;
-    private LinearLayout emptyViewHolder;
-
-    /**
-     * Progress dialog for network operations
-     */
-    private ProgressDialog progressDialog;
+    private final List<FeatureOverlayQuery> featureOverlayQueries = new ArrayList<>();
 
     /**
      * Intent activity request code when choosing a file
@@ -733,11 +690,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private FusedLocationProviderClient fusedLocationClient;
 
     /**
-     * Menu item in the edit features popup for show/hide location
-     */
-    private MenuItem showHideOption;
-
-    /**
      * A view that acts as a transparent box.  Used for laying on top of a map for the user to
      * draw a bounding box
      */
@@ -756,7 +708,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * The camera move listener.
      */
-    private GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
+    private final GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
         @Override
         public void onCameraMove() {
             if(zoomLevelText.getVisibility() == View.VISIBLE) {
@@ -788,9 +740,10 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
-        geoPackageViewModel.init();
+        if(getActivity() != null) {
+            geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
+            geoPackageViewModel.init();
+        }
 
         active = new GeoPackageDatabases(getActivity().getApplicationContext(), "active");
 
@@ -921,31 +874,25 @@ public class GeoPackageMapFragment extends Fragment implements
      * Populate the top level GeoPackage recyclerview with GeoPackage names
      */
     private void createGeoPackageRecycler() {
-        geoPackageRecycler = (RecyclerView) view.findViewById(R.id.recycler_geopackages);
+        geoPackageRecycler = view.findViewById(R.id.recycler_geopackages);
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         geoPackageRecycler.setLayoutManager(layoutManager);
-        BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
 
-        GeoPackageClickListener geoClickListener = new GeoPackageClickListener() {
-            @Override
-            public void onClick(View view, int position, GeoPackageDatabase db) {
+        GeoPackageClickListener geoClickListener = (View view, int position, GeoPackageDatabase db) ->
                 createGeoPackageDetailAdapter(db);
-            }
-        };
         // Create the adapter and set it for the recyclerview
         geoPackageRecyclerAdapter = new GeoPackageAdapter(geoClickListener);
         populateRecyclerWithGeoPackages();
 
 
         // Listener for swiping a geopackage to the right to enable/disable all layers
-        EnableAllLayersListener gpSwipeListener = new EnableAllLayersListener() {
-            @Override
-            public void onClick(boolean active, GeoPackageDatabase db) {
+        EnableAllLayersListener gpSwipeListener = (boolean active, GeoPackageDatabase db) ->
                 geoPackageViewModel.setAllLayersActive(active, db);
-            }
-        };
-        SwipeController controller = new SwipeController(getContext(), gpSwipeListener);
-        controller.getTouchHelper().attachToRecyclerView(geoPackageRecycler);
+
+        if(getContext() != null) {
+            SwipeController controller = new SwipeController(getContext(), gpSwipeListener);
+            controller.getTouchHelper().attachToRecyclerView(geoPackageRecycler);
+        }
     }
 
     /**
@@ -957,7 +904,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private void subscribeGeoPackageRecycler() {
         // Observe list of GeoPackages
         geoPackageViewModel.getGeos().observe(getViewLifecycleOwner(), newGeos -> {
-            allGeos = newGeos;
             // Set the visibility of the 'no geopackages found' message
             setListVisibility(newGeos.getDatabases().isEmpty());
             // If not empty, repopulate the list
@@ -1022,47 +968,25 @@ public class GeoPackageMapFragment extends Fragment implements
     private void createGeoPackageDetailAdapter(GeoPackageDatabase db) {
         if (db != null) {
             // Listener for clicking on Layer
-            DetailLayerClickListener layerListener = new DetailLayerClickListener() {
-                @Override
-                public void onClick(DetailPageLayerObject layerObject) {
-                    createGeoPackageLayerDetailAdapter(layerObject);
-                }
-            };
+            DetailLayerClickListener layerListener = this::createGeoPackageLayerDetailAdapter;
 
             // Listener for clicking on Layer's active switch.  Sends the table and active state to the
             // repository to be stored in the active tables list
-            LayerActiveSwitchListener activeLayerListener = new LayerActiveSwitchListener() {
-                @Override
-                public void onClick(boolean active, GeoPackageTable table) {
+            LayerActiveSwitchListener activeLayerListener = (boolean active, GeoPackageTable table) ->
                     geoPackageViewModel.setLayerActive(table);
-                }
-            };
 
             // Listener for clicking the enable all switch for enabling all layers
-            EnableAllLayersListener enableAllListener = new EnableAllLayersListener() {
-                @Override
-                public void onClick(boolean active, GeoPackageDatabase db) {
-                    geoPackageViewModel.setAllLayersActive(active, db);
-                }
-            };
+            EnableAllLayersListener enableAllListener = (boolean active, GeoPackageDatabase geopackage) ->
+                    geoPackageViewModel.setAllLayersActive(active, geopackage);
 
             // Listener to forward a button click on the detail header to the appropriate dialog function
             // Note: Layer name will be empty string for the GeoPackage detail page
-            DetailActionListener detailActionListener = new DetailActionListener() {
-                @Override
-                public void onClick(View view, int actionType, String gpName, String layerName) {
+            DetailActionListener detailActionListener = (View view, int actionType, String gpName, String layerName) ->
                     openActionDialog(gpName, layerName, actionType);
-                }
-            };
 
             // Click listener for the back arrow on the detail header.  Resets the RecyclerView to
             // show GeoPackages
-            View.OnClickListener detailBackListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    populateRecyclerWithGeoPackages();
-                }
-            };
+            View.OnClickListener detailBackListener = (View view) -> populateRecyclerWithGeoPackages();
 
             // Generate a list to pass to the adapter.  Should contain:
             // - A heaader: DetailPageHeaderObject
@@ -1087,61 +1011,20 @@ public class GeoPackageMapFragment extends Fragment implements
 
         // Click listener for the back arrow on the layer page.  Resets the RecyclerView to
         // show the previous GeoPackage Detail view
-        View.OnClickListener detailBackListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                populateRecyclerWithDetail();
-            }
-        };
+        View.OnClickListener detailBackListener = (View view) -> populateRecyclerWithDetail();
 
         // Listener for clicking on Layer's active switch.  Sends the table and active state to the
         // repository to be stored in the active tables list
-        LayerActiveSwitchListener activeLayerListener = new LayerActiveSwitchListener() {
-            @Override
-            public void onClick(boolean active, GeoPackageTable table) {
+        LayerActiveSwitchListener activeLayerListener = (boolean active, GeoPackageTable table) ->
                 geoPackageViewModel.setLayerActive(table);
-            }
-        };
 
         // (Delete) Listener to forward a button click layer detail page to the appropriate dialog function
-        DetailActionListener detailActionListener = new DetailActionListener() {
-            @Override
-            public void onClick(View view, int actionType, String gpName, String layerName) {
+        DetailActionListener detailActionListener = (View view, int actionType, String gpName, String layerName) ->
                 openActionDialog(gpName, layerName, actionType);
-            }
-        };
-
-        // Listener for renaming a layer
-        DetailActionListener renameLayerListener = new DetailActionListener() {
-            @Override
-            public void onClick(View view, int actionType, String gpName, String layerName) {
-                openActionDialog(gpName, layerName, actionType);
-            }
-        };
-
-        // Listener for copying a layer
-        DetailActionListener copyLayerListener = new DetailActionListener() {
-            @Override
-            public void onClick(View view, int actionType, String gpName, String layerName) {
-                openActionDialog(gpName, layerName, actionType);
-            }
-        };
-
-        // Listener for editing a feature layer from the layer detail page
-        DetailActionListener editLayerListener = new DetailActionListener() {
-            @Override
-            public void onClick(View view, int actionType, String gpName, String layerName) {
-                openActionDialog(gpName, layerName, actionType);
-            }
-        };
 
         // Listener for editing feature columns on the layer detail page
-        FeatureColumnListener featureColumnListener = new FeatureColumnListener() {
-            @Override
-            public void onClick(View view, int actionType, FeatureColumnDetailObject columnDetailObject) {
+        FeatureColumnListener featureColumnListener = (View view, int actionType, FeatureColumnDetailObject columnDetailObject) ->
                 openFeatureColumnDialog(columnDetailObject, actionType);
-            }
-        };
 
         List<Object> layerDetailObjects = new ArrayList<>();
         layerDetailObjects.add(layerObject);
@@ -1526,7 +1409,7 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         // Set text for show/hide my location based on current visibility
-        showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
+        MenuItem showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
         if (visible) {
             showHideOption.setTitle("Hide my location");
         } else {
@@ -1574,7 +1457,6 @@ public class GeoPackageMapFragment extends Fragment implements
                             }
 
                             boundingBoxMode = true;
-                            loadTilesView.setVisibility(View.VISIBLE);
                         } else {
                             resetBoundingBox();
                         }
@@ -1779,8 +1661,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * recycler view being empty
      */
     private void setListVisibility(boolean empty) {
-        emptyViewHolder = (LinearLayout) view.findViewById(R.id.empty_list_holder);
-        getStartedView = (TextView) view.findViewById(R.id.geo_get_started);
+        LinearLayout emptyViewHolder = (LinearLayout) view.findViewById(R.id.empty_list_holder);
+        TextView getStartedView = (TextView) view.findViewById(R.id.geo_get_started);
 
         // Give the get started message a listener
         getStartedView.setOnClickListener(new View.OnClickListener() {
@@ -3375,7 +3257,6 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
 
                     boundingBoxMode = true;
-                    loadTilesView.setVisibility(View.VISIBLE);
                     boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box_active);
                 } else {
                     resetBoundingBox();
@@ -3519,7 +3400,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void resetBoundingBox() {
         boundingBoxMode = false;
-        loadTilesView.setVisibility(View.INVISIBLE);
         if (boundingBoxMenuItem != null) {
 //            boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box);
         }
@@ -3565,9 +3445,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Turn off the loading of tiles
      */
     public void clearBoundingBox() {
-        if (boundingBoxClearButton != null) {
-            boundingBoxClearButton.setImageResource(R.drawable.cancel_changes);
-        }
         if (boundingBox != null) {
             boundingBox.remove();
         }
@@ -5237,10 +5114,6 @@ public class GeoPackageMapFragment extends Fragment implements
         polygonOptions.addAll(points);
         boundingBox = map.addPolygon(polygonOptions);
         setDrawing(true);
-        if (boundingBoxClearButton != null) {
-            boundingBoxClearButton
-                    .setImageResource(R.drawable.cancel_changes_active);
-        }
         return true;
     }
 
@@ -5309,10 +5182,6 @@ public class GeoPackageMapFragment extends Fragment implements
                 polygonOptions.addAll(points);
                 boundingBox = map.addPolygon(polygonOptions);
                 setDrawing(true);
-                if (boundingBoxClearButton != null) {
-                    boundingBoxClearButton
-                            .setImageResource(R.drawable.cancel_changes_active);
-                }
             }
         } else if (editFeatureType != null) {
             if (editFeatureType == EditType.EDIT_FEATURE) {

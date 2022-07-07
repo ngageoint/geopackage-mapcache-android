@@ -1344,7 +1344,7 @@ public class GeoPackageMapFragment extends Fragment implements
             //method.setAccessible(true);
             method.invoke(pm.getMenu(), true);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
@@ -1395,7 +1395,7 @@ public class GeoPackageMapFragment extends Fragment implements
             //method.setAccessible(true);
             method.invoke(pm.getMenu(), true);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
         }
 
         pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
@@ -2172,7 +2172,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     "Choose a GeoPackage file");
             startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
         } catch (Exception e) {
-            // eat
+            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
         }
     }
 

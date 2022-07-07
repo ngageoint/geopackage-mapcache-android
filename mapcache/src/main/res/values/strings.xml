@@ -442,5 +442,6 @@
     <string name="temp_file_name">tempBitmap.jpg</string>
     <string name="selectedBasemaps">selectedBasemaps</string>
     <string name="new_tile_server">New Tile Server</string>
+    <string name="create_tile_layer">Create Tile Layer</string>
 
 </resources>

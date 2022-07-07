@@ -2251,7 +2251,7 @@ public class GeoPackageMapFragment extends Fragment implements
         NewTileLayerUI newTileLayerUI = new NewTileLayerUI(geoPackageRecycler, this,
                 this, getActivity(), getContext(), this,
                 geoPackageViewModel, this, geopackageName);
-        newTileLayerUI.show(geoPackageViewModel);
+        newTileLayerUI.show();
     }
 
     /**

@@ -2,7 +2,6 @@ package mil.nga.mapcache.viewmodel;
 
 import android.app.Activity;
 import android.app.Application;
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -15,15 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.db.GeoPackageDataType;
-import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
@@ -32,7 +27,6 @@ import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.indexer.IIndexerTask;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.repository.GeoPackageRepository;
-import mil.nga.mapcache.view.map.feature.FeatureViewModel;
 import mil.nga.mapcache.view.map.feature.FeatureViewObjects;
 import mil.nga.sf.GeometryType;
 
@@ -47,29 +41,23 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     /**
      * List of active tables
      */
-    private MutableLiveData<List<GeoPackageTable>> activeTables = new MutableLiveData<>();
+    private final MutableLiveData<List<GeoPackageTable>> activeTables = new MutableLiveData<>();
 
     /**
      * List of GeoPackageTable objects organized by GeoPackage Name
      */
-    private MutableLiveData<List<List<GeoPackageTable>>> geoPackageTables = new MutableLiveData<>();
+    private final MutableLiveData<List<List<GeoPackageTable>>> geoPackageTables = new MutableLiveData<>();
 
     /**
      * List of (closed) GeoPackage objects
      */
-    private MutableLiveData<List<GeoPackage>> geoPackages = new MutableLiveData<>();
+    private final MutableLiveData<List<GeoPackage>> geoPackages = new MutableLiveData<>();
 
     /**
      * geos is a GeoPackageDatabases object powered by the repository.  Contains a list of all
      * GeoPackageTables opened in this project
      */
     private MutableLiveData<GeoPackageDatabases> geos = new MutableLiveData<>();
-
-    /**
-     * active is a GeoPackageDatabases object powered by the repository.  Contains a list
-     * ONLY the GeoPackageTables that are set to active
-     */
-    private MutableLiveData<GeoPackageDatabases> active = new MutableLiveData<>();
 
 
     /**
@@ -88,11 +76,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         repository = new GeoPackageRepository(getApplication());
         activeTables.setValue(new ArrayList<>());
         geos = getGeos();
-        active = getActive();
-//        generateGeoPackageList();
         regenerateGeoPackageTableList();
-//        geoPackageTables.setValue(geoList);
-//        geoPackages.setValue(geoPackageList);
     }
 
     /**
@@ -103,19 +87,8 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     *  Returns the GeoPackage's size from the GeoPackageDatabases storage by accessing geos
-     */
-    public String getGeoPackageSize(String geoPackageName){
-        String size = "0mb";
-        if(geos.getValue() != null && geos.getValue().getDatabase(geoPackageName) != null) {
-            size = geos.getValue().getDatabase(geoPackageName).getSize();
-        }
-        return size;
-    }
-
-    /**
      * Returns a GeoPackageDatabase from the geos list
-     * @param geoPackageName The name of the geopackage to return
+     * @param geoPackageName The name of the geoPackage to return
      * @return a GeoPackageDatabase object
      */
     public GeoPackageDatabase getGeoByName(String geoPackageName){
@@ -132,33 +105,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Returns the GeoPackage's featureTable size from the GeoPackageDatabases storage
-     * @param geoPackageName Name of the geopackage to search for
-     * @return count - int of the number of feature tables
-     */
-    public int getFeatureCount(String geoPackageName){
-        int count = 0;
-        if(geos.getValue() != null && geos.getValue().getDatabase(geoPackageName) != null) {
-            count = geos.getValue().getDatabase(geoPackageName).getFeatureCount();
-        }
-        return count;
-    }
-
-    /**
-     *  Returns the GeoPackage's tileTable size from the GeoPackageDatabases storage
-     * @param geoPackageName Name of the geopackage to search for
-     * @return count - int of the number of tile tables
-     */
-    public int getTileCount(String geoPackageName){
-        int count = 0;
-        if(geos.getValue() != null && geos.getValue().getDatabase(geoPackageName) != null) {
-            count = geos.getValue().getDatabase(geoPackageName).getTileCount();
-        }
-        return count;
-    }
-
-    /**
-     * Returns true if the given table name exists in the given geopackage name
+     * Returns true if the given table name exists in the given geoPackage name
      */
     public boolean tableExistsInGeoPackage(String geoName, String tableName){
         return repository.tableExistsInGeoPackage(geoName, tableName);
@@ -175,35 +122,33 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * Sets the layer's active state to the given value
      * @param table GeoPackageTable type
      */
-    public boolean setLayerActive(GeoPackageTable table){
-        return repository.setLayerActive(table);
+    public void setLayerActive(GeoPackageTable table){
+        repository.setLayerActive(table);
     }
 
     /**
-     * Sets all the layers active in the given geopackage
+     * Sets all the layers active in the given geoPackage
      * @param db GeoPackageDatabase to add
      * @param active should all layers be active or inactive
-     * @return true if all layers are enabled
      */
-    public boolean setAllLayersActive(boolean active, GeoPackageDatabase db){
-        return repository.setAllLayersActive(active, getGeoByName(db.getDatabase()));
+    public void setAllLayersActive(boolean active, GeoPackageDatabase db){
+        repository.setAllLayersActive(active, getGeoByName(db.getDatabase()));
     }
 
     /**
      * Remove all active layers for the given database
      */
-    public boolean removeActiveTableLayers(String geoPackageName){
-        return repository.removeActiveForGeoPackage(geoPackageName);
+    public void removeActiveTableLayers(String geoPackageName){
+        repository.removeActiveForGeoPackage(geoPackageName);
     }
 
     /**
      * Search for the layer name in the GeoPackage and return true if it's found and deleted
      * @param geoPackageName Name of the GeoPackage to remove the active layer from
      * @param layerName Name of the layer to remove
-     * @return true if the layer was found and deleted
      */
-    public boolean removeActiveLayer(String geoPackageName, String layerName){
-        return repository.removeActiveLayer(geoPackageName, layerName);
+    public void removeActiveLayer(String geoPackageName, String layerName){
+        repository.removeActiveLayer(geoPackageName, layerName);
     }
 
     /**
@@ -211,21 +156,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      */
     public void clearAllActive(){
         repository.clearAllActive();
-    }
-
-
-
-
-
-
-    /**
-     * List<List<GeoPackageTable>
-     */
-    public void setGeoPackageTables(List<List<GeoPackageTable>> newGeoPackageTables) {
-        geoPackageTables.setValue(newGeoPackageTables);
-    }
-    public MutableLiveData<List<List<GeoPackageTable>>> getGeoPackageTables() {
-        return geoPackageTables;
     }
 
     /**
@@ -238,83 +168,17 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         this.geoPackages.setValue(geoPackages);
     }
 
-    public MutableLiveData<List<GeoPackageTable>> getActiveTables() {
-        return activeTables;
-    }
-    public void setActiveTables(List<GeoPackageTable> newTables){
-        activeTables.setValue(newTables);
-    }
-
     /**
-     *  Return true if the given table is in the list of active tables
-     * @param geoPackageName The name of the geopackage.
-     * @param tableName The name of the layer within the geopackage.
-     * @return True if the layer is active, false if not.
-     */
-    public boolean isTableActive(String geoPackageName, String tableName){
-        if(getActiveTables().getValue() != null)
-        {
-            for(GeoPackageTable table : getActiveTables().getValue()){
-                if(table.getDatabase().equalsIgnoreCase(geoPackageName) && table.getName().equalsIgnoreCase(tableName)){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Opens a geopackage and pulls out all objects needed for a view created by clicking on a
+     * Opens a geoPackage and pulls out all objects needed for a view created by clicking on a
      * Feature point.
-     * @return FeatureViewObjects object containing only the needed parts of the geopackage
+     * @return FeatureViewObjects object containing only the needed parts of the geoPackage
      */
     public FeatureViewObjects getFeatureViewObjects(MarkerFeature markerFeature){
         return repository.getFeatureViewObjects(markerFeature);
     }
 
-
-
-
-        /**
-         * Add the table to the activeTables list (used to enable a layer on the map)
-         * @param newTable The new table to add.
-         */
-    public void addToTables(GeoPackageTable newTable){
-        //List<GeoPackageTable> newTables = activeTables.getValue();
-        //newTables.add(newTable);
-        //activeTables.postValue(newTables);
-    }
-
     /**
-     * Find the given table in the table list, and add to activeTables if found
-     * @param tableName The name of the new table.
-     * @param geoPackageName The name of the geopackage to add the table to.
-     * @return true if the table was added
-     */
-    public boolean addTableByName(String tableName, String geoPackageName){
-        // Use tableName and GeoPackageName to find the geoPackageTable in the livedata list
-        if(getGeoPackageTables().getValue() != null) {
-            for (List<GeoPackageTable> geoTableList : getGeoPackageTables().getValue()) {
-                if (geoTableList.size() > 0) {
-                    if (geoTableList.get(0).getDatabase().equalsIgnoreCase(geoPackageName)) {
-                        for (GeoPackageTable table : geoTableList) {
-                            if (table.getName().equalsIgnoreCase(tableName)) {
-                                // Save the geopackage with the layer as active
-                                repository.getTableObject(geoPackageName, tableName, true);
-                                // Add to our list of active tables
-                                addToTables(table);
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Remove the given layer from a geopackage, then call the callback after the geopackage lists
+     * Remove the given layer from a geoPackage, then call the callback after the geoPackage lists
      * have been updated
      */
     public GeoPackageDatabase removeLayerFromGeo(String geoPackageName, String layerName,
@@ -329,7 +193,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Rename a layer in a geopackage
+     * Rename a layer in a geoPackage
      */
     public GeoPackageDatabase renameLayer(String geoPackageName, String layerName, String newLayerName){
         if(repository.renameLayer(geoPackageName, layerName, newLayerName)){
@@ -342,8 +206,8 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
 
     /**
      * Rename a GeoPackage, then find and change that old name in the activeTables list
-     * @param oldName The current name of the geopackage.
-     * @param newName The new name for the geopackage.
+     * @param oldName The current name of the geoPackage.
+     * @param newName The new name for the geoPackage.
      * @return True if the rename was successful, false if not.
      */
     public boolean setGeoPackageName(String oldName, String newName){
@@ -364,30 +228,9 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
         List<List<GeoPackageTable>> databaseTables = repository.regenerateTableList();
          geoPackageTables.postValue(databaseTables);
 //         generateGeoPackageList();
-        for(List<GeoPackageTable> tableList : databaseTables){
-            for(GeoPackageTable table : tableList){
-                if(table.isActive()){
-                    addToTables(table);
-                }
-            }
-
-        }
         geoPackages.postValue(repository.getGeoPackages());
 //        geos.postValue(repository.getGeos().getValue());
     }
-
-    /**
-     * Generate the list of geopackage objects
-     */
-    public void generateGeoPackageList(){
-        if(repository == null){
-            repository = new GeoPackageRepository(getApplication());
-        }
-        geoPackages.postValue(repository.getGeoPackages());
-
-    }
-
-
 
     /**
      * Delete GeoPackage and regenerate the list of GeoPackages
@@ -413,7 +256,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * import a geopackage from url.  GeoPackageProgress should be an instance of DownloadTask
+     * import a geoPackage from url.  GeoPackageProgress should be an instance of DownloadTask
      */
     public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
         if(repository.importGeoPackage(name, source, progress)){
@@ -525,14 +368,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     public boolean importGeoPackage(String database, InputStream stream,
                                     GeoPackageProgress progress){
         if(repository.importGeoPackage(database, stream, progress)){
-//            // Then index any feature tables
-//            List<String> newFeatures = repository.getFeatureTables(database);
-//            if(!newFeatures.isEmpty()){
-//                for(String tableName : newFeatures){
-//                    indexFeatures(activity, database, tableName);
-//
-//                }
-//            }
             regenerateGeoPackageTableList();
             return true;
         }
@@ -540,52 +375,7 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     *  Returns the list of tile tables for a geopackage
-     */
-    public List<String> getTileTables(String database){
-        return repository.getTileTables(database);
-    }
-
-    /**
-     *  Returns the list of feature tables for a geopackage
-     */
-    public List<String> getFeatureTables(String database){
-        return repository.getFeatureTables(database);
-    }
-
-    /**
-     * Get a GeoPackageTable object and set the active state
-     */
-    public GeoPackageTable getTableObjectActive(String gpName, String layerName){
-        GeoPackageTable table = repository.getTableObject(gpName, layerName, null);
-        table.setActive(isTableActive(gpName, layerName));
-        return table;
-    }
-
-    /**
-     * Get a GeoPackageTable object
-     */
-    public GeoPackageTable getTableObject(String gpName, String layerName){
-        return repository.getTableObject(gpName, layerName, null);
-    }
-
-    public Contents getTableContents(String gpName, String tableName){
-        return repository.getTableContents(gpName, tableName);
-    }
-
-
-
-    // TODO GET RID OF THE Activity context!
-//    /**
-//     * Index the given features table
-//     */
-//    public boolean indexFeatures(Activity activity, String database, String tableName){
-//        IndexerTask.indexFeatures(activity, GeoPackageViewModel.this, database, tableName, FeatureIndexType.GEOPACKAGE);
-//        return true;
-//    }
-
-    /**
-     * Create feature table in the given geopackage
+     * Create feature table in the given geoPackage
      */
     public boolean createFeatureTable(String gpName, BoundingBox boundingBox, GeometryType geometryType, String tableName){
         if(repository.createFeatureTable(gpName, boundingBox, geometryType, tableName)){
@@ -596,19 +386,8 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Create tile table in the given GeoPackage
-     * @return True.
-     */
-    public boolean createTileTable(String gpName, BoundingBox boundingBox, long epsg, String tableName, TileScaling scaling){
-        repository.createTileTable(gpName, boundingBox, epsg, tableName, scaling);
-        regenerateGeoPackageTableList();
-        return true;
-    }
-
-
-    /**
      * Get an alert dialog filled with a GeoPackage's details
-     * @param geoPackageName The name of the geopackage to get details for.
+     * @param geoPackageName The name of the geoPackage to get details for.
      * @param activity The activity to own the dialog.
      * @return The detail dialog.
      */

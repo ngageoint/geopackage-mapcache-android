@@ -1,13 +1,16 @@
 package mil.nga.mapcache.repository;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.MutableLiveData;
 
 import java.io.ByteArrayOutputStream;
@@ -960,6 +963,24 @@ public class GeoPackageRepository implements Closeable {
                 .setTitle(geoPackageName)
                 .setPositiveButton(R.string.button_ok_label, (dialog, which) -> dialog.dismiss())
                     .setMessage(databaseInfo.toString()).create();
+    }
+
+    /**
+     * Get the GeoPackage databases. If external storage permissions granted get all, if not get only internal
+     *
+     * @return The geoPackage names available to user.
+     */
+    public List<String> getDatabases() {
+        List<String> databases;
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+            databases = manager.databases();
+        } else {
+            databases = manager.internalDatabases();
+        }
+
+        return databases;
     }
 
     /**

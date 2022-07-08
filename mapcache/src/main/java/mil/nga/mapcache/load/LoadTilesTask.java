@@ -279,7 +279,6 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
         } catch (final Exception e) {
             Log.e(LoadTilesTask.class.getSimpleName(), e.getMessage(), e);
         } finally {
-            tileGenerator.close();
             wakeLock.release();
             progressDialog.dismiss();
         }

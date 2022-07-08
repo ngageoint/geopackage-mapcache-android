@@ -375,6 +375,14 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
+     * Gets the list of geoPackage database names.
+     * @return The geoPackage names available to user.
+     */
+    public List<String> getDatabases() {
+        return repository.getDatabases();
+    }
+
+    /**
      * Create feature table in the given geoPackage
      */
     public boolean createFeatureTable(String gpName, BoundingBox boundingBox, GeometryType geometryType, String tableName){

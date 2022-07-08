@@ -91,8 +91,6 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -119,10 +117,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageCache;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.GeoPackageFactory;
-import mil.nga.geopackage.GeoPackageManager;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
@@ -212,7 +207,6 @@ import mil.nga.mapcache.view.layer.FeatureColumnDetailObject;
 import mil.nga.mapcache.view.layer.FeatureColumnUtil;
 import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.view.map.BasemapApplier;
-import mil.nga.mapcache.view.map.feature.FcColumnDataObject;
 import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.mapcache.wizards.createtile.IBoundingBoxManager;
@@ -324,11 +318,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Callback for location updates
      */
     private LocationCallback locationCallback;
-
-    /**
-     * GeoPackage manager
-     */
-    private GeoPackageManager manager;
 
     /**
      * Update task
@@ -755,7 +744,9 @@ public class GeoPackageMapFragment extends Fragment implements
         setIconListeners();
 
         // Set up loaciton provider
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        if(getContext() != null) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+        }
 
         // Util class for launching dialogs when clicking buttons on GeoPackage detail page
         detailButtonUtil = new DetailActionUtil(getActivity());
@@ -766,7 +757,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Floating action button
         layerFab = view.findViewById(R.id.layer_fab);
         fab = view.findViewById(R.id.bottom_sheet_fab);
-        setFLoatingActionButton();
+        setFloatingActionButton();
         setNewLayerFab();
 
         // Create the GeoPackage recycler view
@@ -1195,34 +1186,14 @@ public class GeoPackageMapFragment extends Fragment implements
         // First remove it from the active layers
         geoPackageViewModel.removeActiveLayer(gpName, layerName);
         // Ask the repository to delete the layer
-        GeoPackageDatabase db = geoPackageViewModel.removeLayerFromGeo(gpName, layerName,
+        geoPackageViewModel.removeLayerFromGeo(gpName, layerName,
                 GeoPackageMapFragment.this);
-
-
-        // We used to hold a temporary copy of the GP so that we don't have to wait for the delete
-        // to finish.  now with the callback we don't have to do that anymore
-
-//        // Get current geopackage database object in case removing layer deletes the last layer of the gp
-//        GeoPackageDatabase currentDb = geoPackageViewModel.getGeoByName(gpName);
-//        GeoPackageTable removableTable = currentDb.getTableByName(layerName);
-
-//        if(db != null){
-//            createGeoPackageDetailAdapter(db);
-//        } else{
-//            // If the layer that was deleted was the last one in the geopackage, the remove layer
-//            // method will return null.  In that case, use our original DB object with the deleted
-//            // layer to populate the detail adapter view
-//            if(currentDb != null && removableTable != null) {
-//                currentDb.remove(removableTable);
-//                createGeoPackageDetailAdapter(currentDb);
-//            }
-//        }
     }
 
     /**
      * Callback after onDeleteLayer asks the viewModel to delete the layer
      *
-     * @param geoPackageName
+     * @param geoPackageName The name of the changed geoPackage.
      */
     @Override
     public void onLayerDeleted(String geoPackageName) {
@@ -1324,156 +1295,151 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Pop up menu for map view type icon button - selector for map, satellite, terrain
-     *
-     * @param view
      */
-    public void openMapSelect(View view) {
-        PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
-        // Needed to make the icons visible
-        try {
-            Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
-            //method.setAccessible(true);
-            method.invoke(pm.getMenu(), true);
-        } catch (Exception e) {
-            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
-        }
+    public void openMapSelect() {
+        if(getActivity() != null) {
+            PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
+            // Needed to make the icons visible
+            try {
+                Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+                //method.setAccessible(true);
+                method.invoke(pm.getMenu(), true);
+            } catch (Exception e) {
+                Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
+            }
 
-        pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
-        MenuCompat.setGroupDividerEnabled(pm.getMenu(), true);
-        pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.map:
-                        setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                        return true;
-
-                    case R.id.satellite:
-                        setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-                        return true;
-
-                    case R.id.terrain:
-                        setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                        return true;
-                    case R.id.NoGrid:
-                        setGridType(GridType.NONE);
-                        return true;
-                    case R.id.GARSGrid:
-                        setGridType(GridType.GARS);
-                        return true;
-                    case R.id.MGRSGrid:
-                        setGridType(GridType.MGRS);
-                        return true;
+            pm.getMenuInflater().inflate(R.menu.popup_map_type, pm.getMenu());
+            MenuCompat.setGroupDividerEnabled(pm.getMenu(), true);
+            pm.setOnMenuItemClickListener((MenuItem item) -> {
+                if (item.getItemId() == R.id.map) {
+                    setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                    return true;
+                }
+                else if (item.getItemId() == R.id.satellite) {
+                    setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                    return true;
+                }
+                else if (item.getItemId() ==  R.id.terrain) {
+                    setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                    return true;
+                }
+                else if (item.getItemId() ==  R.id.NoGrid) {
+                    setGridType(GridType.NONE);
+                    return true;
+                }
+                else if (item.getItemId() ==  R.id.GARSGrid) {
+                    setGridType(GridType.GARS);
+                    return true;
+                }
+                else if (item.getItemId() ==  R.id.MGRSGrid) {
+                    setGridType(GridType.MGRS);
+                    return true;
                 }
 
                 return true;
-            }
-        });
-        pm.show();
+            });
+            pm.show();
+        }
     }
 
 
     /**
      * Pop up menu for editing geoapackage - drawing features, bounding box, etc
-     *
-     * @param view
      */
-    public void openEditMenu(View view) {
-        PopupMenu pm = new PopupMenu(getActivity(), editFeaturesButton);
-        // Needed to make the icons visible
-        try {
-            Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
-            //method.setAccessible(true);
-            method.invoke(pm.getMenu(), true);
-        } catch (Exception e) {
-            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
-        }
+    public void openEditMenu() {
+        if(getActivity() != null) {
+            PopupMenu pm = new PopupMenu(getActivity(), editFeaturesButton);
+            // Needed to make the icons visible
+            try {
+                Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+                //method.setAccessible(true);
+                method.invoke(pm.getMenu(), true);
+            } catch (Exception e) {
+                Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
+            }
 
-        pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
+            pm.getMenuInflater().inflate(R.menu.popup_edit_menu, pm.getMenu());
 
-        // Set text for edit features mode
-        MenuItem editFeaturesItem = pm.getMenu().findItem(R.id.features);
-        if (editFeaturesMode) {
-            editFeaturesItem.setTitle("Stop editing");
-        } else {
-            editFeaturesItem.setTitle("Edit Features");
-        }
+            // Set text for edit features mode
+            MenuItem editFeaturesItem = pm.getMenu().findItem(R.id.features);
+            if (editFeaturesMode) {
+                editFeaturesItem.setTitle("Stop editing");
+            } else {
+                editFeaturesItem.setTitle("Edit Features");
+            }
 
-        // Set text for show/hide my location based on current visibility
-        MenuItem showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
-        if (visible) {
-            showHideOption.setTitle("Hide my location");
-        } else {
-            showHideOption.setTitle("Show my location");
-        }
+            // Set text for show/hide my location based on current visibility
+            MenuItem showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
+            if (visible) {
+                showHideOption.setTitle("Hide my location");
+            } else {
+                showHideOption.setTitle("Show my location");
+            }
 
-        // Set text for show/hide my bearing based on current visibility
-        MenuItem showBearing = pm.getMenu().findItem(R.id.showBearing);
-        if (bearingVisible) {
-            showBearing.setTitle("Hide Bearing");
-        } else {
-            showBearing.setTitle("Show Bearing");
-        }
+            // Set text for show/hide my bearing based on current visibility
+            MenuItem showBearing = pm.getMenu().findItem(R.id.showBearing);
+            if (bearingVisible) {
+                showBearing.setTitle("Hide Bearing");
+            } else {
+                showBearing.setTitle("Show Bearing");
+            }
 
-        int totalFeaturesAndTiles = active.getAllFeaturesAndTilesCount();
-        if (totalFeaturesAndTiles == 0) {
-            MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
-            zoomToActive.setEnabled(false);
-        }
-        pm.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.zoomToActive:
+            int totalFeaturesAndTiles = active.getAllFeaturesAndTilesCount();
+            if (totalFeaturesAndTiles == 0) {
+                MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
+                zoomToActive.setEnabled(false);
+            }
+            pm.setOnMenuItemClickListener((MenuItem item) -> {
+                if(item.getItemId() == R.id.zoomToActive) {
                         zoomToActive();
                         return true;
+                }
+                else if(item.getItemId() == R.id.features) {
+                    editFeaturesMenuItem = item;
+                    if (!editFeaturesMode) {
+                        selectEditFeatures();
+                    } else {
+                        resetEditFeatures();
+                        updateInBackground(false, true);
+                    }
+                    return true;
+                }
+                else if(item.getItemId() == R.id.boundingBox) {
+                    boundingBoxMenuItem = item;
+                    if (!boundingBoxMode) {
 
-                    case R.id.features:
-                        editFeaturesMenuItem = item;
-                        if (!editFeaturesMode) {
-                            selectEditFeatures();
-                        } else {
+                        if (editFeaturesMode) {
                             resetEditFeatures();
                             updateInBackground(false, true);
                         }
-                        return true;
 
-                    case R.id.boundingBox:
-                        boundingBoxMenuItem = item;
-                        if (!boundingBoxMode) {
-
-                            if (editFeaturesMode) {
-                                resetEditFeatures();
-                                updateInBackground(false, true);
-                            }
-
-                            boundingBoxMode = true;
-                        } else {
-                            resetBoundingBox();
-                        }
-                        return true;
-
-                    case R.id.maxFeatures:
-                        setMaxFeatures();
-                        return true;
-
-                    case R.id.clearAllActive:
-                        clearAllActive();
-                        return true;
-
-                    case R.id.showMyLocation:
-                        showMyLocation();
-                        return true;
-
-                    case R.id.showBearing:
-                        setMapBearing();
-                        return true;
+                        boundingBoxMode = true;
+                    } else {
+                        resetBoundingBox();
+                    }
+                    return true;
+                }
+                else if(item.getItemId() == R.id.maxFeatures) {
+                    setMaxFeatures();
+                    return true;
+                }
+                else if(item.getItemId() == R.id.clearAllActive) {
+                    clearAllActive();
+                    return true;
+                }
+                else if(item.getItemId() == R.id.showMyLocation) {
+                    showMyLocation();
+                    return true;
+                }
+                else if(item.getItemId() == R.id.showBearing) {
+                    setMapBearing();
+                    return true;
                 }
 
                 return true;
-            }
-        });
-        pm.show();
+            });
+            pm.show();
+        }
     }
 
 
@@ -1510,26 +1476,20 @@ public class GeoPackageMapFragment extends Fragment implements
      * Gets current location from fused location provider and zooms to that location
      */
     private void zoomToMyLocation() {
+        if(getContext() != null && getActivity() != null) {
+            // Verify permissions first
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
 
-        // Verify permissions first
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-
-        fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(getActivity(), (Location location) -> {
                 if (location != null) {
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 13));
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                Log.i("loc", "failed");
-            }
-        });
+            }).addOnFailureListener((@NonNull @NotNull Exception e) ->
+                    Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e));
+        }
     }
 
 
@@ -1549,15 +1509,15 @@ public class GeoPackageMapFragment extends Fragment implements
      * Enable map bearing compass
      */
     private void showMapBearing() {
-        // Verify permissions first
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
+        if(getContext() != null && getActivity() != null) {
+            // Verify permissions first
+            if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
 
-        // Callback to move the camera every time the handler gets a sensor update
-        SensorCallback sensorCallback = new SensorCallback() {
-            public void onSensorChanged(SensorEvent event, float bearing) {
+            // Callback to move the camera every time the handler gets a sensor update
+            SensorCallback sensorCallback = (SensorEvent event, float bearing) -> {
                 mCompassLastMeasuredBearing = bearing;
                 if (mLastLocation != null) {
                     LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
@@ -1571,29 +1531,26 @@ public class GeoPackageMapFragment extends Fragment implements
                     //move map camera
                     map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
-            }
-        };
+            };
 
-        LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setInterval(12000);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setFastestInterval(12000);
-        locationRequest.setNumUpdates(Integer.MAX_VALUE);
+            LocationRequest locationRequest = LocationRequest.create();
+            locationRequest.setInterval(12000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setFastestInterval(12000);
+            locationRequest.setNumUpdates(Integer.MAX_VALUE);
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                Location location = locationResult.getLastLocation();
-                if (location != null) {
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
                     //The last location in the list is the newest
-                    mLastLocation = location;
+                    mLastLocation = locationResult.getLastLocation();
                 }
-            }
-        };
+            };
 
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-        sensorHandler = new SensorHandler(sensorCallback, getContext());
-        bearingVisible = !bearingVisible;
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+            sensorHandler = new SensorHandler(sensorCallback, getContext());
+            bearingVisible = !bearingVisible;
+        }
     }
 
 
@@ -1621,27 +1578,18 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Set Floating action button to open the create new geopackage wizard
      */
-    private void setFLoatingActionButton() {
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createNewWizard();
-            }
-        });
+    private void setFloatingActionButton() {
+        fab.setOnClickListener((View view) -> createNewWizard());
     }
 
     /**
      * Set Floating action button to create new layers
      */
     private void setNewLayerFab() {
-        layerFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                newLayerWizard();
-                String geoName = detailPageAdapter.getGeoPackageName();
-                if (geoName != null) {
-                    newLayerWizard();
-                }
+        layerFab.setOnClickListener((View view) -> {
+            String geoName = detailPageAdapter.getGeoPackageName();
+            if (geoName != null) {
+                newLayerWizard();
             }
         });
     }
@@ -1656,17 +1604,12 @@ public class GeoPackageMapFragment extends Fragment implements
         TextView getStartedView = (TextView) view.findViewById(R.id.geo_get_started);
 
         // Give the get started message a listener
-        getStartedView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createNewWizard();
-            }
-        });
+        getStartedView.setOnClickListener((View view) -> createNewWizard());
 
         // Set the visibility
         if (empty) {
             emptyViewHolder.setVisibility(View.VISIBLE);
-            BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
+            BottomSheetBehavior<RecyclerView> behavior = BottomSheetBehavior.from(geoPackageRecycler);
             behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else {
             emptyViewHolder.setVisibility(View.GONE);
@@ -1683,49 +1626,24 @@ public class GeoPackageMapFragment extends Fragment implements
         // Create listeners for map view icon button
         setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mapSelectButton = (ImageButton) view.findViewById(R.id.mapTypeIcon);
-        mapSelectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openMapSelect(v);
-            }
-        });
+        mapSelectButton.setOnClickListener((View v) -> openMapSelect());
 
         // Edit icon for editing features
         editFeaturesButton = (ImageButton) view.findViewById(R.id.editFeaturesIcon);
-        editFeaturesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openEditMenu(v);
-            }
-        });
+        editFeaturesButton.setOnClickListener((View v) -> openEditMenu());
 
         zoomInButton = (ImageButton) view.findViewById(R.id.zoomInIcon);
-        zoomInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                zoomIn();
-            }
-        });
+        zoomInButton.setOnClickListener((View v) -> zoomIn());
 
         zoomLevelText = (TextView) view.findViewById(R.id.zoomLevelText);
         coordText = (TextView) view.findViewById(R.id.coordText);
         coordTextCard = view.findViewById(R.id.coordTextCard);
 
         zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
-        zoomOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                zoomOut();
-            }
-        });
+        zoomOutButton.setOnClickListener((View v) -> zoomOut());
 
         settingsIcon = (ImageButton) view.findViewById(R.id.settingsIcon);
-        settingsIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                launchPreferences();
-            }
-        });
+        settingsIcon.setOnClickListener((View v) -> launchPreferences());
 
     }
 
@@ -1734,47 +1652,32 @@ public class GeoPackageMapFragment extends Fragment implements
      * Disclaimer popup
      */
     private void showDisclaimer() {
-        // Only show it if the user hasn't already accepted it before
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        boolean disclaimerPref = sharedPreferences.getBoolean(getString(R.string.disclaimerPref), false);
-        if (!disclaimerPref) {
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
-            View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
-            Button acceptButton = (Button) disclaimerView.findViewById(R.id.accept_button);
-            Button exitButton = (Button) disclaimerView.findViewById(R.id.exit_button);
+        if(getActivity() != null) {
+            // Only show it if the user hasn't already accepted it before
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            boolean disclaimerPref = sharedPreferences.getBoolean(getString(R.string.disclaimerPref), false);
+            if (!disclaimerPref) {
+                LayoutInflater inflater = LayoutInflater.from(getActivity());
+                View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
+                Button acceptButton = (Button) disclaimerView.findViewById(R.id.accept_button);
+                Button exitButton = (Button) disclaimerView.findViewById(R.id.exit_button);
 
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setView(disclaimerView);
-            final AlertDialog alertDialog = dialogBuilder.create();
-            acceptButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).commit();
-                    alertDialog.dismiss();
-                }
-            });
-            exitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    getActivity().finish();
-                }
-            });
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setView(disclaimerView);
+                final AlertDialog alertDialog = dialogBuilder.create();
+                acceptButton.setOnClickListener((View view) -> {
+                        sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
+                        alertDialog.dismiss();
+                });
+                exitButton.setOnClickListener((View view) -> getActivity().finish());
 
-            // Prevent the dialog from closing when clicking outside the dialog or the back button
-            alertDialog.setCanceledOnTouchOutside(false);
-            alertDialog.setOnKeyListener(new Dialog.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface arg0, int keyCode,
-                                     KeyEvent event) {
-                    if (keyCode == KeyEvent.KEYCODE_BACK) {
-                        // do nothing
-                    }
-                    return true;
-                }
-            });
-            alertDialog.show();
+                // Prevent the dialog from closing when clicking outside the dialog or the back button
+                alertDialog.setCanceledOnTouchOutside(false);
+                alertDialog.setOnKeyListener((DialogInterface arg0, int keyCode,
+                                         KeyEvent event) -> true);
+                alertDialog.show();
+            }
         }
-
     }
 
 
@@ -1782,48 +1685,50 @@ public class GeoPackageMapFragment extends Fragment implements
      * Show a warning that the user has selected more features than the current max features setting
      */
     private void showMaxFeaturesExceeded() {
-        // First check the settings to see if they disabled the message
-        if (displayMaxFeatureWarning) {
+        if(getActivity() != null) {
+            // First check the settings to see if they disabled the message
+            if (displayMaxFeatureWarning) {
 
-            // Create Alert window with basic input text layout
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
-            View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
-            // Logo and title
-            ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-            alertLogo.setBackgroundResource(R.drawable.material_info);
-            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-            titleText.setText("Max Features Exceeded");
+                // Create Alert window with basic input text layout
+                LayoutInflater inflater = LayoutInflater.from(getActivity());
+                View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+                // Logo and title
+                ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+                alertLogo.setBackgroundResource(R.drawable.material_info);
+                TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+                titleText.setText("Max Features Exceeded");
 
-            // Alert message
-            final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
-            inputName.setVisibility(View.GONE);
-            TextView message = (TextView) alertView.findViewById(R.id.alert_description);
-            message.setText(R.string.max_features_message);
-            message.setVisibility(View.VISIBLE);
+                // Alert message
+                final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+                inputName.setVisibility(View.GONE);
+                TextView message = (TextView) alertView.findViewById(R.id.alert_description);
+                message.setText(R.string.max_features_message);
+                message.setVisibility(View.VISIBLE);
 
-            CheckBox dontShowAgain = (CheckBox) alertView.findViewById(R.id.warn_again);
-            dontShowAgain.setVisibility(View.VISIBLE);
+                CheckBox dontShowAgain = (CheckBox) alertView.findViewById(R.id.warn_again);
+                dontShowAgain.setVisibility(View.VISIBLE);
 
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setView(alertView)
-                    .setPositiveButton(getString(R.string.button_ok_label),
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog,
-                                                    int whichButton) {
-                                    if (dontShowAgain.isChecked()) {
-                                        // Update the preference for showing this message in the future
-                                        SharedPreferences settings = PreferenceManager
-                                                .getDefaultSharedPreferences(getActivity());
-                                        SharedPreferences.Editor editor = settings.edit();
-                                        editor.putBoolean(MAX_FEATURES_MESSAGE_KEY, !dontShowAgain.isChecked());
-                                        editor.commit();
-                                        settingsUpdate();
+                AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setView(alertView)
+                        .setPositiveButton(getString(R.string.button_ok_label),
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int whichButton) {
+                                        if (dontShowAgain.isChecked()) {
+                                            // Update the preference for showing this message in the future
+                                            SharedPreferences settings = PreferenceManager
+                                                    .getDefaultSharedPreferences(getActivity());
+                                            SharedPreferences.Editor editor = settings.edit();
+                                            editor.putBoolean(MAX_FEATURES_MESSAGE_KEY, !dontShowAgain.isChecked());
+                                            editor.commit();
+                                            settingsUpdate();
+                                        }
+                                        dialog.cancel();
                                     }
-                                    dialog.cancel();
-                                }
-                            });
+                                });
 
-            dialog.show();
+                dialog.show();
+            }
         }
     }
 

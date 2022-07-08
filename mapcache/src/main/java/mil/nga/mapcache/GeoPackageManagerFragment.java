@@ -21,6 +21,7 @@ import android.os.PowerManager;
 import android.provider.DocumentsContract.Document;
 import android.provider.Settings;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -415,6 +416,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                             .getGeometryColumns();
                                     geometryType = geometryColumns.getGeometryType();
                                 } catch (Exception e) {
+                                    Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
                                 }
 
                                 GeoPackageTable table = new GeoPackageFeatureTable(database,
@@ -447,18 +449,6 @@ public class GeoPackageManagerFragment extends Fragment implements
                             exceptions.add(e);
                         }
                     }
-
-//                    for (GeoPackageFeatureOverlayTable table : active.featureOverlays(database)) {
-//                        try {
-//                            FeatureDao featureDao = geoPackage.getFeatureDao(table.getFeatureTable());
-//                            int count = featureDao.count();
-//                            table.setCount(count);
-//                            tables.add(table);
-//                        } catch (Exception e) {
-//                            exceptions.add(e);
-//                        }
-//                    }
-
                 } catch (Exception e) {
                     exceptions.add(e);
                 }
@@ -1259,7 +1249,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                     "Choose a GeoPackage file");
             startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
         } catch (Exception e) {
-            // eat
+            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
         }
 
     }
@@ -1380,7 +1370,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                                         }
                                                     });
                                         } catch (Exception e2) {
-                                            // eat
+                                            Log.e(GeoPackageManagerFragment.class.getSimpleName(), e2.getMessage(), e2);
                                         }
                                     }
                                 }
@@ -1479,7 +1469,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 }
                             });
                 } catch (Exception e) {
-                    // eat
+                    Log.e(GeoPackageManagerFragment.class.getSimpleName(), e.getMessage(), e);
                 }
             }
         } else {
@@ -1503,7 +1493,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                                 }
                             });
                 } catch (Exception e) {
-                    // eat
+                    Log.e(GeoPackageManagerFragment.class.getSimpleName(), e.getMessage(), e);
                 }
             }
         }
@@ -1531,7 +1521,7 @@ public class GeoPackageManagerFragment extends Fragment implements
                             }
                         });
             } catch (Exception e) {
-                // eat
+                Log.e(GeoPackageManagerFragment.class.getSimpleName(), e.getMessage(), e);
             }
         } else {
 

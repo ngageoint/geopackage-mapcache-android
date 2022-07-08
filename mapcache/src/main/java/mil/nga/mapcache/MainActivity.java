@@ -66,13 +66,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private GeoPackageMapFragment mapFragment;
 
-    /**
-     * Manager fragment
-     */
-//    private GeoPackageManagerFragment managerFragment;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -211,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // Check if permission was granted
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
 

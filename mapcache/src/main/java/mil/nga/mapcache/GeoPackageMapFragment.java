@@ -2235,9 +2235,9 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Initiate an Import task (received from intent outside of application)
      */
-    public void startImportTask(String name, Uri uri, String path, Intent intent) {
+    public void startImportTask(String name, Uri uri, Intent intent) {
         importTask = new ImportTask(getActivity(), intent);
-        importTask.importGeoPackage(name, uri, path);
+        importTask.importGeoPackage(name, uri, null);
     }
 
 

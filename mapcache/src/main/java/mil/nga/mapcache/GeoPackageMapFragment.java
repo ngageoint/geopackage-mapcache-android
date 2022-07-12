@@ -291,7 +291,12 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * True when the map is visible
      */
-    private static boolean visible = false;
+    private static boolean visible = true;
+
+    /**
+     * True when the location is shown on the map.
+     */
+    private static boolean locationVisible = false;
 
     /**
      * True when we are showing bearing on the map
@@ -1370,7 +1375,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
             // Set text for show/hide my location based on current visibility
             MenuItem showHideOption = pm.getMenu().findItem(R.id.showMyLocation);
-            if (visible) {
+            if (locationVisible) {
                 showHideOption.setTitle("Hide my location");
             } else {
                 showHideOption.setTitle("Show my location");
@@ -1464,10 +1469,28 @@ public class GeoPackageMapFragment extends Fragment implements
      * Toggles the "show my location" setting.  Turns the location on / off, then zooms
      */
     private void showMyLocation() {
-        boolean currentlyVisible = visible;
-        onHiddenChanged(visible);
+        locationVisible = !locationVisible;
+        // If my location did not have permissions to update and the map is becoming visible, ask for permission
+        if (!setMyLocationEnabled() && locationVisible) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(R.string.location_access_rational_title)
+                        .setMessage(R.string.location_access_rational_message)
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                            }
+                        })
+                        .create()
+                        .show();
+
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            }
+        }
         // Only zoom when turning location on, not when hiding it
-        if (!currentlyVisible) {
+        if (locationVisible) {
             zoomToMyLocation();
         }
     }
@@ -2883,8 +2906,7 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onResume() {
         settingsUpdate();
-        if (visible) {
-            visible = false;
+        if (locationVisible) {
             showMyLocation();
         }
         super.onResume();
@@ -2906,26 +2928,6 @@ public class GeoPackageMapFragment extends Fragment implements
         super.onHiddenChanged(hidden);
 
         visible = !hidden;
-
-        // If my location did not have permissions to update and the map is becoming visible, ask for permission
-        if (!setMyLocationEnabled() && visible) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(R.string.location_access_rational_title)
-                        .setMessage(R.string.location_access_rational_message)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-            } else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            }
-        }
 
         if (visible && active.isModified()) {
             active.setModified(false);
@@ -2965,7 +2967,7 @@ public class GeoPackageMapFragment extends Fragment implements
     public boolean setMyLocationEnabled() {
         boolean updated = false;
         if (map != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            map.setMyLocationEnabled(visible);
+            map.setMyLocationEnabled(locationVisible);
             updated = true;
             map.getUiSettings().setMyLocationButtonEnabled(false);
         }

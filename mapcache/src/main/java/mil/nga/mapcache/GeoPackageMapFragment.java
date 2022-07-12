@@ -2,7 +2,6 @@ package mil.nga.mapcache;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,7 +21,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -31,7 +29,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -567,11 +564,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Intent activity request code when choosing a file
      */
     public static final int ACTIVITY_CHOOSE_FILE = 3342;
-
-    /**
-     * Intent activity request code when opening app settings
-     */
-    public static final int ACTIVITY_APP_SETTINGS = 3344;
 
     /**
      * Intent activity request code when opening preferences menu
@@ -1471,17 +1463,14 @@ public class GeoPackageMapFragment extends Fragment implements
     private void showMyLocation() {
         locationVisible = !locationVisible;
         // If my location did not have permissions to update and the map is becoming visible, ask for permission
-        if (!setMyLocationEnabled() && locationVisible) {
+        if (!setMyLocationEnabled() && locationVisible && getActivity() != null) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setTitle(R.string.location_access_rational_title)
                         .setMessage(R.string.location_access_rational_message)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-                            }
-                        })
+                        .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION)
+                        )
                         .create()
                         .show();
 
@@ -2262,7 +2251,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         initializeMap();
     }
@@ -2283,18 +2272,14 @@ public class GeoPackageMapFragment extends Fragment implements
         map.getUiSettings().setRotateGesturesEnabled(false);
         //map.getUiSettings().setZoomControlsEnabled(true);
 
-        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-            @Override
-            public void onMapLoaded() {
-                updateInBackground(true);
-                mapLoaded = true;
-            }
+        map.setOnMapLoadedCallback(() -> {
+            updateInBackground(true);
+            mapLoaded = true;
         });
 
         map.moveCamera(CameraUpdateFactory.zoomTo(3));
 
         // Keep track of the current zoom level
-        String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
         float zoom = MapUtils.getCurrentZoom(map);
 
         zoomLevelText.setText("Zoom Level " + zoom);
@@ -2314,10 +2299,10 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Set the map color scheme to dark or default
      *
-     * @param makeDark
+     * @param makeDark True if the map style should be the dark style, false otherwise.
      */
     private void setMapDarkMode(boolean makeDark) {
-        if (map == null) return;
+        if (map == null || getContext() == null) return;
 
         if (makeDark) {
             map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
@@ -2412,13 +2397,18 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     private SupportMapFragment getMapFragment() {
-        FragmentManager fm = null;
+        FragmentManager fm;
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
             fm = getFragmentManager();
         } else {
             fm = getChildFragmentManager();
         }
-        return (SupportMapFragment) fm.findFragmentById(R.id.fragment_map_view_ui);
+        SupportMapFragment frag = null;
+        if(fm != null) {
+            frag = (SupportMapFragment) fm.findFragmentById(R.id.fragment_map_view_ui);
+        }
+
+        return frag;
     }
 
     /**
@@ -2431,124 +2421,92 @@ public class GeoPackageMapFragment extends Fragment implements
 
         editPointButton = (ImageButton) editFeaturesView
                 .findViewById(R.id.mapEditPointButton);
-        editPointButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                validateAndClearEditFeatures(EditType.POINT);
-            }
-        });
+        editPointButton.setOnClickListener((View arg0) -> validateAndClearEditFeatures(EditType.POINT));
 
         editLinestringButton = (ImageButton) editFeaturesView
                 .findViewById(R.id.mapEditLinestringButton);
-        editLinestringButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                validateAndClearEditFeatures(EditType.LINESTRING);
-            }
-        });
+        editLinestringButton.setOnClickListener((View arg0) -> validateAndClearEditFeatures(EditType.LINESTRING));
 
         editPolygonButton = (ImageButton) editFeaturesView
                 .findViewById(R.id.mapEditPolygonButton);
-        editPolygonButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                validateAndClearEditFeatures(EditType.POLYGON);
-            }
-        });
+        editPolygonButton.setOnClickListener((View arg0) -> validateAndClearEditFeatures(EditType.POLYGON));
 
         editAcceptButton = (ImageButton) editFeaturesView
                 .findViewById(R.id.mapEditAcceptButton);
-        editAcceptButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-
-                if (editFeatureType != null
-                        && (!editPoints.isEmpty() || editFeatureType == EditType.EDIT_FEATURE)) {
-                    boolean accept = false;
-                    switch (editFeatureType) {
-                        case POINT:
+        editAcceptButton.setOnClickListener((View arg0) -> {
+            if (editFeatureType != null
+                    && (!editPoints.isEmpty() || editFeatureType == EditType.EDIT_FEATURE)) {
+                boolean accept = false;
+                switch (editFeatureType) {
+                    case POINT:
+                        accept = true;
+                        break;
+                    case LINESTRING:
+                        if (editPoints.size() >= 2) {
                             accept = true;
-                            break;
-                        case LINESTRING:
-                            if (editPoints.size() >= 2) {
-                                accept = true;
-                            }
-                            break;
-                        case POLYGON:
-                        case POLYGON_HOLE:
-                            if (editPoints.size() >= 3 && editHolePoints.isEmpty()) {
-                                accept = true;
-                            }
-                            break;
-                        case EDIT_FEATURE:
-                            accept = editFeatureShape != null
-                                    && editFeatureShape.isValid();
-                            break;
-                    }
-                    if (accept) {
-                        saveEditFeatures();
-                    }
+                        }
+                        break;
+                    case POLYGON:
+                    case POLYGON_HOLE:
+                        if (editPoints.size() >= 3 && editHolePoints.isEmpty()) {
+                            accept = true;
+                        }
+                        break;
+                    case EDIT_FEATURE:
+                        accept = editFeatureShape != null
+                                && editFeatureShape.isValid();
+                        break;
+                }
+                if (accept) {
+                    saveEditFeatures();
                 }
             }
         });
 
         editClearButton = (ImageButton) editFeaturesView
                 .findViewById(R.id.mapEditClearButton);
-        editClearButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                if (!editPoints.isEmpty()
-                        || editFeatureType == EditType.EDIT_FEATURE) {
-                    if (editFeatureType == EditType.EDIT_FEATURE) {
-                        editFeatureType = null;
-                    }
-                    clearEditFeaturesAndPreserveType();
+        editClearButton.setOnClickListener((View arg0) -> {
+            if (!editPoints.isEmpty()
+                    || editFeatureType == EditType.EDIT_FEATURE) {
+                if (editFeatureType == EditType.EDIT_FEATURE) {
+                    editFeatureType = null;
                 }
+                clearEditFeaturesAndPreserveType();
             }
         });
 
         editPolygonHolesButton = (ImageButton) editFeaturesPolygonHoleView
                 .findViewById(R.id.mapEditPolygonHoleButton);
-        editPolygonHolesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                if (editFeatureType != EditType.POLYGON_HOLE) {
-                    editFeatureType = EditType.POLYGON_HOLE;
-                    editPolygonHolesButton
-                            .setImageResource(R.drawable.cut_hole_active);
-                } else {
-                    editFeatureType = EditType.POLYGON;
-                    editPolygonHolesButton
-                            .setImageResource(R.drawable.cut_hole);
-                }
-
+        editPolygonHolesButton.setOnClickListener((View arg0) -> {
+            if (editFeatureType != EditType.POLYGON_HOLE) {
+                editFeatureType = EditType.POLYGON_HOLE;
+                editPolygonHolesButton
+                        .setImageResource(R.drawable.cut_hole_active);
+            } else {
+                editFeatureType = EditType.POLYGON;
+                editPolygonHolesButton
+                        .setImageResource(R.drawable.cut_hole);
             }
         });
 
         editAcceptPolygonHolesButton = (ImageButton) editFeaturesPolygonHoleView
                 .findViewById(R.id.mapEditPolygonHoleAcceptButton);
         editAcceptPolygonHolesButton
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-                        if (editHolePoints.size() >= 3) {
-                            List<LatLng> latLngPoints = getLatLngPoints(editHolePoints);
-                            holePolygons.add(latLngPoints);
-                            clearEditHoleFeatures();
-                            updateEditState(true);
-                        }
+                .setOnClickListener((View arg0) -> {
+                    if (editHolePoints.size() >= 3) {
+                        List<LatLng> latLngPoints = getLatLngPoints(editHolePoints);
+                        holePolygons.add(latLngPoints);
+                        clearEditHoleFeatures();
+                        updateEditState(true);
                     }
                 });
 
         editClearPolygonHolesButton = (ImageButton) editFeaturesPolygonHoleView
                 .findViewById(R.id.mapEditPolygonHoleClearButton);
         editClearPolygonHolesButton
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View arg0) {
-                        clearEditHoleFeatures();
-                        updateEditState(true);
-                    }
+                .setOnClickListener((View arg0) -> {
+                    clearEditHoleFeatures();
+                    updateEditState(true);
                 });
 
     }
@@ -2557,55 +2515,42 @@ public class GeoPackageMapFragment extends Fragment implements
      * If there are unsaved edits prompt the user for validation. Clear edit
      * features if ok.
      *
-     * @param editTypeClicked
+     * @param editTypeClicked Which edit type did the user choose.
      */
     private void validateAndClearEditFeatures(final EditType editTypeClicked) {
 
         if (editPoints.isEmpty() && editFeatureType != EditType.EDIT_FEATURE) {
             clearEditFeaturesAndUpdateType(editTypeClicked);
         } else {
-
-            AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(
-                            getString(R.string.edit_features_clear_validation_label))
-                    .setMessage(
-                            getString(R.string.edit_features_clear_validation_message))
-                    .setPositiveButton(getString(R.string.button_ok_label),
-
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+            if(getActivity() != null) {
+                AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(
+                                getString(R.string.edit_features_clear_validation_label))
+                        .setMessage(
+                                getString(R.string.edit_features_clear_validation_message))
+                        .setPositiveButton(getString(R.string.button_ok_label),
+                            (DialogInterface dialog, int which) -> {
                                     if (editFeatureType == EditType.EDIT_FEATURE) {
                                         editFeatureType = null;
                                     }
                                     clearEditFeaturesAndUpdateType(editTypeClicked);
-                                }
                             })
-                    .setOnCancelListener(
-                            new DialogInterface.OnCancelListener() {
-
-                                @Override
-                                public void onCancel(DialogInterface dialog) {
-                                    tempEditFeatureMarker = null;
-                                }
-                            })
-                    .setNegativeButton(getString(R.string.button_cancel_label),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog,
-                                                    int which) {
+                        .setOnCancelListener(
+                            (DialogInterface dialog) -> tempEditFeatureMarker = null)
+                        .setNegativeButton(getString(R.string.button_cancel_label),
+                            (DialogInterface dialog, int which) -> {
                                     tempEditFeatureMarker = null;
                                     dialog.dismiss();
-                                }
                             }).create();
-            deleteDialog.show();
+                deleteDialog.show();
+            }
         }
     }
 
     /**
      * Clear edit features and update the type
      *
-     * @param editType
+     * @param editType The new edit type.
      */
     private void clearEditFeaturesAndUpdateType(EditType editType) {
         EditType previousType = editFeatureType;
@@ -2625,7 +2570,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Set the edit type
      *
-     * @param editType
+     * @param editType The edit type to set.
      */
     private void setEditType(EditType previousType, EditType editType) {
 
@@ -2652,31 +2597,33 @@ public class GeoPackageMapFragment extends Fragment implements
                     editFeatureMarker = tempEditFeatureMarker;
                     tempEditFeatureMarker = null;
                     Long featureId = editFeatureIds.get(editFeatureMarker.getId());
-                    final GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(editFeaturesDatabase);
-                    final FeatureDao featureDao = geoPackage
-                            .getFeatureDao(editFeaturesTable);
-                    final FeatureRow featureRow = featureDao
-                            .queryForIdRow(featureId);
-                    Geometry geometry = featureRow.getGeometry().getGeometry();
-                    GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
-                            featureDao.getProjection());
-                    GoogleMapShape shape = converter.toShape(geometry);
+                    if(featureId != null) {
+                        final GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(editFeaturesDatabase);
+                        final FeatureDao featureDao = geoPackage
+                                .getFeatureDao(editFeaturesTable);
+                        final FeatureRow featureRow = featureDao
+                                .queryForIdRow(featureId);
+                        Geometry geometry = featureRow.getGeometry().getGeometry();
+                        GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
+                                featureDao.getProjection());
+                        GoogleMapShape shape = converter.toShape(geometry);
 
-                    editFeatureMarker.remove();
-                    GoogleMapShape featureObject = editFeatureObjects
-                            .remove(editFeatureMarker.getId());
-                    if (featureObject != null) {
-                        featureObject.remove();
+                        editFeatureMarker.remove();
+                        GoogleMapShape featureObject = editFeatureObjects
+                                .remove(editFeatureMarker.getId());
+                        if (featureObject != null) {
+                            featureObject.remove();
+                        }
+
+                        MarkerOptions editFeatureShapeMarker = getEditFeatureShapeMarker();
+                        editFeatureShape = converter.addShapeToMapAsMarkers(map,
+                                shape, getEditFeatureMarker(),
+                                editFeatureShapeMarker, editFeatureShapeMarker,
+                                getEditFeatureShapeHoleMarker(),
+                                getDrawPolylineOptions(), getDrawPolygonOptions());
+
+                        updateEditState(true);
                     }
-
-                    MarkerOptions editFeatureShapeMarker = getEditFeatureShapeMarker();
-                    editFeatureShape = converter.addShapeToMapAsMarkers(map,
-                            shape, getEditFeatureMarker(),
-                            editFeatureShapeMarker, editFeatureShapeMarker,
-                            getEditFeatureShapeHoleMarker(),
-                            getDrawPolylineOptions(), getDrawPolygonOptions());
-
-                    updateEditState(true);
 
                     break;
             }
@@ -2689,23 +2636,25 @@ public class GeoPackageMapFragment extends Fragment implements
     private void addEditableShapeBack() {
 
         Long featureId = editFeatureIds.get(editFeatureMarker.getId());
-        final GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(editFeaturesDatabase);
-        final FeatureDao featureDao = geoPackage
-                .getFeatureDao(editFeaturesTable);
-        final FeatureRow featureRow = featureDao.queryForIdRow(featureId);
-        GeoPackageGeometryData geomData = featureRow.getGeometry();
-        if (geomData != null) {
-            Geometry geometry = geomData.getGeometry();
-            if (geometry != null) {
-                GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
-                        featureDao.getProjection());
-                GoogleMapShape shape = converter.toShape(geometry);
-                StyleCache styleCache = new StyleCache(geoPackage, getResources().getDisplayMetrics().density);
-                prepareShapeOptions(shape, styleCache, featureRow, true, true);
-                GoogleMapShape mapShape = GoogleMapShapeConverter
-                        .addShapeToMap(map, shape);
-                addEditableShape(featureId, mapShape);
-                styleCache.clear();
+        if(featureId != null) {
+            final GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(editFeaturesDatabase);
+            final FeatureDao featureDao = geoPackage
+                    .getFeatureDao(editFeaturesTable);
+            final FeatureRow featureRow = featureDao.queryForIdRow(featureId);
+            GeoPackageGeometryData geomData = featureRow.getGeometry();
+            if (geomData != null) {
+                Geometry geometry = geomData.getGeometry();
+                if (geometry != null) {
+                    GoogleMapShapeConverter converter = new GoogleMapShapeConverter(
+                            featureDao.getProjection());
+                    GoogleMapShape shape = converter.toShape(geometry);
+                    StyleCache styleCache = new StyleCache(geoPackage, getResources().getDisplayMetrics().density);
+                    prepareShapeOptions(shape, styleCache, featureRow, true, true);
+                    GoogleMapShape mapShape = GoogleMapShapeConverter
+                            .addShapeToMap(map, shape);
+                    addEditableShape(featureId, mapShape);
+                    styleCache.clear();
+                }
             }
         }
     }
@@ -2713,7 +2662,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get the feature marker options for editing points
      *
-     * @return
+     * @return The edit feature marker.
      */
     private MarkerOptions getEditFeatureMarker() {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -2728,7 +2677,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get the feature marker options to edit polylines and polygons
      *
-     * @return
+     * @return The edit feature shape marker.
      */
     private MarkerOptions getEditFeatureShapeMarker() {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -2749,7 +2698,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get the feature marker options to edit polygon holes
      *
-     * @return
+     * @return The edit feature hole marker.
      */
     private MarkerOptions getEditFeatureShapeHoleMarker() {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -2846,31 +2795,33 @@ public class GeoPackageMapFragment extends Fragment implements
                     editFeatureType = null;
                     Long featureId = editFeatureIds.get(editFeatureMarker.getId());
 
-                    Geometry geometry = converter.toGeometry(editFeatureShape
-                            .getShape());
-                    if (geometry != null) {
-                        final FeatureRow featureRow = featureDao
-                                .queryForIdRow(featureId);
-                        GeoPackageGeometryData geomData = featureRow.getGeometry();
-                        geomData.setGeometry(geometry);
-                        if (geomData.getEnvelope() != null) {
-                            geomData.setEnvelope(GeometryEnvelopeBuilder.buildEnvelope(geometry));
+                    if(featureId != null) {
+                        Geometry geometry = converter.toGeometry(editFeatureShape
+                                .getShape());
+                        if (geometry != null) {
+                            final FeatureRow featureRow = featureDao
+                                    .queryForIdRow(featureId);
+                            GeoPackageGeometryData geomData = featureRow.getGeometry();
+                            geomData.setGeometry(geometry);
+                            if (geomData.getEnvelope() != null) {
+                                geomData.setEnvelope(GeometryEnvelopeBuilder.buildEnvelope(geometry));
+                            }
+                            featureDao.update(featureRow);
+                            expandBounds(geoPackage, featureDao, geometry);
+                            updateLastChange(geoPackage, featureDao);
+                            if (!indexedTypes.isEmpty()) {
+                                indexer.index(featureRow, indexedTypes);
+                            }
+                        } else {
+                            featureDao.deleteById(featureId);
+                            editFeatureMarker = null;
+                            updateLastChange(geoPackage, featureDao);
+                            if (!indexedTypes.isEmpty()) {
+                                indexer.deleteIndex(featureId, indexedTypes);
+                            }
                         }
-                        featureDao.update(featureRow);
-                        expandBounds(geoPackage, featureDao, geometry);
-                        updateLastChange(geoPackage, featureDao);
-                        if (!indexedTypes.isEmpty()) {
-                            indexer.index(featureRow, indexedTypes);
-                        }
-                    } else {
-                        featureDao.deleteById(featureId);
-                        editFeatureMarker = null;
-                        updateLastChange(geoPackage, featureDao);
-                        if (!indexedTypes.isEmpty()) {
-                            indexer.deleteIndex(featureId, indexedTypes);
-                        }
+                        active.setModified(true);
                     }
-                    active.setModified(true);
 
                     break;
             }
@@ -2966,7 +2917,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public boolean setMyLocationEnabled() {
         boolean updated = false;
-        if (map != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (map != null && getActivity() != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.setMyLocationEnabled(locationVisible);
             updated = true;
             map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -2975,81 +2926,47 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     * Handle the menu reset
-     *
-     * @param menu
-     */
-    public void handleMenu(Menu menu) {
-        if (boundingBoxMode) {
-            boundingBoxMenuItem = menu.findItem(R.id.map_bounding_box);
-            if (boundingBoxMenuItem != null) {
-                boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box_active);
-            }
-        }
-        if (editFeaturesMode) {
-            editFeaturesMenuItem = menu.findItem(R.id.map_features);
-            if (editFeaturesMenuItem != null) {
-                editFeaturesMenuItem.setIcon(R.drawable.ic_features_active);
-            }
-        }
-    }
-
-    /**
      * Handle map menu clicks
      *
-     * @param item
-     * @return
+     * @param item The item that was clicked.
+     * @return True if the click was handled, false if it was not.
      */
     public boolean handleMenuClick(MenuItem item) {
+        boolean handled = false;
 
-        boolean handled = true;
+        if (item.getItemId() == R.id.map_zoom) {
+            zoomToActive();
+            handled = true;
+        }
+        else if (item.getItemId() == R.id.map_features) {
+            editFeaturesMenuItem = item;
+            if (!editFeaturesMode) {
+                selectEditFeatures();
+            } else {
+                resetEditFeatures();
+                updateInBackground(false, true);
+            }
+            handled = true;
+        }
+        else if (item.getItemId() == R.id.map_bounding_box) {
+            boundingBoxMenuItem = item;
+            if (!boundingBoxMode) {
 
-        switch (item.getItemId()) {
-            case R.id.map_zoom:
-                zoomToActive();
-                break;
-            case R.id.map_features:
-                editFeaturesMenuItem = item;
-                if (!editFeaturesMode) {
-                    selectEditFeatures();
-                } else {
+                if (editFeaturesMode) {
                     resetEditFeatures();
                     updateInBackground(false, true);
                 }
-                break;
-            case R.id.map_bounding_box:
-                boundingBoxMenuItem = item;
-                if (!boundingBoxMode) {
 
-                    if (editFeaturesMode) {
-                        resetEditFeatures();
-                        updateInBackground(false, true);
-                    }
-
-                    boundingBoxMode = true;
-                    boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box_active);
-                } else {
-                    resetBoundingBox();
-                }
-                break;
-            case R.id.max_features:
-                setMaxFeatures();
-                break;
-//            case R.id.normal_map:
-//                setMapType(GoogleMap.MAP_TYPE_NORMAL);
-//                break;
-//            case R.id.satellite_map:
-//                setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-//                break;
-//            case R.id.terrain_map:
-//                setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-//                break;
-//            case R.id.hybrid_map:
-//                setMapType(GoogleMap.MAP_TYPE_HYBRID);
-//                break;
-            default:
-                handled = false;
-                break;
+                boundingBoxMode = true;
+                boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box_active);
+            } else {
+                resetBoundingBox();
+            }
+            handled = true;
+        }
+        else if (item.getItemId() == R.id.max_features) {
+            setMaxFeatures();
+            handled = true;
         }
 
         return handled;
@@ -3105,45 +3022,35 @@ public class GeoPackageMapFragment extends Fragment implements
         if (dialog != null) {
 
             dialog.setPositiveButton(getString(R.string.button_ok_label),
-                    new DialogInterface.OnClickListener() {
+                    (DialogInterface d, int id) -> {
 
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
+                        try {
 
-                            try {
-
-                                if (boundingBoxMode) {
-                                    resetBoundingBox();
-                                }
-
-                                editFeaturesDatabase = geoPackageInput
-                                        .getSelectedItem().toString();
-                                editFeaturesTable = featuresInput.getSelectedItem()
-                                        .toString();
-
-                                editFeaturesMode = true;
-                                editFeaturesView.setVisibility(View.VISIBLE);
-                                editFeaturesMenuItem
-                                        .setIcon(R.drawable.ic_features_active);
-
-                                updateInBackground(false, true);
-
-                            } catch (Exception e) {
-                                GeoPackageUtils
-                                        .showMessage(
-                                                getActivity(),
-                                                getString(R.string.edit_features_selection_features_label),
-                                                e.getMessage());
+                            if (boundingBoxMode) {
+                                resetBoundingBox();
                             }
+
+                            editFeaturesDatabase = geoPackageInput
+                                    .getSelectedItem().toString();
+                            editFeaturesTable = featuresInput.getSelectedItem()
+                                    .toString();
+
+                            editFeaturesMode = true;
+                            editFeaturesView.setVisibility(View.VISIBLE);
+                            editFeaturesMenuItem
+                                    .setIcon(R.drawable.ic_features_active);
+
+                            updateInBackground(false, true);
+
+                        } catch (Exception e) {
+                            GeoPackageUtils
+                                    .showMessage(
+                                            getActivity(),
+                                            getString(R.string.edit_features_selection_features_label),
+                                            e.getMessage());
                         }
                     }).setNegativeButton(getString(R.string.button_cancel_label),
-                    new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
+                    (DialogInterface d, int id) -> d.cancel());
             dialog.show();
         }
 
@@ -3152,8 +3059,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the features selection based upon the database
      *
-     * @param featuresInput
-     * @param database
+     * @param featuresInput The feature input spinner.
+     * @param database The name of the geoPackage.
      */
     private void updateFeaturesSelection(Spinner featuresInput, String database) {
 

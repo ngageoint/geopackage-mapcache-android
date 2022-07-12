@@ -722,7 +722,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if(getActivity() != null) {
             geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
@@ -1541,7 +1541,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
             locationCallback = new LocationCallback() {
                 @Override
-                public void onLocationResult(LocationResult locationResult) {
+                public void onLocationResult(@NonNull LocationResult locationResult) {
                     //The last location in the list is the newest
                     mLastLocation = locationResult.getLastLocation();
                 }
@@ -1696,7 +1696,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
                 alertLogo.setBackgroundResource(R.drawable.material_info);
                 TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-                titleText.setText("Max Features Exceeded");
+                titleText.setText(R.string.max_features);
 
                 // Alert message
                 final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
@@ -1709,24 +1709,20 @@ public class GeoPackageMapFragment extends Fragment implements
                 dontShowAgain.setVisibility(View.VISIBLE);
 
                 AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setView(alertView)
-                        .setPositiveButton(getString(R.string.button_ok_label),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                                        int whichButton) {
-                                        if (dontShowAgain.isChecked()) {
-                                            // Update the preference for showing this message in the future
-                                            SharedPreferences settings = PreferenceManager
-                                                    .getDefaultSharedPreferences(getActivity());
-                                            SharedPreferences.Editor editor = settings.edit();
-                                            editor.putBoolean(MAX_FEATURES_MESSAGE_KEY, !dontShowAgain.isChecked());
-                                            editor.commit();
-                                            settingsUpdate();
-                                        }
-                                        dialog.cancel();
-                                    }
-                                });
-
+                    .setView(alertView)
+                    .setPositiveButton(getString(R.string.button_ok_label),
+                        (DialogInterface d, int whichButton) -> {
+                            if (dontShowAgain.isChecked()) {
+                                // Update the preference for showing this message in the future
+                                SharedPreferences settings = PreferenceManager
+                                        .getDefaultSharedPreferences(getActivity());
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putBoolean(MAX_FEATURES_MESSAGE_KEY, !dontShowAgain.isChecked());
+                                editor.apply();
+                                settingsUpdate();
+                            }
+                            d.cancel();
+                        });
                 dialog.show();
             }
         }
@@ -1737,51 +1733,43 @@ public class GeoPackageMapFragment extends Fragment implements
      * Create wizard for Import or Create GeoPackage
      */
     private void createNewWizard() {
+        if(getActivity() != null) {
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
+            ViewAnimation.setScaleAnimatiom(alertView, 200);
+            // title
+            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            titleText.setText(R.string.new_geopackage);
 
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
-        ViewAnimation.setScaleAnimatiom(alertView, 200);
-        // title
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-        titleText.setText("New GeoPackage");
+            // Initial dialog asking for create or import
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView);
+            final AlertDialog alertDialog = dialog.create();
 
-        // Initial dialog asking for create or import
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setView(alertView);
-        final AlertDialog alertDialog = dialog.create();
-
-        // Click listener for "Create New"
-        alertView.findViewById(R.id.new_wizard_create_card)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        createGeoPackage();
-                        alertDialog.dismiss();
-                    }
+            // Click listener for "Create New"
+            alertView.findViewById(R.id.new_wizard_create_card)
+                .setOnClickListener((View v) -> {
+                    createGeoPackage();
+                    alertDialog.dismiss();
                 });
 
-        // Click listener for "Import URL"
-        alertView.findViewById(R.id.new_wizard_download_card)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+            // Click listener for "Import URL"
+            alertView.findViewById(R.id.new_wizard_download_card)
+                .setOnClickListener((View v) -> {
                         importGeopackageFromUrl();
                         alertDialog.dismiss();
-                    }
                 });
 
-        // Click listener for "Import from file"
-        alertView.findViewById(R.id.new_wizard_file_card)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+            // Click listener for "Import from file"
+            alertView.findViewById(R.id.new_wizard_file_card)
+                .setOnClickListener((View v) -> {
                         getImportPermissions(MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
                         alertDialog.dismiss();
-                    }
                 });
 
-        alertDialog.show();
+            alertDialog.show();
+        }
     }
 
 
@@ -1789,56 +1777,47 @@ public class GeoPackageMapFragment extends Fragment implements
      * Create a new GeoPackage
      */
     private void createGeoPackage() {
+        if(getActivity() != null) {
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+            // Logo and title
+            ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+            alertLogo.setBackgroundResource(R.drawable.material_add_box);
+            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            titleText.setText(R.string.create_geopackage_full);
+            // GeoPackage name
+            final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+            inputName.setSingleLine(true);
+            inputName.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
-        // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_add_box);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-        titleText.setText("Create GeoPackage");
-        // GeoPackage name
-        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
-        inputName.setSingleLine(true);
-        inputName.setImeOptions(EditorInfo.IME_ACTION_DONE);
-
-        final EditText input = new EditText(getActivity());
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setView(alertView)
-                .setPositiveButton(getString(R.string.button_create_label),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                String value = inputName.getText().toString();
-                                if (value != null && !value.isEmpty()) {
-                                    try {
-                                        if (!geoPackageViewModel.createGeoPackage(value)) {
-                                            GeoPackageUtils
-                                                    .showMessage(
-                                                            getActivity(),
-                                                            getString(R.string.geopackage_create_label),
-                                                            "Failed to create GeoPackage: "
-                                                                    + value);
-                                        }
-                                    } catch (Exception e) {
-                                        GeoPackageUtils.showMessage(
-                                                getActivity(), "Create "
-                                                        + value, e.getMessage());
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView)
+                    .setPositiveButton(getString(R.string.button_create_label),
+                        (DialogInterface d, int whichButton) -> {
+                            String value = inputName.getText() != null ? inputName.getText().toString() : null;
+                            if (value != null && !value.isEmpty()) {
+                                try {
+                                    if (!geoPackageViewModel.createGeoPackage(value)) {
+                                        GeoPackageUtils
+                                                .showMessage(
+                                                        getActivity(),
+                                                        getString(R.string.geopackage_create_label),
+                                                        "Failed to create GeoPackage: "
+                                                                + value);
                                     }
+                                } catch (Exception e) {
+                                    GeoPackageUtils.showMessage(
+                                            getActivity(), "Create "
+                                                    + value, e.getMessage());
                                 }
                             }
                         })
-                .setNegativeButton(getString(R.string.button_discard_label),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                dialog.cancel();
-                            }
-                        });
+                    .setNegativeButton(getString(R.string.button_discard_label),
+                            (DialogInterface d, int whichButton) -> d.cancel());
 
-        dialog.show();
+            dialog.show();
+        }
     }
 
 
@@ -1846,53 +1825,44 @@ public class GeoPackageMapFragment extends Fragment implements
      * Pop up dialog for creating a new feature or tile layer from the geopackage detail view FAB
      */
     public void newLayerWizard() {
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View alertView = inflater.inflate(R.layout.new_layer_wizard, null);
-        // Logo and title
-        ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
-        closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
-        TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
-        titleText.setText("New GeoPackage Layer");
+        if(getActivity() != null) {
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View alertView = inflater.inflate(R.layout.new_layer_wizard, null);
+            // Logo and title
+            ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
+            closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+            TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
+            titleText.setText(R.string.new_geopackage_layer);
 
-        // Initial dialog asking for create or import
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setView(alertView);
-        final AlertDialog alertDialog = dialog.create();
+            // Initial dialog asking for create or import
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView);
+            final AlertDialog alertDialog = dialog.create();
 
-        // Click listener for close button
-        closeLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+            // Click listener for close button
+            closeLogo.setOnClickListener((View v) -> alertDialog.dismiss());
 
-        // Listener for create features
-        TextView createFeature = (TextView) alertView.findViewById(R.id.create_feature);
-        createFeature.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            // Listener for create features
+            TextView createFeature = (TextView) alertView.findViewById(R.id.create_feature);
+            createFeature.setOnClickListener((View v) -> {
                 createFeatureOption();
                 alertDialog.dismiss();
-            }
-        });
+            });
 
-        // Listener for create tiles
-        TextView createTile = (TextView) alertView.findViewById(R.id.create_tile);
-        createTile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            // Listener for create tiles
+            TextView createTile = (TextView) alertView.findViewById(R.id.create_tile);
+            createTile.setOnClickListener((View v) -> {
                 String geoName = detailPageAdapter.getGeoPackageName();
                 if (geoName != null) {
                     newTileLayerWizard(geoName);
                 }
                 alertDialog.dismiss();
-            }
-        });
+            });
 
 
-        alertDialog.show();
+            alertDialog.show();
+        }
     }
 
 
@@ -1900,43 +1870,41 @@ public class GeoPackageMapFragment extends Fragment implements
      * Create feature layer menu
      */
     private void createFeatureOption() {
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View createFeaturesView = inflater.inflate(R.layout.create_features,
-                null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        dialog.setView(createFeaturesView);
+        if(getActivity() != null) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View createFeaturesView = inflater.inflate(R.layout.create_features,
+                    null);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+            dialog.setView(createFeaturesView);
 
-        final EditText nameInput = (EditText) createFeaturesView
-                .findViewById(R.id.create_features_name_input);
-        final EditText minLatInput = (EditText) createFeaturesView
-                .findViewById(R.id.bounding_box_min_latitude_input);
-        final EditText maxLatInput = (EditText) createFeaturesView
-                .findViewById(R.id.bounding_box_max_latitude_input);
-        final EditText minLonInput = (EditText) createFeaturesView
-                .findViewById(R.id.bounding_box_min_longitude_input);
-        final EditText maxLonInput = (EditText) createFeaturesView
-                .findViewById(R.id.bounding_box_max_longitude_input);
-        final TextView preloadedLocationsButton = (TextView) createFeaturesView
-                .findViewById(R.id.bounding_box_preloaded);
-        final Spinner geometryTypeSpinner = (Spinner) createFeaturesView
-                .findViewById(R.id.create_features_geometry_type);
+            final EditText nameInput = (EditText) createFeaturesView
+                    .findViewById(R.id.create_features_name_input);
+            final EditText minLatInput = (EditText) createFeaturesView
+                    .findViewById(R.id.bounding_box_min_latitude_input);
+            final EditText maxLatInput = (EditText) createFeaturesView
+                    .findViewById(R.id.bounding_box_max_latitude_input);
+            final EditText minLonInput = (EditText) createFeaturesView
+                    .findViewById(R.id.bounding_box_min_longitude_input);
+            final EditText maxLonInput = (EditText) createFeaturesView
+                    .findViewById(R.id.bounding_box_max_longitude_input);
+            final TextView preloadedLocationsButton = (TextView) createFeaturesView
+                    .findViewById(R.id.bounding_box_preloaded);
+            final Spinner geometryTypeSpinner = (Spinner) createFeaturesView
+                    .findViewById(R.id.create_features_geometry_type);
 
-        GeoPackageUtils
-                .prepareBoundingBoxInputs(getActivity(), minLatInput,
-                        maxLatInput, minLonInput, maxLonInput,
-                        preloadedLocationsButton);
+            GeoPackageUtils
+                    .prepareBoundingBoxInputs(getActivity(), minLatInput,
+                            maxLatInput, minLonInput, maxLonInput,
+                            preloadedLocationsButton);
 
-        dialog.setPositiveButton(
-                getString(R.string.geopackage_create_features_label),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
+            dialog.setPositiveButton(
+                    getString(R.string.geopackage_create_features_label),
+                    (DialogInterface d, int id) -> {
 
                         try {
 
                             String tableName = nameInput.getText().toString();
-                            if (tableName == null || tableName.isEmpty()) {
+                            if (tableName.isEmpty()) {
                                 throw new GeoPackageException(
                                         getString(R.string.create_features_name_label)
                                                 + " is required");
@@ -1989,16 +1957,10 @@ public class GeoPackageMapFragment extends Fragment implements
                                             getString(R.string.geopackage_create_features_label),
                                             e.getMessage());
                         }
-                    }
-                }).setNegativeButton(getString(R.string.button_cancel_label),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        dialog.show();
+                    }).setNegativeButton(getString(R.string.button_cancel_label),
+                        (DialogInterface d, int id) -> d.cancel());
+            dialog.show();
+        }
     }
 
 
@@ -2023,7 +1985,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Launches a wizard to create a new tile layer in the given geopackage
      *
-     * @param geopackageName
+     * @param geopackageName The name of the geoPackage.
      */
     private void newTileLayerWizard(final String geopackageName) {
         NewTileLayerUI newTileLayerUI = new NewTileLayerUI(geoPackageRecycler, this,
@@ -2038,21 +2000,20 @@ public class GeoPackageMapFragment extends Fragment implements
      * back up to mainactivity, and should call importGeopackageFromFile or exportGeoPackageToExternal
      */
     private void getImportPermissions(int returnCode) {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                    .setTitle(R.string.storage_access_rational_title)
-                    .setMessage(R.string.storage_access_rational_message)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
-                        }
-                    })
-                    .create()
-                    .show();
+        if(getActivity() != null) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                        .setTitle(R.string.storage_access_rational_title)
+                        .setMessage(R.string.storage_access_rational_message)
+                        .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
+                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode)
+                        )
+                        .create()
+                        .show();
 
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
+            }
         }
     }
 
@@ -2097,124 +2058,106 @@ public class GeoPackageMapFragment extends Fragment implements
      * Import a GeoPackage from a URL
      */
     private void importGeopackageFromUrl() {
+        if(getActivity() != null) {
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View importUrlView = inflater.inflate(R.layout.import_url, null);
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+            dialog.setView(importUrlView);
 
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View importUrlView = inflater.inflate(R.layout.import_url, null);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        dialog.setView(importUrlView);
+            // Set example url links
+            ((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
+            ((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
 
-        // Set example url links
-        ((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
-        ((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
+            // Text validation
+            final TextInputLayout inputLayoutName = (TextInputLayout) importUrlView.findViewById(R.id.import_url_name_layout);
+            final TextInputLayout inputLayoutUrl = (TextInputLayout) importUrlView.findViewById(R.id.import_url_layout);
+            final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
+            final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
 
-        // Text validation
-        final TextInputLayout inputLayoutName = (TextInputLayout) importUrlView.findViewById(R.id.import_url_name_layout);
-        final TextInputLayout inputLayoutUrl = (TextInputLayout) importUrlView.findViewById(R.id.import_url_layout);
-        final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
-        final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
+            // Listen for text changes in the name input.  This will clear error messages when the user types
+            TextWatcher inputNameWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-        // Listen for text changes in the name input.  This will clear error messages when the user types
-        TextWatcher inputNameWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    inputLayoutName.setErrorEnabled(false);
+                    validateInput(inputLayoutName, inputName, false);
+                }
+            };
+            inputName.addTextChangedListener(inputNameWatcher);
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                inputLayoutName.setErrorEnabled(false);
-                boolean newTextValid = validateInput(inputLayoutName, inputName, false);
-            }
-        };
-        inputName.addTextChangedListener(inputNameWatcher);
+            // Listen for text changes in the url input.  This will clear error messages when the user types
+            TextWatcher inputUrlWatcher = new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-        // Listen for text changes in the url input.  This will clear error messages when the user types
-        TextWatcher inputUrlWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    inputLayoutUrl.setErrorEnabled(false);
+                    validateInput(inputLayoutUrl, inputUrl, true);
+                }
+            };
+            inputUrl.addTextChangedListener(inputUrlWatcher);
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                inputLayoutUrl.setErrorEnabled(false);
-                boolean newUrlValid = validateInput(inputLayoutUrl, inputUrl, true);
-            }
-        };
-        inputUrl.addTextChangedListener(inputUrlWatcher);
+            // Example Geopackages link handler
+            ((TextView) importUrlView.findViewById(R.id.import_examples))
+                .setOnClickListener((View v) -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            getActivity(), android.R.layout.select_dialog_item);
+                    adapter.addAll(getResources().getStringArray(
+                            R.array.preloaded_geopackage_url_labels));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(
+                            getActivity(), R.style.AppCompatAlertDialogStyle);
+                    builder.setTitle(getString(R.string.import_url_preloaded_label));
+                    builder.setAdapter(adapter,
+                            (DialogInterface d, int item) -> {
+                                if (item >= 0) {
+                                    String[] urls = getResources()
+                                            .getStringArray(
+                                                    R.array.preloaded_geopackage_urls);
+                                    String[] names = getResources()
+                                            .getStringArray(
+                                                    R.array.preloaded_geopackage_url_names);
+                                    inputName.setText(names[item]);
+                                    inputUrl.setText(urls[item]);
+                                }
+                            });
 
-        // Example Geopackages link handler
-        ((TextView) importUrlView.findViewById(R.id.import_examples))
-                .setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                                getActivity(), android.R.layout.select_dialog_item);
-                        adapter.addAll(getResources().getStringArray(
-                                R.array.preloaded_geopackage_url_labels));
-                        AlertDialog.Builder builder = new AlertDialog.Builder(
-                                getActivity(), R.style.AppCompatAlertDialogStyle);
-                        builder.setTitle(getString(R.string.import_url_preloaded_label));
-                        builder.setAdapter(adapter,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int item) {
-                                        if (item >= 0) {
-                                            String[] urls = getResources()
-                                                    .getStringArray(
-                                                            R.array.preloaded_geopackage_urls);
-                                            String[] names = getResources()
-                                                    .getStringArray(
-                                                            R.array.preloaded_geopackage_url_names);
-                                            inputName.setText(names[item]);
-                                            inputUrl.setText(urls[item]);
-                                        }
-                                    }
-                                });
-
-                        AlertDialog alert = builder.create();
-                        alert.show();
-                    }
+                    AlertDialog alert = builder.create();
+                    alert.show();
                 });
 
-        dialog.setPositiveButton(getString(R.string.geopackage_import_label),
-                new DialogInterface.OnClickListener() {
+            dialog.setPositiveButton(getString(R.string.geopackage_import_label),
+                    (DialogInterface d, int id) -> {
+                            // This will be overridden by click listener after show is called
+                    }).setNegativeButton(getString(R.string.button_cancel_label),
+                    (DialogInterface d, int id) -> d.cancel());
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        // This will be overridden by click listener after show is called
-                    }
-                }).setNegativeButton(getString(R.string.button_cancel_label),
-                new DialogInterface.OnClickListener() {
+            final AlertDialog alertDialog = dialog.create();
+            alertDialog.show();
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-
-        final AlertDialog alertDialog = dialog.create();
-        alertDialog.show();
-
-        // Override the positive click listener to enable validation
-        Button downloadButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            // Override the positive click listener to enable validation
+            Button downloadButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            downloadButton.setOnClickListener((View v) -> {
 
                 // Validate input on both fields
                 boolean nameValid = validateInput(inputLayoutName, inputName, false);
                 boolean urlValid = validateInput(inputLayoutUrl, inputUrl, true);
 
                 if (nameValid && urlValid) {
-                    String database = inputName.getText().toString();
-                    String url = inputUrl.getText().toString();
+                    String database = inputName.getText() != null ? inputName.getText().toString() : "";
+                    String url = inputUrl.getText() != null ? inputUrl.getText().toString() : "";
                     DownloadTask downloadTask = new DownloadTask(database, url, getActivity());
 
                     downloadTask.execute();
@@ -2224,11 +2167,8 @@ public class GeoPackageMapFragment extends Fragment implements
                 } else {
                     inputUrl.requestFocus();
                 }
-
-            }
-        });
-
-
+            });
+        }
     }
 
 
@@ -2249,65 +2189,14 @@ public class GeoPackageMapFragment extends Fragment implements
         importTask.importGeoPackageExternalLinkWithPermissions(name, uri, path);
     }
 
-
-    /**
-     * Import the GeoPackage by linking to the file after write external storage permission was granted
-     *
-     * @param granted
-     */
-    public void importGeoPackageExternalLinkAfterPermissionGranted(boolean granted) {
-        if (granted) {
-            importTask.importGeoPackageExternalLinkSavedData();
-        } else {
-            showDisabledExternalImportPermissionsDialog();
-        }
-    }
-
-
-    /**
-     * Show a disabled permissions dialog
-     *
-     * @param title
-     * @param message
-     */
-    private void showDisabledPermissionsDialog(String title, String message) {
-        new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(R.string.settings, new Dialog.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        intent.setData(Uri.fromParts("package", getActivity().getPackageName(), null));
-                        startActivityForResult(intent, ACTIVITY_APP_SETTINGS);
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
-    }
-
-
-    /**
-     * Show a disabled external import permissions dialog when external GeoPackages can not be imported
-     */
-    private void showDisabledExternalImportPermissionsDialog() {
-        // If the user has declared to no longer get asked about permissions
-        if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            showDisabledPermissionsDialog(
-                    getResources().getString(R.string.external_import_geopackage_access_title),
-                    getResources().getString(R.string.external_import_geopackage_access_message));
-        }
-    }
-
-
     /**
      * validate input - check for empty or valid url
      *
-     * @param inputLayout
+     * @param inputLayout The layout for the view.
      * @return true if input is not empty and is valid
      */
     private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName, boolean isUrl) {
-        if (inputName.getText().toString().trim().isEmpty()) {
+        if (inputName.getText() == null || inputName.getText().toString().trim().isEmpty()) {
             inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid));
             return false;
         }

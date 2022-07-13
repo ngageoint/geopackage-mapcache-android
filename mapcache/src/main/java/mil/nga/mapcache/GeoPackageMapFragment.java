@@ -54,6 +54,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
@@ -754,6 +758,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private BasemapApplier basemapApplier;
 
     /**
+     * Activity launchers
+     */
+    ActivityResultLauncher<Intent> importGeoPackageActivityResultLauncher;
+
+    /**
      * The camera move listener.
      */
     private GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
@@ -839,6 +848,9 @@ public class GeoPackageMapFragment extends Fragment implements
         // Create a sharetask to handle sharing to other apps or saving to disk
         shareTask = new ShareTask(getActivity());
 
+        // Set up activity launchers registered for results
+        setupLaunchers();
+
         return touch;
     }
 
@@ -849,6 +861,28 @@ public class GeoPackageMapFragment extends Fragment implements
     public void launchPreferences() {
         Intent intent = new Intent(getContext(), PreferencesActivity.class);
         startActivityForResult(intent, ACTIVITY_PREFERENCES);
+    }
+
+    /**
+     * Set up activity launchers for results
+     * (replaces startActivityForResult)
+     */
+    private void setupLaunchers(){
+        // Import a geopackage from file
+        importGeoPackageActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            // Import geopackage from file
+                            ImportTask task = new ImportTask(getActivity(), data);
+                            task.importFile();
+                        }
+                    }
+                });
+
     }
 
     /**
@@ -2448,7 +2482,7 @@ public class GeoPackageMapFragment extends Fragment implements
             chooseFile.setType("application/octet-stream");
             Intent intent = Intent.createChooser(chooseFile,
                     "Choose a GeoPackage file");
-            startActivityForResult(intent, ACTIVITY_CHOOSE_FILE);
+            importGeoPackageActivityResultLauncher.launch(intent);
         } catch (Exception e) {
             // eat
         }

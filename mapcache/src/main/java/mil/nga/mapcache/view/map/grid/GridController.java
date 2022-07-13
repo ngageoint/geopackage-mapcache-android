@@ -6,14 +6,15 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.android.gms.maps.model.TileProvider;
 
-import mil.nga.geopackage.BoundingBox;
+import mil.nga.gars.GARS;
+import mil.nga.gars.tile.GARSTileProvider;
+import mil.nga.grid.features.Point;
 import mil.nga.mapcache.preferences.GridType;
-import mil.nga.mapcache.view.map.grid.GARS.GARSGridCreator;
-import mil.nga.mgrs.features.Point;
+import mil.nga.mgrs.MGRS;
 import mil.nga.mgrs.tile.MGRSTileProvider;
 
 /**
@@ -35,16 +36,6 @@ public class GridController {
      * The current grid tile overlay
      */
     private TileOverlay tileOverlay = null;
-
-    /**
-     * The current grid creator.
-     */
-    private GridCreator gridCreator = null;
-
-    /**
-     * Contains the grids to display on map.
-     */
-    private GridModel gridModel = new GridModel();
 
     /**
      * Used to run on the UI thread.
@@ -107,11 +98,6 @@ public class GridController {
 
         this.gridType = gridType;
 
-        if (gridCreator != null) {
-            gridCreator.destroy();
-            gridCreator = null;
-        }
-
         if (tileOverlay != null) {
             tileOverlay.remove();
             tileOverlay = null;
@@ -122,16 +108,19 @@ public class GridController {
             this.map.setOnCameraMoveListener(this.moveListener);
             this.coordTextCard.setVisibility(View.GONE);
         } else {
+            TileProvider tileProvider = null;
             switch (gridType) {
                 case GARS:
-                    gridCreator = new GARSGridCreator(gridModel, map, activity);
+                    tileProvider = GARSTileProvider.create(activity);
                     break;
                 case MGRS:
-                    tileOverlay = map.addTileOverlay(
-                            new TileOverlayOptions().tileProvider(MGRSTileProvider.create(activity)));
+                    tileProvider = MGRSTileProvider.create(activity);
                     break;
                 default:
+                    throw new IllegalStateException("Unsupported grid type: " + gridType);
             }
+            tileOverlay = map.addTileOverlay(
+                    new TileOverlayOptions().tileProvider(tileProvider));
             onCameraIdle();
             onCameraMoved();
             this.map.setOnCameraIdleListener(this::onCameraIdle);
@@ -147,12 +136,6 @@ public class GridController {
         if(this.idleListener != null) {
             this.idleListener.onCameraIdle();
         }
-
-        if (gridCreator != null) {
-            LatLngBounds bounds = map.getProjection().getVisibleRegion().latLngBounds;
-            gridCreator.createGridForMap(new BoundingBox(bounds.southwest.longitude, bounds.southwest.latitude,
-                    bounds.northeast.longitude, bounds.northeast.latitude));
-        }
     }
 
     /**
@@ -163,17 +146,25 @@ public class GridController {
             this.moveListener.onCameraMove();
         }
 
-        LatLng center = map.getCameraPosition().target;
-        String coordinate = null;
-        if(gridType == GridType.MGRS) {
-            coordinate = Point.create(center.longitude, center.latitude).toMGRS().coordinate();
-        }
-        if (coordinate != null) {
+        if (gridType == GridType.NONE) {
+            coordTextCard.setVisibility(View.GONE);
+        }else {
+            LatLng center = map.getCameraPosition().target;
+            Point point = Point.point(center.longitude, center.latitude);
+            String coordinate = null;
+            switch (gridType) {
+                case GARS:
+                    coordinate = GARS.from(point).coordinate();
+                    break;
+                case MGRS:
+                    coordinate = MGRS.from(point).coordinate();
+                    break;
+                default:
+                    throw new IllegalStateException("Unsupported grid type: " + gridType);
+            }
             coordTextCard.setVisibility(View.VISIBLE);
             coordTextView.setVisibility(View.VISIBLE);
             coordTextView.setText(coordinate);
-        } else {
-            coordTextCard.setVisibility(View.GONE);
         }
     }
 }

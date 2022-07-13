@@ -467,7 +467,7 @@ public class GeoPackageUtils {
 
         StyleRow pointStyle = featureTableStyles.getTableStyle(GeometryType.POINT);
         if(pointStyle != null){
-            mil.nga.geopackage.style.Color pointStyleColor = pointStyle.getColorOrDefault();
+            mil.nga.color.Color pointStyleColor = pointStyle.getColorOrDefault();
             pointColor.setText(pointStyleColor.getColorHex());
             pointAlpha.setText(String.valueOf(pointStyleColor.getAlpha()));
             pointRadius.setText(new DecimalFormat("0.0#").format(pointStyle.getWidthOrDefault() / 2.0));
@@ -480,7 +480,7 @@ public class GeoPackageUtils {
 
         StyleRow lineStyle = featureTableStyles.getTableStyle(GeometryType.LINESTRING);
         if(lineStyle != null){
-            mil.nga.geopackage.style.Color lineStyleColor = lineStyle.getColorOrDefault();
+            mil.nga.color.Color lineStyleColor = lineStyle.getColorOrDefault();
             lineColor.setText(lineStyleColor.getColorHex());
             lineAlpha.setText(String.valueOf(lineStyleColor.getAlpha()));
             lineStroke.setText(new DecimalFormat("0.0#").format(lineStyle.getWidthOrDefault()));
@@ -493,11 +493,11 @@ public class GeoPackageUtils {
 
         StyleRow polygonStyle = featureTableStyles.getTableStyle(GeometryType.POLYGON);
         if(polygonStyle != null){
-            mil.nga.geopackage.style.Color polygonStyleColor = polygonStyle.getColorOrDefault();
+            mil.nga.color.Color polygonStyleColor = polygonStyle.getColorOrDefault();
             polygonColor.setText(polygonStyleColor.getColorHex());
             polygonAlpha.setText(String.valueOf(polygonStyleColor.getAlpha()));
             polygonStroke.setText(new DecimalFormat("0.0#").format(polygonStyle.getWidthOrDefault()));
-            mil.nga.geopackage.style.Color polygonStyleFillColor = polygonStyle.getFillColor();
+            mil.nga.color.Color polygonStyleFillColor = polygonStyle.getFillColor();
             polygonFill.setChecked(polygonStyleFillColor != null);
             if(polygonStyleFillColor != null){
                 polygonFillColor.setText(polygonStyleFillColor.getColorHex());

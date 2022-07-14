@@ -49,7 +49,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -802,19 +801,17 @@ public class GeoPackageMapFragment extends Fragment implements
     private void setupLaunchers(){
         // Import a geopackage from file
         importGeoPackageActivityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                new ActivityResultCallback<ActivityResult>() {
-                    @Override
-                    public void onActivityResult(ActivityResult result) {
-                        if (result.getResultCode() == Activity.RESULT_OK) {
-                            Intent data = result.getData();
-                            // Import geopackage from file
-                            ImportTask task = new ImportTask(getActivity(), data);
-                            task.importFile();
-                        }
+            new ActivityResultContracts.StartActivityForResult(),
+            (ActivityResult result) -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = result.getData();
+                    if(data != null) {
+                        // Import geopackage from file
+                        ImportTask task = new ImportTask(getActivity(), data);
+                        task.importFile();
                     }
-                });
-
+                }
+            });
     }
 
     /**
@@ -2316,7 +2313,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Keep track of the current zoom level
         float zoom = MapUtils.getCurrentZoom(map);
 
-        zoomLevelText.setText("Zoom Level " + zoom);
+        zoomLevelText.setText(getResources().getString(R.string.zoom_level, zoom));
         map.setOnCameraMoveListener(this.moveListener);
 
         basemapApplier = new BasemapApplier(getActivity(),
@@ -3100,7 +3097,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(database);
         List<String> features = geoPackage.getFeatureTables();
-        ArrayAdapter<String> featuresAdapter = new ArrayAdapter<String>(
+        ArrayAdapter<String> featuresAdapter = new ArrayAdapter<>(
                 getActivity(), R.layout.spinner_item, features);
         featuresInput.setAdapter(featuresAdapter);
     }
@@ -3110,9 +3107,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void resetBoundingBox() {
         boundingBoxMode = false;
-        if (boundingBoxMenuItem != null) {
-//            boundingBoxMenuItem.setIcon(R.drawable.ic_bounding_box);
-        }
         clearBoundingBox();
     }
 
@@ -3122,9 +3116,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private void resetEditFeatures() {
         editFeaturesMode = false;
         editFeaturesView.setVisibility(View.INVISIBLE);
-        if (editFeaturesMenuItem != null) {
-//            editFeaturesMenuItem.setIcon(R.drawable.ic_features);
-        }
         editFeaturesDatabase = null;
         editFeaturesTable = null;
         editFeatureIds.clear();
@@ -3223,135 +3214,127 @@ public class GeoPackageMapFragment extends Fragment implements
      * Let the user set the max number of features to draw
      */
     private void setMaxFeatures() {
+        if(getActivity() != null) {
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+            View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
+            // Logo and title
+            ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+            alertLogo.setBackgroundResource(R.drawable.material_edit);
+            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            titleText.setText(R.string.max_active_features);
+            // Set description
+            TextView descText = (TextView) alertView.findViewById(R.id.alert_description);
+            descText.setText(R.string.limit_features);
+            descText.setVisibility(View.VISIBLE);
+            // Set input to current max features value
+            final EditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+            input.setInputType(InputType.TYPE_CLASS_NUMBER);
+            final String maxFeatures = String.valueOf(getMaxFeatures());
+            input.setText(maxFeatures);
+            input.setHint(maxFeatures);
 
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
-        // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_edit);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-        titleText.setText("Max Active Features");
-        // Set description
-        TextView descText = (TextView) alertView.findViewById(R.id.alert_description);
-        descText.setText("Limit the number of features to display in active layers for faster processing");
-        descText.setVisibility(View.VISIBLE);
-        // Set input to current max features value
-        final EditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        final String maxFeatures = String.valueOf(getMaxFeatures());
-        input.setText(maxFeatures);
-        input.setHint(maxFeatures);
-
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setView(alertView)
-                .setPositiveButton(getString(R.string.button_save_label),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView)
+                    .setPositiveButton(getString(R.string.button_save_label),
+                            (DialogInterface d, int whichButton) -> {
                                 String value = input.getText().toString();
-                                if (value != null && !value.equals(maxFeatures)) {
+                                if (!value.equals(maxFeatures)) {
                                     int maxFeature = Integer.parseInt(value);
                                     SharedPreferences settings = PreferenceManager
                                             .getDefaultSharedPreferences(getActivity());
                                     Editor editor = settings.edit();
                                     editor.putInt(MAX_FEATURES_KEY, maxFeature);
-                                    editor.commit();
+                                    editor.apply();
                                     updateInBackground(false, true);
                                     // ignoreHighFeatures will tell if the user previously checked the
                                     // 'do not show this warning again' checkbox last time
                                     boolean ignoreHighFeatures = settings.getBoolean(String.valueOf(R.string.ignore_high_features), false);
                                     if (maxFeature > 10000 && !ignoreHighFeatures) {
-                                        maxFeatureWarning(maxFeature);
+                                        maxFeatureWarning();
                                     }
                                 }
-                            }
-                        })
-                .setNegativeButton(getString(R.string.button_cancel_label),
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int whichButton) {
-                                dialog.cancel();
-                            }
-                        });
+                            })
+                    .setNegativeButton(getString(R.string.button_cancel_label),
+                            (DialogInterface d, int whichButton) -> d.cancel());
 
-        AlertDialog alert = dialog.create();
+            AlertDialog alert = dialog.create();
 
-        // Listener to make sure there's always a value in the input before submitting
-        input.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
+            // Listener to make sure there's always a value in the input before submitting
+            input.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Prevent users from setting to less than 1, or greater than 1 million
-                alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                int length = charSequence.length();
-                int highestMaxFeatures = 1000000;
-                if (length < 1) {
-                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                } else if (length > String.valueOf(highestMaxFeatures).length()) {
-                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    input.setError("Cannot set max features higher than " + highestMaxFeatures);
-                } else {
-                    int maxFeature = Integer.parseInt(charSequence.toString());
-                    if (maxFeature > highestMaxFeatures) {
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // Prevent users from setting to less than 1, or greater than 1 million
+                    alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    int length = charSequence.length();
+                    int highestMaxFeatures = 1000000;
+                    if (length < 1) {
+                        alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    } else if (length > String.valueOf(highestMaxFeatures).length()) {
                         alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                         input.setError("Cannot set max features higher than " + highestMaxFeatures);
+                    } else {
+                        int maxFeature = Integer.parseInt(charSequence.toString());
+                        if (maxFeature > highestMaxFeatures) {
+                            alert.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                            input.setError("Cannot set max features higher than " + highestMaxFeatures);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
-        alert.show();
+                @Override
+                public void afterTextChanged(Editable editable) {
+                }
+            });
+            alert.show();
+        }
     }
 
     /**
      * Makes a warning popup to alert the user that the max features setting is high
      */
-    public void maxFeatureWarning(int setting) {
-        View checkBoxView = View.inflate(getContext(), R.layout.checkbox, null);
-        CheckBox checkBox = checkBoxView.findViewById(R.id.showHighFeatureBox);
+    public void maxFeatureWarning() {
+        if(getActivity() != null) {
+            View checkBoxView = View.inflate(getContext(), R.layout.checkbox, null);
+            CheckBox checkBox = checkBoxView.findViewById(R.id.showHighFeatureBox);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.max_feature_size_warning)
-                .setView(checkBoxView)
-                .setTitle("Warning")
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(R.string.max_feature_size_warning)
+                    .setView(checkBoxView)
+                    .setTitle("Warning")
+                    .setPositiveButton("ok", (DialogInterface dialog, int id) -> {
                         if (checkBox.isChecked()) {
                             // If they check the 'do not show again' box, save that setting
                             SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                            settings.edit().putBoolean(String.valueOf(R.string.ignore_high_features), true).commit();
+                            settings.edit().putBoolean(String.valueOf(R.string.ignore_high_features), true).apply();
                         }
                         dialog.cancel();
-                    }
-                });
-        // Create the AlertDialog object and return it
-        builder.show();
+                    });
+            // Create the AlertDialog object and return it
+            builder.show();
+        }
     }
 
     /**
      * Get the max features
      *
-     * @return
+     * @return The number of maximum features allowed on map.
      */
     private int getMaxFeatures() {
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
-        int maxFeatures = settings.getInt(MAX_FEATURES_KEY, getResources()
+        return settings.getInt(MAX_FEATURES_KEY, getResources()
                 .getInteger(R.integer.map_max_features_default));
-        return maxFeatures;
     }
 
     /**
      * Set the map type
      *
-     * @param mapType
+     * @param mapType The base map type.
      */
     private void setMapType(int mapType) {
         if (basemapApplier != null) {
@@ -3386,43 +3369,45 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param filter filter features flag
      */
     private void updateInBackground(boolean zoom, boolean filter) {
-        getActivity().runOnUiThread(() -> map.clear());
-        featureDaos.clear();
-        basemapApplier.clear();
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(() -> map.clear());
+            featureDaos.clear();
+            basemapApplier.clear();
 
-        if (zoom) {
-            zoomToActiveBounds();
-        }
-
-        featuresBoundingBox = null;
-        tilesBoundingBox = null;
-        featureOverlayTiles = false;
-        featureOverlayQueries.clear();
-        featureShapes.clear();
-        markerIds.clear();
-        int maxFeatures = getMaxFeatures();
-
-        getActivity().runOnUiThread(() -> {
-            BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
-            double toleranceDistance = MapUtils.getToleranceDistance(view, map);
-
-            MapUpdateTask localUpdateTask = null;
-            updateLock.lock();
-            try {
-                if (updateTask != null) {
-                    updateTask.cancel(false);
-                }
-                if (updateFeaturesTask != null) {
-                    updateFeaturesTask.cancel(false);
-                }
-                updateTask = new MapUpdateTask();
-                localUpdateTask = updateTask;
-            } finally {
-                updateLock.unlock();
+            if (zoom) {
+                zoomToActiveBounds();
             }
 
-            localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
-        });
+            featuresBoundingBox = null;
+            tilesBoundingBox = null;
+            featureOverlayTiles = false;
+            featureOverlayQueries.clear();
+            featureShapes.clear();
+            markerIds.clear();
+            int maxFeatures = getMaxFeatures();
+
+            getActivity().runOnUiThread(() -> {
+                BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
+                double toleranceDistance = MapUtils.getToleranceDistance(view, map);
+
+                MapUpdateTask localUpdateTask;
+                updateLock.lock();
+                try {
+                    if (updateTask != null) {
+                        updateTask.cancel(false);
+                    }
+                    if (updateFeaturesTask != null) {
+                        updateFeaturesTask.cancel(false);
+                    }
+                    updateTask = new MapUpdateTask();
+                    localUpdateTask = updateTask;
+                } finally {
+                    updateLock.unlock();
+                }
+
+                localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+            });
+        }
     }
 
     /**
@@ -3434,8 +3419,7 @@ public class GeoPackageMapFragment extends Fragment implements
         tilesBoundingBox = null;
 
         // Pre zoom
-        List<GeoPackageDatabase> activeDatabases = new ArrayList<>();
-//        activeDatabases.addAll(active.getDatabases());
+        List<GeoPackageDatabase> activeDatabases = new ArrayList<>(active.getDatabases());
         for (GeoPackageDatabase database : activeDatabases) {
             GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(database.getDatabase());
             if (geoPackage != null) {
@@ -3460,7 +3444,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                     for (String featureTable : featureTableDaos) {
 
-                        if (featureTable != null && featureTable != "") {
+                        if (featureTable != null && !featureTable.isEmpty()) {
                             try {
                                 Contents contents = contentsDao.queryForId(featureTable);
                                 BoundingBox contentsBoundingBox = contents.getBoundingBox();
@@ -3544,44 +3528,19 @@ public class GeoPackageMapFragment extends Fragment implements
     private class MapUpdateTask extends AsyncTask<Object, Void, Void> {
 
         /**
-         * Zoom after update flag
-         */
-        private boolean zoom;
-
-        /**
-         * Max features to draw
-         */
-        private int maxFeatures;
-
-        /**
-         * Map view bounding box
-         */
-        private BoundingBox mapViewBoundingBox;
-
-        /**
-         * Tolerance distance for simplification
-         */
-        private double toleranceDistance;
-
-        /**
-         * Filter flag
-         */
-        private boolean filter;
-
-        /**
          * {@inheritDoc}
          */
         @Override
         protected Void doInBackground(Object... params) {
-            zoom = (Boolean) params[0];
-            maxFeatures = (Integer) params[1];
-            mapViewBoundingBox = (BoundingBox) params[2];
-            toleranceDistance = (Double) params[3];
-            filter = (Boolean) params[4];
+            boolean zoom = (Boolean) params[0];
+            int maxFeatures = (Integer) params[1];
+            BoundingBox mapViewBoundingBox = (BoundingBox) params[2];
+            double toleranceDistance = (Double) params[3];
+            boolean filter = (Boolean) params[4];
             update(this, zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
-            getActivity().runOnUiThread(() -> {
-                basemapApplier.applyBasemaps(map);
-            });
+            if(getActivity() != null) {
+                getActivity().runOnUiThread(() -> basemapApplier.applyBasemaps(map));
+            }
             return null;
         }
 
@@ -3590,20 +3549,19 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map
      *
-     * @param zoom
-     * @param task
-     * @param maxFeatures
-     * @param mapViewBoundingBox
-     * @param toleranceDistance
-     * @param filter
+     * @param zoom The current zoom level.
+     * @param task The update task.
+     * @param maxFeatures The total number of max features allowed on map.
+     * @param mapViewBoundingBox The bounding box of the current view of the map.
+     * @param toleranceDistance Used to simplify any geometries being drawn on map.
+     * @param filter The filter if any.
      */
     private void update(MapUpdateTask task, boolean zoom, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
         if (active != null) {
 
             // Open active GeoPackages and create feature DAOS, display tiles and feature tiles
-            List<GeoPackageDatabase> activeDatabases = new ArrayList<>();
-            activeDatabases.addAll(active.getDatabases());
+            List<GeoPackageDatabase> activeDatabases = new ArrayList<>(active.getDatabases());
             for (GeoPackageDatabase database : activeDatabases) {
 
                 if (task.isCancelled()) {
@@ -3708,37 +3666,16 @@ public class GeoPackageMapFragment extends Fragment implements
         private boolean zoom;
 
         /**
-         * Max features to draw
-         */
-        private int maxFeatures;
-
-        /**
-         * Map view bounding box
-         */
-        private BoundingBox mapViewBoundingBox;
-
-        /**
-         * Tolerance distance for simplification
-         */
-        private double toleranceDistance;
-
-        /**
-         * Filter flag
-         */
-        private boolean filter;
-
-        /**
          * {@inheritDoc}
          */
         @Override
         protected Integer doInBackground(Object... params) {
             zoom = (Boolean) params[0];
-            maxFeatures = (Integer) params[1];
-            mapViewBoundingBox = (BoundingBox) params[2];
-            toleranceDistance = (Double) params[3];
-            filter = (Boolean) params[4];
-            int count = addFeatures(this, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
-            return count;
+            int maxFeatures = (Integer) params[1];
+            BoundingBox mapViewBoundingBox = (BoundingBox) params[2];
+            double toleranceDistance = (Double) params[3];
+            boolean filter = (Boolean) params[4];
+            return addFeatures(this, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
         }
 
         /**
@@ -3788,13 +3725,13 @@ public class GeoPackageMapFragment extends Fragment implements
         /**
          * Add a shape to the map
          *
-         * @param featureId
-         * @param database
-         * @param tableName
-         * @param shape
+         * @param featureId The id of the feature.
+         * @param database The name of the geopackage.
+         * @param tableName The name of the layer.
+         * @param shape The type of shape to add.
          */
         public void addToMap(long featureId, String database, String tableName, GoogleMapShape shape) {
-            publishProgress(new Object[]{featureId, database, tableName, shape});
+            publishProgress(featureId, database, tableName, shape);
         }
 
     }
@@ -3888,13 +3825,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void zoomToActive() {
         zoomToActive(false);
-    }
-
-    /**
-     * Zoom out to 0 over a 2 second animation period
-     */
-    private void zoomToZero() {
-        map.animateCamera(CameraUpdateFactory.zoomTo(0), 2000, null);
     }
 
     /**

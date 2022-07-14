@@ -133,7 +133,7 @@
     <string name="delete_feature_column_label">Delete Feature Column</string>
     <string name="geopackage_rename_label">Rename</string>
     <string name="geopackage_copy_label">Copy</string>
-    <string name="geopackage_copy_suffix">_copy</string>
+    <string name="geopackage_copy_suffix">%1$s_copy</string>
     <string name="create_geopackage_hint">GeoPackage Name</string>
     <string name="geopackage_export_label">Export</string>
     <string name="geopackage_share_label">Share</string>
@@ -447,5 +447,11 @@
     <string name="new_geopackage">New GeoPackage</string>
     <string name="create_geopackage_full">Create GeoPackage</string>
     <string name="new_geopackage_layer">New GeoPackage Layer</string>
+    <string name="rename_geopackage">Rename GeoPackage</string>
+    <string name="rename_layer">Rename Layer</string>
+    <string name="copy_geoPackage">Copy GeoPackage</string>
+    <string name="copy_layer">Copy Layer</string>
+    <string name="delete_geopackage">Delete this GeoPackage?</string>
+    <string name="delete_layer">Delete this Layer</string>
 
 </resources>

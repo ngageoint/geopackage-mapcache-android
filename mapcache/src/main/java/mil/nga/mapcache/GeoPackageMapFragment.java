@@ -755,7 +755,7 @@ public class GeoPackageMapFragment extends Fragment implements
         }
 
         // Util class for launching dialogs when clicking buttons on GeoPackage detail page
-        detailButtonUtil = new DetailActionUtil(getActivity());
+        detailButtonUtil = new DetailActionUtil();
 
         // Util class for launching dialogs when creating/deleting feature columns on the layer detail page
         featureColumnUtil = new FeatureColumnUtil(getActivity());
@@ -1067,11 +1067,11 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void openActionDialog(String gpName, String layerName, int actionType) {
         if (actionType == DetailActionListener.DETAIL_GP) {
-            detailButtonUtil.openDetailDialog(getActivity(), gpName, this);
+            detailButtonUtil.openDetailDialog(gpName, this);
         } else if (actionType == DetailActionListener.RENAME_GP) {
             detailButtonUtil.openRenameDialog(getActivity(), gpName, this);
         } else if (actionType == DetailActionListener.SHARE_GP) {
-            detailButtonUtil.openShareDialog(getActivity(), gpName, this);
+            detailButtonUtil.openShareDialog(gpName, this);
         } else if (actionType == DetailActionListener.COPY_GP) {
             detailButtonUtil.openCopyDialog(getActivity(), gpName, this);
         } else if (actionType == DetailActionListener.DELETE_GP) {

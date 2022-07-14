@@ -30,7 +30,7 @@ public class DetailActionUtil {
     /**
      * Context of the activity
      */
-    private Context mContext;
+    private final Context mContext;
 
     /**
      * Constructor
@@ -433,7 +433,8 @@ public class DetailActionUtil {
                     name.setError(context.getResources().getString(R.string.name_is_required));
                     addButton.setEnabled(false);
                 } else {
-                    boolean allowed = Pattern.matches(context.getResources().getString(R.string.regex_alphanumeric),
+                    String pattern = context.getResources().getString(R.string.regex_alphanumeric);
+                    boolean allowed = Pattern.matches(pattern,
                             givenName);
                     if (!allowed) {
                         name.setError(context.getResources().getString(R.string.must_be_alphanumeric));

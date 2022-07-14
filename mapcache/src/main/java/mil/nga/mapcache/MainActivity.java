@@ -1,6 +1,7 @@
 package mil.nga.mapcache;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -167,24 +168,27 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch(requestCode) {
+        // Check if permission was granted
+        boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+        if(granted) {
+            switch (requestCode) {
 
-            case MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
-                mapFragment.setMyLocationEnabled();
-                break;
+                case MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
+                    mapFragment.setMyLocationEnabled();
+                    break;
 
-            case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
-                mapFragment.importGeopackageFromFile();
-                break;
+                case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
+                    mapFragment.importGeopackageFromFile();
+                    break;
 
-            case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
-                mapFragment.exportGeoPackageToExternal();
-                break;
+                case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                    mapFragment.exportGeoPackageToExternal();
+                    break;
 
-            case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
+                case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
 //                managerFragment.update(granted);
-                break;
-
+                    break;
+            }
         }
     }
 

@@ -1643,8 +1643,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * recycler view being empty
      */
     private void setListVisibility(boolean empty) {
-        LinearLayout emptyViewHolder = (LinearLayout) view.findViewById(R.id.empty_list_holder);
-        TextView getStartedView = (TextView) view.findViewById(R.id.geo_get_started);
+        LinearLayout emptyViewHolder = view.findViewById(R.id.empty_list_holder);
+        TextView getStartedView = view.findViewById(R.id.geo_get_started);
 
         // Give the get started message a listener
         getStartedView.setOnClickListener((View view) -> createNewWizard());
@@ -1668,24 +1668,24 @@ public class GeoPackageMapFragment extends Fragment implements
     public void setIconListeners() {
         // Create listeners for map view icon button
         setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mapSelectButton = (ImageButton) view.findViewById(R.id.mapTypeIcon);
+        mapSelectButton = view.findViewById(R.id.mapTypeIcon);
         mapSelectButton.setOnClickListener((View v) -> openMapSelect());
 
         // Edit icon for editing features
-        editFeaturesButton = (ImageButton) view.findViewById(R.id.editFeaturesIcon);
+        editFeaturesButton = view.findViewById(R.id.editFeaturesIcon);
         editFeaturesButton.setOnClickListener((View v) -> openEditMenu());
 
-        zoomInButton = (ImageButton) view.findViewById(R.id.zoomInIcon);
+        zoomInButton = view.findViewById(R.id.zoomInIcon);
         zoomInButton.setOnClickListener((View v) -> zoomIn());
 
-        zoomLevelText = (TextView) view.findViewById(R.id.zoomLevelText);
-        coordText = (TextView) view.findViewById(R.id.coordText);
+        zoomLevelText = view.findViewById(R.id.zoomLevelText);
+        coordText = view.findViewById(R.id.coordText);
         coordTextCard = view.findViewById(R.id.coordTextCard);
 
-        zoomOutButton = (ImageButton) view.findViewById(R.id.zoomOutIcon);
+        zoomOutButton = view.findViewById(R.id.zoomOutIcon);
         zoomOutButton.setOnClickListener((View v) -> zoomOut());
 
-        settingsIcon = (ImageButton) view.findViewById(R.id.settingsIcon);
+        settingsIcon = view.findViewById(R.id.settingsIcon);
         settingsIcon.setOnClickListener((View v) -> launchPreferences());
 
     }
@@ -1702,8 +1702,8 @@ public class GeoPackageMapFragment extends Fragment implements
             if (!disclaimerPref) {
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
                 View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
-                Button acceptButton = (Button) disclaimerView.findViewById(R.id.accept_button);
-                Button exitButton = (Button) disclaimerView.findViewById(R.id.exit_button);
+                Button acceptButton = disclaimerView.findViewById(R.id.accept_button);
+                Button exitButton = disclaimerView.findViewById(R.id.exit_button);
 
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setView(disclaimerView);
@@ -1736,19 +1736,19 @@ public class GeoPackageMapFragment extends Fragment implements
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
                 View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
                 // Logo and title
-                ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+                ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
                 alertLogo.setBackgroundResource(R.drawable.material_info);
-                TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+                TextView titleText = alertView.findViewById(R.id.alert_title);
                 titleText.setText(R.string.max_features);
 
                 // Alert message
-                final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+                final TextInputEditText inputName = alertView.findViewById(R.id.edit_text_input);
                 inputName.setVisibility(View.GONE);
-                TextView message = (TextView) alertView.findViewById(R.id.alert_description);
+                TextView message = alertView.findViewById(R.id.alert_description);
                 message.setText(R.string.max_features_message);
                 message.setVisibility(View.VISIBLE);
 
-                CheckBox dontShowAgain = (CheckBox) alertView.findViewById(R.id.warn_again);
+                CheckBox dontShowAgain = alertView.findViewById(R.id.warn_again);
                 dontShowAgain.setVisibility(View.VISIBLE);
 
                 AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
@@ -1782,7 +1782,7 @@ public class GeoPackageMapFragment extends Fragment implements
             View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
             ViewAnimation.setScaleAnimatiom(alertView, 200);
             // title
-            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            TextView titleText = alertView.findViewById(R.id.alert_title);
             titleText.setText(R.string.new_geopackage);
 
             // Initial dialog asking for create or import
@@ -1825,12 +1825,12 @@ public class GeoPackageMapFragment extends Fragment implements
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
             // Logo and title
-            ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+            ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
             alertLogo.setBackgroundResource(R.drawable.material_add_box);
-            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            TextView titleText = alertView.findViewById(R.id.alert_title);
             titleText.setText(R.string.create_geopackage_full);
             // GeoPackage name
-            final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+            final TextInputEditText inputName = alertView.findViewById(R.id.edit_text_input);
             inputName.setSingleLine(true);
             inputName.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
@@ -1873,9 +1873,9 @@ public class GeoPackageMapFragment extends Fragment implements
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.new_layer_wizard, null);
             // Logo and title
-            ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
+            ImageView closeLogo = alertView.findViewById(R.id.new_layer_close_logo);
             closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
-            TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
+            TextView titleText = alertView.findViewById(R.id.new_layer_title);
             titleText.setText(R.string.new_geopackage_layer);
 
             // Initial dialog asking for create or import
@@ -1887,14 +1887,14 @@ public class GeoPackageMapFragment extends Fragment implements
             closeLogo.setOnClickListener((View v) -> alertDialog.dismiss());
 
             // Listener for create features
-            TextView createFeature = (TextView) alertView.findViewById(R.id.create_feature);
+            TextView createFeature = alertView.findViewById(R.id.create_feature);
             createFeature.setOnClickListener((View v) -> {
                 createFeatureOption();
                 alertDialog.dismiss();
             });
 
             // Listener for create tiles
-            TextView createTile = (TextView) alertView.findViewById(R.id.create_tile);
+            TextView createTile = alertView.findViewById(R.id.create_tile);
             createTile.setOnClickListener((View v) -> {
                 String geoName = detailPageAdapter.getGeoPackageName();
                 if (geoName != null) {
@@ -1920,19 +1920,19 @@ public class GeoPackageMapFragment extends Fragment implements
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             dialog.setView(createFeaturesView);
 
-            final EditText nameInput = (EditText) createFeaturesView
+            final EditText nameInput = createFeaturesView
                     .findViewById(R.id.create_features_name_input);
-            final EditText minLatInput = (EditText) createFeaturesView
+            final EditText minLatInput = createFeaturesView
                     .findViewById(R.id.bounding_box_min_latitude_input);
-            final EditText maxLatInput = (EditText) createFeaturesView
+            final EditText maxLatInput = createFeaturesView
                     .findViewById(R.id.bounding_box_max_latitude_input);
-            final EditText minLonInput = (EditText) createFeaturesView
+            final EditText minLonInput = createFeaturesView
                     .findViewById(R.id.bounding_box_min_longitude_input);
-            final EditText maxLonInput = (EditText) createFeaturesView
+            final EditText maxLonInput = createFeaturesView
                     .findViewById(R.id.bounding_box_max_longitude_input);
-            final TextView preloadedLocationsButton = (TextView) createFeaturesView
+            final TextView preloadedLocationsButton = createFeaturesView
                     .findViewById(R.id.bounding_box_preloaded);
-            final Spinner geometryTypeSpinner = (Spinner) createFeaturesView
+            final Spinner geometryTypeSpinner = createFeaturesView
                     .findViewById(R.id.create_features_geometry_type);
 
             GeoPackageUtils
@@ -2112,10 +2112,10 @@ public class GeoPackageMapFragment extends Fragment implements
             ((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
 
             // Text validation
-            final TextInputLayout inputLayoutName = (TextInputLayout) importUrlView.findViewById(R.id.import_url_name_layout);
-            final TextInputLayout inputLayoutUrl = (TextInputLayout) importUrlView.findViewById(R.id.import_url_layout);
-            final TextInputEditText inputName = (TextInputEditText) importUrlView.findViewById(R.id.import_url_name_input);
-            final TextInputEditText inputUrl = (TextInputEditText) importUrlView.findViewById(R.id.import_url_input);
+            final TextInputLayout inputLayoutName = importUrlView.findViewById(R.id.import_url_name_layout);
+            final TextInputLayout inputLayoutUrl = importUrlView.findViewById(R.id.import_url_layout);
+            final TextInputEditText inputName = importUrlView.findViewById(R.id.import_url_name_input);
+            final TextInputEditText inputUrl = importUrlView.findViewById(R.id.import_url_input);
 
             // Listen for text changes in the name input.  This will clear error messages when the user types
             TextWatcher inputNameWatcher = new TextWatcher() {
@@ -2450,19 +2450,19 @@ public class GeoPackageMapFragment extends Fragment implements
         editFeaturesPolygonHoleView = view
                 .findViewById(R.id.mapFeaturesPolygonHoleButtons);
 
-        editPointButton = (ImageButton) editFeaturesView
+        editPointButton = editFeaturesView
                 .findViewById(R.id.mapEditPointButton);
         editPointButton.setOnClickListener((View arg0) -> validateAndClearEditFeatures(EditType.POINT));
 
-        editLinestringButton = (ImageButton) editFeaturesView
+        editLinestringButton = editFeaturesView
                 .findViewById(R.id.mapEditLinestringButton);
         editLinestringButton.setOnClickListener((View arg0) -> validateAndClearEditFeatures(EditType.LINESTRING));
 
-        editPolygonButton = (ImageButton) editFeaturesView
+        editPolygonButton = editFeaturesView
                 .findViewById(R.id.mapEditPolygonButton);
         editPolygonButton.setOnClickListener((View arg0) -> validateAndClearEditFeatures(EditType.POLYGON));
 
-        editAcceptButton = (ImageButton) editFeaturesView
+        editAcceptButton = editFeaturesView
                 .findViewById(R.id.mapEditAcceptButton);
         editAcceptButton.setOnClickListener((View arg0) -> {
             if (editFeatureType != null
@@ -2494,7 +2494,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        editClearButton = (ImageButton) editFeaturesView
+        editClearButton = editFeaturesView
                 .findViewById(R.id.mapEditClearButton);
         editClearButton.setOnClickListener((View arg0) -> {
             if (!editPoints.isEmpty()
@@ -2506,7 +2506,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        editPolygonHolesButton = (ImageButton) editFeaturesPolygonHoleView
+        editPolygonHolesButton = editFeaturesPolygonHoleView
                 .findViewById(R.id.mapEditPolygonHoleButton);
         editPolygonHolesButton.setOnClickListener((View arg0) -> {
             if (editFeatureType != EditType.POLYGON_HOLE) {
@@ -2520,7 +2520,7 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         });
 
-        editAcceptPolygonHolesButton = (ImageButton) editFeaturesPolygonHoleView
+        editAcceptPolygonHolesButton = editFeaturesPolygonHoleView
                 .findViewById(R.id.mapEditPolygonHoleAcceptButton);
         editAcceptPolygonHolesButton
                 .setOnClickListener((View arg0) -> {
@@ -2532,7 +2532,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                 });
 
-        editClearPolygonHolesButton = (ImageButton) editFeaturesPolygonHoleView
+        editClearPolygonHolesButton = editFeaturesPolygonHoleView
                 .findViewById(R.id.mapEditPolygonHoleClearButton);
         editClearPolygonHolesButton
                 .setOnClickListener((View arg0) -> {
@@ -3042,9 +3042,9 @@ public class GeoPackageMapFragment extends Fragment implements
         View editFeaturesSelectionView = inflater.inflate(
                 R.layout.edit_features_selection, null);
 
-        final Spinner geoPackageInput = (Spinner) editFeaturesSelectionView
+        final Spinner geoPackageInput = editFeaturesSelectionView
                 .findViewById(R.id.edit_features_selection_geopackage);
-        final Spinner featuresInput = (Spinner) editFeaturesSelectionView
+        final Spinner featuresInput = editFeaturesSelectionView
                 .findViewById(R.id.edit_features_selection_features);
 
         AlertDialog.Builder dialog = getFeatureSelectionDialog(editFeaturesSelectionView,
@@ -3219,16 +3219,16 @@ public class GeoPackageMapFragment extends Fragment implements
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
             // Logo and title
-            ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+            ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
             alertLogo.setBackgroundResource(R.drawable.material_edit);
-            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            TextView titleText = alertView.findViewById(R.id.alert_title);
             titleText.setText(R.string.max_active_features);
             // Set description
-            TextView descText = (TextView) alertView.findViewById(R.id.alert_description);
+            TextView descText = alertView.findViewById(R.id.alert_description);
             descText.setText(R.string.limit_features);
             descText.setVisibility(View.VISIBLE);
             // Set input to current max features value
-            final EditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+            final EditText input = alertView.findViewById(R.id.edit_text_input);
             input.setInputType(InputType.TYPE_CLASS_NUMBER);
             final String maxFeatures = String.valueOf(getMaxFeatures());
             input.setText(maxFeatures);
@@ -3926,16 +3926,16 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Display features
      *
-     * @param task
-     * @param geoPackage
-     * @param styleCache
-     * @param features
-     * @param count
-     * @param maxFeatures
-     * @param editable
-     * @param mapViewBoundingBox
-     * @param toleranceDistance
-     * @param filter
+     * @param task The update task.
+     * @param geoPackage The geopackage to display.
+     * @param styleCache the style cache.
+     * @param features The features.
+     * @param count The number of features.
+     * @param maxFeatures The maximum number of features the map will display.
+     * @param editable True if its editable.
+     * @param mapViewBoundingBox The views bounding box.
+     * @param toleranceDistance Used to simplify geometries for performance.
+     * @param filter True if features should be filtered.
      */
     private void displayFeatures(MapFeaturesUpdateTask task, GeoPackage geoPackage, StyleCache styleCache, String features,
                                  AtomicInteger count, final int maxFeatures, final boolean editable,

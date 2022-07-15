@@ -51,12 +51,12 @@ public class DetailActionUtil {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
         // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
         alertLogo.setBackgroundResource(R.drawable.material_edit);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.rename_geopackage);
         // GeoPackage name
-        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        final TextInputEditText inputName = alertView.findViewById(R.id.edit_text_input);
         inputName.setHint(gpName);
         inputName.setText(gpName);
 
@@ -108,12 +108,12 @@ public class DetailActionUtil {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
         // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
         alertLogo.setBackgroundResource(R.drawable.material_edit);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.rename_layer);
         // Current Layer name
-        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        final TextInputEditText inputName = alertView.findViewById(R.id.edit_text_input);
         inputName.setHint(layerName);
         inputName.setText(layerName);
 
@@ -181,12 +181,12 @@ public class DetailActionUtil {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
         // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
         alertLogo.setBackgroundResource(R.drawable.material_copy);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.copy_geoPackage);
 
-        final TextInputEditText inputName = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        final TextInputEditText inputName = alertView.findViewById(R.id.edit_text_input);
         inputName.setText(context.getString(R.string.geopackage_copy_suffix, gpName));
         inputName.setHint("GeoPackage Name");
 
@@ -219,12 +219,12 @@ public class DetailActionUtil {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
         // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
         alertLogo.setBackgroundResource(R.drawable.material_copy);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.copy_layer);
 
-        final TextInputEditText input = (TextInputEditText) alertView.findViewById(R.id.edit_text_input);
+        final TextInputEditText input = alertView.findViewById(R.id.edit_text_input);
         input.setText(context.getString(R.string.geopackage_copy_suffix, layerName));
         input.setHint("New layer name");
 
@@ -282,11 +282,11 @@ public class DetailActionUtil {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.basic_label_alert, null);
         // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
         alertLogo.setBackgroundResource(R.drawable.material_delete);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.delete_geopackage);
-        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        TextView actionLabel = alertView.findViewById(R.id.action_label);
         actionLabel.setText(gpName);
         actionLabel.setVisibility(View.INVISIBLE);
 
@@ -323,11 +323,11 @@ public class DetailActionUtil {
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.basic_label_alert, null);
         // Logo and title
-        ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
+        ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
         alertLogo.setBackgroundResource(R.drawable.material_delete);
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+        TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.delete_layer);
-        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        TextView actionLabel = alertView.findViewById(R.id.action_label);
         actionLabel.setText(layerName);
         actionLabel.setVisibility(View.INVISIBLE);
 
@@ -367,7 +367,7 @@ public class DetailActionUtil {
         MaterialButton addButton = alertView.findViewById(R.id.new_field_confirm);
         MaterialButton cancelButton = alertView.findViewById(R.id.new_field_cancel);
         TextInputEditText name = alertView.findViewById(R.id.new_tile_name_text);
-        RadioGroup typeGroup = (RadioGroup) alertView.findViewById(R.id.new_field_type);
+        RadioGroup typeGroup = alertView.findViewById(R.id.new_field_type);
         addButton.setEnabled(false);
         AlertDialog addFieldDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)
@@ -375,7 +375,7 @@ public class DetailActionUtil {
 
         addButton.setOnClickListener((View view) -> {
             addFieldDialog.dismiss();
-            RadioButton selectedType = (RadioButton) alertView.findViewById(typeGroup.getCheckedRadioButtonId());
+            RadioButton selectedType = alertView.findViewById(typeGroup.getCheckedRadioButtonId());
             String newType = selectedType.getText().toString();
             GeoPackageDataType convertedType = DataTypeConverter.getGeoPackageDataType(newType);
             if(convertedType != null && name.getText() != null) {

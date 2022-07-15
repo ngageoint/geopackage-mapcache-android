@@ -700,7 +700,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private final GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
         @Override
         public void onCameraMove() {
-            if(zoomLevelText.getVisibility() == View.VISIBLE) {
+            if(zoomLevelText.getVisibility() == View.VISIBLE && map != null) {
                 String zoomFormatted = String.format("%.01f", map.getCameraPosition().zoom);
                 zoomLevelText.setText("Zoom Level " + zoomFormatted);
             }

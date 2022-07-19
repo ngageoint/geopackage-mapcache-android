@@ -17,34 +17,34 @@ public abstract class GeoPackageTable implements Serializable {
     /**
      * Table name
      */
-    public final String name;
+    private final String name;
 
     /**
      * Database name
      */
-    public String database;
+    private String database;
 
     /**
      * Count of features or tiles
      */
-    public int count;
+    private int count;
 
     /**
      * True when currently active or checked
      */
-    public boolean active = false;
+    private boolean active = false;
 
     /**
      * String description of the table
      */
-    public String description;
+    private String description;
 
     /**
      * Constructor
      *
-     * @param database
-     * @param name
-     * @param count
+     * @param database The geoPackage name.
+     * @param name The layer name.
+     * @param count The number of rows.
      */
     protected GeoPackageTable(String database, String name, int count) {
         this.database = database;

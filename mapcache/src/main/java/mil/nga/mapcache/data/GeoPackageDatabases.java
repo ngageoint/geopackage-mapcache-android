@@ -453,11 +453,11 @@ public class GeoPackageDatabases {
                         new HashSet<>());
 
                 for (String tile : tiles) {
-                    addTable(new GeoPackageTileTable(database, tile, tiles.size()), false);
+                    addTable(new GeoPackageTileTable(database, tile, 0), false);
                 }
                 for (String feature : features) {
                     addTable(new GeoPackageFeatureTable(database, feature, null,
-                            features.size()), false);
+                            0), false);
                 }
                 for (String featureOverlay : featureOverlays) {
                     GeoPackageTable geoPackageTable = readTableFile(database, featureOverlay);

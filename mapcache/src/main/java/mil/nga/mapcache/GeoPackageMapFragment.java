@@ -1572,9 +1572,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 mCompassLastMeasuredBearing = bearing;
                 if (mLastLocation != null) {
                     LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                    float zoom = map.getCameraPosition().zoom;
                     CameraPosition cameraPosition = new CameraPosition.Builder()
                             .target(latLng)             // Sets the center of the map to current location
-                            .zoom(15)                   // Sets the zoom
+                            .zoom(zoom)                   // Sets the zoom
                             .bearing(bearing)           // Sets the orientation of the camera
                             .tilt(0)                   // Sets the tilt of the camera to 0 degrees
                             .build();                   // Creates a CameraPosition from the builder

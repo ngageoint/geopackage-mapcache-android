@@ -453,7 +453,7 @@
     <string name="copy_layer">Copy Layer</string>
     <string name="delete_geopackage">Delete this GeoPackage?</string>
     <string name="delete_layer">Delete this Layer</string>
-    <string name="zoom_level">Zoom Level %1$f</string>
+    <string name="zoom_level">Zoom Level %1$.1f</string>
     <string name="max_active_features">Max Active Features</string>
     <string name="limit_features">Limit the number of features to display in active layers for faster processing</string>
 

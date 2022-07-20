@@ -169,7 +169,6 @@ import mil.nga.geopackage.tiles.features.custom.NumberFeaturesTile;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSet;
 import mil.nga.geopackage.tiles.matrixset.TileMatrixSetDao;
 import mil.nga.geopackage.tiles.user.TileDao;
-import mil.nga.geopackage.user.UserCursor;
 import mil.nga.mapcache.data.GeoPackageDatabase;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
@@ -4212,7 +4211,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                    int maxFeatures, boolean editable, BoundingBox boundingBox, double maxLongitude,
                                    boolean filter) {
 
-        boolean exists = false;
+        boolean exists;
         synchronized (featureShapes) {
             exists = featureShapes.exists(row.getId(), database, featureDao.getTableName());
         }
@@ -4255,12 +4254,9 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             }
             } catch(Exception e){
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast toast = Toast.makeText(getContext(), "Error loading geometry", Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast toast = Toast.makeText(getContext(), "Error loading geometry", Toast.LENGTH_SHORT);
+                    toast.show();
                 });
             }
         }
@@ -4269,7 +4265,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the features bounding box with the shape
      *
-     * @param shape
+     * @param shape The shape to use to expand the features bounding box.
      */
     private void updateFeaturesBoundingBox(GoogleMapShape shape) {
         try {
@@ -4401,10 +4397,12 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void setPolylineOptions(StyleCache styleCache, FeatureStyle featureStyle, boolean editable,
                                     PolylineOptions polylineOptions) {
-        if (editable) {
-            polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_edit_color));
-        } else if (styleCache == null || !styleCache.setFeatureStyle(polylineOptions, featureStyle)) {
-            polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_color));
+        if(getActivity() != null) {
+            if (editable) {
+                polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_edit_color));
+            } else if (styleCache == null || !styleCache.setFeatureStyle(polylineOptions, featureStyle)) {
+                polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_color));
+            }
         }
     }
 
@@ -4413,30 +4411,32 @@ public class GeoPackageMapFragment extends Fragment implements
      *
      * @param styleCache     style cache
      * @param featureStyle   feature style
-     * @param editable
-     * @param polygonOptions
+     * @param editable True if it should be displayed as editable.
+     * @param polygonOptions The polygon options to set.
      */
     private void setPolygonOptions(StyleCache styleCache, FeatureStyle featureStyle, boolean editable,
                                    PolygonOptions polygonOptions) {
-        if (editable) {
-            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_color));
-            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_fill_color));
-        } else if (styleCache == null || !styleCache.setFeatureStyle(polygonOptions, featureStyle)) {
-            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_color));
-            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_fill_color));
+        if(getActivity() != null) {
+            if (editable) {
+                polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_color));
+                polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_edit_fill_color));
+            } else if (styleCache == null || !styleCache.setFeatureStyle(polygonOptions, featureStyle)) {
+                polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_color));
+                polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_fill_color));
+            }
         }
     }
 
     /**
      * Add editable shape
      *
-     * @param featureId
-     * @param shape
-     * @return marker
+     * @param featureId The id of the feature.
+     * @param shape The shape to add.
+     * @return marker The google map marker to add.
      */
     private Marker addEditableShape(long featureId, GoogleMapShape shape) {
 
-        Marker marker = null;
+        Marker marker;
 
         if (shape.getShapeType() == GoogleMapShapeType.MARKER) {
             marker = (Marker) shape.getShape();
@@ -4457,10 +4457,10 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Add marker shape
      *
-     * @param featureId
-     * @param database
-     * @param tableName
-     * @param shape
+     * @param featureId The id of the feature.
+     * @param database The name of the geopackage the feature belongs to.
+     * @param tableName The name of the layer the feature belongs to.
+     * @param shape The shape to add.
      */
     private void addMarkerShape(long featureId, String database, String tableName, GoogleMapShape shape) {
 
@@ -4474,8 +4474,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get the first marker of the shape or create one at the location
      *
-     * @param shape
-     * @return
+     * @param shape The shape to get the marker for.
+     * @return The marker to add to the map.
      */
     private Marker getMarker(GoogleMapShape shape) {
 
@@ -4540,8 +4540,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Create an edit marker to edit polylines and polygons
      *
-     * @param latLng
-     * @return
+     * @param latLng The latitude and longitude of the markers location.
+     * @return The marker to add to the map.
      */
     private Marker createEditMarker(LatLng latLng) {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -4556,14 +4556,13 @@ public class GeoPackageMapFragment extends Fragment implements
                 typedValueHeight, true);
         markerOptions.anchor(typedValueWidth.getFloat(),
                 typedValueHeight.getFloat());
-        Marker marker = map.addMarker(markerOptions);
-        return marker;
+        return map.addMarker(markerOptions);
     }
 
     /**
      * Display tiles
      *
-     * @param tiles
+     * @param tiles The tiles to display.
      */
     private void displayTiles(GeoPackageTileTable tiles) {
 
@@ -4581,18 +4580,21 @@ public class GeoPackageMapFragment extends Fragment implements
 
         FeatureTileTableLinker linker = new FeatureTileTableLinker(geoPackage);
         List<FeatureDao> featureDaos = linker.getFeatureDaosForTileTable(tileDao.getTableName());
-        for (FeatureDao featureDao : featureDaos) {
 
-            // Create the feature tiles
-            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
-                    getResources().getDisplayMetrics().density);
+        if(getActivity() != null) {
+            for (FeatureDao featureDao : featureDaos) {
 
-            featureOverlayTiles = true;
+                // Create the feature tiles
+                FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
+                        getResources().getDisplayMetrics().density);
 
-            // Add the feature overlay query
-            FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
-            featureOverlayQuery.calculateStylePixelBounds();
-            featureOverlayQueries.add(featureOverlayQuery);
+                featureOverlayTiles = true;
+
+                // Add the feature overlay query
+                FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
+                featureOverlayQuery.calculateStylePixelBounds();
+                featureOverlayQueries.add(featureOverlayQuery);
+            }
         }
 
         // Set the tiles index to be -2 of it is behind features and tiles drawn from features
@@ -4621,89 +4623,94 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Display feature tiles
      *
-     * @param featureOverlayTable
+     * @param featureOverlayTable The overlay table to display.
      */
     private void displayFeatureTiles(GeoPackageFeatureOverlayTable featureOverlayTable) {
 
         GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(featureOverlayTable.getDatabase());
-        FeatureDao featureDao = featureDaos.get(featureOverlayTable.getDatabase()).get(featureOverlayTable.getFeatureTable());
+        Map<String, FeatureDao> daos = featureDaos.get(featureOverlayTable.getDatabase());
+        if(daos != null && getActivity() != null) {
+            FeatureDao featureDao = daos.get(featureOverlayTable.getFeatureTable());
 
-        BoundingBox boundingBox = new BoundingBox(featureOverlayTable.getMinLon(),
-                featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLon(), featureOverlayTable.getMaxLat());
+            BoundingBox boundingBox = new BoundingBox(featureOverlayTable.getMinLon(),
+                    featureOverlayTable.getMinLat(), featureOverlayTable.getMaxLon(), featureOverlayTable.getMaxLat());
 
-        // Load tiles
-        FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
-                getResources().getDisplayMetrics().density);
-        if (featureOverlayTable.isIgnoreGeoPackageStyles()) {
-            featureTiles.ignoreFeatureTableStyles();
+            // Load tiles
+            FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
+                    getResources().getDisplayMetrics().density);
+            if (featureOverlayTable.isIgnoreGeoPackageStyles()) {
+                featureTiles.ignoreFeatureTableStyles();
+            }
+
+            featureTiles.setMaxFeaturesPerTile(featureOverlayTable.getMaxFeaturesPerTile());
+            if (featureOverlayTable.getMaxFeaturesPerTile() != null) {
+                featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
+            }
+
+            Paint pointPaint = featureTiles.getPointPaint();
+            pointPaint.setColor(Color.parseColor(featureOverlayTable.getPointColor()));
+
+            pointPaint.setAlpha(featureOverlayTable.getPointAlpha());
+            featureTiles.setPointRadius(featureOverlayTable.getPointRadius());
+
+            Paint linePaint = featureTiles.getLinePaintCopy();
+            linePaint.setColor(Color.parseColor(featureOverlayTable.getLineColor()));
+
+            linePaint.setAlpha(featureOverlayTable.getLineAlpha());
+            linePaint.setStrokeWidth(featureOverlayTable.getLineStrokeWidth());
+            featureTiles.setLinePaint(linePaint);
+
+            Paint polygonPaint = featureTiles.getPolygonPaintCopy();
+            polygonPaint.setColor(Color.parseColor(featureOverlayTable.getPolygonColor()));
+
+            polygonPaint.setAlpha(featureOverlayTable.getPolygonAlpha());
+            polygonPaint.setStrokeWidth(featureOverlayTable.getPolygonStrokeWidth());
+            featureTiles.setPolygonPaint(polygonPaint);
+
+            featureTiles.setFillPolygon(featureOverlayTable.isPolygonFill());
+            if (featureTiles.isFillPolygon()) {
+                Paint polygonFillPaint = featureTiles.getPolygonFillPaintCopy();
+                polygonFillPaint.setColor(Color.parseColor(featureOverlayTable.getPolygonFillColor()));
+
+                polygonFillPaint.setAlpha(featureOverlayTable.getPolygonFillAlpha());
+                featureTiles.setPolygonFillPaint(polygonFillPaint);
+            }
+
+            featureTiles.calculateDrawOverlap();
+
+            FeatureOverlay featureOverlay = new FeatureOverlay(featureTiles);
+            featureOverlay.setBoundingBox(boundingBox, ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
+            featureOverlay.setMinZoom(featureOverlayTable.getMinZoom());
+            featureOverlay.setMaxZoom(featureOverlayTable.getMaxZoom());
+
+            // Get the tile linked overlay
+            BoundedOverlay overlay = GeoPackageOverlayFactory.getLinkedFeatureOverlay(featureOverlay, geoPackage);
+
+            if(featureDao != null) {
+                GeometryColumns geometryColumns = featureDao.getGeometryColumns();
+                Contents contents = geometryColumns.getContents();
+
+                GeoPackageUtils.prepareFeatureTiles(featureTiles);
+
+                featureOverlayTiles = true;
+
+                FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
+                featureOverlayQuery.calculateStylePixelBounds();
+                featureOverlayQueries.add(featureOverlayQuery);
+
+                displayTiles(overlay, contents.getBoundingBox(), contents.getSrs(), -1, boundingBox);
+            }
         }
-
-        featureTiles.setMaxFeaturesPerTile(featureOverlayTable.getMaxFeaturesPerTile());
-        if (featureOverlayTable.getMaxFeaturesPerTile() != null) {
-            featureTiles.setMaxFeaturesTileDraw(new NumberFeaturesTile(getActivity()));
-        }
-
-        Paint pointPaint = featureTiles.getPointPaint();
-        pointPaint.setColor(Color.parseColor(featureOverlayTable.getPointColor()));
-
-        pointPaint.setAlpha(featureOverlayTable.getPointAlpha());
-        featureTiles.setPointRadius(featureOverlayTable.getPointRadius());
-
-        Paint linePaint = featureTiles.getLinePaintCopy();
-        linePaint.setColor(Color.parseColor(featureOverlayTable.getLineColor()));
-
-        linePaint.setAlpha(featureOverlayTable.getLineAlpha());
-        linePaint.setStrokeWidth(featureOverlayTable.getLineStrokeWidth());
-        featureTiles.setLinePaint(linePaint);
-
-        Paint polygonPaint = featureTiles.getPolygonPaintCopy();
-        polygonPaint.setColor(Color.parseColor(featureOverlayTable.getPolygonColor()));
-
-        polygonPaint.setAlpha(featureOverlayTable.getPolygonAlpha());
-        polygonPaint.setStrokeWidth(featureOverlayTable.getPolygonStrokeWidth());
-        featureTiles.setPolygonPaint(polygonPaint);
-
-        featureTiles.setFillPolygon(featureOverlayTable.isPolygonFill());
-        if (featureTiles.isFillPolygon()) {
-            Paint polygonFillPaint = featureTiles.getPolygonFillPaintCopy();
-            polygonFillPaint.setColor(Color.parseColor(featureOverlayTable.getPolygonFillColor()));
-
-            polygonFillPaint.setAlpha(featureOverlayTable.getPolygonFillAlpha());
-            featureTiles.setPolygonFillPaint(polygonFillPaint);
-        }
-
-        featureTiles.calculateDrawOverlap();
-
-        FeatureOverlay featureOverlay = new FeatureOverlay(featureTiles);
-        featureOverlay.setBoundingBox(boundingBox, ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM));
-        featureOverlay.setMinZoom(featureOverlayTable.getMinZoom());
-        featureOverlay.setMaxZoom(featureOverlayTable.getMaxZoom());
-
-        // Get the tile linked overlay
-        BoundedOverlay overlay = GeoPackageOverlayFactory.getLinkedFeatureOverlay(featureOverlay, geoPackage);
-
-        GeometryColumns geometryColumns = featureDao.getGeometryColumns();
-        Contents contents = geometryColumns.getContents();
-
-        GeoPackageUtils.prepareFeatureTiles(featureTiles);
-
-        featureOverlayTiles = true;
-
-        FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
-        featureOverlayQuery.calculateStylePixelBounds();
-        featureOverlayQueries.add(featureOverlayQuery);
-
-        displayTiles(overlay, contents.getBoundingBox(), contents.getSrs(), -1, boundingBox);
     }
 
     /**
      * Display tiles
      *
-     * @param overlay
-     * @param dataBoundingBox
-     * @param srs
-     * @param zIndex
-     * @param specifiedBoundingBox
+     * @param overlay The tile overlay.
+     * @param dataBoundingBox The bounding box of the data.
+     * @param srs The spatial reference system of the tiles.
+     * @param zIndex The zoom level.
+     * @param specifiedBoundingBox The specified bounding box.
      */
     private void displayTiles(TileProvider overlay, BoundingBox dataBoundingBox, SpatialReferenceSystem srs, int zIndex, BoundingBox specifiedBoundingBox) {
 
@@ -4731,12 +4738,9 @@ public class GeoPackageMapFragment extends Fragment implements
             tilesBoundingBox = tilesBoundingBox.union(boundingBox);
         }
 
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                map.addTileOverlay(overlayOptions);
-            }
-        });
+        if(getActivity() != null) {
+            getActivity().runOnUiThread(() -> map.addTileOverlay(overlayOptions));
+        }
     }
 
     /**
@@ -4744,8 +4748,12 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public boolean drawBoundingBox() {
         PolygonOptions polygonOptions = new PolygonOptions();
-        polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_color));
-        polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_fill_color));
+
+        if(getActivity() != null) {
+            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_color));
+            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_fill_color));
+        }
+
         List<LatLng> points = getPolygonPoints(boundingBoxStartCorner,
                 boundingBoxEndCorner);
         polygonOptions.addAll(points);
@@ -4758,88 +4766,89 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public void onMapLongClick(LatLng point) {
+    public void onMapLongClick(@NonNull LatLng point) {
+        if(getActivity() != null) {
+            if (boundingBoxMode) {
 
-        if (boundingBoxMode) {
+                vibrator.vibrate(getActivity().getResources().getInteger(
+                        R.integer.map_tiles_long_click_vibrate));
 
-            vibrator.vibrate(getActivity().getResources().getInteger(
-                    R.integer.map_tiles_long_click_vibrate));
+                // Check to see if editing any of the bounding box corners
+                if (boundingBox != null && boundingBoxEndCorner != null) {
+                    Projection projection = map.getProjection();
 
-            // Check to see if editing any of the bounding box corners
-            if (boundingBox != null && boundingBoxEndCorner != null) {
-                Projection projection = map.getProjection();
+                    double allowableScreenPercentage = (getActivity()
+                            .getResources()
+                            .getInteger(
+                                    R.integer.map_tiles_long_click_screen_percentage) / 100.0);
+                    Point screenPoint = projection.toScreenLocation(point);
 
-                double allowableScreenPercentage = (getActivity()
-                        .getResources()
-                        .getInteger(
-                                R.integer.map_tiles_long_click_screen_percentage) / 100.0);
-                Point screenPoint = projection.toScreenLocation(point);
-
-                if (isWithinDistance(projection, screenPoint,
-                        boundingBoxEndCorner, allowableScreenPercentage)) {
-                    setDrawing(true);
-                } else if (isWithinDistance(projection, screenPoint,
-                        boundingBoxStartCorner, allowableScreenPercentage)) {
-                    LatLng temp = boundingBoxStartCorner;
-                    boundingBoxStartCorner = boundingBoxEndCorner;
-                    boundingBoxEndCorner = temp;
-                    setDrawing(true);
-                } else {
-                    LatLng corner1 = new LatLng(
-                            boundingBoxStartCorner.latitude,
-                            boundingBoxEndCorner.longitude);
-                    LatLng corner2 = new LatLng(boundingBoxEndCorner.latitude,
-                            boundingBoxStartCorner.longitude);
-                    if (isWithinDistance(projection, screenPoint, corner1,
-                            allowableScreenPercentage)) {
-                        boundingBoxStartCorner = corner2;
-                        boundingBoxEndCorner = corner1;
+                    if (isWithinDistance(projection, screenPoint,
+                            boundingBoxEndCorner, allowableScreenPercentage)) {
                         setDrawing(true);
                     } else if (isWithinDistance(projection, screenPoint,
-                            corner2, allowableScreenPercentage)) {
-                        boundingBoxStartCorner = corner1;
-                        boundingBoxEndCorner = corner2;
+                            boundingBoxStartCorner, allowableScreenPercentage)) {
+                        LatLng temp = boundingBoxStartCorner;
+                        boundingBoxStartCorner = boundingBoxEndCorner;
+                        boundingBoxEndCorner = temp;
                         setDrawing(true);
+                    } else {
+                        LatLng corner1 = new LatLng(
+                                boundingBoxStartCorner.latitude,
+                                boundingBoxEndCorner.longitude);
+                        LatLng corner2 = new LatLng(boundingBoxEndCorner.latitude,
+                                boundingBoxStartCorner.longitude);
+                        if (isWithinDistance(projection, screenPoint, corner1,
+                                allowableScreenPercentage)) {
+                            boundingBoxStartCorner = corner2;
+                            boundingBoxEndCorner = corner1;
+                            setDrawing(true);
+                        } else if (isWithinDistance(projection, screenPoint,
+                                corner2, allowableScreenPercentage)) {
+                            boundingBoxStartCorner = corner1;
+                            boundingBoxEndCorner = corner2;
+                            setDrawing(true);
+                        }
                     }
                 }
-            }
 
-            // Start drawing a new polygon
-            if (!drawing) {
-                if (boundingBox != null) {
-                    boundingBox.remove();
+                // Start drawing a new polygon
+                if (!drawing) {
+                    if (boundingBox != null) {
+                        boundingBox.remove();
+                    }
+                    boundingBoxStartCorner = point;
+                    boundingBoxEndCorner = point;
+                    PolygonOptions polygonOptions = new PolygonOptions();
+                    polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_color));
+                    polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_fill_color));
+                    List<LatLng> points = getPolygonPoints(boundingBoxStartCorner,
+                            boundingBoxEndCorner);
+                    polygonOptions.addAll(points);
+                    boundingBox = map.addPolygon(polygonOptions);
+                    setDrawing(true);
                 }
-                boundingBoxStartCorner = point;
-                boundingBoxEndCorner = point;
-                PolygonOptions polygonOptions = new PolygonOptions();
-                polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_color));
-                polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.bounding_box_draw_fill_color));
-                List<LatLng> points = getPolygonPoints(boundingBoxStartCorner,
-                        boundingBoxEndCorner);
-                polygonOptions.addAll(points);
-                boundingBox = map.addPolygon(polygonOptions);
-                setDrawing(true);
-            }
-        } else if (editFeatureType != null) {
-            if (editFeatureType == EditType.EDIT_FEATURE) {
-                if (editFeatureShapeMarkers != null) {
+            } else if (editFeatureType != null) {
+                if (editFeatureType == EditType.EDIT_FEATURE) {
+                    if (editFeatureShapeMarkers != null) {
+                        vibrator.vibrate(getActivity().getResources().getInteger(
+                                R.integer.edit_features_add_long_click_vibrate));
+                        Marker marker = addEditPoint(point);
+                        editFeatureShapeMarkers.addNew(marker);
+                        editFeatureShape.add(marker, editFeatureShapeMarkers);
+                        updateEditState(true);
+                    }
+                } else {
                     vibrator.vibrate(getActivity().getResources().getInteger(
                             R.integer.edit_features_add_long_click_vibrate));
                     Marker marker = addEditPoint(point);
-                    editFeatureShapeMarkers.addNew(marker);
-                    editFeatureShape.add(marker, editFeatureShapeMarkers);
+                    if (editFeatureType == EditType.POLYGON_HOLE) {
+                        editHolePoints.put(marker.getId(), marker);
+                    } else {
+                        editPoints.put(marker.getId(), marker);
+                    }
                     updateEditState(true);
                 }
-            } else {
-                vibrator.vibrate(getActivity().getResources().getInteger(
-                        R.integer.edit_features_add_long_click_vibrate));
-                Marker marker = addEditPoint(point);
-                if (editFeatureType == EditType.POLYGON_HOLE) {
-                    editHolePoints.put(marker.getId(), marker);
-                } else {
-                    editPoints.put(marker.getId(), marker);
-                }
-                updateEditState(true);
             }
         }
     }
@@ -4847,8 +4856,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get the edit point marker options
      *
-     * @param point
-     * @return
+     * @param point The location of the point.
+     * @return The marker to be put on the map.
      */
     private Marker addEditPoint(LatLng point) {
         MarkerOptions markerOptions = new MarkerOptions();
@@ -4874,15 +4883,13 @@ public class GeoPackageMapFragment extends Fragment implements
                 break;
         }
 
-        Marker marker = map.addMarker(markerOptions);
-
-        return marker;
+        return map.addMarker(markerOptions);
     }
 
     /**
      * Set the marker options for edit points
      *
-     * @param markerOptions
+     * @param markerOptions The options for the marker to be put on the map.
      */
     private void setEditPointOptions(MarkerOptions markerOptions) {
         TypedValue typedValue = new TypedValue();
@@ -4894,7 +4901,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Set the marker options for edit shape points
      *
-     * @param markerOptions
+     * @param markerOptions The options for the marker to be put on the map.
      */
     private void setEditPointShapeOptions(MarkerOptions markerOptions) {
         markerOptions.icon(BitmapDescriptorFactory
@@ -4911,7 +4918,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Set the marker options for edit shape hole point
      *
-     * @param markerOptions
+     * @param markerOptions The options for the marker to be put on the map.
      */
     private void setEditPointShapeHoleOptions(MarkerOptions markerOptions) {
         markerOptions.icon(BitmapDescriptorFactory

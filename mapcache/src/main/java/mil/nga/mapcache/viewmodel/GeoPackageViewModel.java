@@ -181,15 +181,12 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      * Remove the given layer from a geoPackage, then call the callback after the geoPackage lists
      * have been updated
      */
-    public GeoPackageDatabase removeLayerFromGeo(String geoPackageName, String layerName,
+    public void removeLayerFromGeo(String geoPackageName, String layerName,
                                                  GeoPackageModifier callback){
         if(repository.removeLayerFromGeo(geoPackageName, layerName)) {
-            GeoPackageDatabase db = repository.getDatabaseByName(geoPackageName);
             regenerateGeoPackageTableList();
             callback.onLayerDeleted(geoPackageName);
-            return db;
         }
-        return null;
     }
 
     /**

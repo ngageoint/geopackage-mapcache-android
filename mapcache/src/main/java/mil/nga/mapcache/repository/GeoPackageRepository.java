@@ -686,17 +686,20 @@ public class GeoPackageRepository implements Closeable {
                 for(ExtendedRelation relation : relationList){
                     String tableName = relation.getBaseTableName();
                     if(tableName.equalsIgnoreCase(markerFeature.getTableName())){
-                        MediaDao mediaDao = related.getMediaDao(relation);
-                        // Get list of mediaIds from related table instead of iterating mediaCursor
-                        String relatedTableName = relation.getBaseTableName();
-                        List<Long> mediaIds = new ArrayList<>();
-                        if(tableName.equalsIgnoreCase(relatedTableName)){
-                            mediaIds = related.getMappingsForBase(relation,featureRow.getId());
-                        }
-                        List<MediaRow> mediaRows = mediaDao.getRows(mediaIds);
-                        for(MediaRow row : mediaRows){
-                            Bitmap bitmap = row.getDataBitmap();
-                            bitmaps.put(row.getId(),bitmap);
+                        RelationType relationType = relation.getRelationType();
+                        if(relationType.equals(RelationType.MEDIA)) {
+                            MediaDao mediaDao = related.getMediaDao(relation);
+                            // Get list of mediaIds from related table instead of iterating mediaCursor
+                            String relatedTableName = relation.getBaseTableName();
+                            List<Long> mediaIds = new ArrayList<>();
+                            if (tableName.equalsIgnoreCase(relatedTableName)) {
+                                mediaIds = related.getMappingsForBase(relation, featureRow.getId());
+                            }
+                            List<MediaRow> mediaRows = mediaDao.getRows(mediaIds);
+                            for (MediaRow row : mediaRows) {
+                                Bitmap bitmap = row.getDataBitmap();
+                                bitmaps.put(row.getId(), bitmap);
+                            }
                         }
                     }
                 }

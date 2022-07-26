@@ -24,7 +24,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import java.util.Observable;
 
 import mil.nga.mapcache.R;
-import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.layersprovider.LayersProvider;
 import mil.nga.mapcache.layersprovider.LayersView;
@@ -36,54 +35,54 @@ import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import java.util.Observer;
 
 /**
- * The first step when creating a new tile layer within a geopackage.
+ * The first step when creating a new tile layer within a geoPackage.
  */
 public class NewTileLayerUI implements Observer {
 
     /**
      * RecyclerView that will hold our GeoPackages.
      */
-    private RecyclerView geoPackageRecycler;
+    private final RecyclerView geoPackageRecycler;
 
     /**
      * The map.
      */
-    private IMapView mapView;
+    private final IMapView mapView;
 
     /**
      * Used to get the layout.
      */
-    private FragmentActivity activity;
+    private final FragmentActivity activity;
 
     /**
      * The app context.
      */
-    private Context context;
+    private final Context context;
 
     /**
      * The fragment this UI is apart of, used to get resource strings.
      */
-    private Fragment fragment;
+    private final Fragment fragment;
 
     /**
-     * Active GeoPackages
+     * Used to get the geoPackage.
      */
-    private GeoPackageDatabases active;
+    private final GeoPackageViewModel viewModel;
 
     /**
      * The callback to pass to LoadTilesTask.
      */
-    private ILoadTilesTask callback;
+    private final ILoadTilesTask callback;
 
     /**
      * Contains a bounding box that is displayed to the user.
      */
-    private IBoundingBoxManager boxManager;
+    private final IBoundingBoxManager boxManager;
 
     /**
      * The model for the UI.
      */
-    private NewTileLayerModel model = new NewTileLayerModel();
+    private final NewTileLayerModel model = new NewTileLayerModel();
 
     /**
      * The button that takes us to the next step.
@@ -103,13 +102,7 @@ public class NewTileLayerUI implements Observer {
     /**
      * The controller.
      */
-    private NewTileLayerController controller;
-
-    /**
-     * If the url given has extra layers with it, this will populate a list of available layers
-     * for the user to choose from.
-     */
-    private LayersProvider provider;
+    private final NewTileLayerController controller;
 
     /**
      * Used to show a spinning progress dialog.
@@ -125,14 +118,14 @@ public class NewTileLayerUI implements Observer {
      * @param activity           Use The app context.
      * @param context            The app context.
      * @param fragment           The fragment this UI is apart of, used to get resource strings.
-     * @param active             The active GeoPackages
+     * @param viewModel          Used to get the geoPackage.
      * @param callback           The callback to pass to LoadTilesTask.
-     * @param geoPackageName     The name of the geopackage.
+     * @param geoPackageName     The name of the geoPackage.
      */
     public NewTileLayerUI(RecyclerView geoPackageRecycler, IMapView mapView,
                           IBoundingBoxManager boxManager,
                           FragmentActivity activity, Context context, Fragment fragment,
-                          GeoPackageDatabases active, GeoPackageViewModel geoPackageViewModel,
+                          GeoPackageViewModel viewModel,
                           ILoadTilesTask callback, String geoPackageName) {
         this.geoPackageRecycler = geoPackageRecycler;
         this.mapView = mapView;
@@ -140,21 +133,19 @@ public class NewTileLayerUI implements Observer {
         this.activity = activity;
         this.context = context;
         this.fragment = fragment;
-        this.active = active;
+        this.viewModel = viewModel;
         this.callback = callback;
         model.setGeopackageName(geoPackageName);
         model.addObserver(this);
-        this.controller = new NewTileLayerController(model, geoPackageViewModel, fragment,
+        this.controller = new NewTileLayerController(model, viewModel, fragment,
                 PreferenceManager.getDefaultSharedPreferences(activity));
     }
 
     /**
-     * Show the UI for the first step in creating a new tile layer within a geopackage.
-     *
-     * @param geoPackageViewModel Used to validate unique layer names.
+     * Show the UI for the first step in creating a new tile layer within a geoPackage.
      */
-    public void show(GeoPackageViewModel geoPackageViewModel) {
-        BottomSheetBehavior behavior = BottomSheetBehavior.from(geoPackageRecycler);
+    public void show() {
+        BottomSheetBehavior<RecyclerView> behavior = BottomSheetBehavior.from(geoPackageRecycler);
         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
         // Create Alert window with basic input text layout
@@ -164,7 +155,7 @@ public class NewTileLayerUI implements Observer {
         ImageView closeLogo = (ImageView) alertView.findViewById(R.id.new_layer_close_logo);
         closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
         TextView titleText = (TextView) alertView.findViewById(R.id.new_layer_title);
-        titleText.setText("Create Tile Layer");
+        titleText.setText(context.getResources().getString(R.string.create_tile_layer));
         drawButton = (MaterialButton) alertView.findViewById(R.id.draw_tile_box_button);
 
         // Validate name to have only alphanumeric chars because of sqlite errors
@@ -180,8 +171,10 @@ public class NewTileLayerUI implements Observer {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String givenName = inputName.getText().toString();
-                model.setLayerName(givenName);
+                if(inputName.getText() != null) {
+                    String givenName = inputName.getText().toString();
+                    model.setLayerName(givenName);
+                }
             }
         });
 
@@ -202,37 +195,27 @@ public class NewTileLayerUI implements Observer {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String givenUrl = inputUrl.getText().toString();
-                model.setUrl(givenUrl);
+                if(inputUrl.getText() != null) {
+                    String givenUrl = inputUrl.getText().toString();
+                    model.setUrl(givenUrl);
+                }
             }
         });
 
         // Show a menu to choose from saved urls
         TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
-        defaultText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                controller.loadSavedUrls();
-            }
-        });
+        defaultText.setOnClickListener((View view) -> controller.loadSavedUrls());
 
         // URL help menu
         TextView urlHelpText = (TextView) alertView.findViewById(R.id.url_help);
-        urlHelpText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle(fragment.getString(R.string.map_tile_url_header));
-                builder.setMessage(fragment.getString(R.string.url_template_message));
-                final AlertDialog urlDialog = builder.create();
-                builder.setPositiveButton(R.string.button_ok_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        urlDialog.dismiss();
-                    }
-                });
-                builder.show();
-            }
+        urlHelpText.setOnClickListener((View view) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(fragment.getString(R.string.map_tile_url_header));
+            builder.setMessage(fragment.getString(R.string.url_template_message));
+            final AlertDialog urlDialog = builder.create();
+            builder.setPositiveButton(R.string.button_ok_label,
+                    (DialogInterface dialogInterface, int i) -> urlDialog.dismiss());
+            builder.show();
         });
 
 
@@ -242,29 +225,25 @@ public class NewTileLayerUI implements Observer {
         final AlertDialog alertDialog = dialog.create();
 
         // Click listener for close button
-        closeLogo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-            }
-        });
+        closeLogo.setOnClickListener((View v) -> alertDialog.dismiss());
 
         // Listener for the draw button
-        drawButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        drawButton.setOnClickListener((View v) -> {
+            if (inputName.getText() != null) {
                 model.setLayerName(inputName.getText().toString());
+            }
+            if (inputUrl.getText() != null) {
                 model.setUrl(inputUrl.getText().toString());
-                model.setBaseUrl(model.getUrl());
-                if ((model.getLayerNameError() == null || model.getLayerNameError().isEmpty())
-                        && (model.getUrlError() == null || model.getUrlError().isEmpty())) {
-                    alertDialog.dismiss();
-                    LayersModel layers = new LayersModel();
-                    layers.addObserver(NewTileLayerUI.this);
-                    showSpinningDialog();
-                    LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
-                    provider.retrieveLayers(model.getUrl());
-                }
+            }
+            model.setBaseUrl(model.getUrl());
+            if ((model.getLayerNameError() == null || model.getLayerNameError().isEmpty())
+                    && (model.getUrlError() == null || model.getUrlError().isEmpty())) {
+                alertDialog.dismiss();
+                LayersModel layers = new LayersModel();
+                layers.addObserver(NewTileLayerUI.this);
+                showSpinningDialog();
+                LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
+                provider.retrieveLayers(model.getUrl());
             }
         });
 
@@ -275,18 +254,10 @@ public class NewTileLayerUI implements Observer {
     public void update(Observable observable, Object o) {
         if (NewTileLayerModel.LAYER_NAME_PROP.equals(o)) {
             inputName.setError(model.getLayerNameError());
-            if (model.getLayerNameError() == null || model.getLayerNameError().isEmpty()) {
-                drawButton.setEnabled(true);
-            } else {
-                drawButton.setEnabled(false);
-            }
+            drawButton.setEnabled(model.getLayerNameError() == null || model.getLayerNameError().isEmpty());
         } else if (NewTileLayerModel.URL_ERROR_PROP.equals(o)) {
             inputUrl.setError(model.getUrlError());
-            if (model.getUrlError() == null || model.getUrlError().isEmpty()) {
-                drawButton.setEnabled(true);
-            } else {
-                drawButton.setEnabled(false);
-            }
+            drawButton.setEnabled(model.getUrlError() == null || model.getUrlError().isEmpty());
         } else if (NewTileLayerModel.SAVED_URLS_PROP.equals(o)) {
             showSavedUrls();
         } else if (LayersModel.LAYERS_PROP.equals(o)) {
@@ -313,7 +284,7 @@ public class NewTileLayerUI implements Observer {
     private void drawTileBoundingBox(LayersModel layers) {
         TileBoundingBoxUI tileBoundsUI = new TileBoundingBoxUI(geoPackageRecycler, mapView,
                 boxManager, layers);
-        tileBoundsUI.show(activity, context, fragment, active, callback, model);
+        tileBoundsUI.show(activity, context, fragment, viewModel, callback, model);
     }
 
     /**
@@ -323,13 +294,10 @@ public class NewTileLayerUI implements Observer {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Saved Tile URLs");
         if (model.getSavedUrls().length > 0) {
-            builder.setItems(model.getSavedUrls(), new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    inputUrl.setText(model.getSavedUrls()[which]);
-                    inputUrl.setError(null);
-                    ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-                }
+            builder.setItems(model.getSavedUrls(), (DialogInterface dialog, int which) -> {
+                inputUrl.setText(model.getSavedUrls()[which]);
+                inputUrl.setError(null);
+                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
             });
         } else {
             builder.setMessage(fragment.getString(R.string.no_saved_urls_message));

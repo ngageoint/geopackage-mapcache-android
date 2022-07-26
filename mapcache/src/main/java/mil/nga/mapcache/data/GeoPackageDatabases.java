@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Collection of active GeoPackage database tables
@@ -32,7 +30,7 @@ public class GeoPackageDatabases {
     /**
      * Database preferences value
      */
-    private String databasePreference = "databases";
+    private final String databasePreference;
 
     /**
      * Tile Tables Preference suffix
@@ -50,24 +48,19 @@ public class GeoPackageDatabases {
     private static final String FEATURE_OVERLAY_TABLES_PREFERENCE_SUFFIX = "_feature_overlay_tables";
 
     /**
-     * Initialization lock
-     */
-    private static final Lock initializeLock = new ReentrantLock();
-
-    /**
      * Map of databases
      */
-    private Map<String, GeoPackageDatabase> databases = new HashMap<String, GeoPackageDatabase>();
+    private final Map<String, GeoPackageDatabase> databases = new HashMap<>();
 
     /**
      * Context
      */
-    private Context context;
+    private final Context context;
 
     /**
      * Shared preference settings
      */
-    private SharedPreferences settings;
+    private final SharedPreferences settings;
 
     /**
      * Modified flag
@@ -77,7 +70,7 @@ public class GeoPackageDatabases {
     /**
      * prefix to add to the saved preference before saving
      */
-    private String prefix;
+    private final String prefix;
 
     /**
      * Public constructor
@@ -100,8 +93,9 @@ public class GeoPackageDatabases {
      * @param size file size in string format
      */
     public void setDatabaseSize(String database, String size){
-        if(databases.get(database) != null) {
-            databases.get(database).setSize(size);
+        GeoPackageDatabase db = databases.get(database);
+        if(db != null) {
+            db.setSize(size);
         }
     }
 
@@ -120,8 +114,8 @@ public class GeoPackageDatabases {
     /**
      * Check if the table exists in this collection of tables, is active
      *
-     * @param table
-     * @return
+     * @param table The table to check.
+     * @return True if it exists, false if it does not.
      */
     public boolean exists(GeoPackageTable table) {
         boolean exists = false;
@@ -150,49 +144,12 @@ public class GeoPackageDatabases {
     }
 
     /**
-     * Searches all table types to find out if a table exists in a geopackage
+     * Searches all table types to find out if a table exists in a geoPackage
      */
     public boolean exists(String database, String table){
-        if(exists(database, table, GeoPackageTableType.FEATURE)){
-            return true;
-        }
-        if(exists(database, table, GeoPackageTableType.TILE)){
-            return true;
-        }
-        if(exists(database, table, GeoPackageTableType.FEATURE_OVERLAY)){
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Get feature overlays for the database
-     *
-     * @param databaseName
-     * @return
-     */
-    public Collection<GeoPackageFeatureOverlayTable> featureOverlays(String databaseName) {
-
-        List<GeoPackageFeatureOverlayTable> response = new ArrayList<GeoPackageFeatureOverlayTable>();
-
-        try {
-            final Set<String> featureOverlays = settings.getStringSet(
-                    getFeatureOverlayTablesPreferenceKey(databaseName),
-                    new HashSet<String>());
-
-            for (String featureOverlay : featureOverlays) {
-                GeoPackageTable geoPackageTable = readTableFile(databaseName, featureOverlay);
-                if (geoPackageTable != null) {
-                    response.add((GeoPackageFeatureOverlayTable) geoPackageTable);
-                }
-            }
-        } catch(Exception e){
-            Log.e(GeoPackageDatabases.class.getSimpleName(),
-                    "Failed to load featureOverlays settings from database " + databaseName +
-                            ":  ", e);
-        }
-
-        return response;
+        return exists(database, table, GeoPackageTableType.FEATURE) ||
+                exists(database, table, GeoPackageTableType.TILE) ||
+                exists(database, table, GeoPackageTableType.FEATURE_OVERLAY);
     }
 
     public GeoPackageDatabase getDatabase(GeoPackageTable table) {
@@ -206,7 +163,7 @@ public class GeoPackageDatabases {
     /**
      * Get the database
      *
-     * @return
+     * @return The collection of geoPackages.
      */
     public Collection<GeoPackageDatabase> getDatabases() {
         return databases.values();
@@ -223,7 +180,7 @@ public class GeoPackageDatabases {
     /**
      * Add a table
      *
-     * @param table
+     * @param table The table to add.
      */
     public void addTable(GeoPackageTable table) {
         addTable(table, true);
@@ -232,8 +189,8 @@ public class GeoPackageDatabases {
     /**
      * Add a table and update the saved preferences if flag is set
      *
-     * @param table
-     * @param updatePreferences
+     * @param table The table to add.
+     * @param updatePreferences True if preferences should reflect this add.
      */
     public void addTable(GeoPackageTable table, boolean updatePreferences) {
         GeoPackageDatabase database = databases.get(table.getDatabase());
@@ -254,23 +211,24 @@ public class GeoPackageDatabases {
      */
     public void addAll(GeoPackageDatabase db){
         if(db.getTableCount() > 0) {
-            if (databases.containsKey(db.getDatabase())) {
-                databases.remove(db.getDatabase());
-            }
+            databases.remove(db.getDatabase());
 
             for (GeoPackageTable table : db.getAllTables()) {
                 addTable(table, true);
             }
             // Make sure to set the db size
-            databases.get(db.getDatabase()).setSize(db.getSize());
-            databases.get(db.getDatabase()).setActiveTables(true);
+            GeoPackageDatabase geo = databases.get(db.getDatabase());
+            if (geo != null) {
+                geo.setSize(db.getSize());
+                geo.setActiveTables(true);
+            }
             setModified(true);
         }
     }
 
     /**
      * Add a GeoPackageDatabase with no tables
-     * @param dbName
+     * @param dbName The name of the geoPackage.
      */
     public void addEmptyDatabase(String dbName){
         GeoPackageDatabase database = databases.get(dbName);
@@ -283,7 +241,7 @@ public class GeoPackageDatabases {
     /**
      * Remove a table
      *
-     * @param table
+     * @param table The table to remove.
      */
     public void removeTable(GeoPackageTable table) {
         removeTable(table, false);
@@ -303,7 +261,7 @@ public class GeoPackageDatabases {
 
     /**
      * Sets all tables in the given database to the given active state
-     * @param activeState active or inactve
+     * @param activeState active or inactive
      * @param geoPackageName name of the database to set table active state
      */
     public void setDatabaseLayersActive(boolean activeState, String geoPackageName){
@@ -314,7 +272,7 @@ public class GeoPackageDatabases {
     }
 
     /**
-     * Set all layers in every geopackage to the given active state
+     * Set all layers in every geoPackage to the given active state
      * @param activeState active or inactive
      */
     public void setAllDatabaseLayersActive(boolean activeState){
@@ -325,7 +283,7 @@ public class GeoPackageDatabases {
     }
 
     /**
-     * Set a layer in the given geopackage to the active state
+     * Set a layer in the given geoPackage to the active state
      * @param activeState active or inactive
      */
     public void setLayerActive(boolean activeState, String geoPackageName, String layerName){
@@ -348,8 +306,8 @@ public class GeoPackageDatabases {
     /**
      * Remove a table
      *
-     * @param table
-     * @param preserveOverlays
+     * @param table The table to remove.
+     * @param preserveOverlays True if overlays should stay.
      */
     public void removeTable(GeoPackageTable table, boolean preserveOverlays) {
         GeoPackageDatabase database = databases.get(table.getDatabase());
@@ -361,12 +319,10 @@ public class GeoPackageDatabases {
                 removeDatabaseFromPreferences(database.getDatabase(), preserveOverlays);
             }
             if (!preserveOverlays && table.getType() == GeoPackageTableType.FEATURE) {
-                List<GeoPackageFeatureOverlayTable> deleteFeatureOverlays = new ArrayList<GeoPackageFeatureOverlayTable>();
-                int count = 0;
+                List<GeoPackageFeatureOverlayTable> deleteFeatureOverlays = new ArrayList<>();
                 for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
                     if (featureOverlay.getFeatureTable().equals(table.getName())) {
                         deleteFeatureOverlays.add(featureOverlay);
-                        count++;
                     }
                 }
                 for (GeoPackageFeatureOverlayTable featureOverlay : deleteFeatureOverlays) {
@@ -405,32 +361,6 @@ public class GeoPackageDatabases {
         return count;
     }
 
-    public int getActiveTableCount() {
-        int count = 0;
-        for (GeoPackageDatabase database : databases.values()) {
-            count += database.getActiveTableCount();
-        }
-        return count;
-    }
-
-    /**
-     * Clear all active databases
-     */
-    public void clearActive() {
-        Set<String> allDatabases = new HashSet<String>();
-        allDatabases.addAll(databases.keySet());
-        for (String database : allDatabases) {
-            GeoPackageDatabase db = databases.get(database);
-            for (GeoPackageTable table : db.getFeatureOverlays()) {
-                if (table.isActive()) {
-                    table.setActive(false);
-                    addTable(table, true);
-                }
-            }
-            removeDatabase(database, true);
-        }
-    }
-
     /**
      * Get the total number of all features in all databases
      */
@@ -454,31 +384,19 @@ public class GeoPackageDatabases {
     }
 
     /**
-     * Get the total number of featres and tiles in all databases
+     * Get the total number of features and tiles in all databases
      */
     public int getAllFeaturesAndTilesCount(){
-        int totalActive = 0;
-        totalActive = getAllFeaturesCount();
+        int totalActive = getAllFeaturesCount();
         totalActive += getAllTilesCount();
         return totalActive;
     }
 
     /**
-     * Get the total number of all active features in all databases
-     */
-    public int getAllActiveFeaturesCount(){
-        int totalFeatures = 0;
-        for(GeoPackageDatabase db : getDatabases()){
-            totalFeatures += db.getTotalActiveFeatureCount();
-        }
-        return totalFeatures;
-    }
-
-    /**
      * Remove a database
      *
-     * @param database
-     * @param preserveOverlays
+     * @param database The name of the geoPackage to remove.
+     * @param preserveOverlays True if overlays should be saved.
      */
     public void removeDatabase(String database, boolean preserveOverlays) {
         databases.remove(database);
@@ -489,8 +407,8 @@ public class GeoPackageDatabases {
     /**
      * Rename a database
      *
-     * @param database
-     * @param newDatabase
+     * @param database The name of the geoPackage to rename.
+     * @param newDatabase The new
      */
     public void renameDatabase(String database, String newDatabase) {
         GeoPackageDatabase geoPackageDatabase = databases.remove(database);
@@ -522,17 +440,17 @@ public class GeoPackageDatabases {
         databases.clear();
         try {
             final Set<String> databases = settings.getStringSet(databasePreference,
-                    new HashSet<String>());
+                    new HashSet<>());
             for (String database : databases) {
                 Set<String> tiles = settings
                         .getStringSet(getTileTablesPreferenceKey(database),
-                                new HashSet<String>());
+                                new HashSet<>());
                 Set<String> features = settings.getStringSet(
                         getFeatureTablesPreferenceKey(database),
-                        new HashSet<String>());
+                        new HashSet<>());
                 Set<String> featureOverlays = settings.getStringSet(
                         getFeatureOverlayTablesPreferenceKey(database),
-                        new HashSet<String>());
+                        new HashSet<>());
 
                 for (String tile : tiles) {
                     addTable(new GeoPackageTileTable(database, tile, 0), false);
@@ -557,17 +475,16 @@ public class GeoPackageDatabases {
     /**
      * Remove the database from the saved preferences
      *
-     * @param database
-     * @param preserveOverlays
+     * @param database The name of the geoPackage to remove.
+     * @param preserveOverlays True if overlays should be saved.
      */
     private void removeDatabaseFromPreferences(String database, boolean preserveOverlays) {
         Editor editor = settings.edit();
 
         Set<String> databases = settings.getStringSet(databasePreference,
-                new HashSet<String>());
+                new HashSet<>());
         if (databases != null && databases.contains(database)) {
-            Set<String> newDatabases = new HashSet<String>();
-            newDatabases.addAll(databases);
+            Set<String> newDatabases = new HashSet<>(databases);
             newDatabases.remove(database);
             editor.putStringSet(databasePreference, newDatabases);
         }
@@ -578,7 +495,7 @@ public class GeoPackageDatabases {
             deleteTableFiles(database);
         }
 
-        editor.commit();
+        editor.apply();
     }
 
     /**
@@ -586,15 +503,15 @@ public class GeoPackageDatabases {
      */
     private void removeAllDatabasesFromPreferences(){
         Editor editor = settings.edit();
-        Set<String> emptyDatabases = new HashSet<String>();
+        Set<String> emptyDatabases = new HashSet<>();
         editor.putStringSet(databasePreference, emptyDatabases);
-        editor.commit();
+        editor.apply();
     }
 
     /**
      * Remove a table from the preferences
      *
-     * @param table
+     * @param table The geoPackage to remove.
      */
     private void removeTableFromPreferences(GeoPackageTable table) {
         Editor editor = settings.edit();
@@ -604,10 +521,9 @@ public class GeoPackageDatabases {
             case FEATURE:
                 Set<String> features = settings
                         .getStringSet(getFeatureTablesPreferenceKey(table),
-                                new HashSet<String>());
+                                new HashSet<>());
                 if (features != null && features.contains(table.getName())) {
-                    Set<String> newFeatures = new HashSet<String>();
-                    newFeatures.addAll(features);
+                    Set<String> newFeatures = new HashSet<>(features);
                     newFeatures.remove(table.getName());
                     editor.putStringSet(getFeatureTablesPreferenceKey(table),
                             newFeatures);
@@ -616,10 +532,9 @@ public class GeoPackageDatabases {
 
             case TILE:
                 Set<String> tiles = settings.getStringSet(
-                        getTileTablesPreferenceKey(table), new HashSet<String>());
+                        getTileTablesPreferenceKey(table), new HashSet<>());
                 if (tiles != null && tiles.contains(table.getName())) {
-                    Set<String> newTiles = new HashSet<String>();
-                    newTiles.addAll(tiles);
+                    Set<String> newTiles = new HashSet<>(tiles);
                     newTiles.remove(table.getName());
                     editor.putStringSet(getTileTablesPreferenceKey(table), newTiles);
                 }
@@ -628,10 +543,9 @@ public class GeoPackageDatabases {
             case FEATURE_OVERLAY:
                 Set<String> featureOverlays = settings
                         .getStringSet(getFeatureOverlayTablesPreferenceKey(table),
-                                new HashSet<String>());
+                                new HashSet<>());
                 if (featureOverlays != null && featureOverlays.contains(table.getName())) {
-                    Set<String> newFeatures = new HashSet<String>();
-                    newFeatures.addAll(featureOverlays);
+                    Set<String> newFeatures = new HashSet<>(featureOverlays);
                     newFeatures.remove(table.getName());
                     editor.putStringSet(getFeatureOverlayTablesPreferenceKey(table),
                             newFeatures);
@@ -643,22 +557,22 @@ public class GeoPackageDatabases {
                 throw new IllegalArgumentException("Unsupported table type: " + table.getType());
         }
 
-        editor.commit();
+        editor.apply();
     }
 
     /**
      * Add a table to the preferences, updating the saved databases and tables
      * as needed
      *
-     * @param table
+     * @param table The geoPackage to add to preferences.
      */
     private void addTableToPreferences(GeoPackageTable table) {
         Editor editor = settings.edit();
 
         Set<String> databases = settings.getStringSet(databasePreference,
-                new HashSet<String>());
+                new HashSet<>());
         if (databases == null || !databases.contains(table.getDatabase())) {
-            Set<String> newDatabases = new HashSet<String>();
+            Set<String> newDatabases = new HashSet<>();
             if (databases != null) {
                 newDatabases.addAll(databases);
             }
@@ -671,9 +585,9 @@ public class GeoPackageDatabases {
             case FEATURE:
                 Set<String> features = settings
                         .getStringSet(getFeatureTablesPreferenceKey(table),
-                                new HashSet<String>());
+                                new HashSet<>());
                 if (features == null || !features.contains(table.getName())) {
-                    Set<String> newFeatures = new HashSet<String>();
+                    Set<String> newFeatures = new HashSet<>();
                     if (features != null) {
                         newFeatures.addAll(features);
                     }
@@ -685,9 +599,9 @@ public class GeoPackageDatabases {
 
             case TILE:
                 Set<String> tiles = settings.getStringSet(
-                        getTileTablesPreferenceKey(table), new HashSet<String>());
+                        getTileTablesPreferenceKey(table), new HashSet<>());
                 if (tiles == null || !tiles.contains(table.getName())) {
-                    Set<String> newTiles = new HashSet<String>();
+                    Set<String> newTiles = new HashSet<>();
                     if (tiles != null) {
                         newTiles.addAll(tiles);
                     }
@@ -699,9 +613,9 @@ public class GeoPackageDatabases {
             case FEATURE_OVERLAY:
                 Set<String> featureOverlays = settings
                         .getStringSet(getFeatureOverlayTablesPreferenceKey(table),
-                                new HashSet<String>());
+                                new HashSet<>());
                 if (featureOverlays == null || !featureOverlays.contains(table.getName())) {
-                    Set<String> newFeatures = new HashSet<String>();
+                    Set<String> newFeatures = new HashSet<>();
                     if (featureOverlays != null) {
                         newFeatures.addAll(featureOverlays);
                     }
@@ -716,14 +630,14 @@ public class GeoPackageDatabases {
                 throw new IllegalArgumentException("Unsupported table type: " + table.getType());
         }
 
-        editor.commit();
+        editor.apply();
     }
 
     /**
      * Get the Tiles Table Preference Key from table
      *
-     * @param table
-     * @return
+     * @param table The geoPackage layer to get the tiles table key for.
+     * @return The tiles table key.
      */
     private String getTileTablesPreferenceKey(GeoPackageTable table) {
         return getTileTablesPreferenceKey(table.getDatabase());
@@ -732,8 +646,8 @@ public class GeoPackageDatabases {
     /**
      * Get the Tiles Table Preference Key from database name
      *
-     * @param database
-     * @return
+     * @param database The geoPackage layer to get the tiles table key for.
+     * @return The tiles table key.
      */
     private String getTileTablesPreferenceKey(String database) {
         return prefix + database + TILE_TABLES_PREFERENCE_SUFFIX;
@@ -742,8 +656,8 @@ public class GeoPackageDatabases {
     /**
      * Get the Feature Table Preference Key from table
      *
-     * @param table
-     * @return
+     * @param table The geoPackage layer to get the features table key for.
+     * @return The features table key.
      */
     private String getFeatureTablesPreferenceKey(GeoPackageTable table) {
         return getFeatureTablesPreferenceKey(table.getDatabase());
@@ -752,8 +666,8 @@ public class GeoPackageDatabases {
     /**
      * Get the Feature Table Preference Key from database name
      *
-     * @param database
-     * @return
+     * @param database The geoPackage layer to get the features table key for.
+     * @return The features table key.
      */
     private String getFeatureTablesPreferenceKey(String database) {
         return prefix + database + FEATURE_TABLES_PREFERENCE_SUFFIX;
@@ -762,8 +676,8 @@ public class GeoPackageDatabases {
     /**
      * Get the Feature Overlays Table Preference Key from table
      *
-     * @param table
-     * @return
+     * @param table The geoPackage layer to get the feature overlay table key for.
+     * @return The feature overlay key.
      */
     private String getFeatureOverlayTablesPreferenceKey(GeoPackageTable table) {
         return getFeatureOverlayTablesPreferenceKey(table.getDatabase());
@@ -772,8 +686,8 @@ public class GeoPackageDatabases {
     /**
      * Get the Feature Overlays Table Preference Key from database name
      *
-     * @param database
-     * @return
+     * @param database The geoPackage layer to get the feature overlay key for.
+     * @return The feature overlay key.
      */
     private String getFeatureOverlayTablesPreferenceKey(String database) {
         return prefix + database + FEATURE_OVERLAY_TABLES_PREFERENCE_SUFFIX;
@@ -782,7 +696,7 @@ public class GeoPackageDatabases {
     /**
      * Write a table data file
      *
-     * @param table
+     * @param table The table to write.
      */
     private void writeTableFile(GeoPackageTable table) {
 
@@ -811,7 +725,7 @@ public class GeoPackageDatabases {
     /**
      * Read a table data file
      *
-     * @return
+     * @return reads the table file.
      */
     private GeoPackageTable readTableFile(String database, String table) {
 
@@ -848,29 +762,27 @@ public class GeoPackageDatabases {
     /**
      * Delete a table data file
      *
-     * @param table
-     * @return
+     * @param table The table to delete.
      */
-    private boolean deleteTableFile(GeoPackageTable table) {
-        return deleteTableFile(table.getDatabase(), table.getName());
+    private void deleteTableFile(GeoPackageTable table) {
+        deleteTableFile(table.getDatabase(), table.getName());
     }
 
     /**
      * Delete a table data file
      *
-     * @param database
-     * @param table
-     * @return
+     * @param database The geoPackage the table to delete belongs to.
+     * @param table The table to delete.
      */
-    private boolean deleteTableFile(String database, String table) {
+    private void deleteTableFile(String database, String table) {
         String fileName = getFileName(prefix, database, table);
-        return context.deleteFile(fileName);
+        context.deleteFile(fileName);
     }
 
     /**
      * Delete table data files for a database
      *
-     * @param database
+     * @param database The database to delete.
      */
     private void deleteTableFiles(String database) {
         String filePrefix = getFileName(prefix, database, "");
@@ -884,8 +796,8 @@ public class GeoPackageDatabases {
     /**
      * Get file name
      *
-     * @param table
-     * @return
+     * @param table The table to get the file name for.
+     * @return The file name of the table.
      */
     private static String getFileName(String prefix, GeoPackageTable table) {
         return getFileName(prefix, table.getDatabase(), table.getName());
@@ -894,9 +806,9 @@ public class GeoPackageDatabases {
     /**
      * Get file name
      *
-     * @param database
-     * @param table
-     * @return
+     * @param database The geoPackage containing the table to get the file name.
+     * @param table The table to get the file name for.
+     * @return The file name of the table.
      */
     private static String getFileName(String prefix, String database, String table) {
         return prefix + database + "-" + table;

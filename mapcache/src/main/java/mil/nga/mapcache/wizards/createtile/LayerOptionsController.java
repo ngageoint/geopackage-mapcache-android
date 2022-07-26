@@ -1,7 +1,5 @@
 package mil.nga.mapcache.wizards.createtile;
 
-import android.graphics.Bitmap;
-
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -10,66 +8,65 @@ import java.util.Observable;
 import java.util.Observer;
 
 import mil.nga.geopackage.BoundingBox;
-import mil.nga.geopackage.extension.nga.scale.TileScaling;
-import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.layersprovider.LayerModel;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.LoadTilesTask;
 import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
+import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.ProjectionConstants;
 
 /**
- * Performs validation and loads the tiles into the geopackage.
+ * Performs validation and loads the tiles into the geoPackage.
  */
 public class LayerOptionsController implements Observer {
 
     /**
-     * Contains the bounding box the user wants to put into the geopackage.
+     * Contains the bounding box the user wants to put into the geoPackage.
      */
-    private IBoundingBoxManager boxManager;
+    private final IBoundingBoxManager boxManager;
 
     /**
      * The model shared between the UI and controller.
      */
-    private LayerOptionsModel model;
+    private final  LayerOptionsModel model;
 
     /**
      * Callback for load tiles task.
      */
-    private ILoadTilesTask callback;
+    private final ILoadTilesTask callback;
 
     /**
-     * The active geopackages.
+     * Used to get the geoPackage.
      */
-    private GeoPackageDatabases active;
+    private final GeoPackageViewModel viewModel;
 
     /**
      * The activity to pass to the load tile task.
      */
-    private FragmentActivity activity;
+    private final FragmentActivity activity;
 
     /**
      * The model containing the selected layer.
      */
-    private LayersModel layers;
+    private final LayersModel layers;
 
     /**
      * Constructor.
      *
-     * @param boxManager Contains the bounding box the user wants to put into the geopackage.
+     * @param boxManager Contains the bounding box the user wants to put into the geoPackage.
      * @param callback   Callback for load tiles task.
-     * @param active     The active geopackages.
+     * @param viewModel  Used to get the geoPackage.
      * @param activity   The activity to pass to the load tile task.
      * @param model      The model shared between the UI and controller.
      * @param layers     The model containing the selected layer.
      */
     public LayerOptionsController(IBoundingBoxManager boxManager, ILoadTilesTask callback,
-                                  GeoPackageDatabases active, FragmentActivity activity,
+                                  GeoPackageViewModel viewModel, FragmentActivity activity,
                                   LayerOptionsModel model, LayersModel layers) {
         this.boxManager = boxManager;
         this.callback = callback;
-        this.active = active;
+        this.viewModel = viewModel;
         this.activity = activity;
         this.model = model;
         this.layers = layers;
@@ -104,17 +101,12 @@ public class LayerOptionsController implements Observer {
     }
 
     /**
-     * Loads the tiles as specified by the user into the active geopackages.
+     * Loads the tiles as specified by the user into the active geoPackages.
      */
     public void loadTiles() {
-        boolean xyzTiles = false;
-        if (model.getTileFormat().equalsIgnoreCase("google")) {
-            xyzTiles = true;
-        }
+        boolean xyzTiles = model.getTileFormat().equalsIgnoreCase("google");
 
-        Bitmap.CompressFormat compressFormat = null;
         Integer compressQuality = 100;
-        TileScaling scaling = null;
         double minLat = 90.0;
         double minLon = 180.0;
         double maxLat = -90.0;
@@ -137,11 +129,11 @@ public class LayerOptionsController implements Observer {
 
         // Load tiles
         LoadTilesTask.loadTiles(activity,
-                callback, active,
+                callback, viewModel,
                 model.getGeopackageName(), model.getLayerName(), url, model.getMinZoom(),
-                model.getMaxZoom(), compressFormat,
+                model.getMaxZoom(), null,
                 compressQuality, xyzTiles,
-                boundingBox, scaling,
+                boundingBox, null,
                 ProjectionConstants.AUTHORITY_EPSG, String.valueOf(model.getEpsg()),
                 layers.getRequestHeaders());
     }

@@ -133,7 +133,7 @@
     <string name="delete_feature_column_label">Delete Feature Column</string>
     <string name="geopackage_rename_label">Rename</string>
     <string name="geopackage_copy_label">Copy</string>
-    <string name="geopackage_copy_suffix">_copy</string>
+    <string name="geopackage_copy_suffix">%1$s_copy</string>
     <string name="create_geopackage_hint">GeoPackage Name</string>
     <string name="geopackage_export_label">Export</string>
     <string name="geopackage_share_label">Share</string>
@@ -442,5 +442,19 @@
     <string name="temp_file_name">tempBitmap.jpg</string>
     <string name="selectedBasemaps">selectedBasemaps</string>
     <string name="new_tile_server">New Tile Server</string>
+    <string name="create_tile_layer">Create Tile Layer</string>
+    <string name="max_features">Max Features Exceeded</string>
+    <string name="new_geopackage">New GeoPackage</string>
+    <string name="create_geopackage_full">Create GeoPackage</string>
+    <string name="new_geopackage_layer">New GeoPackage Layer</string>
+    <string name="rename_geopackage">Rename GeoPackage</string>
+    <string name="rename_layer">Rename Layer</string>
+    <string name="copy_geoPackage">Copy GeoPackage</string>
+    <string name="copy_layer">Copy Layer</string>
+    <string name="delete_geopackage">Delete this GeoPackage?</string>
+    <string name="delete_layer">Delete this Layer</string>
+    <string name="zoom_level">Zoom Level %1$.1f</string>
+    <string name="max_active_features">Max Active Features</string>
+    <string name="limit_features">Limit the number of features to display in active layers for faster processing</string>
 
 </resources>

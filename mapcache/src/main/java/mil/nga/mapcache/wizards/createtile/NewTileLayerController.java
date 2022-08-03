@@ -81,7 +81,7 @@ public class NewTileLayerController implements Observer, Comparator<String> {
      */
     public void setUrl(LayersModel layersModel) {
         String format = getFormat(layersModel);
-        if(layersModel.getSelectedLayers() != null && layersModel.getSelectedLayers().length > 0) {
+        if (layersModel.getSelectedLayers() != null && layersModel.getSelectedLayers().length > 0) {
             String url = WMSUrlProvider.getInstance().getUrlNoBoundingBox(
                     model.getBaseUrl(), layersModel.getSelectedLayers()[0].getName(), format);
             model.setUrl(url);
@@ -109,8 +109,11 @@ public class NewTileLayerController implements Observer, Comparator<String> {
             String givenUrl = model.getUrl();
             if (givenUrl.isEmpty() || givenUrl.trim().isEmpty()) {
                 model.setUrlError("URL is required");
-            } else if (!URLUtil.isValidUrl(model.getUrl())) {
+            } else if (!URLUtil.isValidUrl(givenUrl)) {
                 model.setUrlError("URL is not valid");
+            } else if (givenUrl.contains("${")) {
+                givenUrl = givenUrl.replaceAll("\\$\\{", "{");
+                model.setUrl(givenUrl);
             } else {
                 model.setUrlError(null);
             }

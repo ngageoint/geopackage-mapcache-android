@@ -69,18 +69,37 @@ public class BasemapApplier {
     private View coordTextCard;
 
     /**
+     * Any existing camera idle listeners.
+     */
+    private GoogleMap.OnCameraIdleListener idleListener;
+
+    /**
+     * Any existing camera move listeners.
+     */
+    private GoogleMap.OnCameraMoveListener moveListener;
+
+    /**
      * Constructor.
      *
      * @param activity      The current activity.
      * @param prefs         Access to the preferences.
      * @param coordTextView The text view that is meant to show current coordinates to the user.
      * @param coordTextCard Contains the coordiantes text view.
+     * @param idleListener  Any existing camera idle listeners.
+     * @param moveListener  Any existing camera move listeners.
      */
-    public BasemapApplier(Activity activity, SharedPreferences prefs, TextView coordTextView, View coordTextCard) {
+    public BasemapApplier(Activity activity,
+                          SharedPreferences prefs,
+                          TextView coordTextView,
+                          View coordTextCard,
+                          GoogleMap.OnCameraIdleListener idleListener,
+                          GoogleMap.OnCameraMoveListener moveListener) {
         this.activity = activity;
         this.prefs = prefs;
         this.coordText = coordTextView;
         this.coordTextCard = coordTextCard;
+        this.idleListener = idleListener;
+        this.moveListener = moveListener;
     }
 
     /**
@@ -126,8 +145,13 @@ public class BasemapApplier {
 
 
                 for (LayerModel layer : server.getLayers().getSelectedLayers()) {
-                    allProviders.get(server.getServerUrl()).add(layer.getName());
-                    if (!serversProviders.containsKey(layer.getName())) {
+                    Set<String> layers = allProviders.get(server.getServerUrl());
+                    if (layers == null) {
+                        layers = new HashSet<>();
+                        allProviders.put(server.getServerUrl(), layers);
+                    }
+                    layers.add(layer.getName());
+                    if (serversProviders != null && !serversProviders.containsKey(layer.getName())) {
                         addLayer(server.getServerUrl(), layer.getName(), map);
                     }
                 }
@@ -150,9 +174,11 @@ public class BasemapApplier {
                 List<String> layers = new ArrayList<>();
                 layersToRemove.put(entry.getKey(), layers);
                 Set<String> allLayers = allProviders.get(entry.getKey());
-                for (Map.Entry<String, TileOverlay> layerEntry : entry.getValue().entrySet()) {
-                    if (!allLayers.contains(layerEntry.getKey())) {
-                        layers.add(layerEntry.getKey());
+                if(allLayers != null) {
+                    for (Map.Entry<String, TileOverlay> layerEntry : entry.getValue().entrySet()) {
+                        if (!allLayers.contains(layerEntry.getKey())) {
+                            layers.add(layerEntry.getKey());
+                        }
                     }
                 }
             }
@@ -167,8 +193,15 @@ public class BasemapApplier {
 
         for (String serverName : serversToRemove) {
             Map<String, TileOverlay> providers = currentProviders.get(serverName);
-            for (Map.Entry<String, TileOverlay> entry : providers.entrySet()) {
-                removeLayer(serverName, entry.getKey());
+            List<String> providersToRemove = new ArrayList<>();
+            if (providers != null) {
+                for (Map.Entry<String, TileOverlay> entry : providers.entrySet()) {
+                    providersToRemove.add(entry.getKey());
+                }
+
+                for (String provider : providersToRemove) {
+                    removeLayer(serverName, provider);
+                }
             }
         }
     }
@@ -186,7 +219,9 @@ public class BasemapApplier {
                     this.activity,
                     settings.getGridOverlaySettings().getSelectedGrid(),
                     this.coordText,
-                    this.coordTextCard);
+                    this.coordTextCard,
+                    this.idleListener,
+                    this.moveListener);
         } else {
             grid.gridChanged(settings.getGridOverlaySettings().getSelectedGrid());
         }
@@ -224,8 +259,10 @@ public class BasemapApplier {
         Map<String, TileOverlay> providers = currentProviders.get(baseUrl);
         if (providers != null) {
             TileOverlay overlay = providers.remove(layerName);
-            overlay.setVisible(false);
-            overlay.remove();
+            if(overlay != null) {
+                overlay.setVisible(false);
+                overlay.remove();
+            }
             zIndex--;
             if (providers.isEmpty()) {
                 currentProviders.remove(baseUrl);
@@ -249,7 +286,7 @@ public class BasemapApplier {
     public void setMapType(GoogleMap map, int mapType) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(BasemapSettingsIO.MAP_TYPE_KEY, mapType);
-        editor.commit();
+        editor.apply();
         if (map != null) {
             map.setMapType(mapType);
         }
@@ -279,9 +316,9 @@ public class BasemapApplier {
         TileProvider tileProvider = null;
 
         if (WMSTileProvider.canProvide(baseUrl)) {
-            tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png");
+            tileProvider = new WMSTileProvider(baseUrl, layerName, "image/png", activity);
         } else if (XYZTileProvider.canProvide(baseUrl)) {
-            tileProvider = new XYZTileProvider(baseUrl);
+            tileProvider = new XYZTileProvider(baseUrl, activity);
         }
 
         return tileProvider;

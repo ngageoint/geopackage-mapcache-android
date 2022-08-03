@@ -28,6 +28,10 @@ public class FcColumnDataObject {
             return Double.class;
         } else if(originalValue instanceof String) {
             return String.class;
+        } else if(originalValue instanceof Integer) {
+            return Integer.class;
+        } else if(originalValue instanceof Long) {
+            return Long.class;
         } else {
             return String.class;
         }

@@ -2,6 +2,7 @@ package mil.nga.mapcache.view.map.feature;
 
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,6 +11,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,8 +75,8 @@ public class FeatureViewModel extends AndroidViewModel {
 
     /**
      * Delete the associated media row from the given feature
-     * @param featureViewObjects
-     * @param rowId
+     * @param featureViewObjects The feature to delete images from.
+     * @param rowId The row id containing the image.
      */
     public void deleteImageFromFeature(FeatureViewObjects featureViewObjects, long rowId,
                                           MarkerFeature markerFeature) {
@@ -82,5 +84,13 @@ public class FeatureViewModel extends AndroidViewModel {
         setFeatureViewObjects(markerFeature);
     }
 
-
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        try {
+            repository.close();
+        } catch (IOException e) {
+            Log.e(FeatureViewModel.class.getSimpleName(), e.getMessage(), e);
+        }
+    }
 }

@@ -7,12 +7,15 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import mil.nga.mapcache.io.network.RequestHeaderConsumer;
 import mil.nga.mapcache.io.network.HttpClient;
 import mil.nga.mapcache.io.network.IResponseHandler;
 import mil.nga.mapcache.ogc.wms.CapabilitiesParser;
@@ -23,7 +26,7 @@ import mil.nga.mapcache.ogc.wms.WMSCapabilities;
  * Provides the layers from a particular tile server if that tile server has multiple layers.
  * Otherwise it will populate the model with an empty array of layers.
  */
-public class LayersProvider implements IResponseHandler {
+public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
 
     /**
      * The activity used to get back on the main thread.
@@ -61,35 +64,53 @@ public class LayersProvider implements IResponseHandler {
     public void retrieveLayers(String url) {
         if (url.toLowerCase().contains("wms")) {
             String capabilitiesUrl = url + "?request=GetCapabilities&version=1.3.0&service=WMS";
-            HttpClient.getInstance().sendGet(capabilitiesUrl, this);
+            this.url = capabilitiesUrl;
+            HttpClient.getInstance().sendGet(capabilitiesUrl, this, this.activity);
         } else {
             model.setLayers(new LayerModel[0]);
         }
     }
 
     @Override
-    public void handleResponse(InputStream stream) {
-        CapabilitiesParser parser = new CapabilitiesParser();
-        try {
-            final WMSCapabilities capabilities = parser.parse(stream);
-            List<LayerModel> allLayers = new ArrayList<>();
-            Stack<Layer> parents = new Stack<>();
-            for (Layer layer : capabilities.getCapability().getLayer()) {
-                getLayers(allLayers, layer, parents);
+    public void handleResponse(InputStream stream, int responseCode) {
+        if (stream != null && responseCode == HttpURLConnection.HTTP_OK) {
+            CapabilitiesParser parser = new CapabilitiesParser();
+            try {
+                final WMSCapabilities capabilities = parser.parse(stream);
+                List<LayerModel> allLayers = new ArrayList<>();
+                Stack<Layer> parents = new Stack<>();
+                for (Layer layer : capabilities.getCapability().getLayer()) {
+                    getLayers(allLayers, layer, parents);
+                }
+                final LayerModel[] allLayersArray = allLayers.toArray(new LayerModel[allLayers.size()]);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.setImageFormats(capabilities.getCapability().getRequest().getGetMap()
+                                .getFormat().toArray(new String[0]));
+                        model.setLayers(allLayersArray);
+                    }
+                });
+            } catch (ParserConfigurationException | SAXException | IOException e) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        model.setLayers(new LayerModel[0]);
+                    }
+                });
+                Log.e(LayersProvider.class.getSimpleName(),
+                        "Unable to parse WMS GetCapabilities document for " + this.url, e);
             }
-            final LayerModel[] allLayersArray = allLayers.toArray(new LayerModel[allLayers.size()]);
+        } else {
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    model.setImageFormats(capabilities.getCapability().getRequest().getGetMap()
-                            .getFormat().toArray(new String[0]));
-                    model.setLayers(allLayersArray);
+                    model.setLayers(new LayerModel[0]);
                 }
             });
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            model.setLayers(new LayerModel[0]);
-            Log.e(LayersProvider.class.getSimpleName(),
-                    "Unable to parse WMS GetCapabilities document", e);
+            Log.e(
+                    LayersProvider.class.getSimpleName(),
+                    "Unable to download WMS GetCapabilities document from " + url + " http response " + responseCode);
         }
     }
 
@@ -101,7 +122,7 @@ public class LayersProvider implements IResponseHandler {
                 model.setLayers(new LayerModel[0]);
             }
         });
-        Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed: ", exception);
+        Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed for " + url + ": ", exception);
     }
 
     /**
@@ -150,5 +171,10 @@ public class LayersProvider implements IResponseHandler {
             }
             parents.pop();
         }
+    }
+
+    @Override
+    public void setRequestHeaders(Map<String, List<String>> headers) {
+        model.setRequestHeaders(headers);
     }
 }

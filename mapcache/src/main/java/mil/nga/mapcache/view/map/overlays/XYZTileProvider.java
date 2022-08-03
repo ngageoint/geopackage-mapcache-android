@@ -1,18 +1,34 @@
 package mil.nga.mapcache.view.map.overlays;
 
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.maps.model.Tile;
+import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import mil.nga.geopackage.GeoPackageException;
+import mil.nga.geopackage.io.GeoPackageIOUtils;
+import mil.nga.mapcache.R;
+import mil.nga.mapcache.io.network.HttpClient;
+import mil.nga.mapcache.io.network.IResponseHandler;
+import mil.nga.mapcache.utils.HttpUtils;
 
 /**
  * A UrlTileProvider for x,y,z tile servers.
  */
-public class XYZTileProvider extends UrlTileProvider {
+public class XYZTileProvider extends BaseTileProvider {
 
     /**
      * The x string value to replace.
@@ -39,8 +55,8 @@ public class XYZTileProvider extends UrlTileProvider {
      *
      * @param xyzUrl The url containing the {x}, {y}, {z} string value to be replaced.
      */
-    public XYZTileProvider(String xyzUrl) {
-        super(256, 256);
+    public XYZTileProvider(String xyzUrl, Activity activity) {
+        super(activity);
         this.xyzUrl = xyzUrl;
     }
 
@@ -54,19 +70,16 @@ public class XYZTileProvider extends UrlTileProvider {
         return baseUrl.contains(xReplace) && baseUrl.contains(yReplace) && baseUrl.contains(zReplace);
     }
 
+
     @Nullable
     @Override
-    public URL getTileUrl(int x, int y, int z) {
+    protected String getTileUrl(int x, int y, int z) {
         String replacedUrl = xyzUrl.replace(xReplace, String.valueOf(x));
         replacedUrl = replacedUrl.replace(yReplace, String.valueOf(y));
         replacedUrl = replacedUrl.replace(zReplace, String.valueOf(z));
 
-        URL url = null;
-        try {
-            url = new URL(replacedUrl);
-        } catch (MalformedURLException e) {
-            Log.e(XYZTileProvider.class.getSimpleName(), "Invalid url", e);
-        }
-        return url;
+        return replacedUrl;
     }
+
+
 }

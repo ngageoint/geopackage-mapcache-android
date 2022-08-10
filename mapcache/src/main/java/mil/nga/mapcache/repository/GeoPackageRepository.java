@@ -646,9 +646,9 @@ public class GeoPackageRepository implements Closeable {
                             if(dataColumnsDao != null){
                                 DataColumns dataColumn = dataColumnsDao.getDataColumn(
                                         featureRow.getTable().getTableName(), columnName);
-                                if (dataColumn != null){
-                                    columnName = dataColumn.getName();
-                                }
+//                                if (dataColumn != null){
+//                                    columnName = dataColumn.getName();
+//                                }
                             }
 
                             if (value == null) {

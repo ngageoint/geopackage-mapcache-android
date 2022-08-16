@@ -2100,7 +2100,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void clearAllActive() {
         geoPackageViewModel.clearAllActive();
-        //zoomOut();
+        zoomOut();
     }
 
 

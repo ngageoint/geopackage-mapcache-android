@@ -12,7 +12,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -28,22 +27,22 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Used to turn debug logging on.
      */
-    private static boolean isDebug = false;
+    private static final boolean isDebug = false;
 
     /**
      * The url of the get request.
      */
-    private String urlString;
+    private final String urlString;
 
     /**
      * Object that is called when request is completed.
      */
-    private IResponseHandler handler;
+    private final IResponseHandler handler;
 
     /**
      * Used to get the app name and version for the user agent.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Retrieves the user's username and password then calls back for authentication.
@@ -68,7 +67,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Contains any previously saved cookies.
      */
-    private CookieJar allCookies;
+    private final CookieJar allCookies;
 
     /**
      * Constructs a new HttpGetRequest.
@@ -111,15 +110,13 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 if (this.handler instanceof RequestHeaderConsumer) {
                     Map<String, List<String>> headers = new HashMap<>();
                     if (this.authorization != null) {
-                        headers.put(HttpUtils.getInstance().getBasicAuthKey(), new ArrayList<>());
-                        headers.get(HttpUtils.getInstance().getBasicAuthKey()).add(this.authorization);
+                        List<String> authorizations = new ArrayList<>();
+                        authorizations.add(this.authorization);
+                        headers.put(HttpUtils.getInstance().getBasicAuthKey(), authorizations);
                     }
 
                     if (this.cookies != null) {
-                        List<String> cookieValues = new ArrayList<>();
-                        for (String cookie : this.cookies.values()) {
-                            cookieValues.add(cookie);
-                        }
+                        List<String> cookieValues = new ArrayList<>(this.cookies.values());
                         headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
                     }
                     ((RequestHeaderConsumer) this.handler).setRequestHeaders(headers);
@@ -226,7 +223,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 }
             }
             checkCookie();
-            int index = 0;
             while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -260,7 +256,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     }
                 }
                 checkCookie();
-                index++;
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);

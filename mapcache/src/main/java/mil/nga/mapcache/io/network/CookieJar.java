@@ -13,7 +13,7 @@ public interface CookieJar {
      * @param host    The host to store cookies for.
      * @param cookies The cookies to store.
      */
-    public void storeCookies(String host, Map<String, String> cookies);
+    void storeCookies(String host, Map<String, String> cookies);
 
     /**
      * Gets the cookies for the specified host.
@@ -21,5 +21,5 @@ public interface CookieJar {
      * @param host The host to get the cookies for.
      * @return The cookies for the host, or null if there aren't any.
      */
-    public Map<String, String> getCookies(String host);
+    Map<String, String> getCookies(String host);
 }

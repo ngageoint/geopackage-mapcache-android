@@ -19,7 +19,7 @@ public class HttpClient implements CookieJar {
     /**
      * Any cookies being stored for http requests.
      */
-    private Map<String, Map<String, String>> allCookies = new HashMap<>();
+    private final Map<String, Map<String, String>> allCookies = new HashMap<>();
 
     /**
      * Gets the instance of this class.

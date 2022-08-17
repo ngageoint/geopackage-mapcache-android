@@ -9,7 +9,7 @@ import mil.nga.mapcache.utils.ThreadUtils;
 /**
  * Makes http requests asynchronously.
  */
-public class HttpClient implements CookieJar {
+public class HttpClient implements SessionManager {
 
     /**
      * The instance of this class.
@@ -56,5 +56,13 @@ public class HttpClient implements CookieJar {
     @Override
     public synchronized Map<String, String> getCookies(String host) {
         return allCookies.get(host);
+    }
+
+    @Override
+    public void requestRequiresWebView(String url, IResponseHandler handler, Activity activity) {
+        activity.runOnUiThread(()->{
+            WebViewRequest request = new WebViewRequest(url, handler, activity);
+            request.execute();
+        });
     }
 }

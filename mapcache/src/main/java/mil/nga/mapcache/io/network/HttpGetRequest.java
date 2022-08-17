@@ -67,7 +67,12 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Contains any previously saved cookies.
      */
-    private final CookieJar allCookies;
+    private final SessionManager sessionManager;
+
+    /**
+     * True if the WebViewRequest is handling the request.
+     */
+    private boolean webViewHandlingRequest = false;
 
     /**
      * Constructs a new HttpGetRequest.
@@ -76,50 +81,53 @@ public class HttpGetRequest implements Runnable, Authenticator {
      * @param handler  Object this is called when request is completed.
      * @param activity Used to get the app name and version for the user agent.
      */
-    public HttpGetRequest(String url, IResponseHandler handler, CookieJar allCookies, Activity activity) {
+    public HttpGetRequest(String url, IResponseHandler handler, SessionManager sessionManager, Activity activity) {
         this.urlString = url;
         this.handler = handler;
         this.activity = activity;
-        this.allCookies = allCookies;
+        this.sessionManager = sessionManager;
     }
 
     @Override
     public void run() {
         try {
             authorization = null;
+            webViewHandlingRequest = false;
             URL url = new URL(urlString);
-            cookies = allCookies.getCookies(url.getHost());
+            cookies = sessionManager.getCookies(url.getHost());
             connect(url);
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
-                    && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
-                addBasicAuth(connection.getURL());
-                responseCode = connection.getResponseCode();
-            }
-
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                this.handler.handleResponse(null, responseCode);
-            } else {
-                InputStream stream = connection.getInputStream();
-                String encoding = connection.getHeaderField(HttpUtils.getInstance().getContentEncodingKey());
-                if (encoding != null && encoding.equals("gzip")) {
-                    stream = new GZIPInputStream(stream);
+            if(!webViewHandlingRequest) {
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
+                        && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
+                    addBasicAuth(connection.getURL());
+                    responseCode = connection.getResponseCode();
                 }
-                this.handler.handleResponse(stream, responseCode);
-                if (this.handler instanceof RequestHeaderConsumer) {
-                    Map<String, List<String>> headers = new HashMap<>();
-                    if (this.authorization != null) {
-                        List<String> authorizations = new ArrayList<>();
-                        authorizations.add(this.authorization);
-                        headers.put(HttpUtils.getInstance().getBasicAuthKey(), authorizations);
-                    }
 
-                    if (this.cookies != null) {
-                        List<String> cookieValues = new ArrayList<>(this.cookies.values());
-                        headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    this.handler.handleResponse(null, responseCode);
+                } else {
+                    InputStream stream = connection.getInputStream();
+                    String encoding = connection.getHeaderField(HttpUtils.getInstance().getContentEncodingKey());
+                    if (encoding != null && encoding.equals("gzip")) {
+                        stream = new GZIPInputStream(stream);
                     }
-                    ((RequestHeaderConsumer) this.handler).setRequestHeaders(headers);
+                    this.handler.handleResponse(stream, responseCode);
+                    if (this.handler instanceof RequestHeaderConsumer) {
+                        Map<String, List<String>> headers = new HashMap<>();
+                        if (this.authorization != null) {
+                            List<String> authorizations = new ArrayList<>();
+                            authorizations.add(this.authorization);
+                            headers.put(HttpUtils.getInstance().getBasicAuthKey(), authorizations);
+                        }
+
+                        if (this.cookies != null) {
+                            List<String> cookieValues = new ArrayList<>(this.cookies.values());
+                            headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
+                        }
+                        ((RequestHeaderConsumer) this.handler).setRequestHeaders(headers);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -256,6 +264,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     }
                 }
                 checkCookie();
+
+                if(responseCode == HttpURLConnection.HTTP_OK) {
+                    sessionManager.requestRequiresWebView(urlString, handler, activity);
+                    webViewHandlingRequest = true;
+                }
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
@@ -278,7 +291,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 this.cookies.put(nameValue[0], cookie);
             }
             URL originalUrl = new URL(urlString);
-            allCookies.storeCookies(originalUrl.getHost(), this.cookies);
+            sessionManager.storeCookies(originalUrl.getHost(), this.cookies);
         }
     }
 }

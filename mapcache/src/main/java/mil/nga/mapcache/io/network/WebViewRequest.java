@@ -3,7 +3,6 @@ package mil.nga.mapcache.io.network;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.webkit.CookieManager;
 import android.webkit.WebView;
 
 import java.net.HttpURLConnection;
@@ -51,6 +50,11 @@ public class WebViewRequest implements Observer {
     private boolean isShown = false;
 
     /**
+     * Used to get the html for the current url.
+     */
+    private final WebViewContentRetriever jsInterface;
+
+    /**
      * Constructor.
      *
      * @param url      The request url.
@@ -65,9 +69,7 @@ public class WebViewRequest implements Observer {
         this.model.addObserver(this);
         WebViewRequestClient client = new WebViewRequestClient(this.activity, this.model);
         this.webView.setWebViewClient(client);
-        this.webView.clearCache(true);
-        CookieManager.getInstance().removeAllCookies(null);
-        CookieManager.getInstance().flush();
+        this.jsInterface = new WebViewContentRetriever(this.webView, this.model);
     }
 
     /**
@@ -101,8 +103,10 @@ public class WebViewRequest implements Observer {
             } else if (isShown) {
                 alert.dismiss();
                 isShown = false;
-                handler.handleResponse(null, HttpURLConnection.HTTP_OK);
             }
+        } else if (WebViewRequestModel.CURRENT_CONTENT_PROP.equals(o)) {
+            jsInterface.close();
+            handler.handleResponse(this.model.getCurrentContent(), HttpURLConnection.HTTP_OK);
         }
     }
 }

@@ -116,6 +116,7 @@ public class GeoPackageRepository implements Closeable {
         cache = new GeoPackageCache(manager);
         active.setValue(new GeoPackageDatabases(context, "active"));
         geos.setValue(new GeoPackageDatabases(context, "all"));
+        String test = "test";
     }
 
     /**
@@ -200,8 +201,19 @@ public class GeoPackageRepository implements Closeable {
         GeoPackageDatabases currentGeos = geos.getValue();
         if(currentGeos != null) {
             currentGeos.removeTable(geoPackageName, layerName);
-            regenerateTableList();
-//            geos.postValue(currentGeos);
+            geos.postValue(currentGeos);
+        }
+    }
+
+    /**
+     * Delete a GeoPackage from the open geos list
+     * @param geoPackageName Name of the GeoPackage containing the layer
+     */
+    public void removeGeo(String geoPackageName){
+        GeoPackageDatabases currentGeos = geos.getValue();
+        if(currentGeos != null) {
+            currentGeos.removeDatabase(geoPackageName, false);
+            geos.postValue(currentGeos);
         }
     }
 
@@ -536,6 +548,7 @@ public class GeoPackageRepository implements Closeable {
     public boolean deleteGeoPackage(String geoPackageName) {
         removeActiveForGeoPackage(geoPackageName);
         cache.removeAndClose(geoPackageName);
+        removeGeo(geoPackageName);
         return manager.delete(geoPackageName);
     }
 

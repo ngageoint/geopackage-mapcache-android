@@ -1,10 +1,10 @@
 package mil.nga.mapcache.io.network;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
+import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -28,6 +28,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
      * The web view being used to load urls.
      */
     private final WebView webView;
+
+    /**
+     * Creates extractors to be used on the web view and grab certain contents within it.
+     */
+    private final WebViewExtractorFactory extractorFactory = new WebViewExtractorFactory();
 
     /**
      * Constructor.
@@ -58,6 +63,10 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
 
     @Override
     public void onReceiveValue(String html) {
-        Log.d(WebViewRequest.class.getSimpleName(), "Html: " + html);
+        WebViewExtractor extractor = extractorFactory.createExtractor(html);
+        if (extractor != null) {
+            InputStream content = extractor.extractContent(html);
+            this.model.setCurrentContent(content);
+        }
     }
 }

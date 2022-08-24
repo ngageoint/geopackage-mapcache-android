@@ -3,6 +3,7 @@ package mil.nga.mapcache.io.network;
 import android.app.Activity;
 import android.util.Base64;
 import android.util.Log;
+import android.webkit.CookieManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -197,6 +198,14 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
         if (authorization != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
+        }
+
+        String cookieString = CookieManager.getInstance().getCookie(connection.getURL().toString());
+        if(cookieString != null) {
+            String [] allCookies = cookieString.split(";");
+            for(String cookie : allCookies) {
+                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
+            }
         } else if (cookies != null) {
             for (String cookie : cookies.values()) {
                 connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);

@@ -32,7 +32,7 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
     /**
      * Creates extractors to be used on the web view and grab certain contents within it.
      */
-    private final WebViewExtractorFactory extractorFactory = new WebViewExtractorFactory();
+    private final WebViewExtractorFactory extractorFactory;
 
     /**
      * Constructor.
@@ -44,6 +44,7 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
         this.webView = webView;
         this.webView.getSettings().setJavaScriptEnabled(true);
         this.model = model;
+        extractorFactory = new WebViewExtractorFactory(this.webView, this.model);
         this.model.addObserver(this);
     }
 
@@ -66,7 +67,9 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
         WebViewExtractor extractor = extractorFactory.createExtractor(html);
         if (extractor != null) {
             InputStream content = extractor.extractContent(html);
-            this.model.setCurrentContent(content);
+            if(content != null) {
+                this.model.setCurrentContent(content);
+            }
         }
     }
 }

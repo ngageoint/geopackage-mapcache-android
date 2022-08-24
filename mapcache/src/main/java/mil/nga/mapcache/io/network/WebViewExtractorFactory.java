@@ -1,11 +1,32 @@
 package mil.nga.mapcache.io.network;
 
-import android.util.Log;
+import android.webkit.WebView;
 
 /**
  * Based on the html content this class will return the appropriate WebViewExtractor.
  */
 public class WebViewExtractorFactory {
+
+    /**
+     * The web view to get the image from.
+     */
+    private final WebView webView;
+
+    /**
+     * Keeps track of the current url.
+     */
+    private final WebViewRequestModel model;
+
+    /**
+     * Constructor.
+     *
+     * @param webView The web view to get the image from.
+     * @param model   Keeps track of the current url.
+     */
+    public WebViewExtractorFactory(WebView webView, WebViewRequestModel model) {
+        this.webView = webView;
+        this.model = model;
+    }
 
     /**
      * Creates the appropriate extractor based on the html content.
@@ -19,8 +40,8 @@ public class WebViewExtractorFactory {
 
         if (html.startsWith("\"This XML file")) {
             extractor = new WebViewXmlExtractor();
-        } else if (html.contains("image src")) {
-            Log.d(WebViewExtractorFactory.class.getSimpleName(), "Image extractor");
+        } else if (html.contains("\"\"") && this.model.getCurrentUrl().contains("format=image")) {
+            extractor = new WebViewImageExtractor(this.webView);
         }
 
         return extractor;

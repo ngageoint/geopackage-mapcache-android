@@ -50,6 +50,11 @@ public class WebViewRequest implements Observer {
     private boolean isShown = false;
 
     /**
+     * Indicates if the original url is a download imager url.
+     */
+    private boolean isImageUrl = false;
+
+    /**
      * Used to get the html for the current url.
      */
     private final WebViewContentRetriever jsInterface;
@@ -69,13 +74,17 @@ public class WebViewRequest implements Observer {
         this.model.addObserver(this);
         WebViewRequestClient client = new WebViewRequestClient(this.activity, this.model);
         this.webView.setWebViewClient(client);
-        this.jsInterface = new WebViewContentRetriever(this.webView, this.model);
+        this.jsInterface = new WebViewContentRetriever(this.activity, this.webView, this.model);
     }
 
     /**
      * Executes the request.
      */
     public void execute() {
+        if (urlString.contains("format=image")) {
+            isImageUrl = true;
+            show();
+        }
         this.webView.loadUrl(this.urlString);
     }
 
@@ -91,21 +100,25 @@ public class WebViewRequest implements Observer {
         );
         alert = alertBuilder.create();
         alert.show();
+        isShown = true;
     }
 
     @Override
     public void update(Observable observable, Object o) {
         if (WebViewRequestModel.CURRENT_URL_PROP.equals(o)) {
-            if (this.model.getCurrentUrl().contains("login.")) {
+            if (!isShown && this.model.getCurrentUrl().contains("login.")) {
                 // redirected to a login page so we need to show the WebView.
-                isShown = true;
                 show();
-            } else if (isShown) {
+            } else if (isShown && !isImageUrl) {
                 alert.dismiss();
                 isShown = false;
             }
         } else if (WebViewRequestModel.CURRENT_CONTENT_PROP.equals(o)) {
             jsInterface.close();
+            if (isShown) {
+                alert.dismiss();
+                isShown = false;
+            }
             handler.handleResponse(this.model.getCurrentContent(), HttpURLConnection.HTTP_OK);
         }
     }

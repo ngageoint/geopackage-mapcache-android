@@ -66,7 +66,7 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
             }
         }
 
-        this.model.setCurrentUrl(url);
+        this.activity.runOnUiThread(() -> this.model.setCurrentUrl(url));
     }
 
     @Override

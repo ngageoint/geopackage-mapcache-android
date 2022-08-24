@@ -180,7 +180,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
      *
      * @param connection The connection to add the user agent to.
      */
-    private void configureRequest(HttpURLConnection connection) {
+    private void configureRequest(HttpURLConnection connection, boolean isRedirect) {
         connection.addRequestProperty(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
@@ -201,7 +201,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
         }
 
         String cookieString = CookieManager.getInstance().getCookie(connection.getURL().toString());
-        if(cookieString != null) {
+        if(!isRedirect && cookieString != null) {
             String [] allCookies = cookieString.split(";");
             for(String cookie : allCookies) {
                 connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
@@ -222,7 +222,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
         try {
             connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(false);
-            configureRequest(connection);
+            configureRequest(connection, false);
             if (isDebug) {
                 Log.d(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
                 for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
@@ -257,7 +257,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setInstanceFollowRedirects(false);
-                configureRequest(connection);
+                configureRequest(connection, true);
                 if (isDebug) {
                     Log.d(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
                     for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {

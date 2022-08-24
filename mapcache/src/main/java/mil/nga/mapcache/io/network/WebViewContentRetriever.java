@@ -1,12 +1,16 @@
 package mil.nga.mapcache.io.network;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.util.Log;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import java.io.InputStream;
 import java.util.Observable;
 import java.util.Observer;
+
+import mil.nga.mapcache.utils.ThreadUtils;
 
 /**
  * Class that is called from within the web view page.
@@ -35,12 +39,30 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
     private final WebViewExtractorFactory extractorFactory;
 
     /**
+     * Used to run background tasks back on the UI thread.
+     */
+    private final Activity activity;
+
+    /**
+     * The html that goes with the extractor.
+     */
+    private String currentHtml;
+
+    /**
+     * The current extractor needing execution.
+     */
+    private WebViewExtractor currentExtractor;
+
+    /**
      * Constructor.
      *
-     * @param model Contains the current url and html.
+     * @param activity Used to run background tasks back on the UI thread.
+     * @param webView  The web view to get the content from.
+     * @param model    Contains the current url and html.
      */
     @SuppressLint("SetJavaScriptEnabled")
-    public WebViewContentRetriever(WebView webView, WebViewRequestModel model) {
+    public WebViewContentRetriever(Activity activity, WebView webView, WebViewRequestModel model) {
+        this.activity = activity;
         this.webView = webView;
         this.webView.getSettings().setJavaScriptEnabled(true);
         this.model = model;
@@ -65,10 +87,33 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
     @Override
     public void onReceiveValue(String html) {
         WebViewExtractor extractor = extractorFactory.createExtractor(html);
+        synchronized (this) {
+            currentExtractor = extractor;
+            currentHtml = html;
+        }
+
         if (extractor != null) {
-            InputStream content = extractor.extractContent(html);
-            if(content != null) {
-                this.model.setCurrentContent(content);
+            ThreadUtils.getInstance().runBackground(this::waitBackBeforeExtract);
+        }
+    }
+
+    private void waitBackBeforeExtract() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Log.d(WebViewContentRetriever.class.getSimpleName(), e.getMessage(), e);
+        }
+
+        this.activity.runOnUiThread(this::extractContent);
+    }
+
+    private void extractContent() {
+        synchronized (this) {
+            if (currentExtractor != null) {
+                InputStream content = currentExtractor.extractContent(currentHtml);
+                if (content != null) {
+                    this.model.setCurrentContent(content);
+                }
             }
         }
     }

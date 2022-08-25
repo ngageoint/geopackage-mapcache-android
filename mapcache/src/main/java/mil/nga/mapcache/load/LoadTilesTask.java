@@ -18,7 +18,6 @@ import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
-import mil.nga.geopackage.tiles.UrlTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.utils.HttpUtils;
@@ -68,7 +67,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
         Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bBox = transform(boundingBox, projection);
 
-        UrlTileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
+        WebViewTileGenerator tileGenerator = new WebViewTileGenerator(activity, geoPackage,
                 tableName, tileUrl, minZoom, maxZoom, bBox, projection);
         tileGenerator.addHTTPHeaderValue(
                 HttpUtils.getInstance().getUserAgentKey(),

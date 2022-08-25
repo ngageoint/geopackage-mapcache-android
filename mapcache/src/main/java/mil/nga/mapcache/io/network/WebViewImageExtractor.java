@@ -34,22 +34,27 @@ public class WebViewImageExtractor implements WebViewExtractor {
     @Override
     public InputStream extractContent(String html) {
         ByteArrayInputStream is = null;
-        webView.measure(MeasureSpec.makeMeasureSpec(
-                        MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED),
+        webView.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        webView.layout(0, 0, webView.getMeasuredWidth(),
-                webView.getMeasuredHeight());
+        int width = webView.getMeasuredWidth();
+        int height = webView.getMeasuredHeight();
+        webView.layout(0, 0, width, height);
         webView.setDrawingCacheEnabled(true);
         webView.buildDrawingCache();
-        if(webView.getMeasuredHeight() > 0 && webView.getMeasuredWidth() > 0) {
-            Bitmap b = Bitmap.createBitmap(webView.getMeasuredWidth() ,
-                    webView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        if (height > 0 && width > 0) {
+            Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(b);
 
             Paint paint = new Paint();
             int iHeight = b.getHeight();
+            int leftOffset = (width - height) / 2 + 1;
             c.drawBitmap(b, 0, iHeight, paint);
             webView.draw(c);
+
+            if(leftOffset > 0) {
+                //noinspection SuspiciousNameCombination
+                b = Bitmap.createBitmap(b, leftOffset, 0, height, height);
+            }
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             b.compress(Bitmap.CompressFormat.JPEG, 100, os);

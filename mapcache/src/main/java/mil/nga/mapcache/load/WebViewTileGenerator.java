@@ -21,6 +21,10 @@ import mil.nga.mapcache.io.network.HttpClient;
 import mil.nga.mapcache.io.network.IResponseHandler;
 import mil.nga.proj.Projection;
 
+/**
+ * Uses the mapcache applications HttpClient which in turn will popup a WebView if the url needs
+ * the user to interact with some sort of web page for login.
+ */
 public class WebViewTileGenerator extends UrlTileGenerator implements IResponseHandler {
 
     /**
@@ -43,10 +47,33 @@ public class WebViewTileGenerator extends UrlTileGenerator implements IResponseH
      */
     private boolean tms = false;
 
+    /**
+     * The bytes to return from createTile call.
+     */
     private byte[] theBytes = null;
 
+    /**
+     * If an exception occurred trying to download the tile.
+     */
     private IOException exception = null;
 
+    /**
+     * The current url we are using to download a tile image.
+     */
+    private String currentUrl = null;
+
+    /**
+     * Constructor.
+     *
+     * @param context     The application context.
+     * @param geoPackage  The GeoPackage.
+     * @param tableName   The table name.
+     * @param tileUrl     The tile url.
+     * @param minZoom     The min zoom.
+     * @param maxZoom     The max zoom.
+     * @param boundingBox The bounding box.
+     * @param projection  The projection.
+     */
     public WebViewTileGenerator(Context context, GeoPackage geoPackage, String tableName, String tileUrl, int minZoom, int maxZoom, BoundingBox boundingBox, Projection projection) {
         super(context, geoPackage, tableName, tileUrl, minZoom, maxZoom, boundingBox, projection);
         initialize(tileUrl);
@@ -196,6 +223,7 @@ public class WebViewTileGenerator extends UrlTileGenerator implements IResponseH
 
         theBytes = null;
         exception = null;
+        currentUrl = zoomUrl;
         HttpClient.getInstance().sendGet(zoomUrl, this, (Activity) context);
         synchronized (this) {
             try {
@@ -216,7 +244,13 @@ public class WebViewTileGenerator extends UrlTileGenerator implements IResponseH
     @Override
     public void handleResponse(InputStream stream, int responseCode) {
         try {
-            theBytes = GeoPackageIOUtils.streamBytes(stream);
+            if (stream != null) {
+                theBytes = GeoPackageIOUtils.streamBytes(stream);
+            } else {
+                Log.w(
+                        WebViewTileGenerator.class.getSimpleName(),
+                        "Stream is null for url " + currentUrl);
+            }
         } catch (IOException e) {
             exception = e;
         }

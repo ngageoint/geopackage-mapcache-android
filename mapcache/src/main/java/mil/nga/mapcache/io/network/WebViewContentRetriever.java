@@ -97,6 +97,9 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
         }
     }
 
+    /**
+     * Waits in a background thread for the web page to fully load before extracting its content.
+     */
     private void waitBackBeforeExtract() {
         try {
             Thread.sleep(1000);
@@ -107,6 +110,9 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
         this.activity.runOnUiThread(this::extractContent);
     }
 
+    /**
+     *
+     */
     private void extractContent() {
         synchronized (this) {
             if (currentExtractor != null) {

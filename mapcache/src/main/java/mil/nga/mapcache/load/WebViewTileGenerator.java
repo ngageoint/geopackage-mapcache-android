@@ -6,26 +6,22 @@ import android.util.Log;
 
 import org.locationtech.proj4j.units.Units;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
 import mil.nga.geopackage.GeoPackageException;
-import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.UrlTileGenerator;
 import mil.nga.mapcache.io.network.HttpClient;
-import mil.nga.mapcache.io.network.IResponseHandler;
 import mil.nga.proj.Projection;
 
 /**
  * Uses the mapcache applications HttpClient which in turn will popup a WebView if the url needs
  * the user to interact with some sort of web page for login.
  */
-public class WebViewTileGenerator extends UrlTileGenerator implements IResponseHandler {
+public class WebViewTileGenerator extends UrlTileGenerator {
 
     /**
      * Tile URL
@@ -46,21 +42,6 @@ public class WebViewTileGenerator extends UrlTileGenerator implements IResponseH
      * TMS URL flag, when true x,y,z converted to TMS when requesting the tile
      */
     private boolean tms = false;
-
-    /**
-     * The bytes to return from createTile call.
-     */
-    private byte[] theBytes = null;
-
-    /**
-     * If an exception occurred trying to download the tile.
-     */
-    private IOException exception = null;
-
-    /**
-     * The current url we are using to download a tile image.
-     */
-    private String currentUrl = null;
 
     /**
      * Constructor.
@@ -221,50 +202,19 @@ public class WebViewTileGenerator extends UrlTileGenerator implements IResponseH
             zoomUrl = replaceBoundingBox(zoomUrl, z, x, y);
         }
 
-        theBytes = null;
-        exception = null;
-        currentUrl = zoomUrl;
-        HttpClient.getInstance().sendGet(zoomUrl, this, (Activity) context);
-        synchronized (this) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Log.d(WebViewTileGenerator.class.getSimpleName(), e.getMessage(), e);
-            }
-        }
-
-        if (exception != null) {
-            throw new GeoPackageException("Failed to download tile. URL: "
-                    + zoomUrl + ", z=" + z + ", x=" + x + ", y=" + y, exception);
-        }
-
-        return theBytes;
-    }
-
-    @Override
-    public void handleResponse(InputStream stream, int responseCode) {
+        WebViewResponseHandler handler = new WebViewResponseHandler(zoomUrl);
+        HttpClient.getInstance().sendGet(zoomUrl, handler, (Activity) context);
         try {
-            if (stream != null) {
-                theBytes = GeoPackageIOUtils.streamBytes(stream);
-            } else {
-                Log.w(
-                        WebViewTileGenerator.class.getSimpleName(),
-                        "Stream is null for url " + currentUrl);
-            }
-        } catch (IOException e) {
-            exception = e;
+            handler.wait();
+        } catch (InterruptedException e) {
+            Log.d(WebViewTileGenerator.class.getSimpleName(), e.getMessage(), e);
         }
 
-        synchronized (this) {
-            notifyAll();
+        if (handler.getException() != null) {
+            throw new GeoPackageException("Failed to download tile. URL: "
+                    + zoomUrl + ", z=" + z + ", x=" + x + ", y=" + y, handler.getException());
         }
-    }
 
-    @Override
-    public void handleException(IOException exception) {
-        this.exception = exception;
-        synchronized (this) {
-            notifyAll();
-        }
+        return handler.getBytes();
     }
 }

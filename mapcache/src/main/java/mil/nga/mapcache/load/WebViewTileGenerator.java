@@ -179,6 +179,7 @@ public class WebViewTileGenerator extends UrlTileGenerator {
         return url;
     }
 
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Override
     protected byte[] createTile(int z, long x, long y) {
 
@@ -204,10 +205,12 @@ public class WebViewTileGenerator extends UrlTileGenerator {
 
         WebViewResponseHandler handler = new WebViewResponseHandler(zoomUrl);
         HttpClient.getInstance().sendGet(zoomUrl, handler, (Activity) context);
-        try {
-            handler.wait();
-        } catch (InterruptedException e) {
-            Log.d(WebViewTileGenerator.class.getSimpleName(), e.getMessage(), e);
+        synchronized(handler) {
+            try {
+                handler.wait();
+            } catch (InterruptedException e) {
+                Log.d(WebViewTileGenerator.class.getSimpleName(), e.getMessage(), e);
+            }
         }
 
         if (handler.getException() != null) {

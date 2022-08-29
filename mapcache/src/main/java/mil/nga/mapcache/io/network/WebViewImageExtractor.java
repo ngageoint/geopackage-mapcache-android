@@ -119,6 +119,10 @@ public class WebViewImageExtractor implements WebViewExtractor {
             offsetsWidthHeight[3] = newHeight;
         }
 
+        if(offsetsWidthHeight[0] < 0) {
+            Log.e(WebViewImageExtractor.class.getSimpleName(), "Left offset is negative");
+        }
+
         return offsetsWidthHeight;
     }
 

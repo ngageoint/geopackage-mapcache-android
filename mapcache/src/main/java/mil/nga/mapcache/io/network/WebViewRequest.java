@@ -83,8 +83,8 @@ public class WebViewRequest implements Observer {
     public void execute() {
         if (urlString.contains("format=image")) {
             isImageUrl = true;
-            show();
         }
+        this.webView.layout(0, 0, 1000, 1000);
         this.webView.loadUrl(this.urlString);
     }
 

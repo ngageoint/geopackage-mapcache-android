@@ -24,6 +24,11 @@ import mil.nga.proj.Projection;
 public class WebViewTileGenerator extends UrlTileGenerator {
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = false;
+
+    /**
      * Tile URL
      */
     private String tileUrl;
@@ -42,11 +47,6 @@ public class WebViewTileGenerator extends UrlTileGenerator {
      * TMS URL flag, when true x,y,z converted to TMS when requesting the tile
      */
     private boolean tms = false;
-
-    /**
-     * Debug logging flag.
-     */
-    private final boolean isDebug = true;
 
     /**
      * Constructor.

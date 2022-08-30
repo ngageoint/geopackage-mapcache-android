@@ -14,14 +14,14 @@ import mil.nga.mapcache.io.network.IResponseHandler;
 public class TileResponseHandler implements IResponseHandler {
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = false;
+
+    /**
      * The tile's image bytes.
      */
     private byte[] bytes = null;
-
-    /**
-     * Debug logging flag.
-     */
-    private static final boolean isDebug = true;
 
     /**
      * Gets the tile's image bytes.

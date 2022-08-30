@@ -18,6 +18,11 @@ import mil.nga.mapcache.utils.ThreadUtils;
 public class WebViewContentRetriever implements Observer, ValueCallback<String> {
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = false;
+
+    /**
      * The javascript that returns the urls html content.
      */
     private static final String theJavaScript = "(function() { return "
@@ -52,11 +57,6 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
      * The current extractor needing execution.
      */
     private WebViewExtractor currentExtractor;
-
-    /**
-     * Debug logging flag.
-     */
-    private final boolean isDebug = true;
 
     /**
      * Constructor.
@@ -142,9 +142,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
             }
             if (currentExtractor != null) {
                 if (currentExtractor.readyForExtraction(currentHtml)) {
-                    Log.d(
-                            WebViewContentRetriever.class.getSimpleName(),
-                            "Extracting content " + this.model.getCurrentUrl());
+                    if(isDebug) {
+                        Log.d(
+                                WebViewContentRetriever.class.getSimpleName(),
+                                "Extracting content " + this.model.getCurrentUrl());
+                    }
                     InputStream content = currentExtractor.extractContent(currentHtml);
                     if (content != null) {
                         if (isDebug) {
@@ -157,9 +159,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
                                 "Content null " + this.model.getCurrentUrl());
                     }
                 } else {
-                    Log.d(
-                            WebViewContentRetriever.class.getSimpleName(),
-                            "Not ready for extraction " + this.model.getCurrentUrl());
+                    if(isDebug) {
+                        Log.d(
+                                WebViewContentRetriever.class.getSimpleName(),
+                                "Not ready for extraction " + this.model.getCurrentUrl());
+                    }
                     ThreadUtils.getInstance().runBackground(this::waitBackBeforeExtract);
                 }
             }

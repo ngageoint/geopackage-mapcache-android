@@ -23,6 +23,11 @@ public class HttpClient implements SessionManager {
     private static final HttpClient instance = new HttpClient();
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = false;
+
+    /**
      * Any cookies being stored for http requests.
      */
     private final Map<String, Map<String, String>> allCookies = new HashMap<>();
@@ -31,11 +36,6 @@ public class HttpClient implements SessionManager {
      * The hosts that require a web view in order to download from given urls.
      */
     private final Set<String> webViewHosts = new HashSet<>();
-
-    /**
-     * Debug logging flag.
-     */
-    private static final boolean isDebug = true;
 
     /**
      * Gets the instance of this class.

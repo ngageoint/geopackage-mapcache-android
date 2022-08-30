@@ -14,6 +14,11 @@ import mil.nga.mapcache.io.network.IResponseHandler;
 public class WebViewResponseHandler implements IResponseHandler {
 
     /**
+     * Debug logging flag.
+     */
+    private final static boolean isDebug = false;
+
+    /**
      * The bytes to return from createTile call.
      */
     private byte[] theBytes = null;
@@ -27,11 +32,6 @@ public class WebViewResponseHandler implements IResponseHandler {
      * The current url we are using to download a tile image.
      */
     private final String currentUrl;
-
-    /**
-     * Debug logging flag.
-     */
-    private final boolean isDebug = true;
 
     /**
      * Constructor.

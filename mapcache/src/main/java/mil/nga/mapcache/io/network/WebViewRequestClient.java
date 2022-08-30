@@ -20,7 +20,7 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
     /**
      * Debug logging flag.
      */
-    private static final boolean isDebug = true;
+    private static final boolean isDebug = false;
 
     /**
      * The activity this was launched from.

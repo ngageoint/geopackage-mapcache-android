@@ -21,7 +21,7 @@ public abstract class BaseTileProvider implements TileProvider {
     /**
      * Used to turn debug logging on.
      */
-    private static final boolean isDebug = true;
+    private static final boolean isDebug = false;
 
     /**
      * The activity used to ask username and password if necessary.

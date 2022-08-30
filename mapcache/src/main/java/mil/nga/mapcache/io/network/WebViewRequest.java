@@ -18,6 +18,11 @@ import mil.nga.mapcache.utils.ThreadUtils;
 public class WebViewRequest implements Observer {
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = false;
+
+    /**
      * The get request url.
      */
     private final String urlString;
@@ -71,11 +76,6 @@ public class WebViewRequest implements Observer {
      * The number of times we have attempted reconnection.
      */
     private int retryCount = 0;
-
-    /**
-     * Debug logging flag.
-     */
-    private static final boolean isDebug = true;
 
     /**
      * Constructor.

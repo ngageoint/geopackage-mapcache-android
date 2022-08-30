@@ -29,6 +29,11 @@ public class WebViewResponseHandler implements IResponseHandler {
     private final String currentUrl;
 
     /**
+     * Debug logging flag.
+     */
+    private final boolean isDebug = true;
+
+    /**
      * Constructor.
      *
      * @param url The url we are awaiting the response for.
@@ -43,6 +48,11 @@ public class WebViewResponseHandler implements IResponseHandler {
      * @return The bytes of the response from the get call.
      */
     public byte[] getBytes() {
+        if(isDebug) {
+            Log.d(
+                    WebViewResponseHandler.class.getSimpleName(),
+                    "Getting byte for " + this.currentUrl);
+        }
         return theBytes;
     }
 
@@ -57,6 +67,11 @@ public class WebViewResponseHandler implements IResponseHandler {
 
     @Override
     public void handleResponse(InputStream stream, int responseCode) {
+        if(isDebug) {
+            Log.d(
+                    WebViewResponseHandler.class.getSimpleName(),
+                    "Handling response for " + this.currentUrl);
+        }
         try {
             if (stream != null) {
                 theBytes = GeoPackageIOUtils.streamBytes(stream);
@@ -71,6 +86,12 @@ public class WebViewResponseHandler implements IResponseHandler {
 
         synchronized (this) {
             notifyAll();
+        }
+
+        if(isDebug) {
+            Log.d(
+                    WebViewResponseHandler.class.getSimpleName(),
+                    "Notified all for " + this.currentUrl);
         }
     }
 

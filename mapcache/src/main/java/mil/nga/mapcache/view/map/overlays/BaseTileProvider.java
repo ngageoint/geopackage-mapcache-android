@@ -11,7 +11,6 @@ import com.google.android.gms.maps.model.Tile;
 import com.google.android.gms.maps.model.TileProvider;
 
 import mil.nga.mapcache.io.network.HttpClient;
-import mil.nga.mapcache.io.network.HttpGetRequest;
 
 /**
  * Abstract TileProvider that handles downloading the image and creating tiles but depends on
@@ -22,12 +21,17 @@ public abstract class BaseTileProvider implements TileProvider {
     /**
      * Used to turn debug logging on.
      */
-    private static boolean isDebug = false;
+    private static final boolean isDebug = true;
 
     /**
      * The activity used to ask username and password if necessary.
      */
-    private Activity activity;
+    private final Activity activity;
+
+    /**
+     * Handles the download response of a tile image.
+     */
+    private final TileResponseHandler handler = new TileResponseHandler();
 
     /**
      * Constructor.
@@ -78,10 +82,9 @@ public abstract class BaseTileProvider implements TileProvider {
      * @param url The location of the image.
      * @return The image data.
      */
-    private synchronized byte[] downloadImage(String url) {
-        TileResponseHandler handler = new TileResponseHandler();
+    private byte[] downloadImage(String url) {
         synchronized (handler) {
-            HttpClient.getInstance().sendGet(url.toString(), handler, this.activity);
+            HttpClient.getInstance().sendGet(url, handler, this.activity);
 
             try {
                 handler.wait();

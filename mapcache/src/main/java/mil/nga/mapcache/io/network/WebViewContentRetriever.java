@@ -54,6 +54,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
     private WebViewExtractor currentExtractor;
 
     /**
+     * Debug logging flag.
+     */
+    private final boolean isDebug = true;
+
+    /**
      * Constructor.
      *
      * @param activity Used to run background tasks back on the UI thread.
@@ -73,6 +78,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
     @Override
     public void update(Observable observable, Object o) {
         if (WebViewRequestModel.CURRENT_URL_PROP.equals(o)) {
+            if (isDebug) {
+                Log.d(
+                        WebViewContentRetriever.class.getSimpleName(),
+                        "Evaluating javascript " + this.model.getCurrentUrl());
+            }
             this.webView.evaluateJavascript(theJavaScript, this);
         }
     }
@@ -86,6 +96,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
 
     @Override
     public void onReceiveValue(String html) {
+        if (isDebug) {
+            Log.d(
+                    WebViewContentRetriever.class.getSimpleName(),
+                    "Evaluated javascript " + this.model.getCurrentUrl());
+        }
         WebViewExtractor extractor = extractorFactory.createExtractor(html);
         synchronized (this) {
             currentExtractor = extractor;
@@ -102,6 +117,11 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
      */
     private void waitBackBeforeExtract() {
         try {
+            if (isDebug) {
+                Log.d(
+                        WebViewContentRetriever.class.getSimpleName(),
+                        "Wait back before extract " + this.model.getCurrentUrl());
+            }
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             Log.d(WebViewContentRetriever.class.getSimpleName(), e.getMessage(), e);
@@ -115,13 +135,31 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
      */
     private void extractContent() {
         synchronized (this) {
+            if (isDebug) {
+                Log.d(
+                        WebViewContentRetriever.class.getSimpleName(),
+                        "Extract content " + this.model.getCurrentUrl());
+            }
             if (currentExtractor != null) {
                 if (currentExtractor.readyForExtraction(currentHtml)) {
+                    Log.d(
+                            WebViewContentRetriever.class.getSimpleName(),
+                            "Extracting content " + this.model.getCurrentUrl());
                     InputStream content = currentExtractor.extractContent(currentHtml);
                     if (content != null) {
+                        if (isDebug) {
+                            Log.d(WebViewContentRetriever.class.getSimpleName(), "Extracted content " + this.model.getCurrentUrl());
+                        }
                         this.model.setCurrentContent(content);
+                    } else if (isDebug) {
+                        Log.d(
+                                WebViewContentRetriever.class.getSimpleName(),
+                                "Content null " + this.model.getCurrentUrl());
                     }
                 } else {
+                    Log.d(
+                            WebViewContentRetriever.class.getSimpleName(),
+                            "Not ready for extraction " + this.model.getCurrentUrl());
                     ThreadUtils.getInstance().runBackground(this::waitBackBeforeExtract);
                 }
             }

@@ -33,6 +33,11 @@ public class HttpClient implements SessionManager {
     private final Set<String> webViewHosts = new HashSet<>();
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = true;
+
+    /**
      * Gets the instance of this class.
      *
      * @return This class instance.
@@ -89,6 +94,9 @@ public class HttpClient implements SessionManager {
             webViewHosts.add(theUrl.getHost());
         } catch (MalformedURLException e) {
             Log.e(HttpClient.class.getSimpleName(), e.getMessage(), e);
+        }
+        if(isDebug) {
+            Log.d(HttpClient.class.getSimpleName(), "Using web view for request " + url);
         }
         activity.runOnUiThread(()->{
             WebViewRequest request = new WebViewRequest(url, handler, activity);

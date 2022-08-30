@@ -44,6 +44,11 @@ public class WebViewTileGenerator extends UrlTileGenerator {
     private boolean tms = false;
 
     /**
+     * Debug logging flag.
+     */
+    private final boolean isDebug = true;
+
+    /**
      * Constructor.
      *
      * @param context     The application context.
@@ -76,6 +81,9 @@ public class WebViewTileGenerator extends UrlTileGenerator {
      * @param tileUrl tile URL
      */
     private void initialize(String tileUrl) {
+        if (isDebug) {
+            Log.d(WebViewTileGenerator.class.getSimpleName(), "Initializing for " + tileUrl);
+        }
         try {
             this.tileUrl = URLDecoder.decode(tileUrl, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -182,7 +190,6 @@ public class WebViewTileGenerator extends UrlTileGenerator {
     @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
     @Override
     protected byte[] createTile(int z, long x, long y) {
-
         String zoomUrl = tileUrl;
 
         // Replace x, y, and z
@@ -204,13 +211,23 @@ public class WebViewTileGenerator extends UrlTileGenerator {
         }
 
         WebViewResponseHandler handler = new WebViewResponseHandler(zoomUrl);
+        if (isDebug) {
+            Log.d(WebViewTileGenerator.class.getSimpleName(), "Sending Get to " + zoomUrl);
+        }
         HttpClient.getInstance().sendGet(zoomUrl, handler, (Activity) context);
-        synchronized(handler) {
+        synchronized (handler) {
             try {
-                handler.wait();
+                if (isDebug) {
+                    Log.d(WebViewTileGenerator.class.getSimpleName(), "Waiting for response from " + zoomUrl);
+                }
+                handler.wait(60000);
             } catch (InterruptedException e) {
                 Log.d(WebViewTileGenerator.class.getSimpleName(), e.getMessage(), e);
             }
+        }
+
+        if (isDebug) {
+            Log.d(WebViewTileGenerator.class.getSimpleName(), "Done waiting from " + zoomUrl);
         }
 
         if (handler.getException() != null) {

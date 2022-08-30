@@ -18,6 +18,11 @@ import mil.nga.mapcache.utils.ThreadUtils;
 public class WebViewRequestClient extends android.webkit.WebViewClient implements Authenticator {
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = true;
+
+    /**
      * The activity this was launched from.
      */
     private final Activity activity;
@@ -50,6 +55,9 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
 
     @Override
     public boolean authenticate(URL url, String userName, String password) {
+        if(isDebug) {
+            Log.d(WebViewRequestClient.class.getSimpleName(), "Authenticate " + url);
+        }
         this.currentHandler.proceed(userName, password);
         return true;
     }
@@ -57,6 +65,9 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
     @Override
     public void onPageFinished(WebView view, String url) {
         super.onPageFinished(view, url);
+        if(isDebug) {
+            Log.d(WebViewRequestClient.class.getSimpleName(), "On Page Finished " + url);
+        }
 
         if (this.url == null) {
             try {
@@ -72,7 +83,9 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
     @Override
     public void onReceivedHttpAuthRequest(WebView view, HttpAuthHandler handler, String host, String realm) {
         this.currentHandler = handler;
-
+        if(isDebug) {
+            Log.d(WebViewRequestClient.class.getSimpleName(), "On receive http auth request " + url);
+        }
         ThreadUtils.getInstance().runBackground(() -> {
             UserLoggerInner loggerInner = new UserLoggerInner(this.activity);
             loggerInner.login(this.url, this);
@@ -81,6 +94,9 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
 
     @Override
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        if(isDebug) {
+            Log.d(WebViewRequestClient.class.getSimpleName(), "should override url loading " + url);
+        }
         view.loadUrl(url);
 
         return true;

@@ -3,6 +3,7 @@ package mil.nga.mapcache.io.network;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.util.Log;
 import android.webkit.WebView;
 
 import java.net.HttpURLConnection;
@@ -60,6 +61,11 @@ public class WebViewRequest implements Observer {
     private final WebViewContentRetriever jsInterface;
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = true;
+
+    /**
      * Constructor.
      *
      * @param url      The request url.
@@ -85,6 +91,9 @@ public class WebViewRequest implements Observer {
             isImageUrl = true;
         }
         this.webView.layout(0, 0, 1000, 1000);
+        if(isDebug) {
+            Log.d(WebViewRequest.class.getSimpleName(), "Executing request " + this.urlString);
+        }
         this.webView.loadUrl(this.urlString);
     }
 
@@ -92,6 +101,9 @@ public class WebViewRequest implements Observer {
      * Shows the login web page in an alert dialog.
      */
     private void show() {
+        if(isDebug) {
+            Log.d(WebViewRequest.class.getSimpleName(), "Showing web page " + this.urlString);
+        }
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
 
         alertBuilder.setView(this.webView);
@@ -105,6 +117,11 @@ public class WebViewRequest implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
+        if(isDebug) {
+            Log.d(WebViewRequest.class.getSimpleName(), "Model updated " + o);
+            Log.d(WebViewRequest.class.getSimpleName(), "Current url " + this.model.getCurrentUrl());
+            Log.d(WebViewRequest.class.getSimpleName(), "Current content " + this.model.getCurrentContent());
+        }
         if (WebViewRequestModel.CURRENT_URL_PROP.equals(o)) {
             if (!isShown && this.model.getCurrentUrl().contains("login.")) {
                 // redirected to a login page so we need to show the WebView.
@@ -118,6 +135,12 @@ public class WebViewRequest implements Observer {
             if (isShown) {
                 alert.dismiss();
                 isShown = false;
+            }
+
+            if(isDebug) {
+                Log.d(
+                        WebViewRequest.class.getSimpleName(),
+                        "Send response to handler " + this.model.getCurrentUrl());
             }
             handler.handleResponse(this.model.getCurrentContent(), HttpURLConnection.HTTP_OK);
         }

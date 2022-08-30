@@ -29,11 +29,6 @@ public abstract class BaseTileProvider implements TileProvider {
     private final Activity activity;
 
     /**
-     * Handles the download response of a tile image.
-     */
-    private final TileResponseHandler handler = new TileResponseHandler();
-
-    /**
      * Constructor.
      *
      * @param activity Used to ask username and password if necessary.
@@ -82,10 +77,11 @@ public abstract class BaseTileProvider implements TileProvider {
      * @param url The location of the image.
      * @return The image data.
      */
-    private byte[] downloadImage(String url) {
+    @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
+    private synchronized byte[] downloadImage(String url) {
+        TileResponseHandler handler = new TileResponseHandler();
         synchronized (handler) {
             HttpClient.getInstance().sendGet(url, handler, this.activity);
-
             try {
                 handler.wait();
             } catch (InterruptedException e) {

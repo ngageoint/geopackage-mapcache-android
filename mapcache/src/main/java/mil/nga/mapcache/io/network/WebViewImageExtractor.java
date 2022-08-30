@@ -24,6 +24,21 @@ public class WebViewImageExtractor implements WebViewExtractor {
     private final WebView webView;
 
     /**
+     * The bitmap of the web page.
+     */
+    private Bitmap bitmap;
+
+    /**
+     * The width of the web page.
+     */
+    private int width;
+
+    /**
+     * The height of the web page.
+     */
+    private int height;
+
+    /**
      * Constructor.
      *
      * @param view The web view to get the image from.
@@ -33,41 +48,59 @@ public class WebViewImageExtractor implements WebViewExtractor {
     }
 
     @Override
-    public InputStream extractContent(String html) {
-        ByteArrayInputStream is = null;
+    public boolean readyForExtraction(String html) {
+        boolean isReady = false;
+
         webView.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        int width = webView.getMeasuredWidth();
-        int height = webView.getMeasuredHeight();
+        width = webView.getMeasuredWidth();
+        height = webView.getMeasuredHeight();
         webView.layout(0, 0, width, height);
         webView.setDrawingCacheEnabled(true);
         webView.buildDrawingCache();
         if (height > 0 && width > 0) {
-            Bitmap b = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(b);
+            bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(bitmap);
 
             Paint paint = new Paint();
-            int iHeight = b.getHeight();
-            c.drawBitmap(b, 0, iHeight, paint);
+            int iHeight = bitmap.getHeight();
+            c.drawBitmap(bitmap, 0, iHeight, paint);
             webView.draw(c);
 
-            int[] offsetsWidthHeight = getOffsetsWidthHeight(b, width, height);
-            b = Bitmap.createBitmap(
-                    b,
-                    offsetsWidthHeight[0],
-                    offsetsWidthHeight[1],
-                    offsetsWidthHeight[2],
-                    offsetsWidthHeight[3]);
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            b.compress(Bitmap.CompressFormat.JPEG, 100, os);
-            try {
-                os.flush();
-                byte[] theBytes = os.toByteArray();
-                os.close();
-                is = new ByteArrayInputStream(theBytes);
-            } catch (IOException e) {
-                Log.e(WebViewImageExtractor.class.getSimpleName(), e.getMessage(), e);
+            int halfY = height / 2;
+            int halfX = width / 2;
+            for(int i = height - 1; i > halfY; i--) {
+                int pixel = bitmap.getPixel(halfX, i);
+                if(isPixelNotEmpty(pixel)) {
+                    isReady = true;
+                    break;
+                }
             }
+        }
+
+        return isReady;
+    }
+
+    @Override
+    public InputStream extractContent(String html) {
+        InputStream is = null;
+
+        int[] offsetsWidthHeight = getOffsetsWidthHeight(bitmap, width, height);
+        bitmap = Bitmap.createBitmap(
+                bitmap,
+                offsetsWidthHeight[0],
+                offsetsWidthHeight[1],
+                offsetsWidthHeight[2],
+                offsetsWidthHeight[3]);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+        try {
+            os.flush();
+            byte[] theBytes = os.toByteArray();
+            os.close();
+            is = new ByteArrayInputStream(theBytes);
+        } catch (IOException e) {
+            Log.e(WebViewImageExtractor.class.getSimpleName(), e.getMessage(), e);
         }
 
         return is;

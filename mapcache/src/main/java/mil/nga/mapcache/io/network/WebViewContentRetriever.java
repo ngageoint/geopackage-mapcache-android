@@ -111,14 +111,18 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
     }
 
     /**
-     *
+     * Extracts the contents from the web page.
      */
     private void extractContent() {
         synchronized (this) {
             if (currentExtractor != null) {
-                InputStream content = currentExtractor.extractContent(currentHtml);
-                if (content != null) {
-                    this.model.setCurrentContent(content);
+                if (currentExtractor.readyForExtraction(currentHtml)) {
+                    InputStream content = currentExtractor.extractContent(currentHtml);
+                    if (content != null) {
+                        this.model.setCurrentContent(content);
+                    }
+                } else {
+                    ThreadUtils.getInstance().runBackground(this::waitBackBeforeExtract);
                 }
             }
         }

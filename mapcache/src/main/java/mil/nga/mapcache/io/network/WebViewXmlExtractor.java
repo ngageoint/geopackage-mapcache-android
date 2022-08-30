@@ -10,6 +10,11 @@ import java.nio.charset.StandardCharsets;
 public class WebViewXmlExtractor implements WebViewExtractor {
 
     @Override
+    public boolean readyForExtraction(String html) {
+        return true;
+    }
+
+    @Override
     public InputStream extractContent(String html) {
         int newLineIndex = html.indexOf("\\n\\n") + 4;
         String xml = html.substring(newLineIndex, html.length() - 1);

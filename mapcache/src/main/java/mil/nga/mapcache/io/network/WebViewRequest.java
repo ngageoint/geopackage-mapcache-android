@@ -10,6 +10,8 @@ import java.net.HttpURLConnection;
 import java.util.Observable;
 import java.util.Observer;
 
+import mil.nga.mapcache.utils.ThreadUtils;
+
 /**
  * Performs a get request using a WebView to do so.
  */
@@ -61,6 +63,16 @@ public class WebViewRequest implements Observer {
     private final WebViewContentRetriever jsInterface;
 
     /**
+     * True if this request has already received a response.
+     */
+    private boolean receivedResponse = false;
+
+    /**
+     * The number of times we have attempted reconnection.
+     */
+    private int retryCount = 0;
+
+    /**
      * Debug logging flag.
      */
     private static final boolean isDebug = true;
@@ -95,6 +107,36 @@ public class WebViewRequest implements Observer {
             Log.d(WebViewRequest.class.getSimpleName(), "Executing request " + this.urlString);
         }
         this.webView.loadUrl(this.urlString);
+        ThreadUtils.getInstance().runBackground(this::checkIfDead);
+    }
+
+    /**
+     * Checks to see if the WebView object crashed and we need to restart it.
+     */
+    private void checkIfDead() {
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            Log.d(WebViewRequest.class.getSimpleName(), e.getMessage(), e);
+        }
+
+        if(!receivedResponse) {
+            if(retryCount < 3) {
+                retryCount++;
+                Log.i(
+                        WebViewRequest.class.getSimpleName(),
+                        "Connection went stale attempting to reconnect " + this.urlString);
+                this.activity.runOnUiThread(() -> {
+                    this.webView.stopLoading();
+                    this.execute();
+                });
+            } else {
+                Log.w(
+                        WebViewRequest.class.getSimpleName(),
+                        "Attempted to connect " + retryCount
+                                + " times. Giving up on " + this.urlString);
+            }
+        }
     }
 
     /**
@@ -143,6 +185,7 @@ public class WebViewRequest implements Observer {
                         "Send response to handler " + this.model.getCurrentUrl());
             }
             handler.handleResponse(this.model.getCurrentContent(), HttpURLConnection.HTTP_OK);
+            this.receivedResponse = true;
         }
     }
 }

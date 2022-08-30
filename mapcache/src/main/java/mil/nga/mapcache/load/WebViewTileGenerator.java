@@ -220,7 +220,7 @@ public class WebViewTileGenerator extends UrlTileGenerator {
                 if (isDebug) {
                     Log.d(WebViewTileGenerator.class.getSimpleName(), "Waiting for response from " + zoomUrl);
                 }
-                handler.wait(60000);
+                handler.wait();
             } catch (InterruptedException e) {
                 Log.d(WebViewTileGenerator.class.getSimpleName(), e.getMessage(), e);
             }

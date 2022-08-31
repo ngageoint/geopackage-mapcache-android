@@ -103,7 +103,7 @@ public class WebViewRequest implements Observer {
             isImageUrl = true;
         }
         this.webView.layout(0, 0, 1000, 1000);
-        if(isDebug) {
+        if (isDebug) {
             Log.d(WebViewRequest.class.getSimpleName(), "Executing request " + this.urlString);
         }
         this.webView.loadUrl(this.urlString);
@@ -120,8 +120,8 @@ public class WebViewRequest implements Observer {
             Log.d(WebViewRequest.class.getSimpleName(), e.getMessage(), e);
         }
 
-        if(!receivedResponse) {
-            if(retryCount < 3) {
+        if (!receivedResponse && !isCurrentPageALogin()) {
+            if (retryCount < 3) {
                 retryCount++;
                 Log.i(
                         WebViewRequest.class.getSimpleName(),
@@ -143,7 +143,7 @@ public class WebViewRequest implements Observer {
      * Shows the login web page in an alert dialog.
      */
     private void show() {
-        if(isDebug) {
+        if (isDebug) {
             Log.d(WebViewRequest.class.getSimpleName(), "Showing web page " + this.urlString);
         }
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
@@ -159,13 +159,13 @@ public class WebViewRequest implements Observer {
 
     @Override
     public void update(Observable observable, Object o) {
-        if(isDebug) {
+        if (isDebug) {
             Log.d(WebViewRequest.class.getSimpleName(), "Model updated " + o);
             Log.d(WebViewRequest.class.getSimpleName(), "Current url " + this.model.getCurrentUrl());
             Log.d(WebViewRequest.class.getSimpleName(), "Current content " + this.model.getCurrentContent());
         }
         if (WebViewRequestModel.CURRENT_URL_PROP.equals(o)) {
-            if (!isShown && this.model.getCurrentUrl().contains("login.")) {
+            if (!isShown && isCurrentPageALogin()) {
                 // redirected to a login page so we need to show the WebView.
                 show();
             } else if (isShown && !isImageUrl) {
@@ -179,7 +179,7 @@ public class WebViewRequest implements Observer {
                 isShown = false;
             }
 
-            if(isDebug) {
+            if (isDebug) {
                 Log.d(
                         WebViewRequest.class.getSimpleName(),
                         "Send response to handler " + this.model.getCurrentUrl());
@@ -187,5 +187,14 @@ public class WebViewRequest implements Observer {
             handler.handleResponse(this.model.getCurrentContent(), HttpURLConnection.HTTP_OK);
             this.receivedResponse = true;
         }
+    }
+
+    /**
+     * Checks to see if the current web page is a login page.
+     *
+     * @return True if its a login page, false otherwise.
+     */
+    private boolean isCurrentPageALogin() {
+        return this.model.getCurrentUrl().contains("login.");
     }
 }

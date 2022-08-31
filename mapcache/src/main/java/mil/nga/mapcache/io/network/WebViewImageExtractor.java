@@ -69,13 +69,8 @@ public class WebViewImageExtractor implements WebViewExtractor {
 
             int halfY = height / 2;
             int halfX = width / 2;
-            for(int i = height - 1; i > halfY; i--) {
-                int pixel = bitmap.getPixel(halfX, i);
-                if(isPixelNotEmpty(pixel)) {
-                    isReady = true;
-                    break;
-                }
-            }
+            int pixel = bitmap.getPixel(halfX, halfY);
+            isReady = isPixelNotEmpty(pixel);
         }
 
         return isReady;

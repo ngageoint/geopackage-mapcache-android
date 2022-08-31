@@ -122,7 +122,7 @@ public class WebViewContentRetriever implements Observer, ValueCallback<String> 
                         WebViewContentRetriever.class.getSimpleName(),
                         "Wait back before extract " + this.model.getCurrentUrl());
             }
-            Thread.sleep(1000);
+            Thread.sleep(100);
         } catch (InterruptedException e) {
             Log.d(WebViewContentRetriever.class.getSimpleName(), e.getMessage(), e);
         }

@@ -2,7 +2,6 @@ package mil.nga.mapcache.io.network;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -149,9 +148,7 @@ public class WebViewRequest implements Observer {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
 
         alertBuilder.setView(this.webView);
-        alertBuilder.setNegativeButton("Close", (DialogInterface dialog, int id) ->
-                dialog.dismiss()
-        );
+
         alert = alertBuilder.create();
         alert.show();
         isShown = true;

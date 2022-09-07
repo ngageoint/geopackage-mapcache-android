@@ -285,7 +285,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
                 callback.onLoadTilesPostExecute(result);
             } else {
                 this.geoPackage.deleteTable(tableName);
-                callback.onLoadTilesCancelled("");
+                callback.onLoadTilesCancelled();
             }
         } catch (final Exception e) {
             Log.e(LoadTilesTask.class.getSimpleName(), e.getMessage(), e);

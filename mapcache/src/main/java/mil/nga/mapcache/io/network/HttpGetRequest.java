@@ -80,6 +80,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
      *
      * @param url      The url of the get request.
      * @param handler  Object this is called when request is completed.
+     * @param sessionManager Contains any saved cookies.
      * @param activity Used to get the app name and version for the user agent.
      */
     public HttpGetRequest(String url, IResponseHandler handler, SessionManager sessionManager, Activity activity) {

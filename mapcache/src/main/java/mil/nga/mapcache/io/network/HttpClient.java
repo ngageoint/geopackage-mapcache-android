@@ -53,7 +53,7 @@ public class HttpClient implements SessionManager {
      * @param handler The response handler, called when request is complete.
      * @param activity Used to get the app name and version for the user agent.
      */
-    public void sendGet(String url, IResponseHandler handler, Activity activity) {
+    public synchronized void sendGet(String url, IResponseHandler handler, Activity activity) {
         boolean requiresWebView = false;
 
         try {

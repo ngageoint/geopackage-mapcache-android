@@ -9,10 +9,21 @@ import mil.nga.proj.ProjectionConstants;
 import mil.nga.proj.ProjectionFactory;
 import mil.nga.proj.ProjectionTransform;
 
+/**
+ * Utility class for transforming different geometries into different projections.
+ */
 public class ProjUtils {
 
-    private static ProjUtils instance = new ProjUtils();
+    /**
+     * The instance of this class.
+     */
+    private static final ProjUtils instance = new ProjUtils();
 
+    /**
+     * Gets the instance of this class.
+     *
+     * @return The instance of this class.
+     */
     public static ProjUtils getInstance() {
         return instance;
     }

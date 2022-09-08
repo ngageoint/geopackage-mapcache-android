@@ -5893,7 +5893,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public void onLoadTilesCancelled(String result) {
+    public void onLoadTilesCancelled() {
         loadTilesFinished();
     }
 

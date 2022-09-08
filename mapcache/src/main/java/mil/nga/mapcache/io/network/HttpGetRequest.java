@@ -3,6 +3,7 @@ package mil.nga.mapcache.io.network;
 import android.app.Activity;
 import android.util.Base64;
 import android.util.Log;
+import android.webkit.CookieManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +13,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
@@ -28,22 +28,22 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Used to turn debug logging on.
      */
-    private static boolean isDebug = false;
+    private static final boolean isDebug = false;
 
     /**
      * The url of the get request.
      */
-    private String urlString;
+    private final String urlString;
 
     /**
      * Object that is called when request is completed.
      */
-    private IResponseHandler handler;
+    private final IResponseHandler handler;
 
     /**
      * Used to get the app name and version for the user agent.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Retrieves the user's username and password then calls back for authentication.
@@ -68,61 +68,68 @@ public class HttpGetRequest implements Runnable, Authenticator {
     /**
      * Contains any previously saved cookies.
      */
-    private CookieJar allCookies;
+    private final SessionManager sessionManager;
+
+    /**
+     * True if the WebViewRequest is handling the request.
+     */
+    private boolean webViewHandlingRequest = false;
 
     /**
      * Constructs a new HttpGetRequest.
      *
      * @param url      The url of the get request.
      * @param handler  Object this is called when request is completed.
+     * @param sessionManager Contains any saved cookies.
      * @param activity Used to get the app name and version for the user agent.
      */
-    public HttpGetRequest(String url, IResponseHandler handler, CookieJar allCookies, Activity activity) {
+    public HttpGetRequest(String url, IResponseHandler handler, SessionManager sessionManager, Activity activity) {
         this.urlString = url;
         this.handler = handler;
         this.activity = activity;
-        this.allCookies = allCookies;
+        this.sessionManager = sessionManager;
     }
 
     @Override
     public void run() {
         try {
             authorization = null;
+            webViewHandlingRequest = false;
             URL url = new URL(urlString);
-            cookies = allCookies.getCookies(url.getHost());
+            cookies = sessionManager.getCookies(url.getHost());
             connect(url);
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
-                    && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
-                addBasicAuth(connection.getURL());
-                responseCode = connection.getResponseCode();
-            }
-
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                this.handler.handleResponse(null, responseCode);
-            } else {
-                InputStream stream = connection.getInputStream();
-                String encoding = connection.getHeaderField(HttpUtils.getInstance().getContentEncodingKey());
-                if (encoding != null && encoding.equals("gzip")) {
-                    stream = new GZIPInputStream(stream);
+            if(!webViewHandlingRequest) {
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
+                        && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
+                    addBasicAuth(connection.getURL());
+                    responseCode = connection.getResponseCode();
                 }
-                this.handler.handleResponse(stream, responseCode);
-                if (this.handler instanceof RequestHeaderConsumer) {
-                    Map<String, List<String>> headers = new HashMap<>();
-                    if (this.authorization != null) {
-                        headers.put(HttpUtils.getInstance().getBasicAuthKey(), new ArrayList<>());
-                        headers.get(HttpUtils.getInstance().getBasicAuthKey()).add(this.authorization);
-                    }
 
-                    if (this.cookies != null) {
-                        List<String> cookieValues = new ArrayList<>();
-                        for (String cookie : this.cookies.values()) {
-                            cookieValues.add(cookie);
-                        }
-                        headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    this.handler.handleResponse(null, responseCode);
+                } else {
+                    InputStream stream = connection.getInputStream();
+                    String encoding = connection.getHeaderField(HttpUtils.getInstance().getContentEncodingKey());
+                    if (encoding != null && encoding.equals("gzip")) {
+                        stream = new GZIPInputStream(stream);
                     }
-                    ((RequestHeaderConsumer) this.handler).setRequestHeaders(headers);
+                    this.handler.handleResponse(stream, responseCode);
+                    if (this.handler instanceof RequestHeaderConsumer) {
+                        Map<String, List<String>> headers = new HashMap<>();
+                        if (this.authorization != null) {
+                            List<String> authorizations = new ArrayList<>();
+                            authorizations.add(this.authorization);
+                            headers.put(HttpUtils.getInstance().getBasicAuthKey(), authorizations);
+                        }
+
+                        if (this.cookies != null) {
+                            List<String> cookieValues = new ArrayList<>(this.cookies.values());
+                            headers.put(HttpUtils.getInstance().getCookieKey(), cookieValues);
+                        }
+                        ((RequestHeaderConsumer) this.handler).setRequestHeaders(headers);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -174,7 +181,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
      *
      * @param connection The connection to add the user agent to.
      */
-    private void configureRequest(HttpURLConnection connection) {
+    private void configureRequest(HttpURLConnection connection, boolean isRedirect) {
         connection.addRequestProperty(
                 HttpUtils.getInstance().getUserAgentKey(),
                 HttpUtils.getInstance().getUserAgentValue(activity));
@@ -192,6 +199,14 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
         if (authorization != null) {
             connection.addRequestProperty(HttpUtils.getInstance().getBasicAuthKey(), authorization);
+        }
+
+        String cookieString = CookieManager.getInstance().getCookie(connection.getURL().toString());
+        if(!isRedirect && cookieString != null) {
+            String [] allCookies = cookieString.split(";");
+            for(String cookie : allCookies) {
+                connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
+            }
         } else if (cookies != null) {
             for (String cookie : cookies.values()) {
                 connection.addRequestProperty(HttpUtils.getInstance().getCookieKey(), cookie);
@@ -208,7 +223,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
         try {
             connection = (HttpURLConnection) url.openConnection();
             connection.setInstanceFollowRedirects(false);
-            configureRequest(connection);
+            configureRequest(connection, false);
             if (isDebug) {
                 Log.d(HttpGetRequest.class.getSimpleName(), "Connecting to " + url);
                 for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
@@ -226,7 +241,6 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 }
             }
             checkCookie();
-            int index = 0;
             while (responseCode == HttpURLConnection.HTTP_MOVED_PERM
                     || responseCode == HttpURLConnection.HTTP_MOVED_TEMP
                     || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -244,7 +258,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setInstanceFollowRedirects(false);
-                configureRequest(connection);
+                configureRequest(connection, true);
                 if (isDebug) {
                     Log.d(HttpGetRequest.class.getSimpleName(), "Redirecting to " + url);
                     for (Map.Entry<String, List<String>> entry : connection.getRequestProperties().entrySet()) {
@@ -260,7 +274,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
                     }
                 }
                 checkCookie();
-                index++;
+
+                if(responseCode == HttpURLConnection.HTTP_OK) {
+                    sessionManager.requestRequiresWebView(urlString, handler, activity);
+                    webViewHandlingRequest = true;
+                }
             }
         } catch (IOException e) {
             Log.e(HttpGetRequest.class.getSimpleName(), e.getMessage(), e);
@@ -283,7 +301,7 @@ public class HttpGetRequest implements Runnable, Authenticator {
                 this.cookies.put(nameValue[0], cookie);
             }
             URL originalUrl = new URL(urlString);
-            allCookies.storeCookies(originalUrl.getHost(), this.cookies);
+            sessionManager.storeCookies(originalUrl.getHost(), this.cookies);
         }
     }
 }

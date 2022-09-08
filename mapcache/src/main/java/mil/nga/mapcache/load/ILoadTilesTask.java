@@ -9,16 +9,15 @@ public interface ILoadTilesTask {
 
 	/**
 	 * On cancellation of loading tiles
-	 * 
-	 * @param result
-	 */
-	public void onLoadTilesCancelled(String result);
+	 *
+	 * */
+	void onLoadTilesCancelled();
 
 	/**
 	 * On completion of loading tiles
 	 * 
-	 * @param result
+	 * @param result A message to display to the user if needed.
 	 */
-	public void onLoadTilesPostExecute(String result);
+	void onLoadTilesPostExecute(String result);
 
 }

@@ -719,7 +719,11 @@ public class GeoPackageMapFragment extends Fragment implements
         if (getActivity() != null) {
             geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
             geoPackageViewModel.init();
-            model.active = new GeoPackageDatabases(getActivity().getApplicationContext(), "active");
+            model.active = new GeoPackageDatabases(
+                    getActivity().getApplicationContext(),
+                    "active");
+            vibrator = (Vibrator) getActivity().getSystemService(
+                    Context.VIBRATOR_SERVICE);
         }
 
         if (geoPackageViewModel != null && geoPackageViewModel.getGeos() != null) {
@@ -728,8 +732,6 @@ public class GeoPackageMapFragment extends Fragment implements
                     model.active);
         }
 
-        vibrator = (Vibrator) getActivity().getSystemService(
-                Context.VIBRATOR_SERVICE);
 
         view = inflater.inflate(R.layout.fragment_map, container, false);
         getMapFragment().getMapAsync(this);
@@ -2136,7 +2138,7 @@ public class GeoPackageMapFragment extends Fragment implements
             inputUrl.addTextChangedListener(inputUrlWatcher);
 
             // Example Geopackages link handler
-            ((TextView) importUrlView.findViewById(R.id.import_examples))
+            importUrlView.findViewById(R.id.import_examples)
                     .setOnClickListener((View v) -> {
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                                 getActivity(), android.R.layout.select_dialog_item);
@@ -4689,7 +4691,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the current edit state, buttons, and visuals
      *
-     * @param updateAcceptClear
+     * @param updateAcceptClear True if the accept and clear buttons active appearance should be
+     *                          updated.
      */
     private void updateEditState(boolean updateAcceptClear) {
         boolean accept = false;
@@ -4809,46 +4812,52 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get draw polyline options
      *
-     * @return
+     * @return The polyline options.
      */
     private PolylineOptions getDrawPolylineOptions() {
         PolylineOptions polylineOptions = new PolylineOptions();
-        polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_draw_color));
+        if (this.getActivity() != null) {
+            polylineOptions.color(ContextCompat.getColor(getActivity(), R.color.polyline_draw_color));
+        }
         return polylineOptions;
     }
 
     /**
      * Get draw polygon options
      *
-     * @return
+     * @return The polygon options.
      */
     private PolygonOptions getDrawPolygonOptions() {
         PolygonOptions polygonOptions = new PolygonOptions();
-        polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_draw_color));
-        polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_draw_fill_color));
+        if (this.getActivity() != null) {
+            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_draw_color));
+            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_draw_fill_color));
+        }
         return polygonOptions;
     }
 
     /**
      * Get hold draw polygon options
      *
-     * @return
+     * @return The polygon options.
      */
     private PolygonOptions getHoleDrawPolygonOptions() {
         PolygonOptions polygonOptions = new PolygonOptions();
-        polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_hole_draw_color));
-        polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_hole_draw_fill_color));
+        if (this.getActivity() != null) {
+            polygonOptions.strokeColor(ContextCompat.getColor(getActivity(), R.color.polygon_hole_draw_color));
+            polygonOptions.fillColor(ContextCompat.getColor(getActivity(), R.color.polygon_hole_draw_fill_color));
+        }
         return polygonOptions;
     }
 
     /**
      * Get a list of points as LatLng
      *
-     * @param markers
-     * @return
+     * @param markers The markers to collect points from.
+     * @return The list of points of the marker locations.
      */
     private List<LatLng> getLatLngPoints(Map<String, Marker> markers) {
-        List<LatLng> points = new ArrayList<LatLng>();
+        List<LatLng> points = new ArrayList<>();
         for (Marker editPoint : markers.values()) {
             points.add(editPoint.getPosition());
         }
@@ -4858,7 +4867,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Set the drawing value
      *
-     * @param drawing
+     * @param drawing True if drawing false if not.
      */
     private void setDrawing(boolean drawing) {
         this.drawing = drawing;
@@ -4868,11 +4877,12 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Check if the point is within clicking distance to the lat lng corner
      *
-     * @param projection
-     * @param point
-     * @param latLng
-     * @param allowableScreenPercentage
-     * @return
+     * @param projection                The projection to use.
+     * @param point                     The point to check.
+     * @param latLng                    The corner to check.
+     * @param allowableScreenPercentage The percentage of the screen distance the point and corner
+     *                                  must be within.
+     * @return True if the point an corner are within the specified screen distance percentage.
      */
     private boolean isWithinDistance(Projection projection, Point point,
                                      LatLng latLng, double allowableScreenPercentage) {
@@ -4880,16 +4890,14 @@ public class GeoPackageMapFragment extends Fragment implements
         double distance = Math.sqrt(Math.pow(point.x - point2.x, 2)
                 + Math.pow(point.y - point2.y, 2));
 
-        boolean withinDistance = distance
-                / Math.min(view.getWidth(), view.getHeight()) <= allowableScreenPercentage;
-        return withinDistance;
+        return distance / Math.min(view.getWidth(), view.getHeight()) <= allowableScreenPercentage;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onMapClick(LatLng point) {
+    public void onMapClick(@NonNull LatLng point) {
 
         if (!editFeaturesMode) {
 
@@ -4931,7 +4939,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                             if (featureDao != null) {
 
-                                FeatureIndexResults indexResults = null;
+                                FeatureIndexResults indexResults;
 
                                 FeatureIndexManager indexer = new FeatureIndexManager(getActivity(), geoPackage, featureDao);
                                 if (indexer.isIndexed()) {
@@ -4959,8 +4967,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     FeatureIndexListResults listResults = new FeatureIndexListResults();
 
                                     // Query for all rows
-                                    FeatureCursor cursor = featureDao.query();
-                                    try {
+                                    try (FeatureCursor cursor = featureDao.query()) {
 
                                         while (cursor.moveToNext()) {
 
@@ -4997,15 +5004,13 @@ public class GeoPackageMapFragment extends Fragment implements
                                             }
                                         }
 
-                                    } finally {
-                                        cursor.close();
                                     }
 
                                     indexResults = listResults;
                                 }
                                 indexer.close();
 
-                                if (indexResults.count() > 0) {
+                                if (indexResults.count() > 0 && this.getActivity() != null) {
                                     FeatureInfoBuilder featureInfoBuilder = new FeatureInfoBuilder(getActivity(), featureDao);
                                     featureInfoBuilder.ignoreGeometryType(GeometryType.POINT);
                                     String message = featureInfoBuilder.buildResultsInfoMessageAndClose(indexResults, tolerance, point);
@@ -5023,15 +5028,12 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             }
 
-            if (clickMessage.length() > 0) {
+            if (clickMessage.length() > 0 && this.getActivity() != null) {
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setMessage(clickMessage.toString())
                         .setPositiveButton(android.R.string.yes,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                }
-                        )
+                                (DialogInterface dialog, int which) -> {
+                                })
                         .show();
             }
         }
@@ -5090,7 +5092,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public void onMarkerDrag(Marker marker) {
+    public void onMarkerDrag(@NonNull Marker marker) {
         updateEditState(false);
     }
 
@@ -5098,7 +5100,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public void onMarkerDragEnd(Marker marker) {
+    public void onMarkerDragEnd(@NonNull Marker marker) {
         updateEditState(false);
     }
 
@@ -5106,23 +5108,25 @@ public class GeoPackageMapFragment extends Fragment implements
      * {@inheritDoc}
      */
     @Override
-    public void onMarkerDragStart(Marker marker) {
-        vibrator.vibrate(getActivity().getResources().getInteger(
-                R.integer.edit_features_drag_long_click_vibrate));
+    public void onMarkerDragStart(@NonNull Marker marker) {
+        if (getActivity() != null) {
+            vibrator.vibrate(getActivity().getResources().getInteger(
+                    R.integer.edit_features_drag_long_click_vibrate));
+        }
     }
 
     /**
      * Edit feature shape marker click
      *
-     * @param marker
+     * @param marker The marker to edit.
      */
     private void editFeatureShapeClick(final Marker marker) {
 
         final ShapeMarkers shapeMarkers = editFeatureShape
                 .getShapeMarkers(marker);
-        if (shapeMarkers != null) {
+        if (shapeMarkers != null && getActivity() != null) {
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     getActivity(), android.R.layout.select_dialog_item);
             adapter.add(getString(R.string.edit_features_shape_point_delete_label));
             adapter.add(getString(R.string.edit_features_shape_add_points_label));
@@ -5136,25 +5140,25 @@ public class GeoPackageMapFragment extends Fragment implements
             final String title = "(lat=" + formatter.format(position.latitude)
                     + ", lon=" + formatter.format(position.longitude) + ")";
             builder.setTitle(title);
-            builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
+            builder.setAdapter(adapter, (DialogInterface dialog, int item) -> {
 
-                    if (item >= 0) {
-                        switch (item) {
-                            case 0:
-                                editFeatureShape.delete(marker);
-                                updateEditState(true);
-                                break;
-                            case 1:
-                                editFeatureShapeMarkers = shapeMarkers;
-                                break;
-                            case 2:
+                if (item >= 0) {
+                    switch (item) {
+                        case 0:
+                            editFeatureShape.delete(marker);
+                            updateEditState(true);
+                            break;
+                        case 1:
+                            editFeatureShapeMarkers = shapeMarkers;
+                            break;
+                        case 2:
+                            if (shapeMarkers instanceof ShapeWithChildrenMarkers) {
                                 ShapeWithChildrenMarkers shapeWithChildrenMarkers = (ShapeWithChildrenMarkers) shapeMarkers;
                                 editFeatureShapeMarkers = shapeWithChildrenMarkers
                                         .createChild();
-                                break;
-                            default:
-                        }
+                            }
+                            break;
+                        default:
                     }
                 }
             });
@@ -5167,56 +5171,47 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Edit marker click
      *
-     * @param marker
-     * @param points
+     * @param marker The marker to edit.
+     * @param points The points to edit.
      */
     private void editMarkerClick(final Marker marker,
                                  final Map<String, Marker> points) {
 
-        LatLng position = marker.getPosition();
-        String message = editFeatureType.name();
-        if (editFeatureType != EditType.POINT) {
-            message += " " + EditType.POINT.name();
-        }
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setCancelable(false)
-                .setTitle(getString(R.string.edit_features_delete_label))
-                .setMessage(
-                        getString(R.string.edit_features_delete_label) + " "
-                                + message + " (lat=" + position.latitude
-                                + ", lon=" + position.longitude + ") ?")
-                .setPositiveButton(
-                        getString(R.string.edit_features_delete_label),
+        if (getActivity() != null) {
+            LatLng position = marker.getPosition();
+            String message = editFeatureType.name();
+            if (editFeatureType != EditType.POINT) {
+                message += " " + EditType.POINT.name();
+            }
+            AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setCancelable(false)
+                    .setTitle(getString(R.string.edit_features_delete_label))
+                    .setMessage(
+                            getString(R.string.edit_features_delete_label) + " "
+                                    + message + " (lat=" + position.latitude
+                                    + ", lon=" + position.longitude + ") ?")
+                    .setPositiveButton(
+                            getString(R.string.edit_features_delete_label),
 
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
+                            (DialogInterface dialog, int which) -> {
 
                                 points.remove(marker.getId());
                                 marker.remove();
 
                                 updateEditState(true);
+                            })
 
-                            }
-                        })
-
-                .setNegativeButton(getString(R.string.button_cancel_label),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                dialog.dismiss();
-                            }
-                        }).create();
-        deleteDialog.show();
+                    .setNegativeButton(getString(R.string.button_cancel_label),
+                            (DialogInterface dialog, int which) -> dialog.dismiss()).create();
+            deleteDialog.show();
+        }
     }
 
     /**
      * Edit existing feature click
      *
-     * @param marker
-     * @param featureId
+     * @param marker    The marker to edit.
+     * @param featureId The id of the feature being edited.
      */
     private void editExistingFeatureClick(final Marker marker, long featureId) {
         final GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(editFeaturesDatabase);
@@ -5225,12 +5220,12 @@ public class GeoPackageMapFragment extends Fragment implements
 
         final FeatureRow featureRow = featureDao.queryForIdRow(featureId);
 
-        if (featureRow != null) {
+        if (featureRow != null && getActivity() != null) {
             final GeoPackageGeometryData geomData = featureRow.getGeometry();
             final GeometryType geometryType = geomData.getGeometry()
                     .getGeometryType();
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     getActivity(), android.R.layout.select_dialog_item);
             adapter.add(getString(R.string.edit_features_info_label));
             adapter.add(getString(R.string.edit_features_edit_label));
@@ -5238,25 +5233,23 @@ public class GeoPackageMapFragment extends Fragment implements
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             final String title = getTitle(geometryType, marker);
             builder.setTitle(title);
-            builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
+            builder.setAdapter(adapter, (DialogInterface dialog, int item) -> {
 
-                    if (item >= 0) {
-                        switch (item) {
-                            case 0:
-                                infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
-                                break;
-                            case 1:
-                                tempEditFeatureMarker = marker;
-                                validateAndClearEditFeatures(EditType.EDIT_FEATURE);
-                                break;
-                            case 2:
-                                deleteExistingFeatureOption(title, editFeaturesDatabase,
-                                        editFeaturesTable, featureRow, marker,
-                                        geometryType);
-                                break;
-                            default:
-                        }
+                if (item >= 0) {
+                    switch (item) {
+                        case 0:
+                            infoExistingFeatureOption(geoPackage, featureRow, title, geomData);
+                            break;
+                        case 1:
+                            tempEditFeatureMarker = marker;
+                            validateAndClearEditFeatures(EditType.EDIT_FEATURE);
+                            break;
+                        case 2:
+                            deleteExistingFeatureOption(title, editFeaturesDatabase,
+                                    editFeaturesTable, featureRow, marker,
+                                    geometryType);
+                            break;
+                        default:
                     }
                 }
             });
@@ -5270,24 +5263,23 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get a title from the Geometry Type and marker
      *
-     * @param geometryType
-     * @param marker
-     * @return
+     * @param geometryType The geometry type of the marker.
+     * @param marker       The marker to get the title for.
+     * @return The title.
      */
     private String getTitle(GeometryType geometryType, Marker marker) {
         LatLng position = marker.getPosition();
         DecimalFormat formatter = new DecimalFormat("0.0###");
-        String title = geometryType.getName() + "\n(lat="
+        return geometryType.getName() + "\n(lat="
                 + formatter.format(position.latitude) + ", lon="
                 + formatter.format(position.longitude) + ")";
-        return title;
     }
 
     /**
      * Info feature click
      *
-     * @param marker
-     * @param markerFeature
+     * @param marker        The marker that was clicked.
+     * @param markerFeature The feature of the marker.
      */
     private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
         Intent intent = new Intent(getContext(), FeatureViewActivity.class);

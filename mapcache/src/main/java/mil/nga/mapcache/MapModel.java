@@ -3,6 +3,9 @@ package mil.nga.mapcache;
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 
+/**
+ * Contains various states involving the map and its data.
+ */
 public class MapModel {
     /**
      * Bounding box around the features on the map

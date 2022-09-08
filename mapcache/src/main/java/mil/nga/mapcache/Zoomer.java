@@ -35,18 +35,45 @@ import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.sf.GeometryEnvelope;
 
+/**
+ * Controls zooming to various parts on the map.
+ */
 public class Zoomer {
 
-    private MapModel model;
+    /**
+     * Contains the various states of the map.
+     */
+    private final MapModel model;
 
-    private GeoPackageViewModel geoPackageViewModel;
+    /**
+     * Contains the geoPackages.
+     */
+    private final GeoPackageViewModel geoPackageViewModel;
 
-    private Context context;
+    /**
+     * The application context.
+     */
+    private final Context context;
 
-    private GoogleMap map;
+    /**
+     * The map to zoom around.
+     */
+    private final GoogleMap map;
 
-    private View mainView;
+    /**
+     * The view containing the map.
+     */
+    private final View mainView;
 
+    /**
+     * Constructor.
+     *
+     * @param model               Contains the various states of the map.
+     * @param geoPackageViewModel Contains the geoPackages.
+     * @param context             The application context.
+     * @param map                 The map to zoom around.
+     * @param mainView            The view containing the map.
+     */
     public Zoomer(MapModel model, GeoPackageViewModel geoPackageViewModel, Context context, GoogleMap map, View mainView) {
         this.model = model;
         this.geoPackageViewModel = geoPackageViewModel;
@@ -92,12 +119,12 @@ public class Zoomer {
                             try (FeatureCursor cursor = featureDao.query(columns)) {
                                 while (cursor.moveToNext()) {
                                     FeatureRow row = cursor.getRow();
-                                    GeometryEnvelope envelope =  row.getGeometry().buildEnvelope();
+                                    GeometryEnvelope envelope = row.getGeometry().buildEnvelope();
                                     BoundingBox rowBox = new BoundingBox(envelope);
-                                    if(contentsBoundingBox == null) {
+                                    if (contentsBoundingBox == null) {
                                         contentsBoundingBox = rowBox;
                                     } else {
-                                        contentsBoundingBox.union(rowBox);
+                                        contentsBoundingBox = contentsBoundingBox.union(rowBox);
                                     }
                                 }
                             }
@@ -168,7 +195,7 @@ public class Zoomer {
         BoundingBox bbox = model.featuresBoundingBox;
         boolean tileBox = false;
 
-        float paddingPercentage = 0f;
+        float paddingPercentage;
         if (bbox == null) {
             bbox = model.tilesBoundingBox;
             tileBox = true;

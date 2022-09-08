@@ -41,6 +41,11 @@ import mil.nga.sf.GeometryEnvelope;
 public class Zoomer {
 
     /**
+     * Debug logging flag.
+     */
+    private static final boolean isDebug = false;
+
+    /**
      * Contains the various states of the map.
      */
     private final MapModel model;
@@ -117,15 +122,37 @@ public class Zoomer {
                             String[] columns = featureDao.getIdAndGeometryColumnNames();
                             BoundingBox contentsBoundingBox = null;
                             try (FeatureCursor cursor = featureDao.query(columns)) {
+                                List<BoundingBox> boxes = new ArrayList<>();
                                 while (cursor.moveToNext()) {
                                     FeatureRow row = cursor.getRow();
                                     GeometryEnvelope envelope = row.getGeometry().buildEnvelope();
                                     BoundingBox rowBox = new BoundingBox(envelope);
+                                    if (isDebug) {
+                                        boxes.add(new BoundingBox(rowBox));
+                                    }
                                     if (contentsBoundingBox == null) {
                                         contentsBoundingBox = rowBox;
                                     } else {
                                         contentsBoundingBox = contentsBoundingBox.union(rowBox);
                                     }
+                                }
+
+                                for (BoundingBox box : boxes) {
+                                    Log.d(Zoomer.class.getSimpleName(),
+                                            "BBox "
+                                                    + box.getMinLatitude() + " "
+                                                    + box.getMinLongitude() + " "
+                                                    + box.getMaxLatitude() + " "
+                                                    + box.getMaxLongitude());
+                                }
+
+                                if (isDebug && contentsBoundingBox != null) {
+                                    Log.d(Zoomer.class.getSimpleName(),
+                                            "Contents BBox "
+                                                    + contentsBoundingBox.getMinLatitude() + " "
+                                                    + contentsBoundingBox.getMinLongitude() + " "
+                                                    + contentsBoundingBox.getMaxLatitude() + " "
+                                                    + contentsBoundingBox.getMaxLongitude());
                                 }
                             }
 
@@ -270,8 +297,16 @@ public class Zoomer {
                         * paddingPercentage);
 
                 try {
+                    LatLngBounds bounds = boundsBuilder.build();
+                    if (isDebug) {
+                        Log.d(Zoomer.class.getSimpleName(), "LatLngBounds  "
+                                + bounds.southwest.latitude + " "
+                                + bounds.southwest.longitude + " "
+                                + bounds.northeast.latitude + " "
+                                + bounds.northeast.longitude);
+                    }
                     map.animateCamera(CameraUpdateFactory.newLatLngBounds(
-                            boundsBuilder.build(), padding));
+                            bounds, padding));
                 } catch (Exception e) {
                     Log.w(GeoPackageMapFragment.class.getSimpleName(),
                             "Unable to move camera", e);

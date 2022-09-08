@@ -3386,7 +3386,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     updateLock.unlock();
                 }
 
-                localUpdateTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+                localUpdateTask.execute(false, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
             });
         }
     }

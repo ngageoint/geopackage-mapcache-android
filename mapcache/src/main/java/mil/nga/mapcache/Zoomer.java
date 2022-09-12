@@ -92,11 +92,11 @@ public class Zoomer {
      */
     public void zoomToActiveBounds() {
 
-        model.featuresBoundingBox = null;
-        model.tilesBoundingBox = null;
+        model.setFeaturesBoundingBox(null);
+        model.setTilesBoundingBox(null);
 
         // Pre zoom
-        List<GeoPackageDatabase> activeDatabases = new ArrayList<>(model.active.getDatabases());
+        List<GeoPackageDatabase> activeDatabases = new ArrayList<>(model.getActive().getDatabases());
         for (GeoPackageDatabase database : activeDatabases) {
             GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(database.getDatabase());
             if (geoPackage != null) {
@@ -162,10 +162,10 @@ public class Zoomer {
                                                 contentsBoundingBox,
                                                 featureDao.getSrs());
 
-                                if (model.featuresBoundingBox != null) {
-                                    model.featuresBoundingBox = model.featuresBoundingBox.union(contentsBoundingBox);
+                                if (model.getFeaturesBoundingBox() != null) {
+                                    model.setFeaturesBoundingBox(model.getFeaturesBoundingBox().union(contentsBoundingBox));
                                 } else {
-                                    model.featuresBoundingBox = contentsBoundingBox;
+                                    model.setFeaturesBoundingBox(contentsBoundingBox);
                                 }
                             }
                         }
@@ -188,10 +188,10 @@ public class Zoomer {
                                             tileMatrixSetBoundingBox,
                                             tileMatrixSet.getSrs());
 
-                            if (model.tilesBoundingBox != null) {
-                                model.tilesBoundingBox = model.tilesBoundingBox.union(tileMatrixSetBoundingBox);
+                            if (model.getTilesBoundingBox() != null) {
+                                model.setTilesBoundingBox(model.getTilesBoundingBox().union(tileMatrixSetBoundingBox));
                             } else {
-                                model.tilesBoundingBox = tileMatrixSetBoundingBox;
+                                model.setTilesBoundingBox(tileMatrixSetBoundingBox);
                             }
                         } catch (SQLException e) {
                             Log.e(GeoPackageMapFragment.class.getSimpleName(),
@@ -219,14 +219,14 @@ public class Zoomer {
      */
     public void zoomToActive(boolean nothingVisible) {
 
-        BoundingBox bbox = model.featuresBoundingBox;
+        BoundingBox bbox = model.getFeaturesBoundingBox();
         boolean tileBox = false;
 
         float paddingPercentage;
         if (bbox == null) {
-            bbox = model.tilesBoundingBox;
+            bbox = model.getTilesBoundingBox();
             tileBox = true;
-            if (model.featureOverlayTiles) {
+            if (model.isFeatureOverlayTiles()) {
                 paddingPercentage = context.getResources().getInteger(
                         R.integer.map_feature_tiles_zoom_padding_percentage) * .01f;
             } else {

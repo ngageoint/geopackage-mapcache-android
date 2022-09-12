@@ -719,9 +719,9 @@ public class GeoPackageMapFragment extends Fragment implements
         if (getActivity() != null) {
             geoPackageViewModel = new ViewModelProvider(getActivity()).get(GeoPackageViewModel.class);
             geoPackageViewModel.init();
-            model.active = new GeoPackageDatabases(
+            model.setActive(new GeoPackageDatabases(
                     getActivity().getApplicationContext(),
-                    "active");
+                    "active"));
             vibrator = (Vibrator) getActivity().getSystemService(
                     Context.VIBRATOR_SERVICE);
         }
@@ -729,7 +729,7 @@ public class GeoPackageMapFragment extends Fragment implements
         if (geoPackageViewModel != null && geoPackageViewModel.getGeos() != null) {
             GeoPackageSynchronizer.getInstance().synchronizeTables(
                     geoPackageViewModel.getGeos().getValue(),
-                    model.active);
+                    model.getActive());
         }
 
 
@@ -921,20 +921,20 @@ public class GeoPackageMapFragment extends Fragment implements
 
             // Make sure the detail page is repopulated in case a new layer is added
             if (detailPageAdapter != null) {
-                detailPageAdapter.updateAllTables(newGeos, model.active);
+                detailPageAdapter.updateAllTables(newGeos, model.getActive());
             }
         });
 
         // Observe Active Tables - used to determine which layers are enabled.  Update main list
         // of geoPackages when a change is made in order to change the active state
         geoPackageViewModel.getActive().observe(getViewLifecycleOwner(), newTables -> {
-            GeoPackageSynchronizer.getInstance().synchronizeTables(model.active, newTables);
-            model.active = newTables;
+            GeoPackageSynchronizer.getInstance().synchronizeTables(model.getActive(), newTables);
+            model.setActive(newTables);
             geoPackageRecyclerAdapter.updateActiveTables(newTables.getDatabases());
             geoPackageRecyclerAdapter.notifyDataSetChanged();
 
             // Get the total number of active features and the max features setting
-            int totalFeatures = model.active.getAllFeaturesCount();
+            int totalFeatures = model.getActive().getAllFeaturesCount();
             int maxFeatureSetting = getMaxFeatures();
             if (totalFeatures > maxFeatureSetting) {
                 showMaxFeaturesExceeded();
@@ -942,12 +942,12 @@ public class GeoPackageMapFragment extends Fragment implements
 
             // if the detail page has been used, send the updated active list for it to update itself
             if (detailPageAdapter != null) {
-                detailPageAdapter.updateActiveTables(model.active);
+                detailPageAdapter.updateActiveTables(model.getActive());
             }
 
             // if the layer detail page has been created, send the updated active list for it to update itself
             if (layerAdapter != null) {
-                layerAdapter.updateActiveTables(model.active);
+                layerAdapter.updateActiveTables(model.getActive());
             }
 
             // Update the map
@@ -999,7 +999,7 @@ public class GeoPackageMapFragment extends Fragment implements
             DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
             List<Object> detailList = new ArrayList<>();
             detailList.add(detailHeader);
-            detailList.addAll(db.getLayerObjects(model.active.getDatabase(db.getDatabase())));
+            detailList.addAll(db.getLayerObjects(model.getActive().getDatabase(db.getDatabase())));
 
             detailPageAdapter = new DetailPageAdapter(detailList, layerListener,
                     detailBackListener, detailActionListener, activeLayerListener, enableAllListener, db);
@@ -1238,7 +1238,7 @@ public class GeoPackageMapFragment extends Fragment implements
             GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
 
 //            createGeoPackageDetailAdapter(db);
-            DetailPageLayerObject newLayerObject = newDb.getLayerObject(model.active.getDatabase(gpName), gpName, newLayerName);
+            DetailPageLayerObject newLayerObject = newDb.getLayerObject(model.getActive().getDatabase(gpName), gpName, newLayerName);
             if (newLayerObject != null)
                 createGeoPackageLayerDetailAdapter(newLayerObject);
         }
@@ -1272,7 +1272,7 @@ public class GeoPackageMapFragment extends Fragment implements
         try {
             if (geoPackageViewModel.createFeatureColumnLayer(gpName, layerName, fieldName, type)) {
                 GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
-                DetailPageLayerObject newLayerObject = newDb.getLayerObject(model.active.getDatabase(gpName), gpName, layerName);
+                DetailPageLayerObject newLayerObject = newDb.getLayerObject(model.getActive().getDatabase(gpName), gpName, layerName);
                 if (newLayerObject != null)
                     createGeoPackageLayerDetailAdapter(newLayerObject);
             } else {
@@ -1293,7 +1293,7 @@ public class GeoPackageMapFragment extends Fragment implements
         try {
             if (geoPackageViewModel.deleteFeatureColumnLayer(gpName, layerName, columnName)) {
                 GeoPackageDatabase newDb = geoPackageViewModel.getGeoByName(gpName);
-                DetailPageLayerObject newLayerObject = newDb.getLayerObject(model.active.getDatabase(gpName), gpName, layerName);
+                DetailPageLayerObject newLayerObject = newDb.getLayerObject(model.getActive().getDatabase(gpName), gpName, layerName);
                 if (newLayerObject != null)
                     createGeoPackageLayerDetailAdapter(newLayerObject);
             } else {
@@ -1402,7 +1402,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 showBearing.setTitle("Show Bearing");
             }
 
-            int totalFeaturesAndTiles = model.active.getAllFeaturesAndTilesCount();
+            int totalFeaturesAndTiles = model.getActive().getAllFeaturesAndTilesCount();
             if (totalFeaturesAndTiles == 0) {
                 MenuItem zoomToActive = pm.getMenu().findItem(R.id.zoomToActive);
                 zoomToActive.setEnabled(false);
@@ -2835,7 +2835,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                 indexer.deleteIndex(featureId, indexedTypes);
                             }
                         }
-                        model.active.setModified(true);
+                        model.getActive().setModified(true);
                     }
 
                     break;
@@ -2860,7 +2860,7 @@ public class GeoPackageMapFragment extends Fragment implements
         clearEditFeaturesAndPreserveType();
 
         if (changesMade) {
-            model.active.setModified(true);
+            model.getActive().setModified(true);
             updateInBackground(false, true);
         }
 
@@ -2895,8 +2895,8 @@ public class GeoPackageMapFragment extends Fragment implements
 
         visible = !hidden;
 
-        if (visible && model.active.isModified()) {
-            model.active.setModified(false);
+        if (visible && model.getActive().isModified()) {
+            model.getActive().setModified(false);
             resetBoundingBox();
             resetEditFeatures();
             if (mapLoaded) {
@@ -2908,14 +2908,14 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (updateTask != null) {
                     if (updateTask.getStatus() != AsyncTask.Status.FINISHED) {
                         updateTask.cancel(false);
-                        model.active.setModified(true);
+                        model.getActive().setModified(true);
                     }
                     updateTask = null;
                 }
                 if (updateFeaturesTask != null) {
                     if (updateFeaturesTask.getStatus() != AsyncTask.Status.FINISHED) {
                         updateFeaturesTask.cancel(false);
-                        model.active.setModified(true);
+                        model.getActive().setModified(true);
                     }
                     updateFeaturesTask = null;
                 }
@@ -3359,9 +3359,9 @@ public class GeoPackageMapFragment extends Fragment implements
                 zoomer.zoomToActiveBounds();
             }
 
-            model.featuresBoundingBox = null;
-            model.tilesBoundingBox = null;
-            model.featureOverlayTiles = false;
+            model.setFeaturesBoundingBox(null);
+            model.setTilesBoundingBox(null);
+            model.setFeatureOverlayTiles(false);
             featureOverlayQueries.clear();
             featureShapes.clear();
             markerIds.clear();
@@ -3427,10 +3427,10 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void update(MapUpdateTask task, boolean zoom, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
-        if (model.active != null) {
+        if (model.getActive() != null) {
 
             // Open active GeoPackages and create feature DAOS, display tiles and feature tiles
-            List<GeoPackageDatabase> activeDatabases = new ArrayList<>(model.active.getDatabases());
+            List<GeoPackageDatabase> activeDatabases = new ArrayList<>(model.getActive().getDatabases());
             for (GeoPackageDatabase database : activeDatabases) {
 
                 if (task.isCancelled()) {
@@ -3499,7 +3499,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         }
 
                     } else {
-                        model.active.removeDatabase(database.getDatabase(), false);
+                        model.getActive().removeDatabase(database.getDatabase(), false);
                     }
                 } catch (Exception e) {
                     Log.e(GeoPackageMapFragment.class.getSimpleName(), "Error opening geopackage: " + database.getDatabase(), e);
@@ -3636,7 +3636,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 databaseFeatureDaos.put(editFeaturesTable, featureDao);
             }
         } else {
-            for (GeoPackageDatabase database : model.active.getDatabases()) {
+            for (GeoPackageDatabase database : model.getActive().getDatabases()) {
                 if (!database.getFeatures().isEmpty()) {
                     List<String> databaseFeatures = new ArrayList<>();
                     featureTables.put(database.getDatabase(),
@@ -4026,10 +4026,10 @@ public class GeoPackageMapFragment extends Fragment implements
     private void updateFeaturesBoundingBox(GoogleMapShape shape) {
         try {
             featuresBoundingBoxLock.lock();
-            if (model.featuresBoundingBox != null) {
-                shape.expandBoundingBox(model.featuresBoundingBox);
+            if (model.getFeaturesBoundingBox() != null) {
+                shape.expandBoundingBox(model.getFeaturesBoundingBox());
             } else {
-                model.featuresBoundingBox = shape.boundingBox();
+                model.setFeaturesBoundingBox(shape.boundingBox());
             }
         } finally {
             featuresBoundingBoxLock.unlock();
@@ -4344,7 +4344,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 FeatureTiles featureTiles = new DefaultFeatureTiles(getActivity(), geoPackage, featureDao,
                         getResources().getDisplayMetrics().density);
 
-                model.featureOverlayTiles = true;
+                model.setFeatureOverlayTiles(true);
 
                 // Add the feature overlay query
                 FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
@@ -4448,7 +4448,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                 GeoPackageUtils.prepareFeatureTiles(featureTiles);
 
-                model.featureOverlayTiles = true;
+                model.setFeatureOverlayTiles(true);
 
                 FeatureOverlayQuery featureOverlayQuery = new FeatureOverlayQuery(getActivity(), overlay, featureTiles);
                 featureOverlayQuery.calculateStylePixelBounds();
@@ -4488,10 +4488,10 @@ public class GeoPackageMapFragment extends Fragment implements
             boundingBox = boundingBox.overlap(specifiedBoundingBox);
         }
 
-        if (model.tilesBoundingBox == null) {
-            model.tilesBoundingBox = boundingBox;
+        if (model.getTilesBoundingBox() == null) {
+            model.setTilesBoundingBox(boundingBox);
         } else {
-            model.tilesBoundingBox = model.tilesBoundingBox.union(boundingBox);
+            model.setTilesBoundingBox(model.getTilesBoundingBox().union(boundingBox));
         }
 
         if (getActivity() != null) {
@@ -4915,7 +4915,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             }
 
-            for (GeoPackageDatabase database : model.active.getDatabases()) {
+            for (GeoPackageDatabase database : model.getActive().getDatabases()) {
                 if (!database.getFeatures().isEmpty()) {
 
                     TypedValue screenPercentage = new TypedValue();
@@ -5411,7 +5411,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     }
                                     updateLastChange(geoPackage, featureDao);
 
-                                    model.active.setModified(true);
+                                    model.getActive().setModified(true);
                                 } catch (Exception e) {
                                     if (GeoPackageUtils
                                             .isUnsupportedSQLiteException(e)) {
@@ -5582,7 +5582,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     if (searchForActive) {
                         for (int i = 0; i < featureTables.size(); i++) {
                             String featureTable = featureTables.get(i);
-                            boolean isActive = model.active.exists(database, featureTable, GeoPackageTableType.FEATURE);
+                            boolean isActive = model.getActive().exists(database, featureTable, GeoPackageTableType.FEATURE);
                             if (isActive) {
                                 defaultDatabase = featureDatabases.size() - 1;
                                 defaultTable = i;
@@ -5684,7 +5684,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Make sure the geopackage source is being repopulated to get the new layer
         geoPackageViewModel.regenerateGeoPackageTableList();
 
-        if (model.active.isModified()) {
+        if (model.getActive().isModified()) {
             updateInBackground(false);
             if (boundingBox != null) {
                 PolygonOptions polygonOptions = new PolygonOptions();

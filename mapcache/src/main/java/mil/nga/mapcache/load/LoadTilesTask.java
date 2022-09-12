@@ -18,7 +18,6 @@ import mil.nga.geopackage.extension.nga.scale.TileScaling;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.geopackage.tiles.TileBoundingBoxUtils;
 import mil.nga.geopackage.tiles.TileGenerator;
-import mil.nga.geopackage.tiles.UrlTileGenerator;
 import mil.nga.geopackage.tiles.features.FeatureTileGenerator;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.utils.HttpUtils;
@@ -68,7 +67,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
         Projection projection = ProjectionFactory.getProjection(authority, code);
         BoundingBox bBox = transform(boundingBox, projection);
 
-        UrlTileGenerator tileGenerator = new UrlTileGenerator(activity, geoPackage,
+        WebViewTileGenerator tileGenerator = new WebViewTileGenerator(activity, geoPackage,
                 tableName, tileUrl, minZoom, maxZoom, bBox, projection);
         tileGenerator.addHTTPHeaderValue(
                 HttpUtils.getInstance().getUserAgentKey(),
@@ -152,7 +151,7 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
 
         ProgressDialog progressDialog = new ProgressDialog(activity);
         final LoadTilesTask loadTilesTask = new LoadTilesTask(activity,
-                callback, progressDialog, viewModel);
+                callback, progressDialog, viewModel, geoPackage, tableName);
 
         tileGenerator.setProgress(loadTilesTask);
 
@@ -181,6 +180,8 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
     private final ILoadTilesTask callback;
     private final ProgressDialog progressDialog;
     private final GeoPackageViewModel viewModel;
+    private final GeoPackage geoPackage;
+    private final String tableName;
     private PowerManager.WakeLock wakeLock;
     private boolean isCancelled = false;
 
@@ -191,13 +192,18 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
      * @param callback Called when the load tiles task has completed or was cancelled.
      * @param progressDialog The progress dialog.
      * @param viewModel Used to get the geoPackage.
+     * @param geoPackage The geoPackage we are creating a tile layer for.
+     * @param tableName The name of the tile layer.
      */
     public LoadTilesTask(Activity activity, ILoadTilesTask callback,
-                         ProgressDialog progressDialog, GeoPackageViewModel viewModel) {
+                         ProgressDialog progressDialog, GeoPackageViewModel viewModel,
+                         GeoPackage geoPackage, String tableName) {
         this.activity = activity;
         this.callback = callback;
         this.progressDialog = progressDialog;
         this.viewModel = viewModel;
+        this.geoPackage = geoPackage;
+        this.tableName = tableName;
     }
 
     /**
@@ -259,23 +265,28 @@ public class LoadTilesTask implements GeoPackageProgress, Runnable {
             wakeLock.acquire(43200000);
 
             int count = tileGenerator.generateTiles();
-            String result = null;
-            if (count == 0) {
-                result = "No tiles were generated for your new layer.  " +
-                        "This could be an issue with your tile URL or the tile server.  " +
-                        "Please verify the server URL and try again.";
-            }
-            if (count > 0 && viewModel.getActive().getValue() != null) {
-                viewModel.getActive().getValue().setModified(true);
-            }
-            if (count < max && !(tileGenerator instanceof FeatureTileGenerator)) {
-                result = "Fewer tiles were generated than " +
-                        "expected. Expected: " + max + ", Actual: " + count +
-                        ".  This is likely an issue with the tile server or a slow / " +
-                        "intermittent network connection.";
-            }
+            if(!isCancelled) {
+                String result = null;
+                if (count == 0) {
+                    result = "No tiles were generated for your new layer.  " +
+                            "This could be an issue with your tile URL or the tile server.  " +
+                            "Please verify the server URL and try again.";
+                }
+                if (count > 0 && viewModel.getActive().getValue() != null) {
+                    viewModel.getActive().getValue().setModified(true);
+                }
+                if (count < max && !(tileGenerator instanceof FeatureTileGenerator)) {
+                    result = "Fewer tiles were generated than " +
+                            "expected. Expected: " + max + ", Actual: " + count +
+                            ".  This is likely an issue with the tile server or a slow / " +
+                            "intermittent network connection.";
+                }
 
-            callback.onLoadTilesPostExecute(result);
+                callback.onLoadTilesPostExecute(result);
+            } else {
+                this.geoPackage.deleteTable(tableName);
+                callback.onLoadTilesCancelled();
+            }
         } catch (final Exception e) {
             Log.e(LoadTilesTask.class.getSimpleName(), e.getMessage(), e);
         } finally {

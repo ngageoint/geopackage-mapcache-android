@@ -15,12 +15,12 @@ public class UserLoggerInner {
     /**
      * Unique string identifying map cache saved accounts.
      */
-    private static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache";
+    private final static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache";
 
     /**
      * The applications activity.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Contains what the user entered for their username and password if we needed to prompt them.
@@ -106,7 +106,7 @@ public class UserLoggerInner {
     private void askUser(String host) {
         UserPassDialog dialog = new UserPassDialog(this.activity, host);
         model = dialog.getModel();
-        model.addObserver((model, property) -> onUpdate(model, property));
+        model.addObserver(this::onUpdate);
         dialog.show();
     }
 

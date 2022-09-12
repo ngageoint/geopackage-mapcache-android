@@ -620,7 +620,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private View coordTextCard;
 
     /**
-     * Floating Action Button for creating geopackages
+     * Floating Action Button for creating geoPackages
      */
     private FloatingActionButton fab;
 
@@ -630,7 +630,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private FloatingActionButton layerFab;
 
     /**
-     * Task for importing a geopackage
+     * Task for importing a geoPackage
      */
     private ImportTask importTask;
 
@@ -661,7 +661,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private ShareTask shareTask;
 
     /**
-     * Controls user selected basemaps.
+     * Controls user selected base maps.
      */
     private BasemapApplier basemapApplier;
 
@@ -742,7 +742,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // Set listeners for icons on map
         setIconListeners();
 
-        // Set up loaciton provider
+        // Set up location provider
         if (getContext() != null) {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
         }
@@ -770,7 +770,7 @@ public class GeoPackageMapFragment extends Fragment implements
         // NOTE: This view is invisible by default
         transBox = getLayoutInflater().inflate(R.layout.transparent_box_view, null);
 
-        // Create a sharetask to handle sharing to other apps or saving to disk
+        // Create a ShareTask to handle sharing to other apps or saving to disk
         shareTask = new ShareTask(getActivity());
 
         // Set up activity launchers registered for results
@@ -793,14 +793,14 @@ public class GeoPackageMapFragment extends Fragment implements
      * (replaces startActivityForResult)
      */
     private void setupLaunchers() {
-        // Import a geopackage from file
+        // Import a geoPackage from file
         importGeoPackageActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 (ActivityResult result) -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         Intent data = result.getData();
                         if (data != null) {
-                            // Import geopackage from file
+                            // Import geoPackage from file
                             ImportTask task = new ImportTask(getActivity(), data);
                             task.importFile();
                         }
@@ -864,7 +864,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * Sets the main RecyclerView to show the details for a selected layer from the GeoPackage
      * detail page
      *
-     * @param layerAdapter - A prepopulated adapter to populate with a layer's detail
+     * @param layerAdapter - A pre-populated adapter to populate with a layer's detail
      */
     private void populateRecyclerWithLayerDetail(LayerPageAdapter layerAdapter) {
         layerFab.hide();
@@ -889,7 +889,7 @@ public class GeoPackageMapFragment extends Fragment implements
         populateRecyclerWithGeoPackages();
 
 
-        // Listener for swiping a geopackage to the right to enable/disable all layers
+        // Listener for swiping a geoPackage to the right to enable/disable all layers
         EnableAllLayersListener gpSwipeListener = (boolean active, GeoPackageDatabase db) ->
                 geoPackageViewModel.setAllLayersActive(active, db);
 
@@ -908,7 +908,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void subscribeGeoPackageRecycler() {
         // Observe list of GeoPackages
         geoPackageViewModel.getGeos().observe(getViewLifecycleOwner(), newGeos -> {
-            // Set the visibility of the 'no geopackages found' message
+            // Set the visibility of the 'no geoPackages found' message
             setListVisibility(newGeos.getDatabases().isEmpty());
             // If not empty, repopulate the list
             geoPackageRecyclerAdapter.clear();
@@ -994,7 +994,7 @@ public class GeoPackageMapFragment extends Fragment implements
             View.OnClickListener detailBackListener = (View view) -> populateRecyclerWithGeoPackages();
 
             // Generate a list to pass to the adapter.  Should contain:
-            // - A heaader: DetailPageHeaderObject
+            // - A header: DetailPageHeaderObject
             // - N number of DetailPageLayerObject objects generated from the GeoPackageDatabase object
             DetailPageHeaderObject detailHeader = new DetailPageHeaderObject(db);
             List<Object> detailList = new ArrayList<>();
@@ -1110,7 +1110,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Implement OnDialogButtonClickListener Rename button confirm click
-     * Rename a GeoPackage and recreate the detailview adapter to make it refresh
+     * Rename a GeoPackage and recreate the detail view adapter to make it refresh
      *
      * @param oldName - GeoPackage original name
      * @param newName - New GeoPackage name
@@ -1161,7 +1161,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Implement OnDialogButtonClickListener Copy button confirm click
-     * Copy a GeoPackage in the repository and replace the recyclerview with the geopackages list
+     * Copy a GeoPackage in the repository and replace the recyclerview with the geoPackages list
      *
      * @param gpName - GeoPackage name
      */
@@ -1225,7 +1225,7 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     * Ask the viewmodel to rename a layer in the given geopackage
+     * Ask the view model to rename a layer in the given geopackage
      */
     public void onRenameLayer(String gpName, String layerName, String newLayerName) {
         // First remove it from the active layers
@@ -1245,7 +1245,7 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     * Ask the viewmodel to copy a layer in a given geopackage
+     * Ask the view model to copy a layer in a given geopackage
      */
     public void onCopyLayer(String gpName, String oldLayer, String newLayerName) {
         Log.i("click", "Copy Layer");
@@ -1265,7 +1265,7 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     * Ask the viewmodel to create a new layer feature column
+     * Ask the view model to create a new layer feature column
      */
     public void onAddFeatureField(String gpName, String layerName, String fieldName,
                                   GeoPackageDataType type) {
@@ -1287,7 +1287,7 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     * Remove a Feature Column from a layer via the viewmodel
+     * Remove a Feature Column from a layer via the view model
      */
     public void onDeleteFeatureColumn(String gpName, String layerName, String columnName) {
         try {
@@ -1362,7 +1362,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * Pop up menu for editing geoapackage - drawing features, bounding box, etc
+     * Pop up menu for editing geoPackage - drawing features, bounding box, etc
      */
     public void openEditMenu() {
         if (getActivity() != null) {
@@ -1624,7 +1624,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
 
     /**
-     * Sets the visibility of the recycler view vs "no geopackages found" message bases on the
+     * Sets the visibility of the recycler view vs "no geoPackages found" message bases on the
      * recycler view being empty
      */
     private void setListVisibility(boolean empty) {
@@ -2025,7 +2025,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Make sure we have permissions to read/write to external before importing.  The result will
      * send MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL or MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE
-     * back up to mainactivity, and should call importGeopackageFromFile or exportGeoPackageToExternal
+     * back up to main activity, and should call importGeopackageFromFile or exportGeoPackageToExternal
      */
     private void getImportPermissions(int returnCode) {
         if (getActivity() != null) {
@@ -2137,7 +2137,7 @@ public class GeoPackageMapFragment extends Fragment implements
             };
             inputUrl.addTextChangedListener(inputUrlWatcher);
 
-            // Example Geopackages link handler
+            // Example GeoPackages link handler
             importUrlView.findViewById(R.id.import_examples)
                     .setOnClickListener((View v) -> {
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(
@@ -2690,7 +2690,7 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     /**
-     * Get the feature marker options to edit polylines and polygons
+     * Get the feature marker options to edit poly lines and polygons
      *
      * @return The edit feature shape marker.
      */
@@ -3608,7 +3608,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Add features to the map
      *
-     * @param task               udpate features task
+     * @param task               update features task
      * @param maxFeatures        max features
      * @param mapViewBoundingBox map view bounding box
      * @param toleranceDistance  tolerance distance
@@ -3911,7 +3911,7 @@ public class GeoPackageMapFragment extends Fragment implements
          * @param count             The current total count of features.
          * @param maxFeatures       The maximum features to display on the map.
          * @param editable          True if the feature should look editable on the map.
-         * @param converter         Convertes the feature's shape to one to use on the map.
+         * @param converter         Converts the feature's shape to one to use on the map.
          * @param styleCache        The style cache.
          * @param filterBoundingBox The bounding box to use for filtering.
          * @param maxLongitude      The maximum longitude.
@@ -3952,7 +3952,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * @param task         The map update task.
      * @param database     The geopackage name the feature row belongs too.
      * @param featureDao   The feature data access object.
-     * @param converter    Converts the feature shap to one that can be used on a google map.
+     * @param converter    Converts the feature shape to one that can be used on a google map.
      * @param styleCache   The style cache.
      * @param row          The row to process.
      * @param count        The current feature count displayed on map.
@@ -5081,7 +5081,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Handle clicks on point markers
             MarkerFeature markerFeature = markerIds.get(markerId);
             if (markerFeature != null) {
-                infoFeatureClick(marker, markerFeature);
+                infoFeatureClick(markerFeature);
                 return true;
             }
         }
@@ -5245,9 +5245,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             validateAndClearEditFeatures(EditType.EDIT_FEATURE);
                             break;
                         case 2:
-                            deleteExistingFeatureOption(title, editFeaturesDatabase,
-                                    editFeaturesTable, featureRow, marker,
-                                    geometryType);
+                            deleteExistingFeatureOption(title, featureRow, marker, geometryType);
                             break;
                         default:
                     }
@@ -5278,10 +5276,9 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Info feature click
      *
-     * @param marker        The marker that was clicked.
      * @param markerFeature The feature of the marker.
      */
-    private void infoFeatureClick(final Marker marker, MarkerFeature markerFeature) {
+    private void infoFeatureClick(MarkerFeature markerFeature) {
         Intent intent = new Intent(getContext(), FeatureViewActivity.class);
         intent.putExtra(String.valueOf(R.string.marker_feature_param), markerFeature);
         startActivity(intent);
@@ -5290,10 +5287,10 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Info existing feature option
      *
-     * @param geoPackage
-     * @param featureRow
-     * @param title
-     * @param geomData
+     * @param geoPackage The geoPackage.
+     * @param featureRow The feature row.
+     * @param title      The title for the pop up.
+     * @param geomData   The geometry info.
      */
     private void infoExistingFeatureOption(final GeoPackage geoPackage,
                                            FeatureRow featureRow,
@@ -5347,55 +5344,46 @@ public class GeoPackageMapFragment extends Fragment implements
         message.append(GeometryPrinter.getGeometryString(geomData
                 .getGeometry()));
 
-        AlertDialog viewDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setTitle(title)
-                .setPositiveButton(getString(R.string.button_ok_label),
-
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        }).setMessage(message).create();
-        viewDialog.show();
+        if (getActivity() != null) {
+            AlertDialog viewDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setTitle(title)
+                    .setPositiveButton(getString(R.string.button_ok_label), (dialog, which) -> dialog.dismiss())
+                    .setMessage(message).create();
+            viewDialog.show();
+        }
     }
 
     /**
      * Delete existing feature options
      *
-     * @param title
-     * @param database
-     * @param table
-     * @param featureRow
-     * @param marker
-     * @param geometryType
+     * @param title        The title for the pop up.
+     * @param featureRow   The feature row.
+     * @param marker       The marker.
+     * @param geometryType The geometry type.
      */
     private void deleteExistingFeatureOption(final String title,
-                                             final String database, final String table,
                                              final FeatureRow featureRow, final Marker marker,
                                              final GeometryType geometryType) {
 
-        final LatLng position = marker.getPosition();
+        if (getActivity() != null) {
+            final LatLng position = marker.getPosition();
 
-        AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                .setCancelable(false)
-                .setTitle(
-                        getString(R.string.edit_features_delete_label) + " "
-                                + title)
-                .setMessage(
-                        getString(R.string.edit_features_delete_label) + " "
-                                + geometryType.getName() + " from "
-                                + editFeaturesDatabase + " - "
-                                + editFeaturesTable + " (lat="
-                                + position.latitude + ", lon="
-                                + position.longitude + ") ?")
-                .setPositiveButton(
-                        getString(R.string.edit_features_delete_label),
+            AlertDialog deleteDialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setCancelable(false)
+                    .setTitle(
+                            getString(R.string.edit_features_delete_label) + " "
+                                    + title)
+                    .setMessage(
+                            getString(R.string.edit_features_delete_label) + " "
+                                    + geometryType.getName() + " from "
+                                    + editFeaturesDatabase + " - "
+                                    + editFeaturesTable + " (lat="
+                                    + position.latitude + ", lon="
+                                    + position.longitude + ") ?")
+                    .setPositiveButton(
+                            getString(R.string.edit_features_delete_label),
 
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
+                            (dialog, which) -> {
                                 GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(editFeaturesDatabase);
                                 try {
 
@@ -5434,18 +5422,11 @@ public class GeoPackageMapFragment extends Fragment implements
                                                         e.getMessage());
                                     }
                                 }
-                            }
-                        })
+                            })
 
-                .setNegativeButton(getString(R.string.button_cancel_label),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                dialog.dismiss();
-                            }
-                        }).create();
-        deleteDialog.show();
+                    .setNegativeButton(getString(R.string.button_cancel_label), (dialog, which) -> dialog.dismiss()).create();
+            deleteDialog.show();
+        }
     }
 
     /**
@@ -5479,8 +5460,8 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the last change date of the contents
      *
-     * @param geoPackage
-     * @param featureDao
+     * @param geoPackage The geoPackage.
+     * @param featureDao The feature data access object.
      */
     private static void updateLastChange(GeoPackage geoPackage, FeatureDao featureDao) {
         try {
@@ -5498,12 +5479,12 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get a list of the polygon points for the bounding box
      *
-     * @param point1
-     * @param point2
-     * @return
+     * @param point1 The first point.
+     * @param point2 The second point.
+     * @return The bounding box corners.
      */
     private List<LatLng> getPolygonPoints(LatLng point1, LatLng point2) {
-        List<LatLng> points = new ArrayList<LatLng>();
+        List<LatLng> points = new ArrayList<>();
         points.add(new LatLng(point1.latitude, point1.longitude));
         points.add(new LatLng(point1.latitude, point2.longitude));
         points.add(new LatLng(point2.latitude, point2.longitude));
@@ -5554,84 +5535,89 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Get feature selection dialog
      *
-     * @param editFeaturesSelectionView
-     * @param featuresInput
-     * @param geoPackageInput
-     * @return
+     * @param editFeaturesSelectionView The view.
+     * @param featuresInput             The features input spinner.
+     * @param geoPackageInput           The geoPackage input spinner.
+     * @return The dialog builder.
      */
     private AlertDialog.Builder getFeatureSelectionDialog(View editFeaturesSelectionView,
                                                           final Spinner geoPackageInput,
                                                           final Spinner featuresInput) {
 
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-        dialog.setView(editFeaturesSelectionView);
+        AlertDialog.Builder dialog = null;
 
-        boolean searchForActive = true;
-        int defaultDatabase = 0;
-        int defaultTable = 0;
+        if(getActivity() != null) {
+            dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
+            dialog.setView(editFeaturesSelectionView);
 
-        List<String> databases = geoPackageViewModel.getDatabases();
-        List<String> featureDatabases = new ArrayList<String>();
-        if (databases != null) {
-            for (String database : databases) {
-                GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(database);
-                List<String> featureTables = geoPackage.getFeatureTables();
-                if (!featureTables.isEmpty()) {
-                    featureDatabases.add(database);
+            boolean searchForActive = true;
+            int defaultDatabase = 0;
+            int defaultTable = 0;
 
-                    if (searchForActive) {
-                        for (int i = 0; i < featureTables.size(); i++) {
-                            String featureTable = featureTables.get(i);
-                            boolean isActive = model.getActive().exists(database, featureTable, GeoPackageTableType.FEATURE);
-                            if (isActive) {
-                                defaultDatabase = featureDatabases.size() - 1;
-                                defaultTable = i;
-                                searchForActive = false;
-                                break;
+            List<String> databases = geoPackageViewModel.getDatabases();
+            List<String> featureDatabases = new ArrayList<>();
+            if (databases != null) {
+                for (String database : databases) {
+                    GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(database);
+                    List<String> featureTables = geoPackage.getFeatureTables();
+                    if (!featureTables.isEmpty()) {
+                        featureDatabases.add(database);
+
+                        if (searchForActive) {
+                            for (int i = 0; i < featureTables.size(); i++) {
+                                String featureTable = featureTables.get(i);
+                                boolean isActive = model.getActive().exists(database, featureTable, GeoPackageTableType.FEATURE);
+                                if (isActive) {
+                                    defaultDatabase = featureDatabases.size() - 1;
+                                    defaultTable = i;
+                                    searchForActive = false;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        if (featureDatabases.isEmpty()) {
-            GeoPackageUtils.showMessage(getActivity(),
-                    getString(R.string.edit_features_selection_features_label),
-                    "No GeoPackages with features");
-            return null;
-        }
-        ArrayAdapter<String> geoPackageAdapter = new ArrayAdapter<String>(
-                getActivity(), R.layout.spinner_item,
-                featureDatabases);
-        geoPackageInput.setAdapter(geoPackageAdapter);
+            if (featureDatabases.isEmpty()) {
+                GeoPackageUtils.showMessage(getActivity(),
+                        getString(R.string.edit_features_selection_features_label),
+                        "No GeoPackages with features");
+                return null;
+            }
+            ArrayAdapter<String> geoPackageAdapter = new ArrayAdapter<>(
+                    getActivity(), R.layout.spinner_item,
+                    featureDatabases);
+            geoPackageInput.setAdapter(geoPackageAdapter);
 
-        updateFeaturesSelection(featuresInput, featureDatabases.get(defaultDatabase));
+            updateFeaturesSelection(featuresInput, featureDatabases.get(defaultDatabase));
 
-        geoPackageInput.setSelection(defaultDatabase);
-        featuresInput.setSelection(defaultTable);
+            geoPackageInput.setSelection(defaultDatabase);
+            featuresInput.setSelection(defaultTable);
 
-        geoPackageInput
-                .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            geoPackageInput
+                    .setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-                    boolean firstTime = true;
+                        boolean firstTime = true;
 
-                    @Override
-                    public void onItemSelected(AdapterView<?> parentView,
-                                               View selectedItemView, int position, long id) {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parentView,
+                                                   View selectedItemView, int position, long id) {
 
-                        if (firstTime) {
-                            firstTime = false;
-                        } else {
-                            String geoPackage = geoPackageInput.getSelectedItem()
-                                    .toString();
-                            updateFeaturesSelection(featuresInput, geoPackage);
+                            if (firstTime) {
+                                firstTime = false;
+                            } else {
+                                String geoPackage = geoPackageInput.getSelectedItem()
+                                        .toString();
+                                updateFeaturesSelection(featuresInput, geoPackage);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parentView) {
-                    }
-                });
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parentView) {
+                        }
+                    });
+
+        }
 
         return dialog;
     }
@@ -5649,7 +5635,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onLoadTilesPostExecute(String result) {
-        if (result != null) {
+        if (result != null && getActivity() != null) {
             getActivity().runOnUiThread(() ->
                     GeoPackageUtils.showMessage(getActivity(),
                             getString(R.string.geopackage_create_tiles_label), result));

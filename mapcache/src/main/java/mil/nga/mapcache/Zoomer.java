@@ -181,7 +181,7 @@ public class Zoomer {
 
                         try {
                             TileMatrixSet tileMatrixSet = tileMatrixSetDao.queryForId(tileTable.getName());
-                            BoundingBox tileMatrixSetBoundingBox = tileMatrixSet.getBoundingBox();
+                            BoundingBox tileMatrixSetBoundingBox = tileMatrixSet.getContents().getBoundingBox();
 
                             tileMatrixSetBoundingBox = ProjUtils.getInstance()
                                     .transformBoundingBoxToWgs84(

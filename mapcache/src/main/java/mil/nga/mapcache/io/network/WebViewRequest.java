@@ -145,11 +145,13 @@ public class WebViewRequest implements Observer {
         if (isDebug) {
             Log.d(WebViewRequest.class.getSimpleName(), "Showing web page " + this.urlString);
         }
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
 
-        alertBuilder.setView(this.webView);
+        if(this.webView.getParent() == null) {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
+            alertBuilder.setView(this.webView);
+            alert = alertBuilder.create();
+        }
 
-        alert = alertBuilder.create();
         alert.show();
         isShown = true;
     }

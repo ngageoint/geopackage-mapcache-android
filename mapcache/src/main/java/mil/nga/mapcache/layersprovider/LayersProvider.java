@@ -121,6 +121,11 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
         Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed for " + url + ": ", exception);
     }
 
+    @Override
+    public boolean notCancelled() {
+        return !this.isCancelled;
+    }
+
     /**
      * Recursively gets the layer's and their info.
      *

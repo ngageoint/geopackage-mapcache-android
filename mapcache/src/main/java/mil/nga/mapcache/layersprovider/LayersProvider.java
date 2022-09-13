@@ -31,7 +31,7 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
     /**
      * The activity used to get back on the main thread.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * The server url.
@@ -41,7 +41,12 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
     /**
      * The model to populate with layer information.
      */
-    private LayersModel model;
+    private final LayersModel model;
+
+    /**
+     * True if the retrieve layers step was cancelled by the user.
+     */
+    private boolean isCancelled = false;
 
     /**
      * Constructs a new layer provider.
@@ -71,57 +76,48 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
         }
     }
 
+    /**
+     * Cancels the retrieving of the layers.
+     */
+    public void cancel() {
+        isCancelled = true;
+    }
+
     @Override
     public void handleResponse(InputStream stream, int responseCode) {
-        if (stream != null && responseCode == HttpURLConnection.HTTP_OK) {
-            CapabilitiesParser parser = new CapabilitiesParser();
-            try {
-                final WMSCapabilities capabilities = parser.parse(stream);
-                List<LayerModel> allLayers = new ArrayList<>();
-                Stack<Layer> parents = new Stack<>();
-                for (Layer layer : capabilities.getCapability().getLayer()) {
-                    getLayers(allLayers, layer, parents);
-                }
-                final LayerModel[] allLayersArray = allLayers.toArray(new LayerModel[allLayers.size()]);
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+        if (!isCancelled) {
+            if (stream != null && responseCode == HttpURLConnection.HTTP_OK) {
+                CapabilitiesParser parser = new CapabilitiesParser();
+                try {
+                    final WMSCapabilities capabilities = parser.parse(stream);
+                    List<LayerModel> allLayers = new ArrayList<>();
+                    Stack<Layer> parents = new Stack<>();
+                    for (Layer layer : capabilities.getCapability().getLayer()) {
+                        getLayers(allLayers, layer, parents);
+                    }
+                    final LayerModel[] allLayersArray = allLayers.toArray(new LayerModel[0]);
+                    activity.runOnUiThread(() -> {
                         model.setImageFormats(capabilities.getCapability().getRequest().getGetMap()
                                 .getFormat().toArray(new String[0]));
                         model.setLayers(allLayersArray);
-                    }
-                });
-            } catch (ParserConfigurationException | SAXException | IOException e) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        model.setLayers(new LayerModel[0]);
-                    }
-                });
-                Log.e(LayersProvider.class.getSimpleName(),
-                        "Unable to parse WMS GetCapabilities document for " + this.url, e);
-            }
-        } else {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    model.setLayers(new LayerModel[0]);
+                    });
+                } catch (ParserConfigurationException | SAXException | IOException e) {
+                    activity.runOnUiThread(() -> model.setLayers(new LayerModel[0]));
+                    Log.e(LayersProvider.class.getSimpleName(),
+                            "Unable to parse WMS GetCapabilities document for " + this.url, e);
                 }
-            });
-            Log.e(
-                    LayersProvider.class.getSimpleName(),
-                    "Unable to download WMS GetCapabilities document from " + url + " http response " + responseCode);
+            } else {
+                activity.runOnUiThread(() -> model.setLayers(new LayerModel[0]));
+                Log.e(
+                        LayersProvider.class.getSimpleName(),
+                        "Unable to download WMS GetCapabilities document from " + url + " http response " + responseCode);
+            }
         }
     }
 
     @Override
     public void handleException(IOException exception) {
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                model.setLayers(new LayerModel[0]);
-            }
-        });
+        activity.runOnUiThread(() -> model.setLayers(new LayerModel[0]));
         Log.e(LayersProvider.class.getSimpleName(), "WMS GetCapabilities failed for " + url + ": ", exception);
     }
 
@@ -137,8 +133,10 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
             LayerModel model = new LayerModel();
             String title = parents.get(0).getTitle();
             String description = "";
+            StringBuilder descriptionBuilder = new StringBuilder();
             for (int i = 1; i < parents.size(); i++) {
-                description += parents.get(i).getTitle() + " ";
+                descriptionBuilder.append(parents.get(i).getTitle());
+                descriptionBuilder.append(" ");
             }
             description += layer.getTitle();
             model.setName(layer.getName());
@@ -150,7 +148,7 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
             for (String crs : layer.getCRS()) {
                 String[] splitCRS = crs.split(":");
                 try {
-                    epsgs[index] = Long.valueOf(splitCRS[splitCRS.length - 1]);
+                    epsgs[index] = Long.parseLong(splitCRS[splitCRS.length - 1]);
                 } catch (NumberFormatException e) {
                     Log.e(
                             LayersProvider.class.getSimpleName(),

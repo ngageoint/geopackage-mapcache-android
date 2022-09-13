@@ -110,6 +110,11 @@ public class NewTileLayerUI implements Observer {
     private ProgressDialog progressDialog;
 
     /**
+     * Retrieves all the layers from a given server.
+     */
+    private LayersProvider provider;
+
+    /**
      * Constructor
      *
      * @param geoPackageRecycler RecyclerView that will hold our GeoPackages.
@@ -242,7 +247,7 @@ public class NewTileLayerUI implements Observer {
                 LayersModel layers = new LayersModel();
                 layers.addObserver(NewTileLayerUI.this);
                 showSpinningDialog();
-                LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
+                provider = new LayersProvider(fragment.getActivity(), layers);
                 provider.retrieveLayers(model.getUrl());
             }
         });
@@ -313,7 +318,21 @@ public class NewTileLayerUI implements Observer {
         progressDialog.setTitle("Retrieving Layers");
         progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(true);
+        progressDialog.setButton(
+                DialogInterface.BUTTON_NEGATIVE,
+                "Cancel",
+                (dialog, which) -> this.cancelRetrieveLayers());
         progressDialog.show();
+    }
+
+    /**
+     * Cancels Retrieving layers.
+     */
+    private void cancelRetrieveLayers() {
+        if(provider != null) {
+            this.provider.cancel();
+        }
+        this.progressDialog.dismiss();
     }
 
     /**

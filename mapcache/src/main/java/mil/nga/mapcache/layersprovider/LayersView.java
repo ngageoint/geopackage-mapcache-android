@@ -3,12 +3,9 @@ package mil.nga.mapcache.layersprovider;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AlertDialog;
 
 import mil.nga.mapcache.R;
 
@@ -20,17 +17,17 @@ public abstract class LayersView {
     /**
      * The application context.
      */
-    private Context context;
+    private final Context context;
 
     /**
      * Contains the layers to select from.
      */
-    private LayersModel model;
+    private final LayersModel model;
 
     /**
      * Used as a custom adapter for the list view.
      */
-    private LayersList adapter;
+    private final LayersList adapter;
 
     /**
      * The android view.
@@ -67,14 +64,10 @@ public abstract class LayersView {
         title.setText(model.getTitle());
 
 
-
-        layersView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LayerModel layer = model.getLayers()[i];
-                LayerModel[] layers = {layer};
-                model.setSelectedLayers(layers);
-            }
+        layersView.setOnItemClickListener((adapterView, view, i, l) -> {
+            LayerModel layer = model.getLayers()[i];
+            LayerModel[] layers = {layer};
+            model.setSelectedLayers(layers);
         });
 
         closeLogo = (ImageView) view.findViewById(R.id.new_layer_close_logo);
@@ -82,6 +75,7 @@ public abstract class LayersView {
 
     /**
      * Gets the application context.
+     *
      * @return The application context.
      */
     protected Context getContext() {
@@ -90,6 +84,7 @@ public abstract class LayersView {
 
     /**
      * Gets the main view.
+     *
      * @return The layers pick view.
      */
     protected View getView() {
@@ -98,6 +93,7 @@ public abstract class LayersView {
 
     /**
      * Gets the close x button in top left.
+     *
      * @return The close button.
      */
     protected ImageView getCloseLogo() {

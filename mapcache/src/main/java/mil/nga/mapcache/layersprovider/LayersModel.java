@@ -131,7 +131,7 @@ public class LayersModel extends Observable {
     /**
      * Sets the available image formats for the layers tiles.
      *
-     * @param imageFormats The availabel image formats.
+     * @param imageFormats The available image formats.
      */
     public void setImageFormats(String[] imageFormats) {
         this.imageFormats = imageFormats;
@@ -156,6 +156,6 @@ public class LayersModel extends Observable {
     public void setTitle(String title) {
         this.title = title;
         setChanged();
-        notifyObservers();
+        notifyObservers(TITLE_PROP);
     }
 }

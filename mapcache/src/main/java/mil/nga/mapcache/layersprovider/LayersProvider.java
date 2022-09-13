@@ -137,16 +137,15 @@ public class LayersProvider implements IResponseHandler, RequestHeaderConsumer {
         if (!layer.getName().isEmpty()) {
             LayerModel model = new LayerModel();
             String title = parents.get(0).getTitle();
-            String description = "";
             StringBuilder descriptionBuilder = new StringBuilder();
             for (int i = 1; i < parents.size(); i++) {
                 descriptionBuilder.append(parents.get(i).getTitle());
                 descriptionBuilder.append(" ");
             }
-            description += layer.getTitle();
+            descriptionBuilder.append(layer.getTitle());
             model.setName(layer.getName());
             model.setTitle(title);
-            model.setDescription(description);
+            model.setDescription(descriptionBuilder.toString());
 
             int index = 0;
             long[] epsgs = new long[layer.getCRS().size()];

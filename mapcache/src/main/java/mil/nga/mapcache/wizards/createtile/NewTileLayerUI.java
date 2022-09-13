@@ -176,7 +176,7 @@ public class NewTileLayerUI implements Observer {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(inputName.getText() != null) {
+                if (inputName.getText() != null) {
                     String givenName = inputName.getText().toString();
                     model.setLayerName(givenName);
                 }
@@ -200,7 +200,7 @@ public class NewTileLayerUI implements Observer {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(inputUrl.getText() != null) {
+                if (inputUrl.getText() != null) {
                     String givenUrl = inputUrl.getText().toString();
                     model.setUrl(givenUrl);
                 }
@@ -329,10 +329,12 @@ public class NewTileLayerUI implements Observer {
      * Cancels Retrieving layers.
      */
     private void cancelRetrieveLayers() {
-        if(provider != null) {
+        if (provider != null) {
             this.provider.cancel();
         }
-        this.progressDialog.dismiss();
+        if (progressDialog != null) {
+            this.progressDialog.dismiss();
+        }
     }
 
     /**

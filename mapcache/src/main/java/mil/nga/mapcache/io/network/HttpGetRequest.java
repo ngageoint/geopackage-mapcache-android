@@ -164,6 +164,11 @@ public class HttpGetRequest implements Runnable, Authenticator {
         return authorized;
     }
 
+    @Override
+    public boolean shouldSaveAccount() {
+        return true;
+    }
+
     /**
      * Adds basic auth to the connection.
      *

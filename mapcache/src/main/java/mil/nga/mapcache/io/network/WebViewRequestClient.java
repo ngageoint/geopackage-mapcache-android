@@ -7,6 +7,8 @@ import android.webkit.WebView;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Observable;
+import java.util.Observer;
 
 import mil.nga.mapcache.auth.Authenticator;
 import mil.nga.mapcache.auth.UserLoggerInner;
@@ -15,7 +17,7 @@ import mil.nga.mapcache.utils.ThreadUtils;
 /**
  * Launches a WebView to allow the user to login to a specified url.
  */
-public class WebViewRequestClient extends android.webkit.WebViewClient implements Authenticator {
+public class WebViewRequestClient extends android.webkit.WebViewClient implements Authenticator, Observer {
 
     /**
      * Debug logging flag.
@@ -43,6 +45,16 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
     private URL url = null;
 
     /**
+     * Pops up a dialog asking user for username and password.
+     */
+    private UserLoggerInner loggerInner;
+
+    /**
+     * Indicates if the users account needs to be saved to phone.
+     */
+    private boolean accountNeedsSaving = false;
+
+    /**
      * Constructor.
      *
      * @param activity The activity this was launched from.
@@ -51,6 +63,7 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
     public WebViewRequestClient(Activity activity, WebViewRequestModel model) {
         this.activity = activity;
         this.model = model;
+        this.model.addObserver(this);
     }
 
     @Override
@@ -59,7 +72,13 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
             Log.d(WebViewRequestClient.class.getSimpleName(), "Authenticate " + url);
         }
         this.currentHandler.proceed(userName, password);
+        accountNeedsSaving = true;
         return true;
+    }
+
+    @Override
+    public boolean shouldSaveAccount() {
+        return false;
     }
 
     @Override
@@ -87,7 +106,9 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
             Log.d(WebViewRequestClient.class.getSimpleName(), "On receive http auth request " + url);
         }
         ThreadUtils.getInstance().runBackground(() -> {
-            UserLoggerInner loggerInner = new UserLoggerInner(this.activity);
+            if(loggerInner == null) {
+                loggerInner = new UserLoggerInner(this.activity);
+            }
             loggerInner.login(this.url, this);
         });
     }
@@ -100,5 +121,15 @@ public class WebViewRequestClient extends android.webkit.WebViewClient implement
         view.loadUrl(url);
 
         return true;
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (WebViewRequestModel.CURRENT_CONTENT_PROP.equals(o)
+                && accountNeedsSaving
+                && loggerInner != null) {
+            loggerInner.saveLastAccount();
+            accountNeedsSaving = false;
+        }
     }
 }

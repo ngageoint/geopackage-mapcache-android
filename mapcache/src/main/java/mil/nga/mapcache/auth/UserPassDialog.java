@@ -17,12 +17,12 @@ public class UserPassDialog {
     /**
      * The applications activity.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * The model for the dialog.
      */
-    private UserPassModel model = new UserPassModel();
+    private final UserPassModel model = new UserPassModel();
 
     /**
      * Constructs a new username password dialog.
@@ -45,8 +45,8 @@ public class UserPassDialog {
         TextView password = (TextView) userPassView.findViewById(R.id.password);
         AlertDialog.Builder dialog = new AlertDialog.Builder(activity)
                 .setView(userPassView);
-        dialog.setNegativeButton("Cancel", (var1, var2) -> onCancelClicked(var1, var2));
-        dialog.setPositiveButton("Login", (var1, var2) -> onLoginClicked(var1, var2, username, password));
+        dialog.setNegativeButton("Cancel", this::onCancelClicked);
+        dialog.setPositiveButton("Login", (var1, var2) -> onLoginClicked(username, password));
         dialog.setTitle("Login To");
         dialog.setMessage(model.getLoginTo());
         dialog.create().show();
@@ -55,7 +55,7 @@ public class UserPassDialog {
     /**
      * Gets the login information.
      *
-     * @return
+     * @return The model containing the login info.
      */
     public UserPassModel getModel() {
         return model;
@@ -64,12 +64,10 @@ public class UserPassDialog {
     /**
      * Called when login is clicked.
      *
-     * @param dialog   The login dialog.
-     * @param var2     Button pressed state.
      * @param username The username text input.
      * @param password The password text input.
      */
-    private void onLoginClicked(DialogInterface dialog, int var2, TextView username, TextView password) {
+    private void onLoginClicked(TextView username, TextView password) {
         model.setUsername(username.getText().toString());
         model.setPassword(password.getText().toString());
     }

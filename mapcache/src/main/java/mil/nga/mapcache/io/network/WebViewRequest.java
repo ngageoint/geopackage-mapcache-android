@@ -119,7 +119,7 @@ public class WebViewRequest implements Observer {
             Log.d(WebViewRequest.class.getSimpleName(), e.getMessage(), e);
         }
 
-        if (!receivedResponse && !isCurrentPageALogin()) {
+        if (!receivedResponse && !isCurrentPageALogin() && this.handler.notCancelled()) {
             if (retryCount < 3) {
                 retryCount++;
                 Log.i(
@@ -145,11 +145,13 @@ public class WebViewRequest implements Observer {
         if (isDebug) {
             Log.d(WebViewRequest.class.getSimpleName(), "Showing web page " + this.urlString);
         }
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
 
-        alertBuilder.setView(this.webView);
+        if(this.webView.getParent() == null) {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this.activity);
+            alertBuilder.setView(this.webView);
+            alert = alertBuilder.create();
+        }
 
-        alert = alertBuilder.create();
         alert.show();
         isShown = true;
     }
@@ -161,7 +163,7 @@ public class WebViewRequest implements Observer {
             Log.d(WebViewRequest.class.getSimpleName(), "Current url " + this.model.getCurrentUrl());
             Log.d(WebViewRequest.class.getSimpleName(), "Current content " + this.model.getCurrentContent());
         }
-        if (WebViewRequestModel.CURRENT_URL_PROP.equals(o)) {
+        if (WebViewRequestModel.CURRENT_URL_PROP.equals(o) && handler.notCancelled()) {
             if (!isShown && isCurrentPageALogin()) {
                 // redirected to a login page so we need to show the WebView.
                 show();

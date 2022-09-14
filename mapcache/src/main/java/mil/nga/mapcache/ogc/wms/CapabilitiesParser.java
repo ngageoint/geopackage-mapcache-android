@@ -21,35 +21,35 @@ public class CapabilitiesParser extends DefaultHandler {
     /**
      * The name of the title element.
      */
-    private static String TITLE_ELEMENT = "Title";
+    private static final String TITLE_ELEMENT = "Title";
 
     /**
      * The name of the name element.
      */
-    private static String NAME_ELEMENT = "Name";
+    private static final String NAME_ELEMENT = "Name";
 
     /**
      * The name of the layer element.
      */
-    private static String LAYER_ELEMENT = "Layer";
+    private static final String LAYER_ELEMENT = "Layer";
 
     /**
      * The name of the GetMap element.
      */
-    private static String GETMAP_ELEMENT = "GetMap";
+    private static final String GET_MAP_ELEMENT = "GetMap";
 
     /**
      * The name of the GetMap Format element.
      */
-    private static String FORMAT_ELEMENT = "Format";
+    private static final String FORMAT_ELEMENT = "Format";
 
     /**
      * The name of the CRS element within the Layer element.
      */
-    private static String CRS_ELEMENT = "CRS";
+    private static final String CRS_ELEMENT = "CRS";
 
     /**
-     * The current WMSCapabilties being populated.
+     * The current WMSCapabilities being populated.
      */
     private WMSCapabilities current = null;
 
@@ -71,12 +71,12 @@ public class CapabilitiesParser extends DefaultHandler {
     /**
      * The current stack of all parent layers.
      */
-    private Stack<Layer> parentLayers = new Stack<>();
+    private final Stack<Layer> parentLayers = new Stack<>();
 
     /**
      * The parents elements we are currently parsing.
      */
-    private Stack<String> currentElements = new Stack<>();
+    private final Stack<String> currentElements = new Stack<>();
 
     /**
      * Parses the wms getCapabilities document and returns a new WMSCapabilities populated
@@ -99,16 +99,16 @@ public class CapabilitiesParser extends DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         super.characters(ch, start, length);
-        if (currentLayer != null) {
-            if (TITLE_ELEMENT.equals(currentElementName) && currentLayer.getTitle().isEmpty()) {
-                currentLayer.setTitle(new String(ch, start, length));
-            } else if (NAME_ELEMENT.equals(currentElementName) && currentLayer.getName().isEmpty()) {
-                currentLayer.setName(new String(ch, start, length));
+        if (currentLayer != null && LAYER_ELEMENT.equals(currentElements.lastElement())) {
+            if (TITLE_ELEMENT.equals(currentElementName)) {
+                currentLayer.setTitle(currentLayer.getTitle() + new String(ch, start, length));
+            } else if (NAME_ELEMENT.equals(currentElementName)) {
+                currentLayer.setName(currentLayer.getName() + new String(ch, start, length));
             }
         }
 
         if (FORMAT_ELEMENT.equals(currentElementName)) {
-            if (currentElements.lastElement().equals(GETMAP_ELEMENT)) {
+            if (currentElements.lastElement().equals(GET_MAP_ELEMENT)) {
                 current.getCapability().getRequest().getGetMap().getFormat().add(
                         new String(ch, start, length));
             }

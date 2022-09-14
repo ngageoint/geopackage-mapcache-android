@@ -29,14 +29,9 @@ public class WebViewImageExtractor implements WebViewExtractor {
     private Bitmap bitmap;
 
     /**
-     * The width of the web page.
+     * The x, y start locations and the width and height of the image within the page.
      */
-    private int width;
-
-    /**
-     * The height of the web page.
-     */
-    private int height;
+    private int[] offsetsWidthHeight;
 
     /**
      * Constructor.
@@ -53,8 +48,8 @@ public class WebViewImageExtractor implements WebViewExtractor {
 
         webView.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
                 MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        width = webView.getMeasuredWidth();
-        height = webView.getMeasuredHeight();
+        int width = webView.getMeasuredWidth();
+        int height = webView.getMeasuredHeight();
         webView.layout(0, 0, width, height);
         webView.setDrawingCacheEnabled(true);
         webView.buildDrawingCache();
@@ -71,6 +66,11 @@ public class WebViewImageExtractor implements WebViewExtractor {
             int halfX = width / 2;
             int pixel = bitmap.getPixel(halfX, halfY);
             isReady = isPixelNotEmpty(pixel);
+
+            if(isReady) {
+                offsetsWidthHeight = getOffsetsWidthHeight(bitmap, width, height);
+                isReady = offsetsWidthHeight[0] >= 0;
+            }
         }
 
         return isReady;
@@ -80,7 +80,6 @@ public class WebViewImageExtractor implements WebViewExtractor {
     public InputStream extractContent(String html) {
         InputStream is = null;
 
-        int[] offsetsWidthHeight = getOffsetsWidthHeight(bitmap, width, height);
         bitmap = Bitmap.createBitmap(
                 bitmap,
                 offsetsWidthHeight[0],

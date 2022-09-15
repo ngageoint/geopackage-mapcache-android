@@ -3,6 +3,11 @@ package mil.nga.mapcache.utils;
 import android.app.Activity;
 import android.os.Build;
 
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import mil.nga.geopackage.GeoPackageException;
 import mil.nga.mapcache.R;
 
 /**
@@ -97,6 +102,34 @@ public class HttpUtils {
         return activity.getString(R.string.app_name)
                 + " " + activity.getString(R.string.app_version)
                 + " Android " + Build.VERSION.RELEASE_OR_CODENAME;
+    }
+
+    /**
+     * Tests a connection to the given url
+     *
+     * @return True if we get a 200 response
+     */
+    public boolean isServerAvailable(String urlString){
+        boolean connected = false;
+        URL url;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            return connected;
+//            throw new GeoPackageException("bad url");
+        }
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                connected = true;
+            }
+        } catch (Exception e){
+            String exception = e.toString();
+        }
+        return connected;
     }
 
     /**

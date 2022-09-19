@@ -1,7 +1,6 @@
 package mil.nga.mapcache;
 
-import android.content.Context;
-import android.os.AsyncTask;
+import android.app.Activity;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -40,12 +39,12 @@ import mil.nga.sf.GeometryType;
 /**
  * Update the map features in the background
  */
-public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
+public class MapFeaturesUpdateTask implements Runnable {
 
     /**
      * The application context.
      */
-    private final Context context;
+    private final Activity activity;
 
     /**
      * The model used by the map.
@@ -63,63 +62,43 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
     private final GoogleMap map;
 
     /**
+     * Flag indicating if it was cancelled.
+     */
+    private boolean cancelled = false;
+
+    /**
+     * The maximum number of features.
+     */
+    private int maxFeatures;
+
+    /**
+     * The extent of the maps view.
+     */
+    private BoundingBox mapViewBoundingBox;
+
+    /**
+     * The tolerance to apply when filtering out features that are outside the maps view.
+     */
+    private double toleranceDistance;
+
+    /**
+     * Flag indicating if we should filter out records not in view.
+     */
+    private boolean filter;
+
+    /**
      * Constructor.
      *
-     * @param context             The application context.
+     * @param activity            The application activity.
      * @param map                 The map showing the geoPackages.
      * @param model               The model used by the map.
      * @param geoPackageViewModel Contains the geoPackages.
      */
-    public MapFeaturesUpdateTask(Context context, GoogleMap map, MapModel model, GeoPackageViewModel geoPackageViewModel) {
-        this.context = context;
+    public MapFeaturesUpdateTask(Activity activity, GoogleMap map, MapModel model, GeoPackageViewModel geoPackageViewModel) {
+        this.activity = activity;
         this.map = map;
         this.model = model;
         this.geoPackageViewModel = geoPackageViewModel;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected Integer doInBackground(Object... params) {
-        int maxFeatures = (Integer) params[1];
-        BoundingBox mapViewBoundingBox = (BoundingBox) params[2];
-        double toleranceDistance = (Double) params[3];
-        boolean filter = (Boolean) params[4];
-        return addFeatures(this, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onProgressUpdate(Object... shapeUpdate) {
-
-        long featureId = (Long) shapeUpdate[0];
-        String database = (String) shapeUpdate[1];
-        String tableName = (String) shapeUpdate[2];
-        GoogleMapShape shape = (GoogleMapShape) shapeUpdate[3];
-
-        synchronized (model.getFeatureShapes()) {
-
-            if (!model.getFeatureShapes().exists(featureId, database, tableName)) {
-
-                GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
-                        map, shape);
-
-                if (model.isEditFeaturesMode()) {
-                    Marker marker = ShapeHelper.getInstance().addEditableShape(
-                            context, map, model, featureId, mapShape);
-                    if (marker != null) {
-                        GoogleMapShape mapPointShape = new GoogleMapShape(GeometryType.POINT, GoogleMapShapeType.MARKER, marker);
-                        model.getFeatureShapes().addMapMetadataShape(mapPointShape, featureId, database, tableName);
-                    }
-                } else {
-                    addMarkerShape(featureId, database, tableName, mapShape);
-                }
-                model.getFeatureShapes().addMapShape(mapShape, featureId, database, tableName);
-            }
-        }
     }
 
     /**
@@ -131,20 +110,61 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
      * @param shape     The type of shape to add.
      */
     public void addToMap(long featureId, String database, String tableName, GoogleMapShape shape) {
-        publishProgress(featureId, database, tableName, shape);
+        this.activity.runOnUiThread(() -> {
+            synchronized (model.getFeatureShapes()) {
+
+                if (!model.getFeatureShapes().exists(featureId, database, tableName)) {
+
+                    GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
+                            map, shape);
+
+                    if (model.isEditFeaturesMode()) {
+                        Marker marker = ShapeHelper.getInstance().addEditableShape(
+                                activity, map, model, featureId, mapShape);
+                        if (marker != null) {
+                            GoogleMapShape mapPointShape = new GoogleMapShape(GeometryType.POINT, GoogleMapShapeType.MARKER, marker);
+                            model.getFeatureShapes().addMapMetadataShape(mapPointShape, featureId, database, tableName);
+                        }
+                    } else {
+                        addMarkerShape(featureId, database, tableName, mapShape);
+                    }
+                    model.getFeatureShapes().addMapShape(mapShape, featureId, database, tableName);
+                }
+            }
+        });
+    }
+
+    /**
+     * Cancels the task.
+     */
+    public void cancel() {
+        cancelled = true;
+    }
+
+    /**
+     * Performs this task on a background thread.
+     * @param maxFeatures The maximum number of features.
+     * @param mapViewBoundingBox The maps view extent.
+     * @param toleranceDistance The tolerance to apply when filtering out features that are outside the maps view.
+     * @param filter Flag indicating if we should filter out records not in view.
+     */
+    public void execute(int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
+        this.maxFeatures = maxFeatures;
+        this.mapViewBoundingBox = mapViewBoundingBox;
+        this.toleranceDistance = toleranceDistance;
+        this.filter = filter;
+        ThreadUtils.getInstance().runBackground(this);
     }
 
     /**
      * Add features to the map
      *
-     * @param task               update features task
      * @param maxFeatures        max features
      * @param mapViewBoundingBox map view bounding box
      * @param toleranceDistance  tolerance distance
      * @param filter             filter
-     * @return feature count
      */
-    private int addFeatures(MapFeaturesUpdateTask task, final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
+    private void addFeatures(final int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
         AtomicInteger count = new AtomicInteger();
 
@@ -192,16 +212,16 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
             if (databaseFeatureDaos != null) {
 
                 GeoPackage geoPackage = geoPackageViewModel.getGeoPackage(databaseName);
-                StyleCache styleCache = new StyleCache(geoPackage, context.getResources().getDisplayMetrics().density);
+                StyleCache styleCache = new StyleCache(geoPackage, activity.getResources().getDisplayMetrics().density);
 
                 for (String features : databaseFeatures) {
 
                     if (databaseFeatureDaos.containsKey(features)) {
 
-                        displayFeatures(task,
-                                geoPackage, styleCache, features, count,
-                                maxFeatures, model.isEditFeaturesMode(), mapViewBoundingBox, toleranceDistance, filter);
-                        if (task.isCancelled() || count.get() >= maxFeatures) {
+                        displayFeatures(geoPackage, styleCache, features, count,
+                                maxFeatures, model.isEditFeaturesMode(), mapViewBoundingBox,
+                                toleranceDistance, filter);
+                        if (cancelled || count.get() >= maxFeatures) {
                             break;
                         }
                     }
@@ -210,18 +230,15 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
                 styleCache.clear();
             }
 
-            if (task.isCancelled()) {
+            if (cancelled) {
                 break;
             }
         }
-
-        return Math.min(count.get(), maxFeatures);
     }
 
     /**
      * Display features
      *
-     * @param task               The update task.
      * @param geoPackage         The geopackage to display.
      * @param styleCache         the style cache.
      * @param features           The features.
@@ -232,7 +249,7 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
      * @param toleranceDistance  Used to simplify geometries for performance.
      * @param filter             True if features should be filtered.
      */
-    private void displayFeatures(MapFeaturesUpdateTask task, GeoPackage geoPackage, StyleCache styleCache, String features,
+    private void displayFeatures(GeoPackage geoPackage, StyleCache styleCache, String features,
                                  AtomicInteger count, final int maxFeatures, final boolean editable,
                                  BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
 
@@ -252,13 +269,13 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
 
                 count.getAndAdd(model.getFeatureShapes().getFeatureIdsCount(database, features));
 
-                if (!task.isCancelled() && count.get() < maxFeatures) {
+                if (!cancelled && count.get() < maxFeatures) {
 
                     mil.nga.proj.Projection mapViewProjection = ProjectionFactory.getProjection(ProjectionConstants.EPSG_WORLD_GEODETIC_SYSTEM);
 
                     String[] columns = featureDao.getIdAndGeometryColumnNames();
 
-                    FeatureIndexManager indexer = new FeatureIndexManager(context, geoPackage, featureDao);
+                    FeatureIndexManager indexer = new FeatureIndexManager(activity, geoPackage, featureDao);
                     if (filter && indexer.isIndexed()) {
 
                         FeatureIndexResults indexResults = indexer.query(columns, mapViewBoundingBox, mapViewProjection);
@@ -268,7 +285,7 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
                             indexResults = new MultipleFeatureIndexResults(indexResults, indexResults2);
                         }
 
-                        processFeatureIndexResults(task, indexResults, database, featureDao, converter, styleCache,
+                        processFeatureIndexResults(indexResults, database, featureDao, converter, styleCache,
                                 count, maxFeatures, editable);
 
                     } else {
@@ -291,16 +308,16 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
 
                         // Query for all rows
                         try (FeatureCursor cursor = featureDao.query(columns)) {
-                            while (!task.isCancelled() && count.get() < maxFeatures
+                            while (!cancelled && count.get() < maxFeatures
                                     && cursor.moveToNext()) {
                                 try {
                                     FeatureRow row = cursor.getRow();
 
                                     // Process the feature row in the thread pool
                                     FeatureRowProcessor processor = new FeatureRowProcessor(
-                                            task, database, featureDao, row, count, maxFeatures, editable, converter,
+                                            this, database, featureDao, row, count, maxFeatures, editable, converter,
                                             styleCache, filterBoundingBox, filterMaxLongitude,
-                                            filter, model, context);
+                                            filter, model, activity);
                                     ThreadUtils.getInstance().runBackground(processor);
                                 } catch (Exception e) {
                                     Log.e(GeoPackageMapFragment.class.getSimpleName(),
@@ -322,7 +339,6 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
     /**
      * Process the feature index results
      *
-     * @param task         The feature update task.
      * @param indexResults The index results.
      * @param database     The geoPackage to process features for.
      * @param featureDao   The feature data access object.
@@ -332,12 +348,12 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
      * @param maxFeatures  The maximum number of features we can add to the map.
      * @param editable     True if the feature added to the map should look editable.
      */
-    private void processFeatureIndexResults(MapFeaturesUpdateTask task, FeatureIndexResults indexResults, String database, FeatureDao featureDao,
+    private void processFeatureIndexResults(FeatureIndexResults indexResults, String database, FeatureDao featureDao,
                                             GoogleMapShapeConverter converter, StyleCache styleCache, AtomicInteger count, final int maxFeatures, final boolean editable) {
         try {
             for (FeatureRow row : indexResults) {
 
-                if (task.isCancelled() || count.get() >= maxFeatures) {
+                if (cancelled || count.get() >= maxFeatures) {
                     break;
                 }
 
@@ -345,8 +361,8 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
 
                     // Process the feature row in the thread pool
                     FeatureRowProcessor processor = new FeatureRowProcessor(
-                            task, database, featureDao, row, count, maxFeatures, editable, converter,
-                            styleCache, null, 0, true, model, context);
+                            this, database, featureDao, row, count, maxFeatures, editable, converter,
+                            styleCache, null, 0, true, model, activity);
                     ThreadUtils.getInstance().runBackground(processor);
 
                 } catch (Exception e) {
@@ -375,5 +391,10 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
             MarkerFeature markerFeature = new MarkerFeature(featureId, database, tableName);
             model.getMarkerIds().put(marker.getId(), markerFeature);
         }
+    }
+
+    @Override
+    public void run() {
+        addFeatures(maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
     }
 }

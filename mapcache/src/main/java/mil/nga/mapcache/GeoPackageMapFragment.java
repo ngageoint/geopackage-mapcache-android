@@ -2336,10 +2336,10 @@ public class GeoPackageMapFragment extends Fragment implements
             updateLock.lock();
             try {
                 if (updateFeaturesTask != null) {
-                    updateFeaturesTask.cancel(false);
+                    updateFeaturesTask.cancel();
                 }
-                updateFeaturesTask = new MapFeaturesUpdateTask(getContext(), map, model, geoPackageViewModel);
-                updateFeaturesTask.execute(false, maxFeatures, mapViewBoundingBox, toleranceDistance, true);
+                updateFeaturesTask = new MapFeaturesUpdateTask(getActivity(), map, model, geoPackageViewModel);
+                updateFeaturesTask.execute(maxFeatures, mapViewBoundingBox, toleranceDistance, true);
             } finally {
                 updateLock.unlock();
             }
@@ -2859,10 +2859,8 @@ public class GeoPackageMapFragment extends Fragment implements
                     updateTask = null;
                 }
                 if (updateFeaturesTask != null) {
-                    if (updateFeaturesTask.getStatus() != AsyncTask.Status.FINISHED) {
-                        updateFeaturesTask.cancel(false);
-                        model.getActive().setModified(true);
-                    }
+                    updateFeaturesTask.cancel();
+                    model.getActive().setModified(true);
                     updateFeaturesTask = null;
                 }
             } finally {
@@ -3322,7 +3320,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         updateTask.cancel(false);
                     }
                     if (updateFeaturesTask != null) {
-                        updateFeaturesTask.cancel(false);
+                        updateFeaturesTask.cancel();
                     }
                     updateTask = new MapUpdateTask();
                     localUpdateTask = updateTask;
@@ -3455,10 +3453,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 updateLock.lock();
                 try {
                     if (updateFeaturesTask != null) {
-                        updateFeaturesTask.cancel(false);
+                        updateFeaturesTask.cancel();
                     }
-                    updateFeaturesTask = new MapFeaturesUpdateTask(getContext(), map, model, geoPackageViewModel);
-                    updateFeaturesTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+                    updateFeaturesTask = new MapFeaturesUpdateTask(getActivity(), map, model, geoPackageViewModel);
+                    updateFeaturesTask.execute(maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
                 } finally {
                     updateLock.unlock();
                 }
@@ -4699,7 +4697,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         AlertDialog.Builder dialog = null;
 
-        if(getActivity() != null) {
+        if (getActivity() != null) {
             dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             dialog.setView(editFeaturesSelectionView);
 

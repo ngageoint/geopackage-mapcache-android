@@ -178,7 +178,7 @@ public class FeatureRowProcessor implements Runnable {
             exists = model.getFeatureShapes().exists(row.getId(), database, featureDao.getTableName());
         }
 
-        if (!exists) {
+        if (!exists && !task.isCancelled()) {
 
             try {
                 GeoPackageGeometryData geometryData = row.getGeometry();

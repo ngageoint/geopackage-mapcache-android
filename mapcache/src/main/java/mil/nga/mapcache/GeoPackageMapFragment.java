@@ -859,13 +859,10 @@ public class GeoPackageMapFragment extends Fragment implements
             }
 
             // Update the map
-            if (newTables.isEmpty()) {
-                if (map != null) {
+            if (map != null) {
+                updateInBackground(true);
+                if (newTables.isEmpty()) {
                     map.clear();
-                }
-            } else {
-                if (map != null) {
-                    updateInBackground(true);
                 }
             }
         });
@@ -3246,7 +3243,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map by kicking off a background task
      *
-     * @param zoom   zoom flag
+     * @param zoom zoom flag
      */
     private void updateInBackground(boolean zoom) {
         if (getActivity() != null) {

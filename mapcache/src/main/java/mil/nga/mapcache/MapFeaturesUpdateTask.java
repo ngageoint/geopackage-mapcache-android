@@ -113,7 +113,7 @@ public class MapFeaturesUpdateTask implements Runnable {
         this.activity.runOnUiThread(() -> {
             synchronized (model.getFeatureShapes()) {
 
-                if (!model.getFeatureShapes().exists(featureId, database, tableName)) {
+                if (!isCancelled() && !model.getFeatureShapes().exists(featureId, database, tableName)) {
 
                     GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
                             map, shape);
@@ -142,11 +142,21 @@ public class MapFeaturesUpdateTask implements Runnable {
     }
 
     /**
+     * Indicates if this task has been cancelled.
+     *
+     * @return True if its been cancelled false if not cancelled.
+     */
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    /**
      * Performs this task on a background thread.
-     * @param maxFeatures The maximum number of features.
+     *
+     * @param maxFeatures        The maximum number of features.
      * @param mapViewBoundingBox The maps view extent.
-     * @param toleranceDistance The tolerance to apply when filtering out features that are outside the maps view.
-     * @param filter Flag indicating if we should filter out records not in view.
+     * @param toleranceDistance  The tolerance to apply when filtering out features that are outside the maps view.
+     * @param filter             Flag indicating if we should filter out records not in view.
      */
     public void execute(int maxFeatures, BoundingBox mapViewBoundingBox, double toleranceDistance, boolean filter) {
         this.maxFeatures = maxFeatures;

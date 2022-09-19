@@ -1,12 +1,15 @@
 package mil.nga.mapcache;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.features.user.FeatureDao;
 import mil.nga.geopackage.map.geom.FeatureShapes;
 import mil.nga.geopackage.map.geom.GoogleMapShape;
+import mil.nga.geopackage.map.tiles.overlay.FeatureOverlayQuery;
 import mil.nga.mapcache.data.GeoPackageDatabases;
 import mil.nga.mapcache.data.MarkerFeature;
 
@@ -73,6 +76,11 @@ public class MapModel {
      * Mapping between marker ids and the features
      */
     private final Map<String, MarkerFeature> markerIds = new HashMap<>();
+
+    /**
+     * List of Feature Overlay Queries for querying tile overlay clicks
+     */
+    private final List<FeatureOverlayQuery> featureOverlayQueries = new ArrayList<>();
 
     /**
      * Gets the bounding box around the features on the map
@@ -243,5 +251,14 @@ public class MapModel {
      */
     public Map<String, MarkerFeature> getMarkerIds() {
         return markerIds;
+    }
+
+    /**
+     * Gets the list of Feature Overlay Queries for querying tile overlay clicks.
+     *
+     * @return List of feature overlay queries.
+     */
+    public List<FeatureOverlayQuery> getFeatureOverlayQueries() {
+        return featureOverlayQueries;
     }
 }

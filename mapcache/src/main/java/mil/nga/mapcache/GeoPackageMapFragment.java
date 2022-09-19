@@ -2338,7 +2338,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (updateFeaturesTask != null) {
                     updateFeaturesTask.cancel(false);
                 }
-                updateFeaturesTask = new MapFeaturesUpdateTask(getContext(), map, model, geoPackageViewModel, zoomer);
+                updateFeaturesTask = new MapFeaturesUpdateTask(getContext(), map, model, geoPackageViewModel);
                 updateFeaturesTask.execute(false, maxFeatures, mapViewBoundingBox, toleranceDistance, true);
             } finally {
                 updateLock.unlock();
@@ -3457,7 +3457,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     if (updateFeaturesTask != null) {
                         updateFeaturesTask.cancel(false);
                     }
-                    updateFeaturesTask = new MapFeaturesUpdateTask(getContext(), map, model, geoPackageViewModel, zoomer);
+                    updateFeaturesTask = new MapFeaturesUpdateTask(getContext(), map, model, geoPackageViewModel);
                     updateFeaturesTask.execute(zoom, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
                 } finally {
                     updateLock.unlock();

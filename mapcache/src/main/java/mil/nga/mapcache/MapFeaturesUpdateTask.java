@@ -43,11 +43,6 @@ import mil.nga.sf.GeometryType;
 public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
 
     /**
-     * Zoom after update flag
-     */
-    private boolean zoom;
-
-    /**
      * The application context.
      */
     private final Context context;
@@ -68,30 +63,18 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
     private final GoogleMap map;
 
     /**
-     * Flag indicating if the initial zoom is still needed
-     */
-    private boolean needsInitialZoom = true;
-
-    /**
-     * Zooms to the displayed data on the map.
-     */
-    private final Zoomer zoomer;
-
-    /**
      * Constructor.
      *
      * @param context             The application context.
      * @param map                 The map showing the geoPackages.
      * @param model               The model used by the map.
      * @param geoPackageViewModel Contains the geoPackages.
-     * @param zoomer              Zooms to the displayed data on the map.
      */
-    public MapFeaturesUpdateTask(Context context, GoogleMap map, MapModel model, GeoPackageViewModel geoPackageViewModel, Zoomer zoomer) {
+    public MapFeaturesUpdateTask(Context context, GoogleMap map, MapModel model, GeoPackageViewModel geoPackageViewModel) {
         this.context = context;
         this.map = map;
         this.model = model;
         this.geoPackageViewModel = geoPackageViewModel;
-        this.zoomer  = zoomer;
     }
 
     /**
@@ -99,7 +82,6 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
      */
     @Override
     protected Integer doInBackground(Object... params) {
-        zoom = (Boolean) params[0];
         int maxFeatures = (Integer) params[1];
         BoundingBox mapViewBoundingBox = (BoundingBox) params[2];
         double toleranceDistance = (Double) params[3];
@@ -137,18 +119,6 @@ public class MapFeaturesUpdateTask extends AsyncTask<Object, Object, Integer> {
                 }
                 model.getFeatureShapes().addMapShape(mapShape, featureId, database, tableName);
             }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onPostExecute(Integer count) {
-
-        if (needsInitialZoom || zoom) {
-            zoomer.zoomToActive(true);
-            needsInitialZoom = false;
         }
     }
 

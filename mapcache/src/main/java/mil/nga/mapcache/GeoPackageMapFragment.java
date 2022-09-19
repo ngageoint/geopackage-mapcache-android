@@ -12,7 +12,6 @@ import android.graphics.Point;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
@@ -866,7 +865,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             } else {
                 if (map != null) {
-                    updateInBackground(true, false);
+                    updateInBackground(true);
                 }
             }
         });
@@ -1326,7 +1325,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         selectEditFeatures();
                     } else {
                         resetEditFeatures();
-                        updateInBackground(false, true);
+                        updateInBackground(false);
                     }
                     return true;
                 } else if (item.getItemId() == R.id.boundingBox) {
@@ -1335,7 +1334,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                         if (model.isEditFeaturesMode()) {
                             resetEditFeatures();
-                            updateInBackground(false, true);
+                            updateInBackground(false);
                         }
 
                         boundingBoxMode = true;
@@ -2777,7 +2776,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         if (changesMade) {
             model.getActive().setModified(true);
-            updateInBackground(false, true);
+            updateInBackground(false);
         }
 
     }
@@ -2822,10 +2821,8 @@ public class GeoPackageMapFragment extends Fragment implements
             updateLock.lock();
             try {
                 if (updateTask != null) {
-                    if (updateTask.getStatus() != AsyncTask.Status.FINISHED) {
-                        updateTask.cancel(false);
-                        model.getActive().setModified(true);
-                    }
+                    updateTask.cancel();
+                    model.getActive().setModified(true);
                     updateTask = null;
                 }
                 if (updateFeaturesTask != null) {
@@ -2872,7 +2869,7 @@ public class GeoPackageMapFragment extends Fragment implements
                 selectEditFeatures();
             } else {
                 resetEditFeatures();
-                updateInBackground(false, true);
+                updateInBackground(false);
             }
             handled = true;
         } else if (item.getItemId() == R.id.map_bounding_box) {
@@ -2881,7 +2878,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
                 if (model.isEditFeaturesMode()) {
                     resetEditFeatures();
-                    updateInBackground(false, true);
+                    updateInBackground(false);
                 }
 
                 boundingBoxMode = true;
@@ -2917,7 +2914,7 @@ public class GeoPackageMapFragment extends Fragment implements
             editFeaturesView.setVisibility(View.VISIBLE);
 
 
-            updateInBackground(false, true);
+            updateInBackground(false);
 
         } catch (Exception e) {
             GeoPackageUtils
@@ -2964,7 +2961,7 @@ public class GeoPackageMapFragment extends Fragment implements
                             editFeaturesMenuItem
                                     .setIcon(R.drawable.ic_features_active);
 
-                            updateInBackground(false, true);
+                            updateInBackground(false);
 
                         } catch (Exception e) {
                             GeoPackageUtils
@@ -3139,7 +3136,7 @@ public class GeoPackageMapFragment extends Fragment implements
                                     Editor editor = settings.edit();
                                     editor.putInt(MAX_FEATURES_KEY, maxFeature);
                                     editor.apply();
-                                    updateInBackground(false, true);
+                                    updateInBackground(false);
                                     // ignoreHighFeatures will tell if the user previously checked the
                                     // 'do not show this warning again' checkbox last time
                                     boolean ignoreHighFeatures = settings.getBoolean(String.valueOf(R.string.ignore_high_features), false);
@@ -3249,19 +3246,9 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Update the map by kicking off a background task
      *
-     * @param zoom zoom flag
+     * @param zoom   zoom flag
      */
     private void updateInBackground(boolean zoom) {
-        updateInBackground(zoom, false);
-    }
-
-    /**
-     * Update the map by kicking off a background task
-     *
-     * @param zoom   zoom flag
-     * @param filter filter features flag
-     */
-    private void updateInBackground(boolean zoom, boolean filter) {
         if (getActivity() != null) {
             getActivity().runOnUiThread(() -> map.clear());
             model.getFeatureDaos().clear();
@@ -3277,17 +3264,13 @@ public class GeoPackageMapFragment extends Fragment implements
             model.getFeatureOverlayQueries().clear();
             model.getFeatureShapes().clear();
             model.getMarkerIds().clear();
-            int maxFeatures = getMaxFeatures();
 
             getActivity().runOnUiThread(() -> {
-                BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
-                double toleranceDistance = MapUtils.getToleranceDistance(view, map);
-
                 MapUpdateTask localUpdateTask;
                 updateLock.lock();
                 try {
                     if (updateTask != null) {
-                        updateTask.cancel(false);
+                        updateTask.cancel();
                     }
                     if (updateFeaturesTask != null) {
                         updateFeaturesTask.cancel();
@@ -3298,7 +3281,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     updateLock.unlock();
                 }
 
-                localUpdateTask.execute(false, maxFeatures, mapViewBoundingBox, toleranceDistance, filter);
+                localUpdateTask.execute();
             });
         }
     }

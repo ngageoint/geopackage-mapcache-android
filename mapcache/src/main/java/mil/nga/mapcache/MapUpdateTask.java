@@ -3,7 +3,6 @@ package mil.nga.mapcache;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -41,6 +40,7 @@ import mil.nga.mapcache.data.GeoPackageFeatureOverlayTable;
 import mil.nga.mapcache.data.GeoPackageFeatureTable;
 import mil.nga.mapcache.data.GeoPackageTileTable;
 import mil.nga.mapcache.utils.ProjUtils;
+import mil.nga.mapcache.utils.ThreadUtils;
 import mil.nga.mapcache.view.map.BasemapApplier;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.ProjectionConstants;
@@ -50,7 +50,7 @@ import mil.nga.proj.ProjectionTransform;
 /**
  * Update the map in the background
  */
-public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
+public class MapUpdateTask implements Runnable {
 
     /**
      * The main activity.
@@ -78,6 +78,11 @@ public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
     private final GeoPackageViewModel geoPackageViewModel;
 
     /**
+     * Indicates if this task has been cancelled.
+     */
+    private boolean isCancelled = false;
+
+    /**
      * Constructor.
      *
      * @param activity            The main activity.
@@ -100,14 +105,23 @@ public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
     }
 
     /**
-     * {@inheritDoc}
+     * Runs this task within a background thread.
      */
+    public void execute() {
+        ThreadUtils.getInstance().runBackground(this);
+    }
+
+    /**
+     * Cancels the running of this task.
+     */
+    public void cancel() {
+        this.isCancelled = true;
+    }
+
     @Override
-    protected Void doInBackground(Object... params) {
+    public void run() {
         update();
         activity.runOnUiThread(() -> basemapApplier.applyBasemaps(map));
-
-        return null;
     }
 
     /**
@@ -121,7 +135,7 @@ public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
             List<GeoPackageDatabase> activeDatabases = new ArrayList<>(model.getActive().getDatabases());
             for (GeoPackageDatabase database : activeDatabases) {
 
-                if (this.isCancelled()) {
+                if (this.isCancelled) {
                     break;
                 }
 
@@ -149,7 +163,7 @@ public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
                             model.getFeatureDaos().put(database.getDatabase(), databaseFeatureDaos);
                             for (String featureTable : featureTableDaos) {
 
-                                if (this.isCancelled()) {
+                                if (this.isCancelled) {
                                     break;
                                 }
 
@@ -160,7 +174,7 @@ public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
 
                         // Display the tiles
                         for (GeoPackageTileTable tiles : database.getTiles()) {
-                            if (this.isCancelled()) {
+                            if (this.isCancelled) {
                                 break;
                             }
                             try {
@@ -173,7 +187,7 @@ public class MapUpdateTask extends AsyncTask<Object, Void, Void> {
 
                         // Display the feature tiles
                         for (GeoPackageFeatureOverlayTable featureOverlay : database.getFeatureOverlays()) {
-                            if (this.isCancelled()) {
+                            if (this.isCancelled) {
                                 break;
                             }
                             if (featureOverlay.isActive()) {

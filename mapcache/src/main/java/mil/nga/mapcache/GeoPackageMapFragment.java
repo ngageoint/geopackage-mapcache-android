@@ -230,17 +230,17 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * View
      */
-    private static View view;
+    private View view;
 
     /**
      * Edit features view
      */
-    private static View editFeaturesView;
+    private View editFeaturesView;
 
     /**
      * Edit features polygon hole view
      */
-    private static View editFeaturesPolygonHoleView;
+    private View editFeaturesPolygonHoleView;
 
     /**
      * True when the map is visible

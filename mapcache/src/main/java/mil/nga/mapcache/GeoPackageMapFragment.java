@@ -860,10 +860,10 @@ public class GeoPackageMapFragment extends Fragment implements
 
             // Update the map
             if (map != null) {
-                updateInBackground(true);
                 if (newTables.isEmpty()) {
                     map.clear();
                 }
+                updateInBackground(true);
             }
         });
     }
@@ -3247,7 +3247,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void updateInBackground(boolean zoom) {
         if (getActivity() != null) {
-            getActivity().runOnUiThread(() -> map.clear());
             model.getFeatureDaos().clear();
             basemapApplier.clear();
 
@@ -3263,6 +3262,7 @@ public class GeoPackageMapFragment extends Fragment implements
             model.getMarkerIds().clear();
 
             getActivity().runOnUiThread(() -> {
+                map.clear();
                 MapUpdateTask localUpdateTask;
                 updateLock.lock();
                 try {
@@ -3274,6 +3274,12 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                     updateTask = new MapUpdateTask(getActivity(), map, basemapApplier, model, geoPackageViewModel);
                     localUpdateTask = updateTask;
+
+                    BoundingBox mapViewBoundingBox = MapUtils.getBoundingBox(map);
+                    double toleranceDistance = MapUtils.getToleranceDistance(view, map);
+                    int maxFeatures = getMaxFeatures();
+                    updateFeaturesTask = new MapFeaturesUpdateTask(getActivity(), map, model, geoPackageViewModel);
+                    updateTask.setFinishListener(() -> updateFeaturesTask.execute(maxFeatures, mapViewBoundingBox, toleranceDistance, true));
                 } finally {
                     updateLock.unlock();
                 }

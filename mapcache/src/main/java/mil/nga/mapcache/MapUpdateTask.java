@@ -83,6 +83,11 @@ public class MapUpdateTask implements Runnable {
     private boolean isCancelled = false;
 
     /**
+     * Notified when this task is done.
+     */
+    private Runnable finishListener;
+
+    /**
      * Constructor.
      *
      * @param activity            The main activity.
@@ -118,10 +123,22 @@ public class MapUpdateTask implements Runnable {
         this.isCancelled = true;
     }
 
+    /**
+     * Sets the finish listener.
+     *
+     * @param listener The object to be notified when this task is done.
+     */
+    public void setFinishListener(Runnable listener) {
+        this.finishListener = listener;
+    }
+
     @Override
     public void run() {
         update();
         activity.runOnUiThread(() -> basemapApplier.applyBasemaps(map));
+        if(finishListener != null) {
+            finishListener.run();
+        }
     }
 
     /**

@@ -113,7 +113,7 @@ public class MapFeaturesUpdateTask implements Runnable {
         this.activity.runOnUiThread(() -> {
             synchronized (model.getFeatureShapes()) {
 
-                if (!isCancelled() && !model.getFeatureShapes().exists(featureId, database, tableName)) {
+                if (NotCancelled() && !model.getFeatureShapes().exists(featureId, database, tableName)) {
 
                     GoogleMapShape mapShape = GoogleMapShapeConverter.addShapeToMap(
                             map, shape);
@@ -146,8 +146,8 @@ public class MapFeaturesUpdateTask implements Runnable {
      *
      * @return True if its been cancelled false if not cancelled.
      */
-    public boolean isCancelled() {
-        return cancelled;
+    public boolean NotCancelled() {
+        return !cancelled;
     }
 
     /**

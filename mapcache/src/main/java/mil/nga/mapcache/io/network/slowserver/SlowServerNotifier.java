@@ -15,7 +15,7 @@ public class SlowServerNotifier {
     /**
      * The time in milliseconds we consider a slow response.
      */
-    private static final int slowResponseTime = 500;
+    private static final long slowResponseTime = 500;
 
     /**
      * The number of slow responses until we consider the server as being slow.
@@ -53,7 +53,7 @@ public class SlowServerNotifier {
      * @param host         The host data was just downloaded from.
      * @param responseTime The response time in milliseconds of that download.
      */
-    public void responseTime(String host, int responseTime) {
+    public void responseTime(String host, long responseTime) {
         if (responseTime >= slowResponseTime) {
             Integer slowCount = slowResponseCounts.get(host);
             if (slowCount == null) {

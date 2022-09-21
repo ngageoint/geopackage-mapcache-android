@@ -31,7 +31,7 @@ public class SlowServerView {
     public void show(Activity activity) {
         activity.runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle("Slow to Download From " + model.getHost());
+            builder.setTitle("Slow Downloads");
             builder.setMessage(this.model.getMessage());
             builder.setPositiveButton("Ok", (DialogInterface dialog, int arg1) -> dialog.dismiss());
             builder.show();

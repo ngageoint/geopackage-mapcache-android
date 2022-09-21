@@ -15,7 +15,7 @@ public class SlowServerNotifier {
     /**
      * The time in milliseconds we consider a slow response.
      */
-    private static final long slowResponseTime = 500;
+    private static final long slowResponseTime = 2000;
 
     /**
      * The number of slow responses until we consider the server as being slow.
@@ -63,7 +63,6 @@ public class SlowServerNotifier {
             slowResponseCounts.put(host, slowCount);
             if (slowCount >= slowResponseCount && !notified.contains(host)) {
                 SlowServerModel model = new SlowServerModel();
-                model.setHost(host);
                 model.setMessage("Downloads from " + host + " are taking a longer time than usual.  " +
                         "Either your connection is poor or the server's performance is slow.  " +
                         "You can continue to download but it may take awhile to finish.");

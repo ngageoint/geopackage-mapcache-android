@@ -70,6 +70,7 @@ public class HttpClient implements SessionManager {
             }
 
             ResponseMonitor monitor = new ResponseMonitor(host, handler, notifier);
+            monitor.start();
             if(requiresWebView) {
                 requestRequiresWebView(url, monitor, activity);
             } else {

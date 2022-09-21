@@ -29,10 +29,12 @@ public class SlowServerView {
      * @param activity The main activity.
      */
     public void show(Activity activity) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Slow to Download From " + model.getHost());
-        builder.setMessage(this.model.getMessage());
-        builder.setPositiveButton("Ok", (DialogInterface dialog, int arg1) -> dialog.dismiss());
-        builder.show();
+        activity.runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("Slow to Download From " + model.getHost());
+            builder.setMessage(this.model.getMessage());
+            builder.setPositiveButton("Ok", (DialogInterface dialog, int arg1) -> dialog.dismiss());
+            builder.show();
+        });
     }
 }

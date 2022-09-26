@@ -8,10 +8,10 @@ android {
 
     defaultConfig {
         applicationId "mil.nga.mapcache"
-        minSdkVersion 19
+        minSdkVersion 23
         targetSdkVersion 33
-        versionCode 40
-        versionName '1.39'
+        versionCode 41
+        versionName '1.40'
         multiDexEnabled true
     }
 
@@ -48,7 +48,8 @@ task androidAppVersion {
 
 dependencies {
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'mil.nga.geopackage.map:geopackage-android-map:6.5.0' // comment out to build locally
+    api 'androidx.appcompat:appcompat:1.5.1'
+    api 'mil.nga.geopackage.map:geopackage-android-map:6.6.0' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'androidx.multidex:multidex:2.0.1'
     testImplementation 'androidx.multidex:multidex:2.0.1'

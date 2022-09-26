@@ -63,9 +63,8 @@ public class SlowServerNotifier {
             slowResponseCounts.put(host, slowCount);
             if (slowCount >= slowResponseCount && !notified.contains(host)) {
                 SlowServerModel model = new SlowServerModel();
-                model.setMessage("Downloads from " + host + " are taking a longer time than usual.  " +
-                        "Either your connection is poor or the server's performance is slow.  " +
-                        "You can continue to download but it may take a while to finish.");
+                model.setMessage("Downloads from " + host + " are taking a long time.  " +
+                        "Either your connection is poor or the server's performance is slow.");
                 SlowServerView view = new SlowServerView(model);
                 view.show(this.activity);
                 notified.add(host);

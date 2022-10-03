@@ -1,8 +1,6 @@
 package mil.nga.mapcache.wizards.createtile;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Observable;
 
 public class NewTileLayerModel extends Observable {

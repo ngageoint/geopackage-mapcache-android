@@ -27,12 +27,12 @@ import mil.nga.mapcache.utils.HttpUtils;
  */
 class SavedUrlAdapter extends ArrayAdapter<SavedUrl> {
 
-   private Context mContext;
-   private List<SavedUrl> urlList = new ArrayList<>();
+   private final Context mContext;
+   private final List<SavedUrl> urlList;
    /**
     * For testing http connections
     */
-   private HttpUtils httpUtils = HttpUtils.getInstance();
+   private final HttpUtils httpUtils = HttpUtils.getInstance();
 
    public SavedUrlAdapter(@NonNull Context context, ArrayList<SavedUrl> list) {
       super(context, 0, list);
@@ -76,8 +76,8 @@ class SavedUrlAdapter extends ArrayAdapter<SavedUrl> {
 
    /**
     * Finds the given url in the urlList and updates the icon in that SavedUrl object, then refresh
-    * @param url
-    * @param icon
+    * @param url url to find in the SavedUrl list
+    * @param icon new icon to set
     */
    private void updateIcon(String url, int icon){
       for (SavedUrl savedUrl : urlList) {
@@ -91,28 +91,21 @@ class SavedUrlAdapter extends ArrayAdapter<SavedUrl> {
    /**
     * Tests connection to a url and call for an icon update
     */
-   private boolean testConnection(SavedUrl newUrl, SavedUrlAdapter adapter){
+   private void testConnection(SavedUrl newUrl, SavedUrlAdapter adapter){
       ExecutorService threadEx = Executors.newSingleThreadExecutor();
       Handler handler = new Handler(Looper.getMainLooper());
-      threadEx.execute(new Runnable() {
-         @Override
-         public void run() {
-            // Test connection
-            boolean connected = httpUtils.isServerAvailable(newUrl.getmUrl());
-            // Update icon to show connection status
-            handler.post(new Runnable() {
-               @Override
-               public void run() {
-                  if(connected) {
-                     adapter.updateIcon(newUrl.getmUrl(), R.drawable.cloud_layers_blue);
-                  } else {
-                     adapter.updateIcon(newUrl.getmUrl(), R.drawable.cloud_layers_red);
+      threadEx.execute(() -> {
+         // Test connection
+         boolean connected = httpUtils.isServerAvailable(newUrl.getmUrl());
+         // Update icon to show connection status
+         handler.post(() -> {
+            if(connected) {
+               adapter.updateIcon(newUrl.getmUrl(), R.drawable.cloud_layers_blue);
+            } else {
+               adapter.updateIcon(newUrl.getmUrl(), R.drawable.cloud_layers_red);
 
-                  }
-               }
-            });
-         }
+            }
+         });
       });
-      return true;
    }
 }

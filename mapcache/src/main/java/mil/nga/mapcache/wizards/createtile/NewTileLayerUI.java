@@ -9,8 +9,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -304,14 +302,11 @@ public class NewTileLayerUI implements Observer {
         builder.setTitle("Saved Tile URLs");
         builder.setView(view);
         AlertDialog ad = builder.show();
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                inputUrl.setText(model.getUrlAtPosition(i));
-                inputUrl.setError(null);
-                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-                ad.dismiss();
-            }
+        listView.setOnItemClickListener((adapterView, view1, i, l) -> {
+            inputUrl.setText(model.getUrlAtPosition(i));
+            inputUrl.setError(null);
+            ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+            ad.dismiss();
         });
         adapter.updateConnections(urlList);
     }

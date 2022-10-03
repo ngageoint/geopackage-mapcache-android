@@ -71,7 +71,11 @@ public class NewTileLayerController implements Observer, Comparator<String> {
     public void loadSavedUrls() {
         Set<String> existing = settings.getStringSet(fragment.getString(R.string.geopackage_create_tiles_label), new HashSet<String>());
         String[] urlChoices = existing.toArray(new String[existing.size()]);
-        model.setSavedUrls(urlChoices);
+        ArrayList<SavedUrl> urlList = new ArrayList<>();
+        for(String url : urlChoices){
+            urlList.add(new SavedUrl(url));
+        }
+        model.setSavedUrlObjects(urlList);
     }
 
     /**

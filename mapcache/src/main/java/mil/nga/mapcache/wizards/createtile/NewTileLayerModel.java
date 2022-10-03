@@ -1,5 +1,8 @@
 package mil.nga.mapcache.wizards.createtile;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
 public class NewTileLayerModel extends Observable {
@@ -78,6 +81,11 @@ public class NewTileLayerModel extends Observable {
      * The list of saved urls.
      */
     private String[] savedUrls;
+
+    /**
+     * List of saved urls with connection status
+     */
+    private ArrayList<SavedUrl> savedUrlObjects = new ArrayList<>();
 
     /**
      * If anything is wrong with the inputs, this message will be populated.
@@ -200,6 +208,28 @@ public class NewTileLayerModel extends Observable {
      */
     public String[] getSavedUrls() {
         return savedUrls;
+    }
+
+    public String getUrlAtPosition(int position){
+        return savedUrlObjects.get(position).getmUrl();
+    }
+
+    /**
+     * Get a list of SavedUrl objects out of the saved url string list
+     */
+    public ArrayList<SavedUrl> getSavedUrlObjectList(){
+        return savedUrlObjects;
+    }
+
+    /**
+     * Sets the saved url objects
+     *
+     * @param savedUrls The saved urls.
+     */
+    public void setSavedUrlObjects(ArrayList<SavedUrl> savedUrls) {
+        this.savedUrlObjects = savedUrls;
+        setChanged();
+        notifyObservers(SAVED_URLS_PROP);
     }
 
     /**

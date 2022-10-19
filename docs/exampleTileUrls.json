@@ -1,3 +1,1 @@
-{
-  "OSM.mil":"https://osm.gs.mil/tiles/default/{z}/{x}/{y}.png"
-}
+{"OSM.mil":"https://osm.gs.mil/tiles/default/{z}/{x}/{y}.png"}

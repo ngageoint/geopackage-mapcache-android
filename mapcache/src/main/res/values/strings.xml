@@ -462,7 +462,7 @@
     <string name="zoom_level">Zoom Level %1$.1f</string>
     <string name="max_active_features">Max Active Features</string>
     <string name="limit_features">Limit the number of features to display in active layers for faster processing</string>
-    <string name="sample_tile_urls">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/hostedExamples/docs/exampleTileUrls.json</string>
-    <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/hostedExamples/docs/hostedGeopackages.json</string>
+    <string name="sample_tile_urls">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/master/docs/exampleTileUrls.json</string>
+    <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/master/docs/hostedGeopackages.json</string>
 
 </resources>

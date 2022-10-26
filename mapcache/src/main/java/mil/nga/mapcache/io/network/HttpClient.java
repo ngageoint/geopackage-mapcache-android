@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import mil.nga.mapcache.io.network.slowserver.SlowServerNotifier;
 import mil.nga.mapcache.utils.ThreadUtils;
 
 /**
@@ -38,6 +39,11 @@ public class HttpClient implements SessionManager {
     private final Set<String> webViewHosts = new HashSet<>();
 
     /**
+     * If the server is slow, this will notify the user of that.
+     */
+    private SlowServerNotifier notifier = null;
+
+    /**
      * Gets the instance of this class.
      *
      * @return This class instance.
@@ -54,20 +60,25 @@ public class HttpClient implements SessionManager {
      * @param activity Used to get the app name and version for the user agent.
      */
     public synchronized void sendGet(String url, IResponseHandler handler, Activity activity) {
-        boolean requiresWebView = false;
-
         try {
             URL theUrl = new URL(url);
-            requiresWebView = webViewHosts.contains(theUrl.getHost());
+            String host = theUrl.getHost();
+            boolean requiresWebView = webViewHosts.contains(host);
+
+            if(notifier == null) {
+                notifier = new SlowServerNotifier(activity);
+            }
+
+            ResponseMonitor monitor = new ResponseMonitor(host, handler, notifier);
+            monitor.start();
+            if(requiresWebView) {
+                requestRequiresWebView(url, monitor, activity);
+            } else {
+                HttpGetRequest request = new HttpGetRequest(url, monitor, this, activity);
+                ThreadUtils.getInstance().runBackground(request);
+            }
         } catch (MalformedURLException e) {
             Log.e(HttpClient.class.getSimpleName(), e.getMessage(), e);
-        }
-
-        if(requiresWebView) {
-            requestRequiresWebView(url, handler, activity);
-        } else {
-            HttpGetRequest request = new HttpGetRequest(url, handler, this, activity);
-            ThreadUtils.getInstance().runBackground(request);
         }
     }
 

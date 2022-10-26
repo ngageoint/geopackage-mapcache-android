@@ -221,6 +221,7 @@
     <string name="delete_url_message">Delete this saved URL?</string>
 
     <string name="map_tile_url_header">Map Tile URLs</string>
+    <string name="example_url_header">Example Tile URLs</string>
     <string name="url_template_message">\nFor XYZ tile servers, make sure the URL is formatted with the template on the end:
     \n\nhttps://yourtileserver.com/{z}/{x}/{y}.png
     \n\n\nFor WMS tile servers, make sure the URL is formatted with the bounding box coordinates as a template in the query parameters:
@@ -238,20 +239,24 @@
     <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>
     <string name="preloaded_nga_examples"><a href="http://github.com/ngageoint/GeoPackage/tree/master/docs/examples">NGA Sample Data</a></string>
     <string-array name="preloaded_geopackage_url_labels">
+        <item>Hurricane Ian</item>
         <item>Washington DC</item>
         <item>Port au Prince</item>
         <item>Blue Marble</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
+        <item>https://github.com/ngageoint/geopackage-mapcache-android/raw/master/docs/ianFlooding.gpkg</item>
         <item>http://portal.opengeospatial.org/files/74984</item>
         <item>http://portal.opengeospatial.org/files/74863</item>
         <item>http://portal.opengeospatial.org/files/73648</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
+        <item>hurricane_ian</item>
         <item>washington_dc</item>
         <item>port_au_prince</item>
         <item>blue_marble</item>
     </string-array>
+    <string name="hostedGeopackagesJson">https://github.com/ngageoint/geopackage-mapcache-android/raw/hostedExamples/docs/hostedGeopackages.json</string>
 
     <string-array name="preloaded_tile_url_labels">
         <item>GEOINT OpenStreetMap</item>
@@ -457,5 +462,7 @@
     <string name="zoom_level">Zoom Level %1$.1f</string>
     <string name="max_active_features">Max Active Features</string>
     <string name="limit_features">Limit the number of features to display in active layers for faster processing</string>
+    <string name="sample_tile_urls">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/hostedExamples/docs/exampleTileUrls.json</string>
+    <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/hostedExamples/docs/hostedGeopackages.json</string>
 
 </resources>

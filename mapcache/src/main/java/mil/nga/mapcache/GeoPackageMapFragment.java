@@ -102,6 +102,7 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -192,6 +193,7 @@ import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.sensors.SensorHandler;
 import mil.nga.mapcache.utils.ProjUtils;
+import mil.nga.mapcache.utils.SampleDownloader;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ThreadUtils;
 import mil.nga.mapcache.utils.ViewAnimation;
@@ -2142,22 +2144,20 @@ public class GeoPackageMapFragment extends Fragment implements
                     .setOnClickListener((View v) -> {
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                                 getActivity(), android.R.layout.select_dialog_item);
-                        adapter.addAll(getResources().getStringArray(
-                                R.array.preloaded_geopackage_url_labels));
+                        // Download sample geopackages from our github server, and combine that list
+                        // with our own locally provided preloaded geopackages
+                        SampleDownloader sampleDownloader = new SampleDownloader(getActivity(), adapter);
+                        sampleDownloader.loadLocalGeoPackageSamples();
+                        sampleDownloader.getExampleData(getString(R.string.sample_geopackage_url));
                         AlertDialog.Builder builder = new AlertDialog.Builder(
                                 getActivity(), R.style.AppCompatAlertDialogStyle);
                         builder.setTitle(getString(R.string.import_url_preloaded_label));
                         builder.setAdapter(adapter,
                                 (DialogInterface d, int item) -> {
                                     if (item >= 0) {
-                                        String[] urls = getResources()
-                                                .getStringArray(
-                                                        R.array.preloaded_geopackage_urls);
-                                        String[] names = getResources()
-                                                .getStringArray(
-                                                        R.array.preloaded_geopackage_url_names);
-                                        inputName.setText(names[item]);
-                                        inputUrl.setText(urls[item]);
+                                        String name = adapter.getItem(item);
+                                        inputName.setText(name);
+                                        inputUrl.setText(sampleDownloader.getSampleList().get(name));
                                     }
                                 });
 

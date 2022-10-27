@@ -68,4 +68,9 @@ public class TileResponseHandler implements IResponseHandler {
         notify();
     }
 
+    @Override
+    public boolean notCancelled() {
+        return true;
+    }
+
 }

@@ -102,4 +102,9 @@ public class WebViewResponseHandler implements IResponseHandler {
             notifyAll();
         }
     }
+
+    @Override
+    public boolean notCancelled() {
+        return true;
+    }
 }

@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.4</string>
-    <string name="app_release_date">Released Jul 2022</string>
+    <string name="app_version">Version 2.1.5</string>
+    <string name="app_release_date">Released Nov 2022</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -221,6 +221,7 @@
     <string name="delete_url_message">Delete this saved URL?</string>
 
     <string name="map_tile_url_header">Map Tile URLs</string>
+    <string name="example_url_header">Example Tile URLs</string>
     <string name="url_template_message">\nFor XYZ tile servers, make sure the URL is formatted with the template on the end:
     \n\nhttps://yourtileserver.com/{z}/{x}/{y}.png
     \n\n\nFor WMS tile servers, make sure the URL is formatted with the bounding box coordinates as a template in the query parameters:
@@ -248,10 +249,12 @@
         <item>http://portal.opengeospatial.org/files/73648</item>
     </string-array>
     <string-array name="preloaded_geopackage_url_names">
+        <item>hurricane_ian</item>
         <item>washington_dc</item>
         <item>port_au_prince</item>
         <item>blue_marble</item>
     </string-array>
+    <string name="hostedGeopackagesJson">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/hostedGeopackages.json</string>
 
     <string-array name="preloaded_tile_url_labels">
         <item>GEOINT OpenStreetMap</item>
@@ -378,9 +381,11 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.4\n \n
-        - Backend updates for improved gpkg handling\n
-        - Bug fixes
+        Release Notes - 2.1.5\n \n
+        - New status display for tile downloads\n
+        - New server status display\n
+        - New sample data\n
+        - Bug fixes and usability updates
         </string>
 
 
@@ -457,5 +462,7 @@
     <string name="zoom_level">Zoom Level %1$.1f</string>
     <string name="max_active_features">Max Active Features</string>
     <string name="limit_features">Limit the number of features to display in active layers for faster processing</string>
+    <string name="sample_tile_urls">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/exampleTileUrls.json</string>
+    <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/hostedGeopackages.json</string>
 
 </resources>

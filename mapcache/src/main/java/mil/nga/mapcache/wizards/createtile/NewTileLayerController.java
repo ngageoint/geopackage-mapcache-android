@@ -26,27 +26,27 @@ import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
  */
 public class NewTileLayerController implements Observer, Comparator<String> {
 
-    private static String[] preferredImageFormats = {"png", "jpeg", "tiff", "gif"};
+    private static final String[] preferredImageFormats = {"png", "jpeg", "tiff", "gif"};
 
     /**
      * The model.
      */
-    private NewTileLayerModel model;
+    private final NewTileLayerModel model;
 
     /**
      * Used to validate the layer name.
      */
-    private GeoPackageViewModel geoPackageViewModel;
+    private final GeoPackageViewModel geoPackageViewModel;
 
     /**
      * Used to get string constants.
      */
-    private Fragment fragment;
+    private final Fragment fragment;
 
     /**
      * Used to get saved urls.
      */
-    private SharedPreferences settings;
+    private final SharedPreferences settings;
 
     /**
      * Constructor.
@@ -139,7 +139,7 @@ public class NewTileLayerController implements Observer, Comparator<String> {
      * @return The best format to use for tile downloads.
      */
     private String getFormat(LayersModel layersModel) {
-        List<String> formats = new ArrayList<String>(Arrays.asList(layersModel.getImageFormats()));
+        List<String> formats = new ArrayList<>(Arrays.asList(layersModel.getImageFormats()));
         Collections.sort(formats, this);
 
         return formats.get(0);

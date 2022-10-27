@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ import mil.nga.mapcache.layersprovider.LayersProvider;
 import mil.nga.mapcache.layersprovider.LayersView;
 import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.utils.SampleDownloader;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
@@ -210,6 +212,28 @@ public class NewTileLayerUI implements Observer {
         // Show a menu to choose from saved urls
         TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
         defaultText.setOnClickListener((View view) -> controller.loadSavedUrls());
+
+        // Example URLs from github
+        TextView exampleUrlText = (TextView) alertView.findViewById(R.id.example_urls);
+        exampleUrlText.setOnClickListener(view -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
+            builder.setTitle(fragment.getString(R.string.example_url_header));
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    context, android.R.layout.select_dialog_item);
+
+            SampleDownloader sampleDownloader = new SampleDownloader(fragment.getActivity(), adapter);
+            sampleDownloader.getExampleData(activity.getString(R.string.sample_tile_urls));
+            builder.setAdapter(adapter,
+                    (DialogInterface d, int item) -> {
+
+                        if (item >= 0) {
+                            String name = adapter.getItem(item);
+                            inputName.setText(name);
+                            inputUrl.setText(sampleDownloader.getSampleList().get(name));
+                        }
+                    });
+            builder.show();
+        });
 
         // URL help menu
         TextView urlHelpText = (TextView) alertView.findViewById(R.id.url_help);

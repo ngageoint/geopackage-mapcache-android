@@ -77,13 +77,26 @@
             android:id="@+id/default_url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/url_help"
+            android:layout_alignTop="@+id/example_urls"
             android:paddingBottom="16dp"
             android:paddingTop="16dp"
             android:paddingRight="16dp"
             android:textColor="@color/nga_accent_primary_dark"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
             android:text="Choose from saved URLs" />
+
+        <!-- Choose from saved urls -->
+        <TextView
+            android:id="@+id/example_urls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/url_help"
+            android:paddingBottom="16dp"
+            android:paddingTop="16dp"
+            android:paddingRight="16dp"
+            android:textColor="@color/nga_accent_primary_dark"
+            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
+            android:text="Example URLs" />
 
         <!-- Url help -->
         <TextView

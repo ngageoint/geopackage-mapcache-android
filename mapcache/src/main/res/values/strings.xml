@@ -239,13 +239,11 @@
     <string name="preloaded_ogc_examples"><a href="http://github.com/opengeospatial/geopackage/tree/gh-pages/data">OGC Sample Data</a></string>
     <string name="preloaded_nga_examples"><a href="http://github.com/ngageoint/GeoPackage/tree/master/docs/examples">NGA Sample Data</a></string>
     <string-array name="preloaded_geopackage_url_labels">
-        <item>Hurricane Ian</item>
         <item>Washington DC</item>
         <item>Port au Prince</item>
         <item>Blue Marble</item>
     </string-array>
     <string-array name="preloaded_geopackage_urls">
-        <item>https://github.com/ngageoint/geopackage-mapcache-android/raw/master/docs/ianFlooding.gpkg</item>
         <item>http://portal.opengeospatial.org/files/74984</item>
         <item>http://portal.opengeospatial.org/files/74863</item>
         <item>http://portal.opengeospatial.org/files/73648</item>
@@ -256,7 +254,7 @@
         <item>port_au_prince</item>
         <item>blue_marble</item>
     </string-array>
-    <string name="hostedGeopackagesJson">https://github.com/ngageoint/geopackage-mapcache-android/raw/hostedExamples/docs/hostedGeopackages.json</string>
+    <string name="hostedGeopackagesJson">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/hostedGeopackages.json</string>
 
     <string-array name="preloaded_tile_url_labels">
         <item>GEOINT OpenStreetMap</item>
@@ -464,7 +462,7 @@
     <string name="zoom_level">Zoom Level %1$.1f</string>
     <string name="max_active_features">Max Active Features</string>
     <string name="limit_features">Limit the number of features to display in active layers for faster processing</string>
-    <string name="sample_tile_urls">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/master/docs/exampleTileUrls.json</string>
-    <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/geopackage-mapcache-android/master/docs/hostedGeopackages.json</string>
+    <string name="sample_tile_urls">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/exampleTileUrls.json</string>
+    <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/hostedGeopackages.json</string>
 
 </resources>

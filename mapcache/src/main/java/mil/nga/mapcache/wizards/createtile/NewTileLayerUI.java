@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -22,6 +23,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
 import java.util.Observable;
 
 import mil.nga.mapcache.R;
@@ -320,18 +322,22 @@ public class NewTileLayerUI implements Observer {
      * Shows the saved urls the user can choose from, or a message stating they have none.
      */
     private void showSavedUrls() {
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_saved_url_list, null);
+        ListView listView = view.findViewById(R.id.list_view);
+        ArrayList<SavedUrl> urlList = model.getSavedUrlObjectList();
+        SavedUrlAdapter adapter = new SavedUrlAdapter(context, urlList);
+        listView.setAdapter(adapter);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Saved Tile URLs");
-        if (model.getSavedUrls().length > 0) {
-            builder.setItems(model.getSavedUrls(), (DialogInterface dialog, int which) -> {
-                inputUrl.setText(model.getSavedUrls()[which]);
-                inputUrl.setError(null);
-                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-            });
-        } else {
-            builder.setMessage(fragment.getString(R.string.no_saved_urls_message));
-        }
-        builder.show();
+        builder.setView(view);
+        AlertDialog ad = builder.show();
+        listView.setOnItemClickListener((adapterView, view1, i, l) -> {
+            inputUrl.setText(model.getUrlAtPosition(i));
+            inputUrl.setError(null);
+            ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+            ad.dismiss();
+        });
+        adapter.updateConnections(urlList);
     }
 
     /**

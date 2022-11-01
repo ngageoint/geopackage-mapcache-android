@@ -84,29 +84,31 @@ public class SampleDownloader implements IResponseHandler {
     @Override
     public void handleResponse(InputStream stream, int responseCode) {
         if (!isCancelled) {
-            if (stream != null && responseCode == HttpURLConnection.HTTP_OK) {
                 try {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(stream));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line + "\n");
-                    }
-                    br.close();
-                    JSONObject mainObject = new JSONObject(sb.toString());
-                    sampleList.putAll(new Gson().fromJson(sb.toString(), HashMap.class));
-                    activity.runOnUiThread(new Runnable() {
+                    if (stream != null && responseCode == HttpURLConnection.HTTP_OK) {
 
-                        @Override
-                        public void run() {
-                            adapter.addAll(sampleList.keySet());
-
+                        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line + "\n");
                         }
-                    });
+                        br.close();
+                        JSONObject mainObject = new JSONObject(sb.toString());
+                        sampleList.putAll(new Gson().fromJson(sb.toString(), HashMap.class));
+                        activity.runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                adapter.addAll(sampleList.keySet());
+
+                            }
+                        });
+                    }
                 } catch (Exception e){
                     Log.e("error", e.toString());
                 }
-            }
+
         }
 
 

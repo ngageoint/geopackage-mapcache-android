@@ -13,7 +13,7 @@ android {
     defaultConfig {
         applicationId "mil.nga.mapcache"
         resValue "string", "applicationId", applicationId
-        minSdkVersion 29
+        minSdkVersion 28
         targetSdkVersion 31
         versionCode 44
         versionName '2.1.5'

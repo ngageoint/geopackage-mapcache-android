@@ -34,6 +34,7 @@ import mil.nga.mapcache.utils.ProjUtils;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 import mil.nga.proj.ProjectionConstants;
 import mil.nga.sf.GeometryEnvelope;
+import mil.nga.sf.GeometryType;
 
 /**
  * Controls zooming to various parts on the map.
@@ -125,15 +126,20 @@ public class Zoomer {
                                 List<BoundingBox> boxes = new ArrayList<>();
                                 while (cursor.moveToNext()) {
                                     FeatureRow row = cursor.getRow();
-                                    GeometryEnvelope envelope = row.getGeometry().buildEnvelope();
-                                    BoundingBox rowBox = new BoundingBox(envelope);
-                                    if (isDebug) {
-                                        boxes.add(new BoundingBox(rowBox));
-                                    }
-                                    if (contentsBoundingBox == null) {
-                                        contentsBoundingBox = rowBox;
-                                    } else {
-                                        contentsBoundingBox = contentsBoundingBox.union(rowBox);
+                                    try {
+                                        GeometryType type = row.getGeometryType();
+                                        GeometryEnvelope envelope = row.getGeometry().buildEnvelope();
+                                        BoundingBox rowBox = new BoundingBox(envelope);
+                                        if (isDebug) {
+                                            boxes.add(new BoundingBox(rowBox));
+                                        }
+                                        if (contentsBoundingBox == null) {
+                                            contentsBoundingBox = rowBox;
+                                        } else {
+                                            contentsBoundingBox = contentsBoundingBox.union(rowBox);
+                                        }
+                                    } catch (Exception e){
+                                        Log.e("Opening GeometryEnvelope: ", e.toString());
                                     }
                                 }
 

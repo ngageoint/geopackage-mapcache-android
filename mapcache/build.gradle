@@ -15,7 +15,7 @@ android {
         resValue "string", "applicationId", applicationId
         minSdkVersion 28
         targetSdkVersion 31
-        versionCode 44
+        versionCode 45
         versionName '2.1.5'
         multiDexEnabled true
     }

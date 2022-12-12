@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -17,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,8 +31,11 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.HttpUtils;
 import mil.nga.mapcache.utils.ViewAnimation;
 
 /**
@@ -78,6 +84,10 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
      * Tracks the state of delete visibility
      */
     private boolean editMode = false;
+    /**
+     * For testing http connections
+     */
+    HttpUtils httpUtils = HttpUtils.getInstance();
 
     /**
      * Create the parent view and set up listeners
@@ -283,15 +293,16 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.HORIZONTAL));
         itemRow.setGravity(Gravity.CENTER);
-//        itemRow.setPadding(0,48,0, 48);
-//        itemRow.setBackground(getResources().getDrawable(R.drawable.delete_bg));
 
+        ImageView rowIcon = new ImageView(getContext());
+        rowIcon.setImageResource(R.drawable.cloud_layers_grey);
+        rowIcon.setPadding(0,48,16, 48);
 
         ImageButton deleteButton = new ImageButton(getContext());
         deleteButton.setImageResource(R.drawable.delete_forever);
         deleteButton.setBackground(null);
         deleteButton.setVisibility(View.GONE);
-        deleteButton.setPadding(48,48,48, 48);
+        deleteButton.setPadding(0,0,48, 0);
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -346,10 +357,43 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
 
         // Add everything
         itemRow.addView(deleteButton);
+        itemRow.addView(rowIcon);
 //        itemRow.addView(check);
         itemRow.addView(nameText);
         ViewAnimation.setSlideInFromRightAnimation(itemRow, 250);
         labelHolder.addView(itemRow);
+
+        testConnection(text, rowIcon);
+    }
+
+    /**
+     * Tests connection to a url
+     */
+    private boolean testConnection(String url, ImageView icon){
+        //         ThreadUtils.getInstance().runBackground(loadTilesTask);
+        ExecutorService threadEx = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+        threadEx.execute(new Runnable() {
+            @Override
+            public void run() {
+                // Test connection
+                boolean connected = httpUtils.isServerAvailable(url);
+
+                // Update icon to show connection status
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(connected) {
+                            icon.setImageResource(R.drawable.cloud_layers_blue);
+                        } else {
+                            icon.setImageResource(R.drawable.cloud_layers_red);
+                        }
+                        ViewAnimation.setBounceAnimatiom(icon, 200);
+                    }
+                });
+            }
+        });
+        return true;
     }
 
     /**

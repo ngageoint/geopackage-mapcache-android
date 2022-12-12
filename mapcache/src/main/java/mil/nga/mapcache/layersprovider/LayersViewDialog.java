@@ -1,7 +1,6 @@
 package mil.nga.mapcache.layersprovider;
 
 import android.content.Context;
-import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -21,11 +20,6 @@ public class LayersViewDialog extends LayersView implements Observer {
     private AlertDialog alertDialog;
 
     /**
-     * The layers model.
-     */
-    private LayersModel model;
-
-    /**
      * Constructor.
      *
      * @param context The application context.
@@ -33,7 +27,6 @@ public class LayersViewDialog extends LayersView implements Observer {
      */
     public LayersViewDialog(Context context, LayersModel model) {
         super(context, model);
-        this.model = model;
         model.addObserver(this);
     }
 
@@ -46,13 +39,7 @@ public class LayersViewDialog extends LayersView implements Observer {
                 .setView(getView());
         alertDialog = dialog.create();
         alertDialog.setCanceledOnTouchOutside(false);
-        getCloseLogo().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                model.setSelectedLayers(model.getSelectedLayers());
-                alertDialog.dismiss();
-            }
-        });
+        getCloseLogo().setOnClickListener((v) -> alertDialog.dismiss());
 
         alertDialog.show();
     }

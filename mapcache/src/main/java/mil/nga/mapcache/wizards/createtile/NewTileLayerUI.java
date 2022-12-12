@@ -9,7 +9,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -21,6 +23,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
 import java.util.Observable;
 
 import mil.nga.mapcache.R;
@@ -29,6 +32,7 @@ import mil.nga.mapcache.layersprovider.LayersProvider;
 import mil.nga.mapcache.layersprovider.LayersView;
 import mil.nga.mapcache.layersprovider.LayersViewDialog;
 import mil.nga.mapcache.load.ILoadTilesTask;
+import mil.nga.mapcache.utils.SampleDownloader;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
@@ -110,6 +114,11 @@ public class NewTileLayerUI implements Observer {
     private ProgressDialog progressDialog;
 
     /**
+     * Retrieves all the layers from a given server.
+     */
+    private LayersProvider provider;
+
+    /**
      * Constructor
      *
      * @param geoPackageRecycler RecyclerView that will hold our GeoPackages.
@@ -171,7 +180,7 @@ public class NewTileLayerUI implements Observer {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(inputName.getText() != null) {
+                if (inputName.getText() != null) {
                     String givenName = inputName.getText().toString();
                     model.setLayerName(givenName);
                 }
@@ -195,7 +204,7 @@ public class NewTileLayerUI implements Observer {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(inputUrl.getText() != null) {
+                if (inputUrl.getText() != null) {
                     String givenUrl = inputUrl.getText().toString();
                     model.setUrl(givenUrl);
                 }
@@ -205,6 +214,28 @@ public class NewTileLayerUI implements Observer {
         // Show a menu to choose from saved urls
         TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
         defaultText.setOnClickListener((View view) -> controller.loadSavedUrls());
+
+        // Example URLs from github
+        TextView exampleUrlText = (TextView) alertView.findViewById(R.id.example_urls);
+        exampleUrlText.setOnClickListener(view -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
+            builder.setTitle(fragment.getString(R.string.example_url_header));
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    context, android.R.layout.select_dialog_item);
+
+            SampleDownloader sampleDownloader = new SampleDownloader(fragment.getActivity(), adapter);
+            sampleDownloader.getExampleData(activity.getString(R.string.sample_tile_urls));
+            builder.setAdapter(adapter,
+                    (DialogInterface d, int item) -> {
+
+                        if (item >= 0) {
+                            String name = adapter.getItem(item);
+                            inputName.setText(name);
+                            inputUrl.setText(sampleDownloader.getSampleList().get(name));
+                        }
+                    });
+            builder.show();
+        });
 
         // URL help menu
         TextView urlHelpText = (TextView) alertView.findViewById(R.id.url_help);
@@ -242,7 +273,7 @@ public class NewTileLayerUI implements Observer {
                 LayersModel layers = new LayersModel();
                 layers.addObserver(NewTileLayerUI.this);
                 showSpinningDialog();
-                LayersProvider provider = new LayersProvider(fragment.getActivity(), layers);
+                provider = new LayersProvider(fragment.getActivity(), layers);
                 provider.retrieveLayers(model.getUrl());
             }
         });
@@ -291,18 +322,22 @@ public class NewTileLayerUI implements Observer {
      * Shows the saved urls the user can choose from, or a message stating they have none.
      */
     private void showSavedUrls() {
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_saved_url_list, null);
+        ListView listView = view.findViewById(R.id.list_view);
+        ArrayList<SavedUrl> urlList = model.getSavedUrlObjectList();
+        SavedUrlAdapter adapter = new SavedUrlAdapter(context, urlList);
+        listView.setAdapter(adapter);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Saved Tile URLs");
-        if (model.getSavedUrls().length > 0) {
-            builder.setItems(model.getSavedUrls(), (DialogInterface dialog, int which) -> {
-                inputUrl.setText(model.getSavedUrls()[which]);
-                inputUrl.setError(null);
-                ViewAnimation.setBounceAnimatiom(inputUrl, 200);
-            });
-        } else {
-            builder.setMessage(fragment.getString(R.string.no_saved_urls_message));
-        }
-        builder.show();
+        builder.setView(view);
+        AlertDialog ad = builder.show();
+        listView.setOnItemClickListener((adapterView, view1, i, l) -> {
+            inputUrl.setText(model.getUrlAtPosition(i));
+            inputUrl.setError(null);
+            ViewAnimation.setBounceAnimatiom(inputUrl, 200);
+            ad.dismiss();
+        });
+        adapter.updateConnections(urlList);
     }
 
     /**
@@ -313,7 +348,23 @@ public class NewTileLayerUI implements Observer {
         progressDialog.setTitle("Retrieving Layers");
         progressDialog.setCancelable(false);
         progressDialog.setIndeterminate(true);
+        progressDialog.setButton(
+                DialogInterface.BUTTON_NEGATIVE,
+                "Cancel",
+                (dialog, which) -> this.cancelRetrieveLayers());
         progressDialog.show();
+    }
+
+    /**
+     * Cancels Retrieving layers.
+     */
+    private void cancelRetrieveLayers() {
+        if (provider != null) {
+            this.provider.cancel();
+        }
+        if (progressDialog != null) {
+            this.progressDialog.dismiss();
+        }
     }
 
     /**

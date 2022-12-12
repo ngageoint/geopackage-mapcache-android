@@ -15,12 +15,12 @@ public class UserLoggerInner {
     /**
      * Unique string identifying map cache saved accounts.
      */
-    private static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache";
+    private final static String MAPCACHE_ACCOUNT_TYPE = "mil.nga.mapcache";
 
     /**
      * The applications activity.
      */
-    private Activity activity;
+    private final Activity activity;
 
     /**
      * Contains what the user entered for their username and password if we needed to prompt them.
@@ -42,10 +42,10 @@ public class UserLoggerInner {
      * and password is not found in the AccountManager or if authentication fails, we will then
      * prompt the user for a username and password authenticate and then store it for later use.
      *
-     * @param url            The url to login to.
-     * @param IAuthenticator Object that knows how to authenticate user against the url.
+     * @param url           The url to login to.
+     * @param authenticator Object that knows how to authenticate user against the url.
      */
-    public void login(URL url, Authenticator IAuthenticator) {
+    public void login(URL url, Authenticator authenticator) {
         String host = url.getAuthority();
         AccountManager accountManager = AccountManager.get(this.activity);
         Account[] accounts = accountManager.getAccountsByType(MAPCACHE_ACCOUNT_TYPE);
@@ -57,7 +57,7 @@ public class UserLoggerInner {
                 if (split[1].equals(host)) {
                     String userName = split[0];
                     String password = accountManager.getPassword(account);
-                    authenticated = IAuthenticator.authenticate(url, userName, password);
+                    authenticated = authenticator.authenticate(url, userName, password);
                     if (!authenticated) {
                         accountManager.removeAccount(account, null, null);
                     }
@@ -71,14 +71,29 @@ public class UserLoggerInner {
             String username = model.getUsername();
             String password = model.getPassword();
             if (username != null && password != null) {
-                authenticated = IAuthenticator.authenticate(url, username, password);
-                if (authenticated) {
-                    Account newAccount = new Account(username + " - " + host, MAPCACHE_ACCOUNT_TYPE);
-                    accountManager.addAccountExplicitly(newAccount, password, null);
+                authenticated = authenticator.authenticate(url, username, password);
+                if (authenticated && authenticator.shouldSaveAccount()) {
+                    saveLastAccount();
                 }
             } else {
                 // Not really authenticated, user cancelled the login
                 authenticated = true;
+            }
+        }
+    }
+
+    /**
+     * Saves the account to the phone.
+     */
+    public void saveLastAccount() {
+        if (model != null) {
+            String userName = model.getUsername();
+            String password = model.getPassword();
+            String host = model.getLoginTo();
+            if (userName != null && password != null && host != null) {
+                AccountManager accountManager = AccountManager.get(this.activity);
+                Account newAccount = new Account(userName + " - " + host, MAPCACHE_ACCOUNT_TYPE);
+                accountManager.addAccountExplicitly(newAccount, password, null);
             }
         }
     }
@@ -106,7 +121,7 @@ public class UserLoggerInner {
     private void askUser(String host) {
         UserPassDialog dialog = new UserPassDialog(this.activity, host);
         model = dialog.getModel();
-        model.addObserver((model, property) -> onUpdate(model, property));
+        model.addObserver(this::onUpdate);
         dialog.show();
     }
 

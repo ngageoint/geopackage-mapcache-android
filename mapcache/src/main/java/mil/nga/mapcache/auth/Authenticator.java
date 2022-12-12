@@ -15,5 +15,12 @@ public interface Authenticator {
      * @param password The user's password.
      * @return True if authentication is successful, false if it failed.
      */
-    public boolean authenticate(URL url, String userName, String password);
+    boolean authenticate(URL url, String userName, String password);
+
+    /**
+     * Indicates if we should save the account to the phone after a successful authentication.
+     *
+     * @return True if the account should be saved after successful authentication, false if it should not.
+     */
+    boolean shouldSaveAccount();
 }

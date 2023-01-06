@@ -9,17 +9,18 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v1
-    - name: set up JDK 11
-      uses: actions/setup-java@v1
+      uses: actions/checkout@v3
+    - name: set up JDK 16
+      uses: actions/setup-java@v3
       with:
-        java-version: 11
+        java-version: 16
+        distribution: 'adopt'
     - name: mobsfscan
       uses: MobSF/mobsfscan@0.1.2
       with:
         args: '. --sarif --output results.sarif || true'
     - name: Upload mobsfscan report
-      uses: github/codeql-action/upload-sarif@v1
+      uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: results.sarif
     - name: Build with Gradle

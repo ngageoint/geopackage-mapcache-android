@@ -97,27 +97,33 @@ public class SampleDownloader implements IResponseHandler {
                         JSONObject mainObject = new JSONObject(sb.toString());
                         sampleList.putAll(new Gson().fromJson(sb.toString(), HashMap.class));
                         activity.runOnUiThread(new Runnable() {
-
                             @Override
                             public void run() {
-                                adapter.addAll(sampleList.keySet());
-
+                                adapter.clear();
+                                if(sampleList.isEmpty()){
+                                    adapter.add(activity.getString(R.string.examples_unavailable));
+                                } else {
+                                    adapter.addAll(sampleList.keySet());
+                                }
                             }
                         });
                     }
                 } catch (Exception e){
                     Log.e("error", e.toString());
                 }
-
         }
-
-
-
     }
 
     @Override
     public void handleException(IOException exception) {
         Log.e(SampleDownloader.class.getSimpleName(), "Failed to get sample data: ", exception);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.clear();
+                adapter.add(activity.getString(R.string.examples_unavailable));
+            }
+        });
     }
 
     @Override

@@ -101,8 +101,10 @@ public class HttpGetRequest implements Runnable, Authenticator {
 
             if(!webViewHandlingRequest) {
                 int responseCode = connection.getResponseCode();
-                if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
-                        && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
+//                if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
+//                        && (urlString.startsWith("https") || urlString.contains("10.0.2.2"))) {
+                if (responseCode == HttpURLConnection.HTTP_UNAUTHORIZED){
+
                     addBasicAuth(connection.getURL());
                     responseCode = connection.getResponseCode();
                 }

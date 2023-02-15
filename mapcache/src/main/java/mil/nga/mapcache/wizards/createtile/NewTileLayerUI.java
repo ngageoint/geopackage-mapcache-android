@@ -212,11 +212,11 @@ public class NewTileLayerUI implements Observer {
         });
 
         // Show a menu to choose from saved urls
-        TextView defaultText = (TextView) alertView.findViewById(R.id.default_url);
+        TextView defaultText = alertView.findViewById(R.id.default_url);
         defaultText.setOnClickListener((View view) -> controller.loadSavedUrls());
 
         // Example URLs from github
-        TextView exampleUrlText = (TextView) alertView.findViewById(R.id.example_urls);
+        TextView exampleUrlText = alertView.findViewById(R.id.example_urls);
         exampleUrlText.setOnClickListener(view -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
             builder.setTitle(fragment.getString(R.string.example_url_header));
@@ -224,14 +224,16 @@ public class NewTileLayerUI implements Observer {
                     context, android.R.layout.select_dialog_item);
 
             SampleDownloader sampleDownloader = new SampleDownloader(fragment.getActivity(), adapter);
+            adapter.add(activity.getString(R.string.fetching_examples));
             sampleDownloader.getExampleData(activity.getString(R.string.sample_tile_urls));
             builder.setAdapter(adapter,
                     (DialogInterface d, int item) -> {
-
                         if (item >= 0) {
                             String name = adapter.getItem(item);
-                            inputName.setText(name);
-                            inputUrl.setText(sampleDownloader.getSampleList().get(name));
+                            if(!activity.getString(R.string.examples_unavailable).equalsIgnoreCase(name)) {
+                                inputName.setText(name);
+                                inputUrl.setText(sampleDownloader.getSampleList().get(name));
+                            }
                         }
                     });
             builder.show();

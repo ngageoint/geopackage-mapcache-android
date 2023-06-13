@@ -15,7 +15,10 @@
         <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 
-    <!-- Application theme. -->
+    <!-- old theme -->
+    <!--    <style name="AppTheme" parent="@style/Theme.MaterialComponents.Light">-->
+
+    <!-- Application theme -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
 
@@ -51,6 +54,20 @@
     <!-- Material button style -->
     <style name="MaterialButtonStyle" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="backgroundTint">@color/color_states_materialbutton</item>
+    </style>
+
+    <!-- Detail page action buttons style -->
+    <style name="DetailButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">bottom|center</item>
+        <item name="android:background">@drawable/ripple</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:singleLine">true</item>
     </style>
 
 

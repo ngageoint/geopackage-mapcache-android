@@ -116,7 +116,7 @@
             android:label="@string/title_activity_disclaimer" />
         <activity
             android:name=".tutorial.TutorialActivity"
-            android:label="@string/title_activity_tutorial"></activity>
+            android:label="@string/title_activity_tutorial" />
         <activity
             android:name=".view.map.feature.FeatureViewActivity"
             android:label="@string/title_activity_feature_view" />

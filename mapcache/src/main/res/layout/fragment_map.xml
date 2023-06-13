@@ -442,6 +442,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/add"
         android:visibility="visible"
+        app:tint="@color/offwhite"
         app:rippleColor="@color/nga_accent_light"
         app:layout_anchor="@id/map_view_holder"
         app:layout_anchorGravity="bottom|right|end" />
@@ -454,6 +455,7 @@
         android:layout_margin="16dp"
         android:src="@drawable/material_tile_add"
         android:visibility="gone"
+        app:tint="@color/offwhite"
         app:backgroundTint="@color/nga_accent_primary"
         app:rippleColor="@color/nga_accent_light"
         app:layout_anchor="@id/map_view_holder"

@@ -5,12 +5,16 @@
         AppBaseTheme from BOTH res/values/styles.xml and
         res/values-v11/styles.xml on API 14+ devices.
     -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
+    <style name="AppBaseTheme" parent="@style/Theme.MaterialComponents.Light">
         <!-- API 14 theme customizations can go here. -->
+        <item name="colorPrimary">@color/nga_primary_primary</item>
+        <item name="colorPrimaryVariant">@android:color/holo_red_light</item>
+        <item name="colorOnPrimary">@color/black87</item>
 
-        <!-- set action bar background properties -->
-        <!--<item name="actionBarStyle">@style/MyActionBar</item>-->
         <item name="colorAccent">@color/nga_primary_light</item>
+        <item name="colorSecondary">@color/nga_primary_light</item>
+        <item name="colorSecondaryVariant">@android:color/holo_red_light</item>
+        <item name="colorOnSecondary">@color/black87</item>
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
@@ -22,6 +26,11 @@
 
     <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/nga_accent_bright</item>
+    </style>
+
+    <style name="ButtonText">
+        <item name="android:textColor">@color/black87</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 </resources>

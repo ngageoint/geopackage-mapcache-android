@@ -42,6 +42,7 @@
     <!--Name-->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/edit_text_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 

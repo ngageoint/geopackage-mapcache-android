@@ -463,6 +463,11 @@
     <string name="sample_geopackage_url">https://raw.githubusercontent.com/ngageoint/GeoPackage/master/docs/examples/android/hostedGeopackages.json</string>
     <string name="fetching_examples">fetching examples...</string>
     <string name="examples_unavailable">examples unavailable</string>
+    <string name="detailActionButton">Details</string>
+    <string name="renameActionButton">Rename</string>
+    <string name="shareActionButton">Share</string>
+    <string name="copyActionButton">Copy</string>
+    <string name="deleteActionButton">Delete</string>
 
 
 </resources>

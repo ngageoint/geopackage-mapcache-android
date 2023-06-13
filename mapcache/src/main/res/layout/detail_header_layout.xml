@@ -93,55 +93,36 @@
         android:gravity="center"
         android:orientation="horizontal">
 
+        <!-- Action buttons-->
         <Button
             android:id="@+id/header_detail_info"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/ripple"
+            style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_info"
-            android:gravity="bottom|center"
-            android:text="Details" />
+            android:text="@string/detailActionButton" />
 
         <Button
             android:id="@+id/header_detail_rename"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/ripple"
+            style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_edit"
-            android:gravity="bottom|center"
-            android:text="Rename" />
+            android:text="@string/renameActionButton" />
 
         <Button
             android:id="@+id/header_detail_share"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/ripple"
+            style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_share"
-            android:gravity="bottom|center"
-            android:text="Share" />
+            android:text="@string/shareActionButton" />
 
         <Button
             android:id="@+id/header_detail_copy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/ripple"
+            style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_copy"
-            android:gravity="bottom|center"
-            android:text="Copy" />
+            android:text="@string/copyActionButton" />
 
         <Button
             android:id="@+id/header_detail_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/ripple"
+            style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_delete_forever"
-            android:gravity="bottom|center"
-            android:text="Delete" />
+            android:text="@string/deleteActionButton" />
     </LinearLayout>
 
     <!--Layers label, and enable all button-->

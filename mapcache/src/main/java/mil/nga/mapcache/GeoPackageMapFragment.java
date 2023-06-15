@@ -457,11 +457,6 @@ public class GeoPackageMapFragment extends Fragment implements
     public static final int ACTIVITY_CHOOSE_FILE = 3342;
 
     /**
-     * Intent activity request code when opening preferences menu
-     */
-    public static final int ACTIVITY_PREFERENCES = 3345;
-
-    /**
      * RecyclerView that will hold our GeoPackages
      */
     private RecyclerView geoPackageRecycler;
@@ -591,6 +586,8 @@ public class GeoPackageMapFragment extends Fragment implements
      * Activity launchers
      */
     ActivityResultLauncher<Intent> importGeoPackageActivityResultLauncher;
+    ActivityResultLauncher<Intent> preferencePageActivityResultLauncher;
+
 
     /**
      * The camera move listener.
@@ -696,8 +693,12 @@ public class GeoPackageMapFragment extends Fragment implements
      * Launch the preferences activity
      */
     public void launchPreferences() {
-        Intent intent = new Intent(getContext(), PreferencesActivity.class);
-        startActivityForResult(intent, ACTIVITY_PREFERENCES);
+        try {
+            Intent intent = new Intent(getContext(), PreferencesActivity.class);
+            preferencePageActivityResultLauncher.launch(intent);
+        } catch (Exception e) {
+            Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
+        }
     }
 
     /**
@@ -718,6 +719,13 @@ public class GeoPackageMapFragment extends Fragment implements
                         }
                     }
                 });
+        // Launch preference page
+        preferencePageActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                (ActivityResult result) -> {
+                    settingsUpdate();
+                }
+        );
     }
 
     /**
@@ -2156,9 +2164,6 @@ public class GeoPackageMapFragment extends Fragment implements
                     task.importFile();
                 }
                 break;
-            case ACTIVITY_PREFERENCES:
-                settingsUpdate();
-                break;
             default:
                 handled = false;
         }
@@ -2785,7 +2790,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onResume() {
-        settingsUpdate();
         if (locationVisible) {
             showMyLocation();
         }

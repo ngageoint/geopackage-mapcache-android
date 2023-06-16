@@ -3908,8 +3908,9 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onMarkerDragStart(@NonNull Marker marker) {
         if (getActivity() != null) {
-            vibrator.vibrate(getActivity().getResources().getInteger(
-                    R.integer.edit_features_drag_long_click_vibrate));
+            vibrator.vibrate(VibrationEffect.createOneShot(getActivity().getResources()
+                            .getInteger(R.integer.edit_features_add_long_click_vibrate_quick),
+                    VibrationEffect.DEFAULT_AMPLITUDE));
         }
     }
 

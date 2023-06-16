@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -64,6 +65,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnCameraIdleListener;
@@ -1478,11 +1480,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 }
             };
 
-            LocationRequest locationRequest = LocationRequest.create();
-            locationRequest.setInterval(12000);
-            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            locationRequest.setFastestInterval(12000);
-            locationRequest.setNumUpdates(Integer.MAX_VALUE);
+            LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 12000)
+                    .setWaitForAccurateLocation(false)
+                    .setMaxUpdateDelayMillis(100000)
+                    .build();
 
             locationCallback = new LocationCallback() {
                 @Override
@@ -3321,10 +3322,9 @@ public class GeoPackageMapFragment extends Fragment implements
     public void onMapLongClick(@NonNull LatLng point) {
         if (getActivity() != null) {
             if (boundingBoxMode) {
-
-                vibrator.vibrate(getActivity().getResources().getInteger(
-                        R.integer.map_tiles_long_click_vibrate));
-
+                vibrator.vibrate(VibrationEffect.createOneShot(getActivity().getResources()
+                                .getInteger(R.integer.edit_features_add_long_click_vibrate_quick),
+                        VibrationEffect.DEFAULT_AMPLITUDE));
                 // Check to see if editing any of the bounding box corners
                 if (boundingBox != null && boundingBoxEndCorner != null) {
                     Projection projection = map.getProjection();
@@ -3383,16 +3383,18 @@ public class GeoPackageMapFragment extends Fragment implements
             } else if (editFeatureType != null) {
                 if (editFeatureType == EditType.EDIT_FEATURE) {
                     if (editFeatureShapeMarkers != null) {
-                        vibrator.vibrate(getActivity().getResources().getInteger(
-                                R.integer.edit_features_add_long_click_vibrate));
+                        vibrator.vibrate(VibrationEffect.createOneShot(getActivity().getResources()
+                                        .getInteger(R.integer.edit_features_add_long_click_vibrate_quick),
+                                VibrationEffect.DEFAULT_AMPLITUDE));
                         Marker marker = addEditPoint(point);
                         editFeatureShapeMarkers.addNew(marker);
                         editFeatureShape.add(marker, editFeatureShapeMarkers);
                         updateEditState(true);
                     }
                 } else {
-                    vibrator.vibrate(getActivity().getResources().getInteger(
-                            R.integer.edit_features_add_long_click_vibrate));
+                    vibrator.vibrate(VibrationEffect.createOneShot(getActivity().getResources()
+                            .getInteger(R.integer.edit_features_add_long_click_vibrate_quick),
+                            VibrationEffect.DEFAULT_AMPLITUDE));
                     Marker marker = addEditPoint(point);
                     if (editFeatureType == EditType.POLYGON_HOLE) {
                         editHolePoints.put(marker.getId(), marker);

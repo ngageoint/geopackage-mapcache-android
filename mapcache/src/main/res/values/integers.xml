@@ -17,6 +17,7 @@
     <integer name="map_tiles_long_click_vibrate">50</integer>
     <integer name="map_tiles_long_click_screen_percentage">8</integer>
     <integer name="edit_features_add_long_click_vibrate">50</integer>
+    <integer name="edit_features_add_long_click_vibrate_quick">50</integer>
     <integer name="edit_features_drag_long_click_vibrate">50</integer>
     <integer name="feature_tiles_overlay_max_points_per_tile_default">5000</integer>
     <integer name="feature_tiles_overlay_max_features_per_tile_default">2000</integer>

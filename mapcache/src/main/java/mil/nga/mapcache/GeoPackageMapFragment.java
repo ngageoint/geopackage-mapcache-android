@@ -2153,28 +2153,6 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        boolean handled = true;
-
-        switch (requestCode) {
-            case ACTIVITY_CHOOSE_FILE:
-                if (resultCode == Activity.RESULT_OK) {
-                    // Import geopackage from file
-                    ImportTask task = new ImportTask(getActivity(), data);
-                    task.importFile();
-                }
-                break;
-            default:
-                handled = false;
-        }
-
-        if (!handled) {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-
     /**
      * {@inheritDoc}
      */
@@ -2326,16 +2304,9 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private SupportMapFragment getMapFragment() {
         FragmentManager fm;
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT_WATCH) {
-            fm = getFragmentManager();
-        } else {
-            fm = getChildFragmentManager();
-        }
+        fm = getChildFragmentManager();
         SupportMapFragment frag = null;
-        if (fm != null) {
-            frag = (SupportMapFragment) fm.findFragmentById(R.id.fragment_map_view_ui);
-        }
-
+        frag = (SupportMapFragment) fm.findFragmentById(R.id.fragment_map_view_ui);
         return frag;
     }
 

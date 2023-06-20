@@ -741,13 +741,12 @@ public class GeoPackageMapFragment extends Fragment implements
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
-        boolean appDarkMode = settings.getBoolean(SETTINGS_APP_DARK_KEY, false);
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
         boolean zoomLevelVisible = settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
         displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
 
         setMapDarkMode(darkMode);
-        setAppDarkMode(appDarkMode);
+        setAppDarkMode();
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
         if (basemapApplier != null) {
@@ -2224,11 +2223,12 @@ public class GeoPackageMapFragment extends Fragment implements
 
     /**
      * Set the full app color scheme to dark or default
-     *
-     * @param makeDark True if the app style should be the dark style, false otherwise.
      */
-    private void setAppDarkMode(boolean makeDark) {
-        if (makeDark) {
+    private void setAppDarkMode() {
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        boolean appDarkMode = settings.getBoolean(SETTINGS_APP_DARK_KEY, false);
+        if (appDarkMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

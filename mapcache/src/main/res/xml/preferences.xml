@@ -20,6 +20,10 @@
             app:key="@string/dark_map_key"
             app:title="Use dark map"/>
 
+        <SwitchPreferenceCompat
+            app:key="@string/dark_app_key"
+            app:title="Full Dark Mode"/>
+
         <CheckBoxPreference
             android:title="Show max features warning"
             android:defaultValue="true"

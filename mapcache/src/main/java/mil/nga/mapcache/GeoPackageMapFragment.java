@@ -50,6 +50,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -207,6 +208,11 @@ public class GeoPackageMapFragment extends Fragment implements
      * Key for using dark mode from preferences
      */
     private static final String SETTINGS_DARK_KEY = "dark_map";
+
+    /**
+     * Key for using app dark mode from preferences
+     */
+    private static final String SETTINGS_APP_DARK_KEY = "dark_app";
 
     /**
      * Key for zoom icons being visible from shared preferences
@@ -452,11 +458,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Edit clear button
      */
     private ImageButton editClearPolygonHolesButton;
-
-    /**
-     * Intent activity request code when choosing a file
-     */
-    public static final int ACTIVITY_CHOOSE_FILE = 3342;
 
     /**
      * RecyclerView that will hold our GeoPackages
@@ -740,11 +741,13 @@ public class GeoPackageMapFragment extends Fragment implements
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
         boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
+        boolean appDarkMode = settings.getBoolean(SETTINGS_APP_DARK_KEY, false);
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
         boolean zoomLevelVisible = settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
         displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
 
         setMapDarkMode(darkMode);
+        setAppDarkMode(appDarkMode);
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
         if (basemapApplier != null) {
@@ -2216,6 +2219,23 @@ public class GeoPackageMapFragment extends Fragment implements
             map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
         }
     }
+
+
+
+    /**
+     * Set the full app color scheme to dark or default
+     *
+     * @param makeDark True if the app style should be the dark style, false otherwise.
+     */
+    private void setAppDarkMode(boolean makeDark) {
+        if (makeDark) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
+
+
 
     /**
      * Make the zoom in / zoom out icons visible

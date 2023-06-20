@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- Colors used for theming control in light mode -->
+
 <resources>
     <color name="accent_material_light">#3b779a</color>
+
+    <!-- Light mode -->
+    <color name="backgroundColor">@color/offwhite</color>
+    <color name="textPrimaryColor">@color/black87</color>
+    <color name="textSecondaryColor">@color/black50</color>
 </resources>

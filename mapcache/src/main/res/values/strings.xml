@@ -470,6 +470,7 @@
     <string name="copyActionButton">Copy</string>
     <string name="deleteActionButton">Delete</string>
     <string name="go_to_geopackage">Go to geopackage</string>
+    <string name="get_started">Get Started</string>
 
 
 </resources>

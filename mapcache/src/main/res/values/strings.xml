@@ -469,6 +469,7 @@
     <string name="shareActionButton">Share</string>
     <string name="copyActionButton">Copy</string>
     <string name="deleteActionButton">Delete</string>
+    <string name="go_to_geopackage">Go to geopackage</string>
 
 
 </resources>

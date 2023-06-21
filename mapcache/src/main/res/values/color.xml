@@ -68,6 +68,14 @@
 
     <color name="nga_primary_bright_partial">#C4FFFFFF</color>
 
+    <!-- Light mode colors -->
+
+
+    <!-- Dark mode colors -->
+    <color name="darkPrimaryBackground">#2A3339</color>
+    <color name="darkSecondaryBackground">#4A5861</color>
+    <color name="white87">#DEFFFFFF</color>
+    <color name="white50">#80FFFFFF</color>
 
 
 

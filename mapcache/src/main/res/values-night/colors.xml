@@ -6,8 +6,9 @@
     <color name="accent_material_light">#3b779a</color>
 
     <!-- Night Mode -->
-    <color name="backgroundColor">#0B2230</color>
-    <color name="textPrimaryColor">@color/white</color>
-    <color name="textSecondaryColor">@color/white</color>
+    <color name="backgroundPrimaryColor">@color/darkPrimaryBackground</color>
+    <color name="backgroundSecondaryColor">@color/darkSecondaryBackground</color>
+    <color name="textPrimaryColor">@color/white87</color>
+    <color name="textSecondaryColor">@color/white50</color>
 
 </resources>

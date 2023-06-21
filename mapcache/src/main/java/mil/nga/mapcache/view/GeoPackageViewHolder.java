@@ -1,5 +1,6 @@
 package mil.nga.mapcache.view;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.view.View;
@@ -62,6 +63,11 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
     private boolean active;
 
     /**
+     * Card item's context for getting resources
+     */
+    private Context itemContext;
+
+    /**
      * Constructor
      * @param itemView View to attach
      * @param listener Click listener for clicking on a GeoPackage row
@@ -78,17 +84,18 @@ public class GeoPackageViewHolder extends RecyclerView.ViewHolder implements Vie
         itemView.setClickable(true);
         itemView.setOnClickListener(this);
         res = itemView.getContext().getResources();
+        itemContext = itemView.getContext();
     }
 
     /**
-     * Set the background color of the side isle based on the active state
+     * Set the background color of the side isle based on the active state, or use system theme
      */
     public void setActiveColor(boolean active){
         this.active = active;
         if(active){
-            activeLayout.setBackgroundColor(res.getColor(R.color.nga_accent_light));
+            activeLayout.setBackgroundColor(res.getColor(R.color.nga_accent_light, itemContext.getTheme()));
         } else{
-            activeLayout.setBackgroundColor(Color.WHITE);
+            activeLayout.setBackgroundColor(res.getColor(R.color.backgroundSecondaryColor, itemContext.getTheme()));
         }
     }
 

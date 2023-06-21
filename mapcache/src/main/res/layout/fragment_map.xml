@@ -387,7 +387,7 @@
         android:id="@+id/recycler_geopackages"
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:background="@color/backgroundColor"
+        android:background="@color/backgroundPrimaryColor"
         android:paddingBottom="90dp"
         android:clipToPadding="false"
         app:layout_behavior="@string/bottom_sheet_behavior"

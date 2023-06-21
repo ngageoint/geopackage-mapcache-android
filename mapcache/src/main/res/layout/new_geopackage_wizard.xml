@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundPrimaryColor"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -24,6 +26,7 @@
             style="@style/Base.TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/textPrimaryColor"
             android:text="New GeoPackage" />
 
     </LinearLayout>
@@ -33,12 +36,14 @@
         <View style="@style/Divider"
             android:layout_marginBottom="16dp"
             android:layout_marginRight="4dp"
+            android:backgroundTint="@color/textPrimaryColor"
             />
 
         <!--Create new-->
         <androidx.cardview.widget.CardView
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/new_wizard_create_card"
+            android:backgroundTint="@color/backgroundSecondaryColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
@@ -59,7 +64,8 @@
                     android:scaleType="fitXY"
                     android:adjustViewBounds="true"
                     android:layout_gravity="center"
-                    android:src="@drawable/material_add_box"/>
+                    android:src="@drawable/material_add_box"
+                    card_view:tint="@color/textPrimaryColor" />
                 <TextView
                     android:id="@+id/new_wizard_create"
                     android:layout_width="wrap_content"
@@ -68,7 +74,7 @@
                     android:layout_toRightOf="@+id/wizard_create_icon"
                     android:text="Create New"
                     android:textAppearance="@style/textAppearanceBody1Medium"
-                    android:textColor="@color/nga_primary_light"/>
+                    android:textColor="@color/textLinkColor"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -77,6 +83,7 @@
         <androidx.cardview.widget.CardView
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/new_wizard_download_card"
+            android:backgroundTint="@color/backgroundSecondaryColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
@@ -97,7 +104,8 @@
                 android:scaleType="fitXY"
                 android:adjustViewBounds="true"
                 android:layout_gravity="center"
-                android:src="@drawable/material_cloud" />
+                android:src="@drawable/material_cloud"
+                card_view:tint="@color/textPrimaryColor"/>
             <TextView
                 android:id="@+id/new_wizard_download"
                 android:layout_width="wrap_content"
@@ -105,7 +113,7 @@
                 android:padding="16dp"
                 android:text="Download from URL"
                 android:textAppearance="@style/textAppearanceBody1Medium"
-                android:textColor="@color/nga_primary_light"/>
+                android:textColor="@color/textLinkColor"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -114,6 +122,7 @@
         <androidx.cardview.widget.CardView
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/new_wizard_file_card"
+            android:backgroundTint="@color/backgroundSecondaryColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
@@ -134,7 +143,8 @@
                 android:scaleType="fitXY"
                 android:adjustViewBounds="true"
                 android:layout_gravity="center"
-                android:src="@drawable/material_description"/>
+                android:src="@drawable/material_description"
+                card_view:tint="@color/textPrimaryColor"/>
             <TextView
                 android:id="@+id/new_wizard_file"
                 android:layout_width="wrap_content"
@@ -142,7 +152,7 @@
                 android:padding="16dp"
                 android:text="Import from File"
                 android:textAppearance="@style/textAppearanceBody1Medium"
-                android:textColor="@color/nga_primary_light"/>
+                android:textColor="@color/textLinkColor"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

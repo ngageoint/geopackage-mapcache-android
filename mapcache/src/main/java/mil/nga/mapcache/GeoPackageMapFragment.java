@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.hardware.SensorEvent;
 import android.location.Location;
@@ -54,6 +55,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -1780,6 +1782,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Logo and title
             ImageView closeLogo = alertView.findViewById(R.id.new_layer_close_logo);
             closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+            DrawableCompat.setTint(closeLogo.getBackground(), getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
             TextView titleText = alertView.findViewById(R.id.new_layer_title);
             titleText.setText(R.string.new_geopackage_layer);
 

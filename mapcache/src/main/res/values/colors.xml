@@ -8,6 +8,12 @@
     <!-- Light mode -->
     <color name="backgroundPrimaryColor">@color/offwhite</color>
     <color name="backgroundSecondaryColor">@color/offwhite</color>
+
     <color name="textPrimaryColor">@color/black87</color>
     <color name="textSecondaryColor">@color/black50</color>
+    <color name="textLinkColor">@color/nga_primary_light</color>
+
+    <color name="mutedAccentColor">@color/nga_accent_bright</color>
+
+
 </resources>

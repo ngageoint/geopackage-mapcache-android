@@ -399,7 +399,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/gradient_vertical"
+        android:background="@color/backgroundPrimaryColor"
         android:layout_gravity="bottom"
         android:paddingTop="32dp"
         android:paddingBottom="32dp">
@@ -421,6 +421,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingTop="8dp"
+            android:textColor="@color/textSecondaryColor"
             android:text="@string/no_packages_text" />
 
         <TextView
@@ -430,7 +431,7 @@
             android:gravity="center"
             android:paddingTop="16dp"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:textColor="@color/nga_primary_light"
+            android:textColor="@color/textLinkColor"
             android:text="Get Started" />
     </LinearLayout>
 

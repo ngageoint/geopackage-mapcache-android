@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -46,7 +47,8 @@
                     android:paddingRight="16dp"
                     android:paddingBottom="16dp"
                     android:paddingTop="8dp"
-                    android:src="@drawable/ic_arrow_back_black_24dp" />
+                    android:src="@drawable/ic_arrow_back_black_24dp"
+                    app:tint="@color/textPrimaryColor" />
 
                 <TextView
                     android:id="@+id/layerName"
@@ -123,18 +125,24 @@
                     android:id="@+id/layerRenameButton"
                     style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_edit"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:text="Rename" />
 
                 <Button
                     android:id="@+id/layerCopyButton"
                     style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_copy"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:text="Copy" />
 
                 <Button
                     android:id="@+id/editFeaturesButton"
                     style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_location"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:visibility="gone"
                     android:text="Edit" />
 
@@ -142,6 +150,8 @@
                     android:id="@+id/layerDeleteButton"
                     style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_delete_forever"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:text="Delete" />
 
 
@@ -154,7 +164,7 @@
                 android:id="@+id/layerDetailFields"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/light_blue_bg"
+                android:background="@color/offsetBackgroundColor"
                 android:orientation="horizontal"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"

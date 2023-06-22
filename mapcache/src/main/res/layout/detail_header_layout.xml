@@ -2,13 +2,13 @@
 <!--Layout for the header of the GeoPackage detail view-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/detailHeaderMain"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin">
-
 
     <!--Small tab to indicate drag window    -->
     <androidx.cardview.widget.CardView
@@ -41,7 +41,8 @@
             android:paddingRight="16dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:src="@drawable/ic_arrow_back_black_24dp" />
+            android:src="@drawable/ic_arrow_back_black_24dp"
+            app:tint="@color/textPrimaryColor" />
 
         <!--GeoPackage Name-->
         <TextView
@@ -98,30 +99,40 @@
             android:id="@+id/header_detail_info"
             style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_info"
+            android:drawableTint="@color/textPrimaryColor"
+            android:textColor="@color/textPrimaryColor"
             android:text="@string/detailActionButton" />
 
         <Button
             android:id="@+id/header_detail_rename"
             style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_edit"
+            android:drawableTint="@color/textPrimaryColor"
+            android:textColor="@color/textPrimaryColor"
             android:text="@string/renameActionButton" />
 
         <Button
             android:id="@+id/header_detail_share"
             style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_share"
+            android:drawableTint="@color/textPrimaryColor"
+            android:textColor="@color/textPrimaryColor"
             android:text="@string/shareActionButton" />
 
         <Button
             android:id="@+id/header_detail_copy"
             style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_copy"
+            android:drawableTint="@color/textPrimaryColor"
+            android:textColor="@color/textPrimaryColor"
             android:text="@string/copyActionButton" />
 
         <Button
             android:id="@+id/header_detail_delete"
             style="@style/DetailButtonStyle"
             android:drawableTop="@drawable/material_delete_forever"
+            android:drawableTint="@color/textPrimaryColor"
+            android:textColor="@color/textPrimaryColor"
             android:text="@string/deleteActionButton" />
     </LinearLayout>
 
@@ -154,12 +165,14 @@
             android:text="Enable all"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
 
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/header_all_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:paddingLeft="8dp"/>
+            android:checked="true"
+            android:theme="@style/SwitchCompatTheme"
+            android:paddingStart="8dp"/>
 
     </LinearLayout>
 </LinearLayout>

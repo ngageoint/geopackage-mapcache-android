@@ -57,6 +57,13 @@
         <item name="backgroundTint">@color/color_states_materialbutton</item>
     </style>
 
+    <!-- Switches -->
+    <style name="SwitchCompatTheme" parent="">
+        <item name="colorControlActivated">@color/layerFabColor</item>
+        <item name="colorSwitchThumbNormal">#f1f1f1</item>
+        <item name="android:colorForeground">#42221f1f</item>
+    </style>
+
     <!-- Detail page action buttons style -->
     <style name="DetailButtonStyle">
         <item name="android:layout_width">wrap_content</item>
@@ -111,7 +118,7 @@
         <item name="android:fontFamily">@font/roboto_bold</item>
         <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0.009</item>
-        <item name="android:textColor">@color/black87</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
     </style>
     <style name="textAppearanceSubtitle1Faded" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_bold</item>
@@ -122,6 +129,7 @@
     <style name="textAppearanceSubtitle1" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_regular</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
         <item name="android:letterSpacing">0.009</item>
     </style>
     <style name="textAppearanceSubtitle2" parent="@android:style/TextAppearance.Material.Subhead">
@@ -137,7 +145,13 @@
     <style name="textAppearanceSubtitle2_light_heavy" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/nav_not_selected</item>
+        <item name="android:textColor">@color/textSecondaryColor</item>
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
+    <style name="textAppearanceSubtitle3_light_heavy" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/textNavNotSelected</item>
         <item name="android:letterSpacing">0.0071</item>
     </style>
     <style name="textAppearanceSubtitle2_light_heavy12" parent="@android:style/TextAppearance.Material.Subhead">
@@ -161,7 +175,7 @@
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0.03125</item>
-        <item name="android:textColor">@color/dark_blue_text</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
     </style>
     <style name="textAppearanceBody2" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_regular</item>

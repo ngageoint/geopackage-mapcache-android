@@ -7,6 +7,7 @@ import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import mil.nga.mapcache.R;
@@ -54,7 +55,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
     /**
      * Enable all switch
      */
-    private Switch enableAllSwitch;
+    private SwitchCompat enableAllSwitch;
 
     /**
      * Action buttons for detail, rename, share, copy, and delete GeoPackage
@@ -104,7 +105,7 @@ public class HeaderViewHolder extends RecyclerView.ViewHolder {
         textFeatures = (TextView) itemView.findViewById(R.id.header_text_features);
         textTiles = (TextView) itemView.findViewById(R.id.header_text_tiles);
         backArrow = (ImageButton) itemView.findViewById(R.id.detailPageBackButton);
-        enableAllSwitch = (Switch) itemView.findViewById(R.id.header_all_switch);
+        enableAllSwitch = (SwitchCompat) itemView.findViewById(R.id.header_all_switch);
         backArrow.setOnClickListener(backListener);
         this.actionListener = actionListener;
         mEnableAllListener = enableAllListener;

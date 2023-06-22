@@ -37,7 +37,7 @@
             android:paddingRight="0dp"
             android:paddingBottom="16dp"
             android:text="layer"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"></TextView>
+            android:textAppearance="@style/textAppearanceSubtitle3_light_heavy"></TextView>
 
         <!--Active layer switch-->
         <Switch

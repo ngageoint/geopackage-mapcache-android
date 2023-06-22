@@ -12,11 +12,13 @@
     <color name="textPrimaryColor">@color/white87</color>
     <color name="textSecondaryColor">@color/white75</color>
     <color name="textLinkColor">@color/nga_accent_primary</color>
+    <color name="textNavNotSelected">@color/nav_not_selected_dark</color>
+
 
     <color name="geopackageFabColor">@color/nga_accent_primary</color>
     <color name="layerFabColor">@color/nga_primary_extra_light</color>
 
     <color name="mutedAccentColor">@color/nga_accent_muted_dark</color>
-
+    <color name="offsetBackgroundColor">@color/midDarkBackground</color>
 
 </resources>

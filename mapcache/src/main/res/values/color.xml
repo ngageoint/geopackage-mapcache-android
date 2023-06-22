@@ -74,11 +74,15 @@
     <!-- Dark mode colors -->
     <color name="darkPrimaryBackground">#2A3339</color>
     <color name="darkSecondaryBackground">#4A5861</color>
+    <color name="midDarkBackground">#323C43</color>
     <color name="white87">#DEFFFFFF</color>
     <color name="white50">#80FFFFFF</color>
     <color name="white75">#BFFFFFFF</color>
     <color name="nga_accent_muted_dark">#1E5659</color>
     <color name="nga_primary_extra_light">#62B0DD</color>
+    <color name="nav_not_selected_dark">#BFFFFFFF</color>
+
+
 
 
 

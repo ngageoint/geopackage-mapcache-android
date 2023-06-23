@@ -2066,7 +2066,16 @@ public class GeoPackageMapFragment extends Fragment implements
             importUrlView.findViewById(R.id.import_examples)
                     .setOnClickListener((View v) -> {
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                                getActivity(), android.R.layout.select_dialog_item);
+                                getActivity(), android.R.layout.select_dialog_item){
+                            @Override
+                            public View getView(int position, View convertView, ViewGroup parent) {
+                                View view = super.getView(position, convertView, parent);
+                                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                                text1.setTextColor(getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
+                                return view;
+                            }
+                        };
+
                         // Download sample geopackages from our github server, and combine that list
                         // with our own locally provided preloaded geopackages
                         SampleDownloader sampleDownloader = new SampleDownloader(getActivity(), adapter);
@@ -2075,6 +2084,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         AlertDialog.Builder builder = new AlertDialog.Builder(
                                 getActivity(), R.style.AppCompatAlertDialogStyle);
                         builder.setTitle(getString(R.string.import_url_preloaded_label));
+
                         builder.setAdapter(adapter,
                                 (DialogInterface d, int item) -> {
                                     if (item >= 0) {

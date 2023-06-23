@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -18,7 +19,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="center"
-        android:src="@drawable/material_cloud" />
+        android:src="@drawable/material_cloud"
+        app:tint="@color/textPrimaryColor" />
 
         <TextView
             android:id="@+id/textView1"
@@ -28,6 +30,7 @@
             android:layout_alignTop="@+id/import_export"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/import_export"
+            android:textColor="@color/textPrimaryColor"
             android:text="Download from URL" />
     </LinearLayout>
 
@@ -35,12 +38,15 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/import_url_name_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:theme="@style/TextLabel">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/import_url_name_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/textPrimaryColor"
             android:hint="@string/hint_name" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -48,12 +54,15 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/import_url_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:theme="@style/TextLabel">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/import_url_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/textPrimaryColor"
             android:hint="@string/hint_url" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -61,7 +70,7 @@
     <TextView
         android:id="@+id/import_examples"
         style="@style/textAppearanceSubtitle2_light_heavy"
-        android:textColor="@color/nga_primary_light"
+        android:textColor="@color/textLinkColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingRight="16dp"
@@ -72,24 +81,24 @@
 
     <TextView
         android:id="@+id/import_url_web1"
+        style="@style/textAppearanceSubtitle2_light_heavy"
+        android:textColorLink="@color/textLinkColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingRight="16dp"
         android:paddingTop="16dp"
         android:paddingBottom="16dp"
-        style="@style/textAppearanceSubtitle2_light_heavy"
-        android:textColor="@color/nga_primary_light"
         android:text="@string/preloaded_ogc_examples" />
 
     <TextView
         android:id="@+id/import_url_web2"
+        style="@style/textAppearanceSubtitle2_light_heavy"
+        android:textColorLink="@color/textLinkColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingRight="16dp"
         android:paddingBottom="16dp"
         android:paddingTop="16dp"
-        style="@style/textAppearanceSubtitle2_light_heavy"
-        android:textColor="@color/nga_primary_light"
         android:text="@string/preloaded_nga_examples"/>
 
 </LinearLayout>

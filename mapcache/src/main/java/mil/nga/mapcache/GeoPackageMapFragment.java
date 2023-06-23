@@ -10,6 +10,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
@@ -52,6 +53,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -1732,8 +1734,8 @@ public class GeoPackageMapFragment extends Fragment implements
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
             // Logo and title
-            ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
-            alertLogo.setBackgroundResource(R.drawable.material_add_box);
+            AppCompatImageView alertLogo = alertView.findViewById(R.id.alert_logo);
+            alertLogo.setImageResource(R.drawable.material_add_box);
             TextView titleText = alertView.findViewById(R.id.alert_title);
             titleText.setText(R.string.create_geopackage_full);
             // GeoPackage name

@@ -5,13 +5,13 @@
 <resources>
     <color name="accent_material_light">#3b779a</color>
 
-    <!-- Light mode -->
     <color name="backgroundPrimaryColor">@color/offwhite</color>
     <color name="backgroundSecondaryColor">@color/offwhite</color>
 
     <color name="textPrimaryColor">@color/black87</color>
     <color name="textSecondaryColor">@color/black50</color>
     <color name="textLinkColor">@color/nga_primary_light</color>
+    <color name="textSecondaryLinkColor">@color/nav_not_selected</color>
     <color name="textNavNotSelected">@color/nav_not_selected</color>
 
     <color name="geopackageFabColor">@color/nga_primary_light</color>

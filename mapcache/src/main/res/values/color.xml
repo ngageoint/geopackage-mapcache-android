@@ -78,6 +78,8 @@
     <color name="white87">#DEFFFFFF</color>
     <color name="white50">#80FFFFFF</color>
     <color name="white75">#BFFFFFFF</color>
+    <color name="black75">#5A5A5A</color>
+
     <color name="nga_accent_muted_dark">#1E5659</color>
     <color name="nga_primary_extra_light">#62B0DD</color>
     <color name="nav_not_selected_dark">#BFFFFFFF</color>

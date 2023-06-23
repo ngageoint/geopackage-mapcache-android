@@ -32,11 +32,20 @@
         <item name="colorPrimary">@color/status_bar_light</item>
     </style>
 
+    <!-- Alert dialog for things like create new GeoPackage, or rename/copy -->
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColorPrimary">#89000000</item>
+        <item name="colorOnPrimary">@color/textPrimaryColor</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
         <item name="android:background">@color/backgroundPrimaryColor</item>
+    </style>
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/textLinkColor</item>
+    </style>
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/textSecondaryLinkColor</item>
     </style>
 
     <!-- ActionBar styles -->
@@ -76,6 +85,19 @@
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">0dp</item>
         <item name="android:singleLine">true</item>
+    </style>
+
+    <!-- Text input fields -->
+    <style name="TextLabel" parent="AppBaseTheme">
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+        <item name="colorControlNormal">@color/textSecondaryColor</item>
+        <item name="colorControlActivated">@color/mutedAccentColor</item>
+        <item name="colorPrimary">@color/textSecondaryColor</item>
+        <item name="colorOnSurface">@color/textSecondaryColor</item>
+        <item name="colorOnSecondary">@color/textSecondaryColor</item>
+
+        <item name="colorAccent">@color/textSecondaryColor</item>
+
     </style>
 
 

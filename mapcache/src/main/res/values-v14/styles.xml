@@ -8,7 +8,7 @@
     <style name="AppBaseTheme" parent="@style/Theme.MaterialComponents.Light">
         <!-- API 14 theme customizations can go here. -->
         <item name="colorPrimary">@color/nga_primary_primary</item>
-        <item name="colorPrimaryVariant">@android:color/holo_red_light</item>
+        <item name="colorPrimaryVariant">@color/textPrimaryColor</item>
         <item name="colorOnPrimary">@color/black87</item>
 
         <item name="colorAccent">@color/nga_primary_light</item>
@@ -18,10 +18,8 @@
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
-
         <item name="titleTextStyle">@style/MyTitleTextStyle</item>
         <item name="background">@color/nga_primary_primary_dark</item>
-
     </style>
 
     <style name="MyTitleTextStyle" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">

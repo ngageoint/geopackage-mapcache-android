@@ -41,10 +41,10 @@ public class GeoPackageUtils {
     public static void showMessage(Activity activity, String title,
                                    String message) {
         if (title != null || message != null) {
-            new AlertDialog.Builder(activity)
+            new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
                     .setTitle(title != null ? title : "")
                     .setMessage(message != null ? message : "")
-                    .setNeutralButton(
+                    .setPositiveButton(
                             activity.getString(R.string.button_ok_label),
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,

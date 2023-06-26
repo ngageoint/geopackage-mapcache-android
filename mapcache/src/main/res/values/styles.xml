@@ -35,6 +35,7 @@
     <!-- Alert dialog for things like create new GeoPackage, or rename/copy -->
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorOnPrimary">@color/textPrimaryColor</item>
+        <item name="android:textColorPrimary">@color/textPrimaryColor</item>
         <item name="android:textColor">@color/textPrimaryColor</item>
         <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>

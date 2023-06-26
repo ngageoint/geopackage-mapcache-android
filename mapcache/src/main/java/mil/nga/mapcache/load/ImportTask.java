@@ -242,7 +242,7 @@ public class ImportTask {
                                 @Override
                                 public void run() {
                                     GeoPackageUtils.showMessage(activity,
-                                            "GeoPackage Exists",
+                                            "Import Cancelled",
                                             "A different GeoPackage already exists with the name '" + name + "'");
                                 }
                             });
@@ -295,7 +295,7 @@ public class ImportTask {
                             @Override
                             public void run() {
                                 GeoPackageUtils.showMessage(activity,
-                                        "GeoPackage Exists",
+                                        "Import Cancelled",
                                         "A GeoPackage already exists with the name '" + name + "'");
                             }
                         });

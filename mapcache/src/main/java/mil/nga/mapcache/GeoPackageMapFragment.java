@@ -2084,7 +2084,6 @@ public class GeoPackageMapFragment extends Fragment implements
                         AlertDialog.Builder builder = new AlertDialog.Builder(
                                 getActivity(), R.style.AppCompatAlertDialogStyle);
                         builder.setTitle(getString(R.string.import_url_preloaded_label));
-
                         builder.setAdapter(adapter,
                                 (DialogInterface d, int item) -> {
                                     if (item >= 0) {

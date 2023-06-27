@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:scrollbars="vertical" >
+        android:scrollbars="vertical"
+        style="@style/AppCompatAlertDialogStyle">
 
         <!-- logo and title -->
         <LinearLayout
@@ -23,7 +25,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
-                android:background="@drawable/material_feature" />
+                app:tint="@color/textPrimaryColor"
+                android:src="@drawable/material_feature" />
 
             <TextView
                 android:id="@+id/new_layer_title"
@@ -33,26 +36,26 @@
                 android:layout_alignTop="@+id/alert_logo"
                 android:layout_marginLeft="16dp"
                 android:layout_toRightOf="@+id/alert_logo"
+                android:textColor="@color/textPrimaryColor"
                 android:text="New Feature Layer" />
         </LinearLayout>
 
-        <LinearLayout
+        <!--Name-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/create_features_name_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" >
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:theme="@style/TextLabel">
 
-            <TextView
-                android:id="@+id/create_features_name_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/create_features_name_label" />
-
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/create_features_name_input"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text" />
-        </LinearLayout>
+                android:textColor="@color/textPrimaryColor"
+                android:hint="@string/hint_name" />
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <include
             android:id="@+id/create_features_bounding_box"
@@ -61,12 +64,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal" >
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/create_features_geometry_type_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="8dp"
+                style="@style/textAppearanceSubtitle2_light_heavy12"
                 android:text="@string/edit_features_geometry_type_label" />
 
             <Spinner
@@ -74,7 +82,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:entries="@array/edit_features_geometry_types"
-                android:prompt="@string/edit_features_geometry_type_prompt" />
+                android:theme="@style/TextLabel"
+                android:background="@drawable/outlined_background"
+                android:popupBackground="@color/backgroundPrimaryColor"
+                android:spinnerMode="dropdown"
+                android:prompt="@string/edit_features_geometry_type_prompt"
+                />
         </LinearLayout>
     </LinearLayout>
 

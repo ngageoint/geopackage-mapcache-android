@@ -97,8 +97,8 @@
         <item name="colorPrimary">@color/textSecondaryColor</item>
         <item name="colorOnSurface">@color/textSecondaryColor</item>
         <item name="colorOnSecondary">@color/textSecondaryColor</item>
-
         <item name="colorAccent">@color/textSecondaryColor</item>
+        <item name="android:textColor">@color/textSecondaryColor</item>
 
     </style>
 

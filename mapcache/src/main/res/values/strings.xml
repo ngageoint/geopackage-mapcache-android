@@ -179,7 +179,7 @@
     <string name="edit_tiles_max_x_label">Max X: </string>
     <string name="edit_features_z_label">Z: </string>
     <string name="edit_features_m_label">M: </string>
-    <string name="edit_features_geometry_type_label">Geometry Type: </string>
+    <string name="edit_features_geometry_type_label">Geometry Type</string>
     <array name="edit_features_geometry_types">
         <item>GEOMETRY</item>
         <item>POINT</item>
@@ -471,6 +471,10 @@
     <string name="deleteActionButton">Delete</string>
     <string name="go_to_geopackage">Go to geopackage</string>
     <string name="get_started">Get Started</string>
+    <string name="max_lon">Max Lon</string>
+    <string name="min_lon">Min Lon</string>
+    <string name="max_lat">Max Lat</string>
+    <string name="min_lat">Min Lat</string>
 
 
 </resources>

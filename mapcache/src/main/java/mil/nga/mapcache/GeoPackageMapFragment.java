@@ -1830,15 +1830,15 @@ public class GeoPackageMapFragment extends Fragment implements
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             dialog.setView(createFeaturesView);
 
-            final EditText nameInput = createFeaturesView
+            final TextInputEditText nameInput = createFeaturesView
                     .findViewById(R.id.create_features_name_input);
-            final EditText minLatInput = createFeaturesView
+            final TextInputEditText minLatInput = createFeaturesView
                     .findViewById(R.id.bounding_box_min_latitude_input);
-            final EditText maxLatInput = createFeaturesView
+            final TextInputEditText maxLatInput = createFeaturesView
                     .findViewById(R.id.bounding_box_max_latitude_input);
-            final EditText minLonInput = createFeaturesView
+            final TextInputEditText minLonInput = createFeaturesView
                     .findViewById(R.id.bounding_box_min_longitude_input);
-            final EditText maxLonInput = createFeaturesView
+            final TextInputEditText maxLonInput = createFeaturesView
                     .findViewById(R.id.bounding_box_max_longitude_input);
             final TextView preloadedLocationsButton = createFeaturesView
                     .findViewById(R.id.bounding_box_preloaded);

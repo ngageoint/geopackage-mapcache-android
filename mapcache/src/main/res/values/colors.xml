@@ -2,7 +2,7 @@
 
 <!-- Colors used for theming control in light mode -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="accent_material_light">#3b779a</color>
 
     <color name="backgroundPrimaryColor">@color/offwhite</color>
@@ -19,5 +19,8 @@
 
     <color name="mutedAccentColor">@color/nga_accent_bright</color>
     <color name="offsetBackgroundColor">@color/light_blue_bg</color>
+
+    <!-- Text inputs -->
+    <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/black50</color>
 
 </resources>

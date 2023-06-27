@@ -99,7 +99,13 @@
         <item name="colorOnSecondary">@color/textSecondaryColor</item>
         <item name="colorAccent">@color/textSecondaryColor</item>
         <item name="android:textColor">@color/textSecondaryColor</item>
+    </style>
 
+    <!-- TextInputLayout -->
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint">@color/textPrimaryColor</item>
+        <item name="boxStrokeColor">@color/textSecondaryColor</item>
+        <item name="boxStrokeWidth">2dp</item>
     </style>
 
 

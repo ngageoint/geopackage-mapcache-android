@@ -45,13 +45,14 @@
             android:id="@+id/new_tile_name_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayoutStyle"
             app:errorEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/new_tile_name_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textPrimaryColor"
                 android:hint="@string/hint_name" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -60,13 +61,14 @@
             android:id="@+id/new_tile_url_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            style="@style/TextInputLayoutStyle"
             android:layout_marginTop="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/new_tile_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textPrimaryColor"
                 android:hint="@string/hint_tile_url" />
         </com.google.android.material.textfield.TextInputLayout>
 

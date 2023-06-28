@@ -35,7 +35,9 @@
                 android:layout_alignTop="@+id/alert_logo"
                 android:layout_marginLeft="16dp"
                 android:layout_toRightOf="@+id/alert_logo"
-                android:text="New Layer" />
+                android:text="New Layer"
+                android:textColor="@color/textPrimaryColor"
+                />
         </LinearLayout>
 
 

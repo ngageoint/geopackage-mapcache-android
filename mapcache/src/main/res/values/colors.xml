@@ -23,4 +23,8 @@
     <!-- Text inputs -->
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/black50</color>
 
+    <!-- Tint for icons to help them switch between dark and light mode -->
+    <color name="iconTint">@color/lightIconTint</color>
+
+
 </resources>

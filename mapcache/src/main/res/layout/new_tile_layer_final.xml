@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--Final alert for the new layer wizard-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -26,7 +27,8 @@
             android:layout_alignTop="@+id/alert_logo"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/alert_logo"
-            android:text="Create Tile Layer" />
+            android:text="Create Tile Layer"
+            android:textColor="@color/textPrimaryColor"/>
     </LinearLayout>
 
     <LinearLayout
@@ -95,7 +97,11 @@
             <Spinner
                 android:id="@+id/min_zoom_spinner"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:theme="@style/TextLabel"
+                android:background="@drawable/outlined_background"
+                android:popupBackground="@color/backgroundPrimaryColor"
+                android:spinnerMode="dropdown"/>
         </LinearLayout>
 
         <!--Max zoom spinner-->
@@ -112,7 +118,11 @@
             <Spinner
                 android:id="@+id/max_zoom_spinner"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:theme="@style/TextLabel"
+                android:background="@drawable/outlined_background"
+                android:popupBackground="@color/backgroundPrimaryColor"
+                android:spinnerMode="dropdown"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -141,7 +151,8 @@
             android:layout_width="?attr/actionBarSize"
             android:layout_height="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_keyboard_arrow_down_black_24dp" />
+            android:src="@drawable/ic_keyboard_arrow_down_black_24dp"
+            app:tint="@color/textSecondaryColor" />
 
     </LinearLayout>
 
@@ -194,12 +205,14 @@
                 android:id="@+id/srs3857"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textSecondaryColor"
                 android:layout_marginRight="32dp"
                 android:text="EPSG 3857"/>
             <RadioButton
                 android:id="@+id/srs4326"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textSecondaryColor"
                 android:text="EPSG 4326"/>
         </RadioGroup>
 
@@ -220,12 +233,14 @@
                 android:id="@+id/geopackage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textSecondaryColor"
                 android:layout_marginRight="32dp"
                 android:text="GeoPackage"/>
             <RadioButton
                 android:id="@+id/google"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textSecondaryColor"
                 android:text="Standard"/>
         </RadioGroup>
 

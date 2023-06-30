@@ -53,7 +53,7 @@ class SavedUrlAdapter extends ArrayAdapter<SavedUrl> {
       // Icon
       ImageView urlIcon = (ImageView)listItem.findViewById(R.id.url_icon);
       urlIcon.setImageResource(savedUrl.getmIcon());
-//      Setting a color filter to help tint the icon to deal with light/dark mode instead of making new icons 
+//      Setting a color filter to tint the icon to deal with light/dark mode instead of making new icons
 //      urlIcon.setColorFilter(mContext.getResources().getColor(R.color.iconTint, getContext().getTheme()));
 
       // Url text

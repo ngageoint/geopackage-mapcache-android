@@ -53,6 +53,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
@@ -1246,7 +1247,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void openMapSelect() {
         if (getActivity() != null) {
-            PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
+            Context wrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenu);
+            PopupMenu pm = new PopupMenu(wrapper, mapSelectButton);
             // Needed to make the icons visible
             try {
                 Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
@@ -1291,7 +1293,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void openEditMenu() {
         if (getActivity() != null) {
-            PopupMenu pm = new PopupMenu(getActivity(), editFeaturesButton);
+            Context wrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenu);
+            PopupMenu pm = new PopupMenu(wrapper, editFeaturesButton);
             // Needed to make the icons visible
             try {
                 Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);

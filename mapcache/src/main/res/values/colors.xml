@@ -19,6 +19,7 @@
 
     <color name="mutedAccentColor">@color/nga_accent_bright</color>
     <color name="offsetBackgroundColor">@color/light_blue_bg</color>
+    <color name="outlineBoxColor">@color/nga_primary_light</color>
 
     <!-- Text inputs -->
     <color name="mtrl_textinput_default_box_stroke_color" tools:override="true">@color/black50</color>

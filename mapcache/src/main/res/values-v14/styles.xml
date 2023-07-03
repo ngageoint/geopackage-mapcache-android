@@ -15,6 +15,14 @@
         <item name="colorSecondary">@color/nga_primary_light</item>
         <item name="colorSecondaryVariant">@android:color/holo_red_light</item>
         <item name="colorOnSecondary">@color/black87</item>
+        <item name="android:itemBackground">@color/backgroundSecondaryColor</item>
+    </style>
+
+    <!-- Popup menus for edit button on map and map styles -->
+    <style name="MyPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@color/textPrimaryColor</item>
+        <item name="android:itemBackground">@color/backgroundSecondaryColor</item>
+        <item name="popupMenuBackground">@color/backgroundSecondaryColor</item>
     </style>
 
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">

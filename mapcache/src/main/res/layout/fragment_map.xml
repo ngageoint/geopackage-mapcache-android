@@ -26,7 +26,7 @@
         android:layout_marginBottom="105dp"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
-    <!--Text to show current zoom level-->
+    <!--Text to show MGRS coordinate -->
     <androidx.cardview.widget.CardView
         android:id="@+id/coordTextCard"
         android:layout_width="wrap_content"
@@ -45,6 +45,8 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="MGRS: 13S ED 8755 86425"
+            android:background="@color/backgroundPrimaryColor"
+            android:textColor="@color/textSecondaryColor"
             android:visibility="visible" />
     </androidx.cardview.widget.CardView>
 

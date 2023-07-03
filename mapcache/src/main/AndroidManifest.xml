@@ -102,7 +102,8 @@
         </activity>
         <activity
             android:name=".preferences.AboutMapcacheActivity"
-            android:label="@string/title_activity_about_mapcache" />
+            android:label="@string/title_activity_about_mapcache"
+            android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".preferences.TileUrlActivity"
             android:label="@string/title_activity_saved_tile_urls" />
@@ -111,10 +112,12 @@
             android:label="BasemapSettingsActivity" />
         <activity
             android:name=".preferences.PrivacyPolicyActivity"
-            android:label="@string/title_activity_privacy_policy" />
+            android:label="@string/title_activity_privacy_policy"
+            android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".preferences.DisclaimerActivity"
-            android:label="@string/title_activity_disclaimer" />
+            android:label="@string/title_activity_disclaimer"
+            android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".tutorial.TutorialActivity"
             android:label="@string/title_activity_tutorial" />

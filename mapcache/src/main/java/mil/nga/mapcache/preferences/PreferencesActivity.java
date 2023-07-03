@@ -79,9 +79,7 @@ public class PreferencesActivity extends AppCompatActivity implements
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.AppTheme);
-            LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
-            return super.onCreateView(localInflater, container, savedInstanceState);
+            return super.onCreateView(inflater, container, savedInstanceState);
         }
 
         @Override

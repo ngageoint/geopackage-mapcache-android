@@ -32,6 +32,16 @@
         <item name="colorPrimary">@color/status_bar_light</item>
     </style>
 
+    <!-- Preferences menu style -->
+    <style name="PreferenceStyle" parent="AppBaseTheme">
+        <item name="colorPrimary">@color/titleBackgroundColor</item>
+        <item name="android:textColorPrimary">@color/textPrimaryColor</item>
+        <item name="android:textColorSecondary">@color/prefTextSecondaryColor</item>
+        <item name="android:windowBackground">@color/backgroundPrimaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryColorDark</item>
+        <item name="colorAccent">@color/accentColor</item>
+    </style>
+
     <!-- Alert dialog for things like create new GeoPackage, or rename/copy -->
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorOnPrimary">@color/textPrimaryColor</item>

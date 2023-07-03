@@ -5,6 +5,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <color name="accent_material_light">#3b779a</color>
 
+    <!-- Preferences styles -->
+    <color name="primaryColor">@color/darkSecondaryBackground</color>
+    <color name="primaryColorDark">@color/nga_primary_primary_dark</color>
+    <color name="accentColor">@color/nga_accent_primary</color>
+    <color name="prefTextSecondaryColor">@color/white50</color>
+    <color name="titleBackgroundColor">@color/darkSecondaryBackground</color>
+
     <color name="backgroundPrimaryColor">@color/darkPrimaryBackground</color>
     <color name="backgroundSecondaryColor">@color/darkSecondaryBackground</color>
 

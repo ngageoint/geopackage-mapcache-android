@@ -40,6 +40,7 @@
     <color name="transparent">#00ffffff</color>
     <color name="status_bar">#4E97C2</color>
     <color name="status_bar_light">#cce0ec</color>
+    <color name="status_bar_dark">#4C606C</color>
 
     <color name="light_blue_bg">#B4E2E9EC</color>
     <color name="dark_blue_text">#0B1F2C</color>

@@ -9,6 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.SwitchCompat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -102,7 +104,7 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         serverModel.getLayers().addObserver(this);
 
         ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        Switch simpleSwitch = (Switch) view.findViewById(R.id.simpleSwitch);
+        SwitchCompat simpleSwitch = (SwitchCompat) view.findViewById(R.id.simpleSwitch);
         if (serverModel.getLayers().getLayers() == null) {
             progressBar.setVisibility(View.VISIBLE);
             simpleSwitch.setVisibility(View.INVISIBLE);

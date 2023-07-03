@@ -94,7 +94,8 @@
 
         <activity
             android:name=".preferences.PreferencesActivity"
-            android:label="@string/title_activity_preferences">
+            android:label="@string/title_activity_preferences"
+            android:theme="@style/PreferenceStyle">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="mil.nga.mapcache.MainActivity" />

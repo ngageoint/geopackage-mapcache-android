@@ -38,8 +38,11 @@
         <item name="android:textColorPrimary">@color/textPrimaryColor</item>
         <item name="android:textColorSecondary">@color/prefTextSecondaryColor</item>
         <item name="android:windowBackground">@color/backgroundPrimaryColor</item>
+        <item name="android:background">@color/backgroundPrimaryColor</item>
         <item name="colorPrimaryDark">@color/primaryColorDark</item>
         <item name="colorAccent">@color/accentColor</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
     </style>
 
     <!-- Alert dialog for things like create new GeoPackage, or rename/copy -->

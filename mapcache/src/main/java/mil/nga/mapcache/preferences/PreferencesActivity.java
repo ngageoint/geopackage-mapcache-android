@@ -76,6 +76,20 @@ public class PreferencesActivity extends AppCompatActivity implements
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
             addPreferencesFromResource(R.xml.preferences);
+            // refresh view if night mode is selected
+            Preference nightModeSwitch = findPreference(getResources().getString(R.string.dark_app_key));
+            nightModeSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                    boolean nightModeEnabled = (boolean)newValue;
+                    if (nightModeEnabled) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    }
+                    return true;
+                }
+            });
         }
 
 

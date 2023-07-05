@@ -48,7 +48,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundSecondaryColor"
         android:layout_marginTop="16dp"
         android:layout_marginLeft="24dp"
         android:layout_marginRight="24dp"
@@ -58,6 +57,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/backgroundSecondaryColor"
             android:orientation="horizontal">
             <TextView
                 android:id="@+id/selected_urls_label"
@@ -65,6 +65,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="left"
                 android:layout_weight="1"
+                android:background="@color/backgroundSecondaryColor"
                 android:textAppearance="@style/textAppearanceSubtitle1Heavy"
                 android:text="Saved URLs" />
 

@@ -298,6 +298,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.HORIZONTAL));
         itemRow.setGravity(Gravity.CENTER);
+        itemRow.setBackgroundColor(getResources().getColor(R.color.backgroundSecondaryColor, getContext().getTheme()));
 
         ImageView rowIcon = new ImageView(getContext());
         rowIcon.setImageResource(R.drawable.cloud_layers_grey);
@@ -357,6 +358,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         textLayout.gravity = Gravity.CENTER;
         nameText.setLayoutParams(textLayout);
         nameText.setPadding(32,32,32, 32);
+        nameText.setBackgroundColor(getResources().getColor(R.color.backgroundSecondaryColor, getContext().getTheme()));
 
         nameText.setTextAppearance(getContext(), R.style.textAppearanceSubtitle1);
 

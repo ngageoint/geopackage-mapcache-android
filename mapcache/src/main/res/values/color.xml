@@ -82,6 +82,8 @@
     <color name="black75">#5A5A5A</color>
     <color name="darkIconTint">#7EFFFFFF</color>
     <color name="lightIconTint">#05FFFFFF</color>
+    <color name="redTextNight">#954A37</color>
+
 
     <color name="nga_accent_muted_dark">#1E5659</color>
     <color name="nga_primary_extra_light">#62B0DD</color>

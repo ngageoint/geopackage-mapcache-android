@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewManager;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -28,6 +27,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -67,7 +68,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
     /**
      * Add new URL from the inputText field to the shared prefs
      */
-    private Button addButton;
+    private MaterialButton addButton;
     /**
      * Layout to hold a reference to all saved URLs
      */
@@ -79,7 +80,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
     /**
      * Edit mode button
      */
-    private TextView editModeText;
+    private MaterialButton editModeButton;
     /**
      * Tracks the state of delete visibility
      */
@@ -106,7 +107,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         addButton.setEnabled(false);
         labelHolder = urlView.findViewById(R.id.item_list_layout);
 //        deleteSelected = urlView.findViewById(R.id.delete_selected_urls);
-        editModeText = urlView.findViewById(R.id.edit_mode_label);
+        editModeButton = urlView.findViewById(R.id.edit_mode_label);
         selectedLabel = urlView.findViewById(R.id.selected_urls_label);
         prefs = getPreferenceManager().getSharedPreferences();
         setButtonListeners();
@@ -245,7 +246,7 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
 
             }
         });
-        editModeText.setOnClickListener(new View.OnClickListener() {
+        editModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showEditButtons();
@@ -272,11 +273,15 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
         }
         editMode = !editMode;
         if(editMode){
-            editModeText.setText("Done");
-            editModeText.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_primary_light));
+            addButton.setEnabled(false);
+            addButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.buttonDisabledColor));
+            editModeButton.setText("Done");
+            editModeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.buttonReadyColor));
         } else {
-            editModeText.setText("Edit");
-            editModeText.setTextColor(ContextCompat.getColor(getActivity(), R.color.nga_warning));
+            addButton.setEnabled(true);
+            addButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.primaryButtonColor));
+            editModeButton.setText("Edit");
+            editModeButton.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.secondaryButtonColor));
         }
     }
 

@@ -106,7 +106,8 @@
             android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".preferences.TileUrlActivity"
-            android:label="@string/title_activity_saved_tile_urls" />
+            android:label="@string/title_activity_saved_tile_urls"
+            android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".preferences.BasemapSettingsActivity"
             android:label="BasemapSettingsActivity" />

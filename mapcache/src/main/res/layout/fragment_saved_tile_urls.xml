@@ -4,43 +4,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/light_blue_background">
+    android:background="@color/backgroundSecondaryColor">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/offwhite">
+        android:background="@color/backgroundPrimaryColor">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
+            android:textColor="@color/textPrimaryColor"
             android:text="@string/saved_url_message"/>
 
         <EditText
             android:id="@+id/new_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/TextInputLayoutStyle"
             android:layout_margin="16dp"
             android:hint="New URL" />
 
-            <Button
-                android:id="@+id/add_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginBottom="16dp"
-                android:text="Add URL"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/add_url"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            android:backgroundTint="@color/primaryButtonColor"
+            android:textColor="@color/white"
+            android:textAppearance="@style/textAppearanceSubtitle1Heavy"
+            android:text="@string/add_url"
+            android:textAlignment="center">
+        </com.google.android.material.button.MaterialButton>
+
     </LinearLayout>
 
 <!--    Bottom half containing all urls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/light_blue_background"
+        android:background="@color/backgroundSecondaryColor"
         android:layout_marginTop="16dp"
         android:layout_marginLeft="24dp"
         android:layout_marginRight="24dp"
@@ -59,27 +67,19 @@
                 android:layout_weight="1"
                 android:textAppearance="@style/textAppearanceSubtitle1Heavy"
                 android:text="Saved URLs" />
-<!--            <TextView-->
-<!--                android:id="@+id/delete_selected_urls"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:gravity="right"-->
-<!--                android:layout_weight="1"-->
-<!--                android:text="Delete Selected"-->
-<!--                android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"-->
-<!--                android:textColor="@color/black50"/>-->
-            <TextView
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/edit_mode_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="right"
-                android:layout_weight="1"
+                android:layout_weight="0"
                 android:paddingTop="16dp"
                 android:paddingBottom="16dp"
                 android:paddingLeft="16dp"
                 android:text="Edit"
+                android:backgroundTint="@color/secondaryButtonColor"
                 android:textAppearance="@style/textAppearanceSubtitle1Heavy"
-                android:textColor="@color/nga_warning"/>
+                android:textColor="@color/buttonTextColor"/>
         </LinearLayout>
 
         <ScrollView

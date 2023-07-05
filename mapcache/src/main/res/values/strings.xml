@@ -475,6 +475,7 @@
     <string name="min_lon">Min Lon</string>
     <string name="max_lat">Max Lat</string>
     <string name="min_lat">Min Lat</string>
+    <string name="add_url">Add URL</string>
 
 
 </resources>

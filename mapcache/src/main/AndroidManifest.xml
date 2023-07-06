@@ -110,7 +110,8 @@
             android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".preferences.BasemapSettingsActivity"
-            android:label="BasemapSettingsActivity" />
+            android:label="BasemapSettingsActivity"
+            android:theme="@style/PreferenceStyle"/>
         <activity
             android:name=".preferences.PrivacyPolicyActivity"
             android:label="@string/title_activity_privacy_policy"

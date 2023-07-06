@@ -446,6 +446,7 @@
     <string name="temp_file_name">tempBitmap.jpg</string>
     <string name="selectedBasemaps">selectedBasemaps</string>
     <string name="new_tile_server">New Tile Server</string>
+    <string name="edit_tile_servers">Edit Tile Servers</string>
     <string name="create_tile_layer">Create Tile Layer</string>
     <string name="max_features">Max Features Exceeded</string>
     <string name="new_geopackage">New GeoPackage</string>

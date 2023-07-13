@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@color/light_blue_bg"
+    android:background="@color/offsetBackgroundColor"
     android:paddingLeft="24dp">
 
     <!--    Right aligned enable switch-->

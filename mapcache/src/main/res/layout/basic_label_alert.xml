@@ -26,6 +26,7 @@
             android:layout_alignTop="@+id/alert_logo"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/alert_logo"
+            android:textColor="@color/textPrimaryColor"
             android:text="Delete" />
     </LinearLayout>
 
@@ -39,6 +40,8 @@
             android:id="@+id/action_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="40dp"
+            android:textColor="@color/textPrimaryColor"
             android:visibility="invisible" />
     </com.google.android.material.textfield.TextInputLayout>
 

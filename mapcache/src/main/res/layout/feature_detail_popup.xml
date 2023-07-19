@@ -3,8 +3,9 @@
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundPrimaryColor">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -31,7 +32,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
-                android:background="@drawable/ic_clear_grey_800_24dp" />
+                android:background="@drawable/ic_clear_grey_800_24dp"
+                android:backgroundTint="@color/textPrimaryColor" />
 
             <TextView
                 android:id="@+id/feature_detail_title"
@@ -114,10 +116,8 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/color_states_materialbutton"
                 android:padding="8dp"
-                android:textAlignment="center"
-                android:textAppearance="@style/textAppearanceSubtitle1Heavy"
-                android:textColor="@color/white"
                 app:icon="@drawable/ic_baseline_camera_alt_24"
+                app:iconTint="@color/textPrimaryColor"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
 
@@ -132,10 +132,8 @@
                 android:layout_weight="1"
                 android:backgroundTint="@color/color_states_materialbutton"
                 android:padding="8dp"
-                android:textAlignment="center"
-                android:textAppearance="@style/textAppearanceSubtitle1Heavy"
-                android:textColor="@color/white"
                 app:icon="@drawable/ic_baseline_collections_24"
+                app:iconTint="@color/textPrimaryColor"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp" />
 
@@ -178,7 +176,7 @@
             android:layout_margin="16dp"
             android:layout_gravity="center_horizontal"
             android:backgroundTint="@color/color_states_materialbutton"
-            android:textColor="@color/white"
+            android:textColor="@color/textPrimaryColor"
             android:textAppearance="@style/textAppearanceSubtitle1Heavy"
             android:text="Save"
             android:textAlignment="center">

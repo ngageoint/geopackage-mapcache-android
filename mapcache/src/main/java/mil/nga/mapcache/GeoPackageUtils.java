@@ -317,10 +317,10 @@ public class GeoPackageUtils {
             @Override
             public void onClick(View v) {
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                        activity, android.R.layout.select_dialog_item);
+                        activity, R.layout.array_text_item_row);
                 adapter.addAll(activity.getResources().getStringArray(
                         R.array.preloaded_bounding_box_labels));
-                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle);
                 builder.setTitle(activity
                         .getString(R.string.bounding_box_preloaded_label));
                 builder.setAdapter(adapter,

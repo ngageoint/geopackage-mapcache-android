@@ -79,6 +79,7 @@ public class BasemapSettingsIO {
         if(settings.getSelectedBasemap().length > 0) {
             BasemapServerModel model = settings.getSelectedBasemap()[0];
             String serverUrl = model.getServerUrl();
+            if(serverUrl == null || serverUrl.isEmpty()) return;
             int mapType = Integer.parseInt(serverUrl);
             editor.putInt(BasemapSettingsIO.MAP_TYPE_KEY, mapType);
 

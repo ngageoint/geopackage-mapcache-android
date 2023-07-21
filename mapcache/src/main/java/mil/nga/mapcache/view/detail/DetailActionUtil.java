@@ -283,7 +283,7 @@ public class DetailActionUtil {
         View alertView = inflater.inflate(R.layout.basic_label_alert, null);
         // Logo and title
         ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        alertLogo.setBackgroundResource(R.drawable.material_delete_forever);
         TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.delete_geopackage);
         TextView actionLabel = alertView.findViewById(R.id.action_label);
@@ -294,7 +294,7 @@ public class DetailActionUtil {
                 .setView(alertView)
                 .setIcon(ResourcesCompat.getDrawable(
                         context.getResources(),
-                        R.drawable.material_delete,
+                        R.drawable.material_delete_forever,
                         null))
                 .setPositiveButton("Delete", (dialog, which)->{
                     dialog.dismiss();
@@ -324,7 +324,7 @@ public class DetailActionUtil {
         View alertView = inflater.inflate(R.layout.basic_label_alert, null);
         // Logo and title
         ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        alertLogo.setBackgroundResource(R.drawable.material_delete_forever);
         TextView titleText = alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.delete_layer);
         TextView actionLabel = alertView.findViewById(R.id.action_label);
@@ -335,7 +335,7 @@ public class DetailActionUtil {
                 .setView(alertView)
                 .setIcon(ResourcesCompat.getDrawable(
                         context.getResources(),
-                        R.drawable.material_delete,
+                        R.drawable.material_delete_forever,
                         null))
                 .setPositiveButton("Delete", (dialog, which)->{
                     dialog.dismiss();

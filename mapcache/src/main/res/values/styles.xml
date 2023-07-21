@@ -32,10 +32,35 @@
         <item name="colorPrimary">@color/status_bar_light</item>
     </style>
 
+    <!-- Preferences menu style -->
+    <style name="PreferenceStyle" parent="AppBaseTheme">
+        <item name="colorPrimary">@color/titleBackgroundColor</item>
+        <item name="android:textColorPrimary">@color/textPrimaryColor</item>
+        <item name="android:textColorSecondary">@color/prefTextSecondaryColor</item>
+        <item name="android:windowBackground">@color/backgroundPrimaryColor</item>
+        <item name="android:background">@color/backgroundPrimaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryColorDark</item>
+        <item name="colorAccent">@color/accentColor</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+    </style>
+
+    <!-- Alert dialog for things like create new GeoPackage, or rename/copy -->
     <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColorPrimary">#89000000</item>
+        <item name="colorOnPrimary">@color/textPrimaryColor</item>
+        <item name="android:textColorPrimary">@color/textPrimaryColor</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
         <item name="android:layout_marginLeft">4dp</item>
         <item name="android:layout_marginRight">4dp</item>
+        <item name="android:background">@color/backgroundPrimaryColor</item>
+    </style>
+    <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/textLinkColor</item>
+    </style>
+    <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/textSecondaryLinkColor</item>
     </style>
 
     <!-- ActionBar styles -->
@@ -56,6 +81,13 @@
         <item name="backgroundTint">@color/color_states_materialbutton</item>
     </style>
 
+    <!-- Switches -->
+    <style name="SwitchCompatTheme" parent="">
+        <item name="colorControlActivated">@color/layerFabColor</item>
+        <item name="colorSwitchThumbNormal">#f1f1f1</item>
+        <item name="android:colorForeground">#42221f1f</item>
+    </style>
+
     <!-- Detail page action buttons style -->
     <style name="DetailButtonStyle">
         <item name="android:layout_width">wrap_content</item>
@@ -68,6 +100,25 @@
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">0dp</item>
         <item name="android:singleLine">true</item>
+    </style>
+
+    <!-- Text input fields -->
+    <style name="TextLabel" parent="AppBaseTheme">
+        <!-- Label color in TRUE state and bar color FALSE and TRUE State -->
+        <item name="colorControlNormal">@color/textSecondaryColor</item>
+        <item name="colorControlActivated">@color/mutedAccentColor</item>
+        <item name="colorPrimary">@color/textSecondaryColor</item>
+        <item name="colorOnSurface">@color/textSecondaryColor</item>
+        <item name="colorOnSecondary">@color/textSecondaryColor</item>
+        <item name="colorAccent">@color/textSecondaryColor</item>
+        <item name="android:textColor">@color/textSecondaryColor</item>
+    </style>
+
+    <!-- TextInputLayout -->
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint">@color/textPrimaryColor</item>
+        <item name="boxStrokeColor">@color/textSecondaryColor</item>
+        <item name="boxStrokeWidth">2dp</item>
     </style>
 
 
@@ -110,7 +161,7 @@
         <item name="android:fontFamily">@font/roboto_bold</item>
         <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0.009</item>
-        <item name="android:textColor">@color/black87</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
     </style>
     <style name="textAppearanceSubtitle1Faded" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_bold</item>
@@ -121,6 +172,7 @@
     <style name="textAppearanceSubtitle1" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_regular</item>
         <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
         <item name="android:letterSpacing">0.009</item>
     </style>
     <style name="textAppearanceSubtitle2" parent="@android:style/TextAppearance.Material.Subhead">
@@ -136,7 +188,13 @@
     <style name="textAppearanceSubtitle2_light_heavy" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/nav_not_selected</item>
+        <item name="android:textColor">@color/textSecondaryColor</item>
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
+    <style name="textAppearanceSubtitle3_light_heavy" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/textNavNotSelected</item>
         <item name="android:letterSpacing">0.0071</item>
     </style>
     <style name="textAppearanceSubtitle2_light_heavy12" parent="@android:style/TextAppearance.Material.Subhead">
@@ -154,13 +212,13 @@
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0.03125</item>
-        <item name="android:textColor">@color/black87</item>
+        <item name="android:textColor">@color/textSecondaryColor</item>
     </style>
     <style name="textAppearanceBody1MediumDarkBlue" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">16sp</item>
         <item name="android:letterSpacing">0.03125</item>
-        <item name="android:textColor">@color/dark_blue_text</item>
+        <item name="android:textColor">@color/textPrimaryColor</item>
     </style>
     <style name="textAppearanceBody2" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_regular</item>

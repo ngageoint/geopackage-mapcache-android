@@ -8,7 +8,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
@@ -50,9 +52,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.MenuCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -204,9 +210,9 @@ public class GeoPackageMapFragment extends Fragment implements
     private static final String MAX_FEATURES_KEY = "max_features_key";
 
     /**
-     * Key for using dark mode from preferences
+     * Key for using app dark mode from preferences
      */
-    private static final String SETTINGS_DARK_KEY = "dark_map";
+    private static final String SETTINGS_APP_DARK_KEY = "dark_app";
 
     /**
      * Key for zoom icons being visible from shared preferences
@@ -452,11 +458,6 @@ public class GeoPackageMapFragment extends Fragment implements
      * Edit clear button
      */
     private ImageButton editClearPolygonHolesButton;
-
-    /**
-     * Intent activity request code when choosing a file
-     */
-    public static final int ACTIVITY_CHOOSE_FILE = 3342;
 
     /**
      * RecyclerView that will hold our GeoPackages
@@ -739,12 +740,11 @@ public class GeoPackageMapFragment extends Fragment implements
     private void settingsUpdate() {
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
-        boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
         boolean zoomLevelVisible = settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
         displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
 
-        setMapDarkMode(darkMode);
+        setAppDarkMode();
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
         if (basemapApplier != null) {
@@ -1240,7 +1240,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void openMapSelect() {
         if (getActivity() != null) {
-            PopupMenu pm = new PopupMenu(getActivity(), mapSelectButton);
+            Context wrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenu);
+            PopupMenu pm = new PopupMenu(wrapper, mapSelectButton);
             // Needed to make the icons visible
             try {
                 Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
@@ -1285,7 +1286,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void openEditMenu() {
         if (getActivity() != null) {
-            PopupMenu pm = new PopupMenu(getActivity(), editFeaturesButton);
+            Context wrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenu);
+            PopupMenu pm = new PopupMenu(wrapper, editFeaturesButton);
             // Needed to make the icons visible
             try {
                 Method method = pm.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
@@ -1728,8 +1730,8 @@ public class GeoPackageMapFragment extends Fragment implements
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.basic_edit_alert, null);
             // Logo and title
-            ImageView alertLogo = alertView.findViewById(R.id.alert_logo);
-            alertLogo.setBackgroundResource(R.drawable.material_add_box);
+            AppCompatImageView alertLogo = alertView.findViewById(R.id.alert_logo);
+            alertLogo.setImageResource(R.drawable.material_add_box);
             TextView titleText = alertView.findViewById(R.id.alert_title);
             titleText.setText(R.string.create_geopackage_full);
             // GeoPackage name
@@ -1778,6 +1780,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Logo and title
             ImageView closeLogo = alertView.findViewById(R.id.new_layer_close_logo);
             closeLogo.setBackgroundResource(R.drawable.ic_clear_grey_800_24dp);
+            DrawableCompat.setTint(closeLogo.getBackground(), getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
             TextView titleText = alertView.findViewById(R.id.new_layer_title);
             titleText.setText(R.string.new_geopackage_layer);
 
@@ -1823,15 +1826,15 @@ public class GeoPackageMapFragment extends Fragment implements
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
             dialog.setView(createFeaturesView);
 
-            final EditText nameInput = createFeaturesView
+            final TextInputEditText nameInput = createFeaturesView
                     .findViewById(R.id.create_features_name_input);
-            final EditText minLatInput = createFeaturesView
+            final TextInputEditText minLatInput = createFeaturesView
                     .findViewById(R.id.bounding_box_min_latitude_input);
-            final EditText maxLatInput = createFeaturesView
+            final TextInputEditText maxLatInput = createFeaturesView
                     .findViewById(R.id.bounding_box_max_latitude_input);
-            final EditText minLonInput = createFeaturesView
+            final TextInputEditText minLonInput = createFeaturesView
                     .findViewById(R.id.bounding_box_min_longitude_input);
-            final EditText maxLonInput = createFeaturesView
+            final TextInputEditText maxLonInput = createFeaturesView
                     .findViewById(R.id.bounding_box_max_longitude_input);
             final TextView preloadedLocationsButton = createFeaturesView
                     .findViewById(R.id.bounding_box_preloaded);
@@ -2059,7 +2062,16 @@ public class GeoPackageMapFragment extends Fragment implements
             importUrlView.findViewById(R.id.import_examples)
                     .setOnClickListener((View v) -> {
                         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                                getActivity(), android.R.layout.select_dialog_item);
+                                getActivity(), android.R.layout.select_dialog_item){
+                            @Override
+                            public View getView(int position, View convertView, ViewGroup parent) {
+                                View view = super.getView(position, convertView, parent);
+                                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                                text1.setTextColor(getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
+                                return view;
+                            }
+                        };
+
                         // Download sample geopackages from our github server, and combine that list
                         // with our own locally provided preloaded geopackages
                         SampleDownloader sampleDownloader = new SampleDownloader(getActivity(), adapter);
@@ -2202,20 +2214,25 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
-    /**
-     * Set the map color scheme to dark or default
-     *
-     * @param makeDark True if the map style should be the dark style, false otherwise.
-     */
-    private void setMapDarkMode(boolean makeDark) {
-        if (map == null || getContext() == null) return;
 
-        if (makeDark) {
+
+    /**
+     * Set the full app color scheme to dark or default, including the map
+     */
+    private void setAppDarkMode() {
+        SharedPreferences settings = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        boolean appDarkMode = settings.getBoolean(SETTINGS_APP_DARK_KEY, false);
+        if (appDarkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
         } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
         }
     }
+
+
 
     /**
      * Make the zoom in / zoom out icons visible

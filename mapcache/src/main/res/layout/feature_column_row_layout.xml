@@ -23,14 +23,15 @@
             android:paddingTop="16dp"
             android:paddingBottom="16dp"
             android:gravity="center_vertical"
-            android:theme="@style/AccentTheme">
+            style="@style/TextInputLayoutStyle"
+            >
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/fc_value"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/AccentTheme"
                 android:focusable="true"
+                android:textColor="@color/textPrimaryColor"
                 android:hint="value" />
         </com.google.android.material.textfield.TextInputLayout>
 

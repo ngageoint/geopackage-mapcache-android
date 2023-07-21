@@ -8,7 +8,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -74,14 +76,26 @@ public class PreferencesActivity extends AppCompatActivity implements
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
             addPreferencesFromResource(R.xml.preferences);
+            // refresh view if night mode is selected
+            Preference nightModeSwitch = findPreference(getResources().getString(R.string.dark_app_key));
+            nightModeSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                    boolean nightModeEnabled = (boolean)newValue;
+                    if (nightModeEnabled) {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    } else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    }
+                    return true;
+                }
+            });
         }
 
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            final Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.AppTheme);
-            LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
-            return super.onCreateView(localInflater, container, savedInstanceState);
+            return super.onCreateView(inflater, container, savedInstanceState);
         }
 
         @Override

@@ -36,13 +36,16 @@ public class FeatureColumnUtil {
         View alertView = inflater.inflate(R.layout.basic_label_alert, null);
         // Logo and title
         ImageView alertLogo = (ImageView) alertView.findViewById(R.id.alert_logo);
-        alertLogo.setBackgroundResource(R.drawable.material_delete);
+        alertLogo.setBackgroundResource(R.drawable.material_delete_forever);
         TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
         titleText.setText(R.string.delete_feature_column_text);
+        TextView actionLabel = (TextView) alertView.findViewById(R.id.action_label);
+        actionLabel.setText(columnDetailObject.getName());
+        actionLabel.setVisibility(View.VISIBLE);
 
         AlertDialog deleteDialog = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle)
                 .setView(alertView)
-                .setIcon(context.getResources().getDrawable(R.drawable.material_delete))
+                .setIcon(context.getResources().getDrawable(R.drawable.material_delete_forever, context.getTheme()))
                 .setPositiveButton("Delete", (dialog, which)->{
                     dialog.dismiss();
                     listener.onDeleteFeatureColumn(columnDetailObject.getGeoPackageName(),

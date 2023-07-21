@@ -40,6 +40,7 @@
     <color name="transparent">#00ffffff</color>
     <color name="status_bar">#4E97C2</color>
     <color name="status_bar_light">#cce0ec</color>
+    <color name="status_bar_dark">#4C606C</color>
 
     <color name="light_blue_bg">#B4E2E9EC</color>
     <color name="dark_blue_text">#0B1F2C</color>
@@ -67,6 +68,30 @@
     <color name="nga_warning_light">#E6D0CB</color>
 
     <color name="nga_primary_bright_partial">#C4FFFFFF</color>
+
+    <!-- Light mode colors -->
+
+
+    <!-- Dark mode colors -->
+    <color name="darkPrimaryBackground">#2A3339</color>
+    <color name="darkSecondaryBackground">#4A5861</color>
+    <color name="midDarkBackground">#323C43</color>
+    <color name="white87">#DEFFFFFF</color>
+    <color name="white50">#80FFFFFF</color>
+    <color name="white75">#BFFFFFFF</color>
+    <color name="black75">#5A5A5A</color>
+    <color name="darkIconTint">#7EFFFFFF</color>
+    <color name="lightIconTint">#05FFFFFF</color>
+    <color name="redTextNight">#954A37</color>
+
+
+    <color name="nga_accent_muted_dark">#1E5659</color>
+    <color name="nga_primary_extra_light">#62B0DD</color>
+    <color name="nav_not_selected_dark">#BFFFFFFF</color>
+
+
+
+
 
 
 

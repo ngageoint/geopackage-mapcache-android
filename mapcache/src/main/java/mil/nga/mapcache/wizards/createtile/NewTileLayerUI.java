@@ -9,6 +9,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -221,7 +222,15 @@ public class NewTileLayerUI implements Observer {
             AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
             builder.setTitle(fragment.getString(R.string.example_url_header));
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    context, android.R.layout.select_dialog_item);
+                    context, android.R.layout.select_dialog_item){
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    View view = super.getView(position, convertView, parent);
+                    TextView text1 = (TextView) view.findViewById(android.R.id.text1);
+                    text1.setTextColor(context.getResources().getColor(R.color.textPrimaryColor, context.getTheme()));
+                    return view;
+                }
+            };
 
             SampleDownloader sampleDownloader = new SampleDownloader(fragment.getActivity(), adapter);
             adapter.add(activity.getString(R.string.fetching_examples));
@@ -242,7 +251,7 @@ public class NewTileLayerUI implements Observer {
         // URL help menu
         TextView urlHelpText = (TextView) alertView.findViewById(R.id.url_help);
         urlHelpText.setOnClickListener((View view) -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
             builder.setTitle(fragment.getString(R.string.map_tile_url_header));
             builder.setMessage(fragment.getString(R.string.url_template_message));
             final AlertDialog urlDialog = builder.create();
@@ -329,7 +338,7 @@ public class NewTileLayerUI implements Observer {
         ArrayList<SavedUrl> urlList = model.getSavedUrlObjectList();
         SavedUrlAdapter adapter = new SavedUrlAdapter(context, urlList);
         listView.setAdapter(adapter);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
         builder.setTitle("Saved Tile URLs");
         builder.setView(view);
         AlertDialog ad = builder.show();

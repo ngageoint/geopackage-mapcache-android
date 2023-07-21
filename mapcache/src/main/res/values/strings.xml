@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.6</string>
-    <string name="app_release_date">Released Feb 2023</string>
+    <string name="app_version">Version 2.1.7</string>
+    <string name="app_release_date">Released July 2023</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -179,7 +179,7 @@
     <string name="edit_tiles_max_x_label">Max X: </string>
     <string name="edit_features_z_label">Z: </string>
     <string name="edit_features_m_label">M: </string>
-    <string name="edit_features_geometry_type_label">Geometry Type: </string>
+    <string name="edit_features_geometry_type_label">Geometry Type</string>
     <array name="edit_features_geometry_types">
         <item>GEOMETRY</item>
         <item>POINT</item>
@@ -198,7 +198,7 @@
         <item>SURFACE</item>
     </array>
     <string name="edit_features_geometry_type_prompt">Geometry Type</string>
-    <string name="edit_features_selection_geopackage_label">GeoPackage: </string>
+    <string name="edit_features_selection_geopackage_label">GeoPackage</string>
     <string name="edit_features_selection_geopackage_prompt">GeoPackage</string>
     <string name="edit_features_selection_features_label">Features: </string>
     <string name="edit_features_selection_features_prompt">Features</string>
@@ -362,6 +362,7 @@
 
     <!--preferences-->
     <string name="dark_map_key">dark_map</string>
+    <string name="dark_app_key">dark_app</string>
     <string name="zoom_icons_key">zoom_icons</string>
     <string name="zoom_level_key">zoom_level</string>
     <string name="maxFeatureWarningPref">maxFeatureWarningPref</string>
@@ -381,8 +382,9 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.6\n \n
-        - Authenticated tile download patch
+        Release Notes - 2.1.7\n \n
+        - New support for dark mode\n
+        - Backend performance improvements
         </string>
 
 
@@ -445,6 +447,7 @@
     <string name="temp_file_name">tempBitmap.jpg</string>
     <string name="selectedBasemaps">selectedBasemaps</string>
     <string name="new_tile_server">New Tile Server</string>
+    <string name="edit_tile_servers">Edit Tile Servers</string>
     <string name="create_tile_layer">Create Tile Layer</string>
     <string name="max_features">Max Features Exceeded</string>
     <string name="new_geopackage">New GeoPackage</string>
@@ -468,6 +471,13 @@
     <string name="shareActionButton">Share</string>
     <string name="copyActionButton">Copy</string>
     <string name="deleteActionButton">Delete</string>
+    <string name="go_to_geopackage">Go to geopackage</string>
+    <string name="get_started">Get Started</string>
+    <string name="max_lon">Max Lon</string>
+    <string name="min_lon">Min Lon</string>
+    <string name="max_lat">Max Lat</string>
+    <string name="min_lat">Min Lat</string>
+    <string name="add_url">Add URL</string>
 
 
 </resources>

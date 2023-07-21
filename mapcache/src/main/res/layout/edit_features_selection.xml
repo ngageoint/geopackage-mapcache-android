@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -22,7 +23,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:background="@drawable/material_feature" />
+                android:src="@drawable/material_feature"
+                app:tint="@color/textSecondaryColor" />
 
             <TextView
                 android:id="@+id/new_layer_title"
@@ -30,43 +32,57 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"
+                android:textColor="@color/textPrimaryColor"
                 android:text="Edit Features Layer" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal" >
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/edit_features_selection_geopackage_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textSecondaryColor"
                 android:text="@string/edit_features_selection_geopackage_label" />
 
             <Spinner
                 android:id="@+id/edit_features_selection_geopackage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:prompt="@string/edit_features_selection_geopackage_prompt" />
+                android:prompt="@string/edit_features_selection_geopackage_prompt"
+                android:theme="@style/TextLabel"
+                android:background="@drawable/outlined_background"
+                android:popupBackground="@color/backgroundPrimaryColor"
+                android:paddingRight="8dp"
+                android:spinnerMode="dropdown"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal" >
+            android:layout_marginTop="16dp"
+            android:orientation="vertical" >
 
             <TextView
                 android:id="@+id/edit_features_selection_features_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Layer:" />
+                android:textColor="@color/textSecondaryColor"
+                android:text="Layer" />
 
             <Spinner
                 android:id="@+id/edit_features_selection_features"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:prompt="@string/edit_features_selection_features_prompt" />
+                android:prompt="@string/edit_features_selection_features_prompt"
+                android:theme="@style/TextLabel"
+                android:paddingRight="8dp"
+                android:background="@drawable/outlined_background"
+                android:popupBackground="@color/backgroundPrimaryColor"
+                android:spinnerMode="dropdown"/>
         </LinearLayout>
     </LinearLayout>
 

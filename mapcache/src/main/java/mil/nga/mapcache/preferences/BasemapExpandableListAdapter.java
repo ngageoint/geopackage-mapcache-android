@@ -156,7 +156,7 @@ public class BasemapExpandableListAdapter extends BaseExpandableListAdapter impl
         txtTitle.setText(layer.getTitle());
         txtDescription.setText(layer.getDescription());
 
-        Switch simpleSwitch = (Switch) view.findViewById(R.id.simpleSwitch);
+        SwitchCompat simpleSwitch = (SwitchCompat) view.findViewById(R.id.simpleSwitch);
         simpleSwitch.setVisibility(View.VISIBLE);
         simpleSwitch.setOnCheckedChangeListener(null);
         simpleSwitch.setChecked(false);

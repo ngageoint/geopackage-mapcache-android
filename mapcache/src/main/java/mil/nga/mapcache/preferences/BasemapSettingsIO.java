@@ -76,13 +76,15 @@ public class BasemapSettingsIO {
         SharedPreferences.Editor editor = prefs.edit();
 
         // Set the map type for google map selection
-        BasemapServerModel model = settings.getSelectedBasemap()[0];
-        String serverUrl = model.getServerUrl();
-        int mapType = Integer.parseInt(serverUrl);
-        editor.putInt(BasemapSettingsIO.MAP_TYPE_KEY, mapType);
-        
-        editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);
-        editor.commit();
+        if(settings.getSelectedBasemap().length > 0) {
+            BasemapServerModel model = settings.getSelectedBasemap()[0];
+            String serverUrl = model.getServerUrl();
+            int mapType = Integer.parseInt(serverUrl);
+            editor.putInt(BasemapSettingsIO.MAP_TYPE_KEY, mapType);
+
+            editor.putString(activity.getString(R.string.selectedBasemaps), selectedBasemapString);
+            editor.commit();
+        }
     }
 
     /**

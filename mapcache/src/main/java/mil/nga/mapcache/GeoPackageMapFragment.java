@@ -2225,9 +2225,11 @@ public class GeoPackageMapFragment extends Fragment implements
         boolean appDarkMode = settings.getBoolean(SETTINGS_APP_DARK_KEY, false);
         if (appDarkMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            if (map == null || getContext() == null) return;
             map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            if (map == null || getContext() == null) return;
             map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
         }
     }

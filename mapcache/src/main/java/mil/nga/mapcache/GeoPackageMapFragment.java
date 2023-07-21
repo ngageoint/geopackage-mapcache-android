@@ -210,11 +210,6 @@ public class GeoPackageMapFragment extends Fragment implements
     private static final String MAX_FEATURES_KEY = "max_features_key";
 
     /**
-     * Key for using dark mode from preferences
-     */
-    private static final String SETTINGS_DARK_KEY = "dark_map";
-
-    /**
      * Key for using app dark mode from preferences
      */
     private static final String SETTINGS_APP_DARK_KEY = "dark_app";
@@ -745,12 +740,10 @@ public class GeoPackageMapFragment extends Fragment implements
     private void settingsUpdate() {
         SharedPreferences settings = PreferenceManager
                 .getDefaultSharedPreferences(getActivity());
-        boolean darkMode = settings.getBoolean(SETTINGS_DARK_KEY, false);
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
         boolean zoomLevelVisible = settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
         displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
 
-        setMapDarkMode(darkMode);
         setAppDarkMode();
         setZoomIconsVisible(zoomIconsVisible);
         setZoomLevelVisible(zoomLevelVisible);
@@ -2221,25 +2214,10 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
 
-    /**
-     * Set the map color scheme to dark or default
-     *
-     * @param makeDark True if the map style should be the dark style, false otherwise.
-     */
-    private void setMapDarkMode(boolean makeDark) {
-        if (map == null || getContext() == null) return;
-
-        if (makeDark) {
-            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
-        } else {
-            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
-        }
-    }
-
 
 
     /**
-     * Set the full app color scheme to dark or default
+     * Set the full app color scheme to dark or default, including the map
      */
     private void setAppDarkMode() {
         SharedPreferences settings = PreferenceManager
@@ -2247,8 +2225,10 @@ public class GeoPackageMapFragment extends Fragment implements
         boolean appDarkMode = settings.getBoolean(SETTINGS_APP_DARK_KEY, false);
         if (appDarkMode) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.dark_map));
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(getContext(), R.raw.default_map));
         }
     }
 

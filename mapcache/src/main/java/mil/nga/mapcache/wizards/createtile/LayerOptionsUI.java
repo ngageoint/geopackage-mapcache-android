@@ -103,12 +103,12 @@ public class LayerOptionsUI {
         // Set the spinner values for zoom levels
         Spinner minSpinner = tileView.findViewById(R.id.min_zoom_spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.zoom_levels, android.R.layout.simple_spinner_item);
+                R.array.zoom_levels, R.layout.spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         minSpinner.setAdapter(adapter);
         Spinner maxSpinner = tileView.findViewById(R.id.max_zoom_spinner);
         ArrayAdapter<CharSequence> maxAdapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.zoom_levels, android.R.layout.simple_spinner_item);
+                R.array.zoom_levels, R.layout.spinner_item);
         maxAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         maxSpinner.setAdapter(maxAdapter);
         maxSpinner.setSelection(maxAdapter.getPosition(String.valueOf(model.getMaxZoom())));

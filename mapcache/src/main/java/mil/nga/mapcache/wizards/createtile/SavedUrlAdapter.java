@@ -1,6 +1,7 @@
 package mil.nga.mapcache.wizards.createtile;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -52,10 +53,13 @@ class SavedUrlAdapter extends ArrayAdapter<SavedUrl> {
       // Icon
       ImageView urlIcon = (ImageView)listItem.findViewById(R.id.url_icon);
       urlIcon.setImageResource(savedUrl.getmIcon());
+//      Setting a color filter to tint the icon to deal with light/dark mode instead of making new icons
+//      urlIcon.setColorFilter(mContext.getResources().getColor(R.color.iconTint, getContext().getTheme()));
 
       // Url text
       TextView urlText = (TextView)listItem.findViewById(R.id.saved_url);
       urlText.setText(savedUrl.getmUrl());
+      urlText.setTextColor(mContext.getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
 
       return listItem;
    }

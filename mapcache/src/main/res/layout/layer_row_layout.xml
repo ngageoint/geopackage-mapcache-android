@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/colored_layers"></ImageView>
+            android:src="@drawable/colored_layers"/>
 
 
         <!--Layer name-->
@@ -37,10 +37,10 @@
             android:paddingRight="0dp"
             android:paddingBottom="16dp"
             android:text="layer"
-            android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"></TextView>
+            android:textAppearance="@style/textAppearanceSubtitle3_light_heavy"/>
 
         <!--Active layer switch-->
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/simpleSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

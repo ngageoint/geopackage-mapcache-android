@@ -35,7 +35,7 @@
                 android:id="@+id/hint_active_color"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/nga_accent_bright"
+                android:background="@color/mutedAccentColor"
                 android:layout_weight="0.80">
 
                 <ImageView
@@ -43,8 +43,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:tint="@color/white"
-                    android:src="@drawable/chevron_right"/>
+                    android:src="@drawable/chevron_right"
+                    app:tint="@color/textPrimaryColor" />
 
             </LinearLayout>
 
@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.2"
-                android:background="@color/white"
+                android:background="@color/backgroundPrimaryColor"
                 android:orientation="vertical">
 
                 <TextView
@@ -64,6 +64,7 @@
                     android:layout_marginLeft="8dp"
                     android:padding="8dp"
                     android:text="Swipe to enable layers"
+                    android:textColor="@color/textSecondaryColor"
                     android:textAppearance="@style/textAppearanceSubtitle1Faded" />
             </LinearLayout>
 

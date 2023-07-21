@@ -9,40 +9,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!--<FrameLayout-->
-                <!--android:id="@+id/settingsContainer"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:paddingTop="16dp"-->
-                <!--android:background="@color/nga_primary_bright">-->
-
-                <!--<ImageButton-->
-                    <!--android:id="@+id/closeSettingsButton"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:background="@android:color/transparent"-->
-                    <!--android:paddingRight="16dp"-->
-                    <!--android:layout_gravity="right"-->
-                    <!--android:src="@drawable/ic_clear_grey_800_24dp" />-->
-
-                <!--<LinearLayout-->
-                    <!--android:id="@+id/settingsLayout"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:orientation="vertical">-->
-
-                    <!--&lt;!&ndash;Title&ndash;&gt;-->
-                    <!--<android.support.v7.widget.AppCompatTextView-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:text="Settings"-->
-                        <!--android:layout_marginBottom="8dp"-->
-                        <!--android:layout_marginLeft="16dp"-->
-                        <!--android:textAppearance="@style/textAppearanceSubtitle1"-->
-                        <!--android:textStyle="bold" />-->
-                <!--</LinearLayout>-->
-            <!--</FrameLayout>-->
-
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

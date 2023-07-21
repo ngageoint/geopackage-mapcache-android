@@ -26,7 +26,7 @@
         android:layout_marginBottom="105dp"
         android:name="com.google.android.gms.maps.SupportMapFragment" />
 
-    <!--Text to show current zoom level-->
+    <!--Text to show MGRS coordinate -->
     <androidx.cardview.widget.CardView
         android:id="@+id/coordTextCard"
         android:layout_width="wrap_content"
@@ -45,6 +45,8 @@
             android:layout_height="wrap_content"
             android:padding="6dp"
             android:text="MGRS: 13S ED 8755 86425"
+            android:background="@color/backgroundPrimaryColor"
+            android:textColor="@color/textSecondaryColor"
             android:visibility="visible" />
     </androidx.cardview.widget.CardView>
 
@@ -64,6 +66,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="6dp"
+            android:background="@color/backgroundPrimaryColor"
+            android:textColor="@color/textSecondaryColor"
             android:text="Zoom level"/>
     </androidx.cardview.widget.CardView>
 
@@ -214,88 +218,6 @@
                 android:background="@color/transparent"
                 android:src="@drawable/save_changes" />
 
-            <!--<ImageButton-->
-            <!--android:id="@+id/mapEditPointButton"-->
-            <!--style="?android:attr/buttonStyleSmall"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginLeft="2dp"-->
-            <!--android:layout_marginTop="2dp"-->
-            <!--android:background="#B3FFFFFF"-->
-            <!--android:contentDescription="@string/map_edit_point"-->
-            <!--android:scaleX=".77"-->
-            <!--android:scaleY=".77"-->
-            <!--android:src="@drawable/ic_edit_point" />-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditLinestringButton"-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="2dp"-->
-                <!--android:layout_marginTop="2dp"-->
-                <!--android:background="#B3FFFFFF"-->
-                <!--android:contentDescription="@string/map_edit_linestring"-->
-                <!--android:scaleX=".77"-->
-                <!--android:scaleY=".77"-->
-                <!--android:src="@drawable/ic_edit_linestring" />-->
-
-
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditPolygonButton"-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="2dp"-->
-                <!--android:layout_marginTop="2dp"-->
-                <!--android:background="#B3FFFFFF"-->
-                <!--android:contentDescription="@string/map_edit_polygon"-->
-                <!--android:scaleX=".77"-->
-                <!--android:scaleY=".77"-->
-                <!--android:src="@drawable/ic_edit_polygon" />-->
-
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditAcceptButton"-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="1dp"-->
-                <!--android:layout_marginTop="2dp"-->
-                <!--android:background="#B3FFFFFF"-->
-                <!--android:contentDescription="@string/map_edit_accept"-->
-                <!--android:scaleX=".77"-->
-                <!--android:scaleY=".77"-->
-                <!--android:src="@drawable/ic_accept" />-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditClearButton"-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="1dp"-->
-                <!--android:layout_marginTop="2dp"-->
-                <!--android:background="#B3FFFFFF"-->
-                <!--android:contentDescription="@string/map_edit_clear"-->
-                <!--android:scaleX=".77"-->
-                <!--android:scaleY=".77"-->
-                <!--android:src="@drawable/cancel_changes" />-->
-
-
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditAcceptButton"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_alignParentEnd="true"-->
-                <!--android:layout_alignParentTop="true"-->
-                <!--android:layout_marginEnd="16dp"-->
-                <!--android:layout_marginTop="24dp"-->
-                <!--android:background="@android:color/transparent"-->
-                <!--android:src="@drawable/save_changes"-->
-                <!--android:onClick="openEditMenu"/>-->
-
         </LinearLayout>
 
         <LinearLayout
@@ -304,45 +226,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:visibility="invisible" >
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditPolygonHoleButton"-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="2dp"-->
-                <!--android:layout_marginTop="2dp"-->
-                <!--android:background="#B3FFFFFF"-->
-                <!--android:contentDescription="@string/map_edit_polygon_hole"-->
-                <!--android:scaleX=".77"-->
-                <!--android:scaleY=".77"-->
-                <!--android:src="@drawable/ic_edit_polygon_hole" />-->
-
-            <!--<ImageButton-->
-                <!--android:id="@+id/mapEditPolygonHoleAcceptButton"-->
-                <!--style="?android:attr/buttonStyleSmall"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginLeft="1dp"-->
-                <!--android:layout_marginTop="2dp"-->
-                <!--android:background="#B3FFFFFF"-->
-                <!--android:contentDescription="@string/map_edit_polygon_hole_accept"-->
-                <!--android:scaleX=".77"-->
-                <!--android:scaleY=".77"-->
-                <!--android:src="@drawable/ic_accept" />-->
-
-            <!--<ImageButton-->
-            <!--android:id="@+id/mapEditPolygonHoleClearButton"-->
-            <!--style="?android:attr/buttonStyleSmall"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginLeft="1dp"-->
-            <!--android:layout_marginTop="2dp"-->
-            <!--android:background="#B3FFFFFF"-->
-            <!--android:contentDescription="@string/map_edit_polygon_hole_clear"-->
-            <!--android:scaleX=".77"-->
-            <!--android:scaleY=".77"-->
-            <!--android:src="@drawable/cancel_changes" />-->
 
             <ImageButton
                 android:id="@+id/mapEditPolygonHoleButton"
@@ -387,7 +270,7 @@
         android:id="@+id/recycler_geopackages"
         android:layout_width="match_parent"
         android:layout_height="500dp"
-        android:background="@drawable/gradient_vertical"
+        android:background="@color/backgroundPrimaryColor"
         android:paddingBottom="90dp"
         android:clipToPadding="false"
         app:layout_behavior="@string/bottom_sheet_behavior"
@@ -399,7 +282,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/gradient_vertical"
+        android:background="@color/backgroundPrimaryColor"
         android:layout_gravity="bottom"
         android:paddingTop="32dp"
         android:paddingBottom="32dp">
@@ -421,6 +304,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingTop="8dp"
+            android:textColor="@color/textSecondaryColor"
             android:text="@string/no_packages_text" />
 
         <TextView
@@ -430,8 +314,8 @@
             android:gravity="center"
             android:paddingTop="16dp"
             android:textAppearance="@style/textAppearanceSubtitle2_light_heavy"
-            android:textColor="@color/nga_primary_light"
-            android:text="Get Started" />
+            android:textColor="@color/textLinkColor"
+            android:text="@string/get_started" />
     </LinearLayout>
 
     <!--Floating action button for new Geopackage-->
@@ -442,6 +326,8 @@
         android:layout_margin="16dp"
         android:src="@drawable/add"
         android:visibility="visible"
+        app:tint="@color/offwhite"
+        app:backgroundTint="@color/geopackageFabColor"
         app:rippleColor="@color/nga_accent_light"
         app:layout_anchor="@id/map_view_holder"
         app:layout_anchorGravity="bottom|right|end" />
@@ -454,124 +340,12 @@
         android:layout_margin="16dp"
         android:src="@drawable/material_tile_add"
         android:visibility="gone"
-        app:backgroundTint="@color/nga_accent_primary"
+        app:tint="@color/offwhite"
+        app:backgroundTint="@color/layerFabColor"
         app:rippleColor="@color/nga_accent_light"
         app:layout_anchor="@id/map_view_holder"
-        app:layout_anchorGravity="bottom|right|end" />
-
-    <!--<androidx.core.widget.NestedScrollView-->
-        <!--android:id="@+id/bottom_sheet"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="@drawable/gradient_vertical"-->
-        <!--android:elevation="4dp"-->
-        <!--android:fillViewport="true"-->
-        <!--app:behavior_peekHeight="1dp"-->
-        <!--android:visibility="gone"-->
-        <!--app:layout_behavior="@string/bottom_sheet_behavior"-->
-        <!--app:behavior_hideable="false">-->
-        <!--&lt;!&ndash;To add gradient: android:background="@drawable/gradient_vertical&ndash;&gt;-->
-        <!--&lt;!&ndash;Different layout idea: only expand to show current content and no further:&ndash;&gt;-->
-        <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;android:fillViewport="true"&ndash;&gt;-->
-        <!--&lt;!&ndash;for colored angled gradient:         android:background="@drawable/gradient_angle"&ndash;&gt;-->
-
-
-
-        <!--<FrameLayout-->
-            <!--android:id="@+id/fragmentOutterContainer"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent">-->
-
-
-            <!--<FrameLayout-->
-                <!--android:id="@+id/fragmentContainer"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:paddingLeft="8dp"-->
-                <!--android:paddingRight="8dp">-->
-
-                <!--&lt;!&ndash;use the floating action button here if you want it inside the drawer, and covered up when a user clicks to a geopackage detail page&ndash;&gt;-->
-                <!--&lt;!&ndash;<com.google.android.material.floatingactionbutton.FloatingActionButton&ndash;&gt;-->
-                    <!--&lt;!&ndash;android:id="@+id/bottom_sheet_fab"&ndash;&gt;-->
-                    <!--&lt;!&ndash;android:layout_width="wrap_content"&ndash;&gt;-->
-                    <!--&lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
-                    <!--&lt;!&ndash;android:layout_gravity="right"&ndash;&gt;-->
-                    <!--&lt;!&ndash;android:layout_margin="4dp"&ndash;&gt;-->
-                    <!--&lt;!&ndash;android:src="@drawable/add"&ndash;&gt;-->
-                    <!--&lt;!&ndash;app:layout_anchor="@id/fragmentContainer" />&ndash;&gt;-->
-
-
-                <!--<LinearLayout-->
-                    <!--android:id="@+id/mapScrollLayout"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:orientation="vertical">-->
-
-                    <!--&lt;!&ndash;Small tab to indicate drag window    &ndash;&gt;-->
-                    <!--<View-->
-                        <!--android:layout_width="30dp"-->
-                        <!--android:layout_height="1dp"-->
-                        <!--android:layout_gravity="center"-->
-                        <!--android:layout_marginBottom="4dp"-->
-                        <!--android:layout_marginTop="8dp"-->
-                        <!--android:background="@color/horizontal_line"/>-->
-                        <!--&lt;!&ndash;android:background="@color/horizontal_line" />&ndash;&gt;-->
-
-                    <!--&lt;!&ndash;Title&ndash;&gt;-->
-                    <!--<androidx.appcompat.widget.AppCompatTextView-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:text="GeoPackages"-->
-                        <!--android:layout_marginBottom="8dp"-->
-                        <!--android:paddingLeft="4dp"-->
-                        <!--android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />-->
-
-                    <!--&lt;!&ndash;horizontal line&ndash;&gt;-->
-
-
-
-
-
-                    <!--<androidx.appcompat.widget.AppCompatTextView-->
-                        <!--android:id="@+id/enabledDatabase"-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="match_parent" />-->
-
-                    <!--<androidx.appcompat.widget.AppCompatTextView-->
-                        <!--android:id="@+id/activeDatabases"-->
-                        <!--android:layout_width="wrap_content"-->
-                        <!--android:layout_height="match_parent" />-->
-
-
-                    <!--&lt;!&ndash;GeoPackage detail fragment&ndash;&gt;-->
-                    <!--<LinearLayout-->
-                        <!--android:layout_width="match_parent"-->
-                        <!--android:layout_height="0dp"-->
-                        <!--android:layout_weight="1"-->
-                        <!--android:orientation="vertical">-->
-
-                        <!--<FrameLayout-->
-                            <!--android:id="@+id/detail_container"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_weight="0" />-->
-
-                        <!--&lt;!&ndash;<fragment&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:id="@+id/fragment_geo_detail"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:name="mil.nga.mapcache.GeoPackageDetailDrawer"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
-                        <!--&lt;!&ndash;android:layout_height="match_parent" />&ndash;&gt;-->
-                    <!--</LinearLayout>-->
-
-
-                <!--</LinearLayout>-->
-            <!--</FrameLayout>-->
-        <!--</FrameLayout>-->
-
-
-    <!--</androidx.core.widget.NestedScrollView>-->
-
+        app:layout_anchorGravity="bottom|right|end"
+        android:contentDescription="@string/new_geopackage" />
 
     <!--Settings view-->
     <androidx.core.widget.NestedScrollView

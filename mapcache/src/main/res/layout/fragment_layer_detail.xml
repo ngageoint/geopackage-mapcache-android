@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -46,7 +47,8 @@
                     android:paddingRight="16dp"
                     android:paddingBottom="16dp"
                     android:paddingTop="8dp"
-                    android:src="@drawable/ic_arrow_back_black_24dp" />
+                    android:src="@drawable/ic_arrow_back_black_24dp"
+                    app:tint="@color/textPrimaryColor" />
 
                 <TextView
                     android:id="@+id/layerName"
@@ -121,43 +123,35 @@
 
                 <Button
                     android:id="@+id/layerRenameButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
+                    style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_edit"
-                    android:gravity="bottom|center"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:text="Rename" />
 
                 <Button
                     android:id="@+id/layerCopyButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
+                    style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_copy"
-                    android:gravity="bottom|center"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:text="Copy" />
 
                 <Button
                     android:id="@+id/editFeaturesButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
+                    style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_location"
-                    android:gravity="bottom|center"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:visibility="gone"
                     android:text="Edit" />
 
                 <Button
                     android:id="@+id/layerDeleteButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/ripple"
+                    style="@style/DetailButtonStyle"
                     android:drawableTop="@drawable/material_delete_forever"
-                    android:gravity="bottom|center"
+                    android:drawableTint="@color/textPrimaryColor"
+                    android:textColor="@color/textPrimaryColor"
                     android:text="Delete" />
 
 
@@ -170,7 +164,7 @@
                 android:id="@+id/layerDetailFields"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/light_blue_bg"
+                android:background="@color/offsetBackgroundColor"
                 android:orientation="horizontal"
                 android:paddingLeft="24dp"
                 android:paddingRight="24dp"

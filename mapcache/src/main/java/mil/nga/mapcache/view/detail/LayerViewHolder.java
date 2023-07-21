@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import mil.nga.mapcache.R;
@@ -31,7 +32,7 @@ public class LayerViewHolder extends RecyclerView.ViewHolder{
     /**
      * On/Off switch for setting the layer to active
      */
-    Switch layerOn;
+    SwitchCompat layerOn;
 
     /**
      * Store the name of the geoPackage
@@ -74,7 +75,7 @@ public class LayerViewHolder extends RecyclerView.ViewHolder{
         super(itemView);
         title = (TextView) itemView.findViewById(R.id.layer_label);
         icon = (ImageView) itemView.findViewById(R.id.layer_icon);
-        layerOn = (Switch) itemView.findViewById(R.id.simpleSwitch);
+        layerOn = (SwitchCompat) itemView.findViewById(R.id.simpleSwitch);
         mSwitchListener = switchListener;
         mListener = listener;
         setLayerSwitchListener();

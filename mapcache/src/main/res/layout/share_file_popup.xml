@@ -24,6 +24,7 @@
                 style="@style/Base.TextAppearance.AppCompat.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/textPrimaryColor"
                 android:text="Share GeoPackage" />
 
         </LinearLayout>
@@ -33,12 +34,14 @@
         <View style="@style/Divider"
             android:layout_marginBottom="16dp"
             android:layout_marginRight="4dp"
+            android:backgroundTint="@color/textPrimaryColor"
             />
 
         <!--Share to apps-->
         <androidx.cardview.widget.CardView
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/share_menu_share_card"
+            android:backgroundTint="@color/backgroundSecondaryColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
@@ -59,6 +62,7 @@
                     android:scaleType="fitXY"
                     android:adjustViewBounds="true"
                     android:layout_gravity="center"
+                    card_view:tint="@color/textPrimaryColor"
                     android:src="@drawable/material_share"/>
                 <TextView
                     android:id="@+id/share_menu_share_text"
@@ -68,7 +72,7 @@
                     android:layout_toRightOf="@+id/share_menu_share_icon"
                     android:text="Share with apps"
                     android:textAppearance="@style/textAppearanceBody1Medium"
-                    android:textColor="@color/nga_primary_light"/>
+                    android:textColor="@color/textLinkColor"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -77,6 +81,7 @@
         <androidx.cardview.widget.CardView
             xmlns:card_view="http://schemas.android.com/apk/res-auto"
             android:id="@+id/share_menu_save_card"
+            android:backgroundTint="@color/backgroundSecondaryColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="8dp"
@@ -97,6 +102,7 @@
                     android:scaleType="fitXY"
                     android:adjustViewBounds="true"
                     android:layout_gravity="center"
+                    card_view:tint="@color/textPrimaryColor"
                     android:src="@drawable/material_save" />
                 <TextView
                     android:id="@+id/share_menu_save_text"
@@ -105,7 +111,7 @@
                     android:padding="16dp"
                     android:text="Save to Downloads"
                     android:textAppearance="@style/textAppearanceBody1Medium"
-                    android:textColor="@color/nga_primary_light"/>
+                    android:textColor="@color/textLinkColor"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -18,7 +19,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_gravity="center"
-            android:src="@drawable/material_description" />
+            android:src="@drawable/material_description"
+            app:tint="@color/textPrimaryColor" />
 
         <TextView
             android:id="@+id/import_file_title"
@@ -28,6 +30,7 @@
             android:layout_alignTop="@+id/import_file_logo"
             android:layout_marginLeft="16dp"
             android:layout_toRightOf="@+id/import_file_logo"
+            android:textColor="@color/textPrimaryColor"
             android:text="Import from file" />
     </LinearLayout>
 
@@ -36,12 +39,15 @@
         android:id="@+id/import_file_name_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:theme="@style/TextLabel"
         android:paddingBottom="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/import_file_name_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/textPrimaryColor"
             android:hint="@string/hint_name" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -58,6 +64,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/import_file_copy_label"
+            android:textColor="@color/textPrimaryColor"
+            android:buttonTint="@color/textLinkColor"
             android:checked="true" />
 
         <RadioButton
@@ -65,6 +73,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:textColor="@color/textPrimaryColor"
+            android:buttonTint="@color/textLinkColor"
             android:text="@string/import_file_external_label" />
     </RadioGroup>
 

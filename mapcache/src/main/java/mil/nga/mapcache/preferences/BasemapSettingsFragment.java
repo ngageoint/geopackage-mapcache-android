@@ -287,12 +287,12 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
 
             for (Button exclusiveButton : exclusiveButtons) {
                 if (exclusiveButton.getText().toString().equalsIgnoreCase(name)) {
-                    exclusiveButton.setTextColor(getResources().getColor(R.color.nga_primary_light));
+                    exclusiveButton.setTextColor(getResources().getColor(R.color.textLinkColor, getContext().getTheme()));
                     exclusiveButton.setTextScaleX(1.2f);
                     exclusiveButton.getCompoundDrawables()[1].setAlpha(255);
                 } else {
                     exclusiveButton.setPressed(false);
-                    exclusiveButton.setTextColor(getResources().getColor(R.color.black));
+                    exclusiveButton.setTextColor(getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
                     exclusiveButton.setTextScaleX(1);
                     exclusiveButton.getCompoundDrawables()[1].setAlpha(200);
                 }
@@ -308,10 +308,10 @@ public class BasemapSettingsFragment extends PreferenceFragmentCompat
         GridType selectedGridType = model.getGridOverlaySettings().getSelectedGrid();
         for(Button gridButton : gridButtons){
             if(gridButton.getText().toString().equalsIgnoreCase(selectedGridType.toString())){
-                gridButton.setTextColor(getResources().getColor(R.color.nga_primary_light));
+                gridButton.setTextColor(getResources().getColor(R.color.textLinkColor, getContext().getTheme()));
                 gridButton.setTextScaleX(1.2f);
             } else {
-                gridButton.setTextColor(getResources().getColor(R.color.black));
+                gridButton.setTextColor(getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
                 gridButton.setTextScaleX(1);
             }
         }

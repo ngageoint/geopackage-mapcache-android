@@ -406,7 +406,6 @@ public class DetailActionUtil {
                             givenName);
                     if (!allowed) {
                         name.setError(context.getResources().getString(R.string.must_be_alphanumeric));
-                        addButton.setBackgroundColor(context.getResources().getColor(R.color.inactive_grey));
                         addButton.setEnabled(false);
                     }
                 }

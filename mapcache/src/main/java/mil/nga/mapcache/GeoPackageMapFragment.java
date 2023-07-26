@@ -112,6 +112,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
@@ -181,6 +182,7 @@ import mil.nga.mapcache.view.layer.LayerPageAdapter;
 import mil.nga.mapcache.view.map.BasemapApplier;
 import mil.nga.mapcache.view.map.feature.FeatureViewActivity;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
+import mil.nga.mapcache.wizards.createfeature.NewFeatureLayerUI;
 import mil.nga.mapcache.wizards.createtile.IBoundingBoxManager;
 import mil.nga.mapcache.wizards.createtile.IMapView;
 import mil.nga.mapcache.wizards.createtile.NewTileLayerUI;
@@ -1819,97 +1821,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * Create feature layer menu
      */
     private void createFeatureOption() {
-        if (getActivity() != null) {
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
-            View createFeaturesView = inflater.inflate(R.layout.create_features,
-                    null);
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-            dialog.setView(createFeaturesView);
-
-            final TextInputEditText nameInput = createFeaturesView
-                    .findViewById(R.id.create_features_name_input);
-            final TextInputEditText minLatInput = createFeaturesView
-                    .findViewById(R.id.bounding_box_min_latitude_input);
-            final TextInputEditText maxLatInput = createFeaturesView
-                    .findViewById(R.id.bounding_box_max_latitude_input);
-            final TextInputEditText minLonInput = createFeaturesView
-                    .findViewById(R.id.bounding_box_min_longitude_input);
-            final TextInputEditText maxLonInput = createFeaturesView
-                    .findViewById(R.id.bounding_box_max_longitude_input);
-            final TextView preloadedLocationsButton = createFeaturesView
-                    .findViewById(R.id.bounding_box_preloaded);
-            final Spinner geometryTypeSpinner = createFeaturesView
-                    .findViewById(R.id.create_features_geometry_type);
-
-            GeoPackageUtils
-                    .prepareBoundingBoxInputs(getActivity(), minLatInput,
-                            maxLatInput, minLonInput, maxLonInput,
-                            preloadedLocationsButton);
-
-            dialog.setPositiveButton(
-                    getString(R.string.geopackage_create_features_label),
-                    (DialogInterface d, int id) -> {
-
-                        try {
-
-                            String tableName = nameInput.getText().toString();
-                            if (tableName.isEmpty()) {
-                                throw new GeoPackageException(
-                                        getString(R.string.create_features_name_label)
-                                                + " is required");
-                            }
-                            double minLat = Double.parseDouble(minLatInput
-                                    .getText().toString());
-                            double maxLat = Double.parseDouble(maxLatInput
-                                    .getText().toString());
-                            double minLon = Double.parseDouble(minLonInput
-                                    .getText().toString());
-                            double maxLon = Double.parseDouble(maxLonInput
-                                    .getText().toString());
-
-                            if (minLat > maxLat) {
-                                throw new GeoPackageException(
-                                        getString(R.string.bounding_box_min_latitude_label)
-                                                + " can not be larger than "
-                                                + getString(R.string.bounding_box_max_latitude_label));
-                            }
-
-                            if (minLon > maxLon) {
-                                throw new GeoPackageException(
-                                        getString(R.string.bounding_box_min_longitude_label)
-                                                + " can not be larger than "
-                                                + getString(R.string.bounding_box_max_longitude_label));
-                            }
-
-                            BoundingBox boundingBox = new BoundingBox(minLon,
-                                    minLat, maxLon, maxLat);
-
-                            GeometryType geometryType = GeometryType
-                                    .fromName(geometryTypeSpinner
-                                            .getSelectedItem().toString());
-                            String geoName = detailPageAdapter.getGeoPackageName();
-                            if (geoName != null) {
-                                if (!geoPackageViewModel.createFeatureTable(geoName, boundingBox, geometryType, tableName)) {
-                                    GeoPackageUtils
-                                            .showMessage(
-                                                    getActivity(),
-                                                    getString(R.string.geopackage_create_features_label),
-                                                    "There was a problem generating a tile table");
-                                }
-                            }
-
-
-                        } catch (Exception e) {
-                            GeoPackageUtils
-                                    .showMessage(
-                                            getActivity(),
-                                            getString(R.string.geopackage_create_features_label),
-                                            e.getMessage());
-                        }
-                    }).setNegativeButton(getString(R.string.button_cancel_label),
-                    (DialogInterface d, int id) -> d.cancel());
-            dialog.show();
-        }
+        NewFeatureLayerUI.newFeatureLayerPopup(getActivity(), geoPackageViewModel, detailPageAdapter.getGeoPackageName());
     }
 
 
@@ -1929,6 +1841,18 @@ public class GeoPackageMapFragment extends Fragment implements
         ViewAnimation.rotateFadeIn(editFeaturesButton, 200);
         ViewAnimation.rotateFadeIn(settingsIcon, 200);
         layerFab.show();
+    }
+
+    /**
+     * Launches a wizard to create a new feature layer in the given geopackage
+     *
+     * @param geopackageName The name of the geoPackage.
+     */
+    private void newFeatureLayerWizard(final String geopackageName) {
+//        NewTileLayerUI newTileLayerUI = new NewTileLayerUI(geoPackageRecycler, this,
+//                this, getActivity(), getContext(), this,
+//                geoPackageViewModel, this, geopackageName);
+//        newTileLayerUI.show();
     }
 
     /**

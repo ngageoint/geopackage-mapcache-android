@@ -1842,18 +1842,7 @@ public class GeoPackageMapFragment extends Fragment implements
         ViewAnimation.rotateFadeIn(settingsIcon, 200);
         layerFab.show();
     }
-
-    /**
-     * Launches a wizard to create a new feature layer in the given geopackage
-     *
-     * @param geopackageName The name of the geoPackage.
-     */
-    private void newFeatureLayerWizard(final String geopackageName) {
-//        NewTileLayerUI newTileLayerUI = new NewTileLayerUI(geoPackageRecycler, this,
-//                this, getActivity(), getContext(), this,
-//                geoPackageViewModel, this, geopackageName);
-//        newTileLayerUI.show();
-    }
+    
 
     /**
      * Launches a wizard to create a new tile layer in the given geopackage

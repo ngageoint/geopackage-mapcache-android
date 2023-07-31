@@ -12,10 +12,14 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,43 +55,39 @@ public class ShareTask {
     private Activity activity;
 
     /**
-     * Need access to the viewModel to retrieve database files
-     */
-    private GeoPackageViewModel geoPackageViewModel;
-
-    /**
      * Name should be saved to the task
      */
     private String geoPackageName;
 
+    /**
+     * GeoPackage file for sharing
+     */
+    private File geoPackageFile;
+
+    /**
+     * Is the saved geoPackage an external file
+     */
+    private boolean isFileExternal = false;
+
     public ShareTask(FragmentActivity activity) {
         this.activity = activity;
-        geoPackageViewModel = ViewModelProviders.of(activity).get(GeoPackageViewModel.class);
     }
 
 
     /**
      * Share database with external apps via intent
-     *
-     * @param database GeoPackage name
      */
-    public void shareDatabaseOption(final String database) {
-
+    private void shareDatabaseOption() {
         try {
-            // Get the database file
-            File databaseFile = geoPackageViewModel.getDatabaseFile(database);
-
             // Create the share intent
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.setType("*/*");
 
             // If external database, no permission is needed
-            if (geoPackageViewModel.isExternal(database)) {
+            if (isFileExternal) {
                 // Create the Uri and share
-                Uri databaseUri = FileProvider.getUriForFile(activity,
-                        AUTHORITY,
-                        databaseFile);
+                Uri databaseUri = FileProvider.getUriForFile(activity, AUTHORITY, geoPackageFile);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 launchShareIntent(shareIntent, databaseUri);
             }
@@ -95,9 +95,8 @@ public class ShareTask {
             else {
                 // Launch the share copy task
                 ShareCopyTask shareCopyTask = new ShareCopyTask(shareIntent);
-                shareCopyTask.execute(databaseFile, database);
+                shareCopyTask.execute(geoPackageFile, geoPackageName);
             }
-
         } catch (Exception e) {
             GeoPackageUtils.showMessage(activity, "Error sharing GeoPackage", e.getMessage());
         }
@@ -107,21 +106,16 @@ public class ShareTask {
 
     /**
      * Save the given database to the downloads directory
-     * @param database GeoPackage name
      */
-    private void saveDatabaseOption(final String database){
+    private void saveDatabaseOption(){
         try {
-            // Get the database file
-            File databaseFile = geoPackageViewModel.getDatabaseFile(database);
-
             // Create the share intent
             Intent shareIntent = new Intent();
             shareIntent.setAction(Intent.ACTION_SEND);
 
             // Launch the save to disk task
             SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
-            saveTask.execute(databaseFile, database);
-
+            saveTask.execute(geoPackageFile, geoPackageName);
         } catch (Exception e) {
             GeoPackageUtils.showMessage(activity, "Error saving to file", e.getMessage());
         }
@@ -133,41 +127,48 @@ public class ShareTask {
      * Shows a popup to ask if the user wants to save to disk or share with external apps
      * @return constant representing either share or save
      */
-    public void askToSaveOrShare(String database){
-        // Create Alert window with basic input text layout
-        LayoutInflater inflater = LayoutInflater.from(activity);
-        View alertView = inflater.inflate(R.layout.share_file_popup, null);
-        ViewAnimation.setScaleAnimatiom(alertView, 200);
-        // title
-        TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
-        titleText.setText("Share GeoPackage");
+    public void askToSaveOrShare(){
+        try {
+            if(geoPackageFile == null || geoPackageName == null){
+                throw new Exception("GeoPackage could not be found");
+            }
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(activity);
+            View alertView = inflater.inflate(R.layout.share_file_popup, null);
+            ViewAnimation.setScaleAnimatiom(alertView, 200);
+            // title
+            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            titleText.setText("Share GeoPackage");
 
-        // Initial dialog asking for create or import
-        AlertDialog.Builder dialog = new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
-                .setView(alertView);
-        final AlertDialog alertDialog = dialog.create();
+            // Initial dialog asking for create or import
+            AlertDialog.Builder dialog = new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView);
+            final AlertDialog alertDialog = dialog.create();
 
-        // Click listener for "Share"
-        alertView.findViewById(R.id.share_menu_share_card)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        shareDatabaseOption(database);
-                        alertDialog.dismiss();
-                    }
-                });
+            // Click listener for "Share"
+            alertView.findViewById(R.id.share_menu_share_card)
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            shareDatabaseOption();
+                            alertDialog.dismiss();
+                        }
+                    });
 
-        // Click listener for "Save"
-        alertView.findViewById(R.id.share_menu_save_card)
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        saveDatabaseOption(database);
-                        alertDialog.dismiss();
-                    }
-                });
+            // Click listener for "Save"
+            alertView.findViewById(R.id.share_menu_save_card)
+                    .setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            saveDatabaseOption();
+                            alertDialog.dismiss();
+                        }
+                    });
 
-        alertDialog.show();
+            alertDialog.show();
+        } catch (Exception e) {
+            GeoPackageUtils.showMessage(activity, "Error sharing", e.getMessage());
+        }
     }
 
 
@@ -190,13 +191,11 @@ public class ShareTask {
      * @param databaseUri
      */
     private void launchShareIntent(Intent shareIntent, Uri databaseUri) {
-
         // Add the Uri
         shareIntent.putExtra(Intent.EXTRA_STREAM, databaseUri);
 
         // Start the share activity for result to delete the cache when done
         activity.startActivityForResult(Intent.createChooser(shareIntent, "Share"), ACTIVITY_SHARE_FILE);
-
     }
 
 
@@ -430,6 +429,22 @@ public class ShareTask {
 
     public void setGeoPackageName(String geoPackageName) {
         this.geoPackageName = geoPackageName;
+    }
+
+    public void setGeoPackageFile(File geoPackageFile){
+        this.geoPackageFile = geoPackageFile;
+    }
+
+    public File getGeoPackageFile(){
+        return this.geoPackageFile;
+    }
+
+    public boolean isFileExternal() {
+        return isFileExternal;
+    }
+
+    public void setFileExternal(boolean fileExternal) {
+        isFileExternal = fileExternal;
     }
 }
 

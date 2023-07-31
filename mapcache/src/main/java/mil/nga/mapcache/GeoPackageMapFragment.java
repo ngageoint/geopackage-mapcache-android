@@ -100,6 +100,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.proj4j.units.Units;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -1076,7 +1077,10 @@ public class GeoPackageMapFragment extends Fragment implements
     public void onShareGP(String gpName) {
         // Set the geopackage name before we ask permissions and get routed back through MainActivity
         // to exportGeoPackageToExternal()
+        File databaseFile = geoPackageViewModel.getDatabaseFile(gpName);
+        shareTask.setFileExternal(geoPackageViewModel.isExternal(gpName));
         shareTask.setGeoPackageName(gpName);
+        shareTask.setGeoPackageFile(databaseFile);
         getImportPermissions(MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE);
     }
 
@@ -1900,8 +1904,10 @@ public class GeoPackageMapFragment extends Fragment implements
      * Save a GeoPackage to external disk (after we've been given permission)
      */
     public void exportGeoPackageToExternal() {
-        if (shareTask != null && shareTask.getGeoPackageName() != null) {
-            shareTask.askToSaveOrShare(shareTask.getGeoPackageName());
+
+        if (shareTask != null && shareTask.getGeoPackageName() != null &&
+            shareTask.getGeoPackageFile() != null) {
+            shareTask.askToSaveOrShare();
         }
     }
 

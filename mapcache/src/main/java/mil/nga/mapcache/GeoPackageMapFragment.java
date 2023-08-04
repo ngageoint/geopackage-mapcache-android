@@ -161,6 +161,7 @@ import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.SensorCallback;
 import mil.nga.mapcache.load.DownloadTask;
+import mil.nga.mapcache.load.Downloader;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
 import mil.nga.mapcache.load.ShareTask;
@@ -593,6 +594,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     ActivityResultLauncher<Intent> importGeoPackageActivityResultLauncher;
     ActivityResultLauncher<Intent> preferencePageActivityResultLauncher;
+    ActivityResultLauncher<Intent> downloadTaskResultLauncher;
+
 
 
     /**
@@ -1846,7 +1849,7 @@ public class GeoPackageMapFragment extends Fragment implements
         ViewAnimation.rotateFadeIn(settingsIcon, 200);
         layerFab.show();
     }
-    
+
 
     /**
      * Launches a wizard to create a new tile layer in the given geopackage
@@ -2032,9 +2035,11 @@ public class GeoPackageMapFragment extends Fragment implements
                 if (nameValid && urlValid) {
                     String database = inputName.getText() != null ? inputName.getText().toString() : "";
                     String url = inputUrl.getText() != null ? inputUrl.getText().toString() : "";
-                    DownloadTask downloadTask = new DownloadTask(database, url, getActivity());
-
-                    downloadTask.execute();
+                    // Use new Downloader to import the GeoPackage
+                    Downloader geoPackageDownloader = new Downloader(getActivity());
+                    geoPackageDownloader.downloadGeoPackage(geoPackageViewModel, url, database);
+//                    DownloadTask downloadTask = new DownloadTask(database, url, getActivity());
+//                    downloadTask.execute();
                     alertDialog.dismiss();
                 } else if (!nameValid) {
                     inputName.requestFocus();

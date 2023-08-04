@@ -51,25 +51,22 @@ public class MapCacheFileUtils {
      * @param uri
      * @return
      */
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private static String getDisplayName(Context context, Uri uri) {
 
         String name = null;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            ContentResolver resolver = context.getContentResolver();
-            Cursor nameCursor = resolver.query(uri, null, null, null, null);
-            try {
-                if (nameCursor.getCount() > 0) {
-                    int displayNameIndex = nameCursor
-                            .getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME);
-                    if (displayNameIndex >= 0 && nameCursor.moveToFirst()) {
-                        name = nameCursor.getString(displayNameIndex);
-                    }
+        ContentResolver resolver = context.getContentResolver();
+        Cursor nameCursor = resolver.query(uri, null, null, null, null);
+        try {
+            if (nameCursor.getCount() > 0) {
+                int displayNameIndex = nameCursor
+                        .getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME);
+                if (displayNameIndex >= 0 && nameCursor.moveToFirst()) {
+                    name = nameCursor.getString(displayNameIndex);
                 }
-            } finally {
-                nameCursor.close();
             }
+        } finally {
+            nameCursor.close();
         }
 
         if (name == null) {

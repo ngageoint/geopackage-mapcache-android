@@ -51,6 +51,7 @@ class Downloader(val activity : FragmentActivity) : GeoPackageProgress{
         }
 
         builder.setView(alertView)
+        builder.setCancelable(false)
         alertDialog = builder.create()
     }
 

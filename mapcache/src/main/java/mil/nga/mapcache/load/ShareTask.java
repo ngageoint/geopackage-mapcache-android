@@ -94,6 +94,8 @@ public class ShareTask {
             // If internal database, file must be copied to cache for permission
             else {
                 // Launch the share copy task
+
+                //TODO: change to ShareCopyExecutor
                 ShareCopyTask shareCopyTask = new ShareCopyTask(shareIntent);
                 shareCopyTask.execute(geoPackageFile, geoPackageName);
             }

@@ -30,6 +30,7 @@ import mil.nga.mapcache.BuildConfig;
 import mil.nga.mapcache.GeoPackageUtils;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.utils.ViewAnimation;
+import mil.nga.mapcache.load.SaveToDiskExecutor;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 
@@ -116,6 +117,9 @@ public class ShareTask {
             shareIntent.setAction(Intent.ACTION_SEND);
 
             // Launch the save to disk task
+            //TODO: Switch to SaveToDiskExecutor
+            //SaveToDiskExecutor diskExecutor = new SaveToDiskExecutor(activity);
+            //diskExecutor.saveToDisk(getDatabaseCacheDirectory(), geoPackageFile, geoPackageName);
             SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
             saveTask.execute(geoPackageFile, geoPackageName);
         } catch (Exception e) {

@@ -117,9 +117,9 @@ public class ShareTask {
             shareIntent.setAction(Intent.ACTION_SEND);
 
             // Launch the save to disk task
-            //TODO: Switch to SaveToDiskExecutor
-            //SaveToDiskExecutor diskExecutor = new SaveToDiskExecutor(activity);
-            //diskExecutor.saveToDisk(getDatabaseCacheDirectory(), geoPackageFile, geoPackageName);
+            //TODO: Switch to SaveToDiskExecutor 
+//            SaveToDiskExecutor diskExecutor = new SaveToDiskExecutor(activity);
+//            diskExecutor.saveToDisk(getDatabaseCacheDirectory(), geoPackageFile, geoPackageName);
             SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
             saveTask.execute(geoPackageFile, geoPackageName);
         } catch (Exception e) {

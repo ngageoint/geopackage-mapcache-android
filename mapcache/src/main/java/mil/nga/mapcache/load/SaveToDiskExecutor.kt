@@ -24,7 +24,6 @@ import java.util.concurrent.Executors
 class SaveToDiskExecutor(val activity : Activity) {
 
     private val myExecutor: ExecutorService = Executors.newSingleThreadExecutor()
-    private var geoPackageName : String = ""
     private val alertDialog: AlertDialog
 
     init {
@@ -61,7 +60,7 @@ class SaveToDiskExecutor(val activity : Activity) {
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         cacheDir.mkdir()
         val handler = android.os.Handler(Looper.getMainLooper())
-        var cacheFile = File(cacheDir, geoPackageName + "." + GeoPackageConstants.EXTENSION)
+        var cacheFile = File(downloadDir, geoPackageName + "." + GeoPackageConstants.EXTENSION)
 
         // If file already exists, add a number on the end to ensure we don't overwrite
         var fileNumber = 0
@@ -72,6 +71,7 @@ class SaveToDiskExecutor(val activity : Activity) {
                         + GeoPackageConstants.EXTENSION
             )
         }
+        alertDialog.show()
         myExecutor.submit {
             try {
                 GeoPackageIOUtils.copyFile(gpkgFile, cacheFile)
@@ -79,7 +79,6 @@ class SaveToDiskExecutor(val activity : Activity) {
                 System.out.println("IOException: $e")
             } catch (e: InterruptedException){
                 System.out.println("Exception: $e")
-
                 Thread.currentThread().interrupt()
             }
             handler.post {

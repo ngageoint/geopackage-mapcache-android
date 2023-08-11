@@ -1,14 +1,18 @@
 package mil.nga.mapcache.load
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.fragment.app.FragmentActivity
+import androidx.core.content.FileProvider
 import mil.nga.geopackage.GeoPackageConstants
 import mil.nga.geopackage.io.GeoPackageIOUtils
+import mil.nga.mapcache.BuildConfig
 import mil.nga.mapcache.R
 import java.io.File
 import java.io.IOException
@@ -18,11 +22,13 @@ import java.util.concurrent.Executors
 /**
  * Copy an internal database to a shareable location and share
  */
-class ShareCopyExecutor(val activity : FragmentActivity) {
+class ShareCopyExecutor(val activity : Activity, val shareIntent : Intent) {
 
     private val alertDialog: AlertDialog
     private val myExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private var geoPackageName : String = ""
+    private val AUTHORITY = BuildConfig.APPLICATION_ID + ".fileprovider"
+
 
     init {
         val builder = AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
@@ -62,13 +68,26 @@ class ShareCopyExecutor(val activity : FragmentActivity) {
             try {
                 GeoPackageIOUtils.copyFile(gpkgFile, cacheFile)
             } catch (e: IOException) {
-
+                //TODO better handle exceptions
+                alertDialog.dismiss()
             } catch (e: InterruptedException){
                 Thread.currentThread().interrupt()
             }
             handler.post {
                 alertDialog.dismiss()
+                // Create the content Uri and add intent permissions
+                val databaseUri = FileProvider.getUriForFile(activity, AUTHORITY, cacheFile)
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                launchShareIntent(shareIntent, databaseUri)
             }
         }
+    }
+
+    private fun launchShareIntent(shareIntent: Intent, databaseUri: Uri) {
+        shareIntent.putExtra(Intent.EXTRA_STREAM, databaseUri)
+        activity.startActivityForResult(
+            Intent.createChooser(shareIntent, "Share"),
+            ShareTask.ACTIVITY_SHARE_FILE
+        )
     }
 }

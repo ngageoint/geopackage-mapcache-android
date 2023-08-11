@@ -97,8 +97,10 @@ public class ShareTask {
                 // Launch the share copy task
 
                 //TODO: change to ShareCopyExecutor
-                ShareCopyTask shareCopyTask = new ShareCopyTask(shareIntent);
-                shareCopyTask.execute(geoPackageFile, geoPackageName);
+                ShareCopyExecutor shareCopyExecutor = new ShareCopyExecutor(activity, shareIntent);
+                shareCopyExecutor.shareGeoPackage(getDatabaseCacheDirectory(), geoPackageFile, geoPackageName);
+//                ShareCopyTask shareCopyTask = new ShareCopyTask(shareIntent);
+//                shareCopyTask.execute(geoPackageFile, geoPackageName);
             }
         } catch (Exception e) {
             GeoPackageUtils.showMessage(activity, "Error sharing GeoPackage", e.getMessage());
@@ -117,11 +119,11 @@ public class ShareTask {
             shareIntent.setAction(Intent.ACTION_SEND);
 
             // Launch the save to disk task
-            //TODO: Switch to SaveToDiskExecutor 
-//            SaveToDiskExecutor diskExecutor = new SaveToDiskExecutor(activity);
-//            diskExecutor.saveToDisk(getDatabaseCacheDirectory(), geoPackageFile, geoPackageName);
-            SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
-            saveTask.execute(geoPackageFile, geoPackageName);
+            //TODO: Switch to SaveToDiskExecutor
+            SaveToDiskExecutor diskExecutor = new SaveToDiskExecutor(activity);
+            diskExecutor.saveToDisk(getDatabaseCacheDirectory(), geoPackageFile, geoPackageName);
+//            SaveToDiskTask saveTask = new SaveToDiskTask(shareIntent);
+//            saveTask.execute(geoPackageFile, geoPackageName);
         } catch (Exception e) {
             GeoPackageUtils.showMessage(activity, "Error saving to file", e.getMessage());
         }
@@ -197,10 +199,7 @@ public class ShareTask {
      * @param databaseUri
      */
     private void launchShareIntent(Intent shareIntent, Uri databaseUri) {
-        // Add the Uri
         shareIntent.putExtra(Intent.EXTRA_STREAM, databaseUri);
-
-        // Start the share activity for result to delete the cache when done
         activity.startActivityForResult(Intent.createChooser(shareIntent, "Share"), ACTIVITY_SHARE_FILE);
     }
 

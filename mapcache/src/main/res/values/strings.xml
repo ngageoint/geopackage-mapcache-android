@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.7</string>
+    <string name="app_version">Version 2.1.8</string>
     <string name="app_release_date">Released July 2023</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
@@ -386,9 +386,9 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.7\n \n
-        - New support for dark mode\n
-        - Backend performance improvements
+        Release Notes - 2.1.8\n \n
+        - Backend performance improvements\n
+        - Usability enhancements
         </string>
 
 

@@ -4,7 +4,7 @@ def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? REL
 def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY : ''
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -14,7 +14,7 @@ android {
         applicationId "mil.nga.mapcache"
         resValue "string", "applicationId", applicationId
         minSdkVersion 28
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 54
         versionName '2.1.8'
         multiDexEnabled true

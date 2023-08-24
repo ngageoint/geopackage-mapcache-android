@@ -171,7 +171,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:checked="true"
-            android:theme="@style/SwitchCompatTheme"
             android:paddingStart="8dp"/>
 
     </LinearLayout>

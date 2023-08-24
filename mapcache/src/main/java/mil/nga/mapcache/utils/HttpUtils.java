@@ -99,9 +99,15 @@ public class HttpUtils {
      * @return This apps user agent value.
      */
     public String getUserAgentValue(Activity activity) {
-        return activity.getString(R.string.app_name)
-                + " " + activity.getString(R.string.app_version)
-                + " Android " + Build.VERSION.RELEASE_OR_CODENAME;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return activity.getString(R.string.app_name)
+                    + " " + activity.getString(R.string.app_version)
+                    + " Android " + Build.VERSION.RELEASE_OR_CODENAME;
+        } else {
+            return activity.getString(R.string.app_name)
+                    + " " + activity.getString(R.string.app_version)
+                    + " Android " + Build.VERSION.RELEASE;
+        }
     }
 
     /**

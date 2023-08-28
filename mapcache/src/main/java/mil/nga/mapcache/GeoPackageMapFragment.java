@@ -266,7 +266,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * True when the location is shown on the map.
      */
-    private static boolean locationVisible = false;
+    private boolean locationVisible = false;
 
     /**
      * True when we are showing bearing on the map
@@ -1422,11 +1422,27 @@ public class GeoPackageMapFragment extends Fragment implements
             } else {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
+        } else {
+            // Only zoom when turning location on, not when hiding it
+            if (locationVisible) {
+                zoomToMyLocation();
+            }
         }
-        // Only zoom when turning location on, not when hiding it
-        if (locationVisible) {
-            zoomToMyLocation();
+    }
+
+    /**
+     * Set the my location enabled state on the map if permission has been granted
+     *
+     * @return true if updated, false if permission is required
+     */
+    public boolean setMyLocationEnabled() {
+        boolean updated = false;
+        if (map != null && getActivity() != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.setMyLocationEnabled(locationVisible);
+            updated = true;
+            map.getUiSettings().setMyLocationButtonEnabled(false);
         }
+        return updated;
     }
 
     /**
@@ -1870,6 +1886,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void getImportPermissions(int returnCode) {
         if (getActivity() != null) {
+            //TODO: update permissions to remove Write external storage permissions
             if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
                         .setTitle(R.string.storage_access_rational_title)
@@ -2705,9 +2722,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onResume() {
-        if (locationVisible) {
-            showMyLocation();
-        }
         super.onResume();
     }
 
@@ -2754,20 +2768,6 @@ public class GeoPackageMapFragment extends Fragment implements
         }
     }
 
-    /**
-     * Set the my location enabled state on the map if permission has been granted
-     *
-     * @return true if updated, false if permission is required
-     */
-    public boolean setMyLocationEnabled() {
-        boolean updated = false;
-        if (map != null && getActivity() != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            map.setMyLocationEnabled(locationVisible);
-            updated = true;
-            map.getUiSettings().setMyLocationButtonEnabled(false);
-        }
-        return updated;
-    }
 
     /**
      * Handle map menu clicks

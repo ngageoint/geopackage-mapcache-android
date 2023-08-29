@@ -1887,19 +1887,38 @@ public class GeoPackageMapFragment extends Fragment implements
     private void getImportPermissions(int returnCode) {
         if (getActivity() != null) {
             //TODO: update permissions to remove Write external storage permissions
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(R.string.storage_access_rational_title)
-                        .setMessage(R.string.storage_access_rational_message)
-                        .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
-                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode)
-                        )
-                        .create()
-                        .show();
-
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                executeRequestCode(returnCode);
             } else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setTitle(R.string.storage_access_rational_title)
+                            .setMessage(R.string.storage_access_rational_message)
+                            .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
+                                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode)
+                            )
+                            .create()
+                            .show();
+
+                } else {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
+                }
             }
+        }
+    }
+
+    /**
+     * Force execution of given request code option without permissions
+     * @param requestCode request code matching MainActivity onRequestPermissionsResult functions
+     */
+    private void executeRequestCode(int requestCode){
+        switch (requestCode) {
+            case MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
+                importGeopackageFromFile();
+                break;
+            case MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                exportGeoPackageToExternal();
+                break;
         }
     }
 

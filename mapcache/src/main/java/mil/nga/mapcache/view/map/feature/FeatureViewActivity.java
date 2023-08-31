@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
@@ -523,7 +524,7 @@ public class FeatureViewActivity extends AppCompatActivity {
 
 
     /**
-     * Check permissions for camera use
+     * Check permissions for camera use.  Note, only check write_external if < android 10
      */
     public static boolean checkAndRequestPermissions(final Activity context) {
         int writeExternalPermission = ContextCompat.checkSelfPermission(context,
@@ -534,9 +535,11 @@ public class FeatureViewActivity extends AppCompatActivity {
         if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.CAMERA);
         }
-        if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded
-                    .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
+            if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded
+                        .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(context, listPermissionsNeeded
@@ -555,19 +558,26 @@ public class FeatureViewActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean flagged = false;
         if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
                     Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(),
-                        "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
+                                "Camera permissions required", Toast.LENGTH_SHORT)
                         .show();
+                flagged = true;
+            }
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+               if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "Storage permissions required",
+                            Toast.LENGTH_SHORT).show();
+                   flagged = true;
 
-            } else if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getApplicationContext(),
-                        "FlagUp Requires Access to Your Storage.",
-                        Toast.LENGTH_SHORT).show();
-            } else {
+               }
+            }
+            if(!flagged) {
                 takePicture();
             }
         }

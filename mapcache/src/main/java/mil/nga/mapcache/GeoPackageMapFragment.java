@@ -1655,7 +1655,9 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onStop() {
-        disclaimerDialog.dismiss();
+        if(disclaimerDialog != null) {
+            disclaimerDialog.dismiss();
+        }
         super.onStop();
     }
 

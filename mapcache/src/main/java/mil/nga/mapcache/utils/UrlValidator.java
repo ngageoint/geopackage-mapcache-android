@@ -24,15 +24,73 @@ public class UrlValidator {
     }
 
     /**
-     * Determine if the url is valid based on whether it has proper wms or not
+     * Determine if the url is valid based on whether it has proper wms or not.  Looking at required
+     * variables: https://enterprise.arcgis.com/en/server/latest/publish-services/windows/communicating-with-a-wms-service-in-a-web-browser.htm#GUID-90AAB875-0337-451B-86BD-FC5E30F6990A
      * @param url url to validate
-     * @return true if the url has xyz info
+     * @return true if the url has proper wms variables
      */
     public static boolean hasWms(String url){
-        if (url.toLowerCase().contains("wms")) {
-            return true;
+        url = url.toLowerCase();
+        boolean valid = true;
+        if (!url.contains("request")) {
+            valid = false;
         }
-        return false;
+        // GetCapabilities request
+        if(url.contains("capabilities")){
+            if(!url.contains("service=")){
+                valid = false;
+            }
+        }
+        // GetMap request
+        if(url.contains("request=getmap") || url.contains("request=map")){
+            String[] getMapVars = {"layers", "styles", "crs", "bbox", "width", "height", "format"};
+            for (String item : getMapVars) {
+                if (!url.contains(item)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if(!url.contains("version") || !url.contains("wmtver")){
+                valid = false;
+            }
+            if(!url.contains("crs") || !url.contains("srs")){
+                valid = false;
+            }
+        }
+        // GetFeatureInfo request
+        if(url.contains("request=getfeatureinfo") || url.contains("request=feature_info")){
+            if(!url.contains("version") || !url.contains("wmtver")){
+                valid = false;
+            }
+            if(!url.contains("query_layers")){
+                valid = false;
+            }
+            if(!url.contains("i=") || !url.contains("x=")){
+                valid = false;
+            }
+            if(!url.contains("j=") || !url.contains("y=")){
+                valid = false;
+            }
+        }
+        // GetStyles  request
+        if(url.contains("request=getstyles")) {
+            if (!url.contains("version=")) {
+                valid = false;
+            }
+            if (!url.contains("layers=")) {
+                valid = false;
+            }
+        }
+        // GetLegendGraphic  request
+        if(url.contains("request=getlegendgraphic")) {
+            if (!url.contains("version=")) {
+                valid = false;
+            }
+            if (!url.contains("layer=")) {
+                valid = false;
+            }
+        }
+            return valid;
     }
 
 

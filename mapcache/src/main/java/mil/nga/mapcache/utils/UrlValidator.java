@@ -50,25 +50,25 @@ public class UrlValidator {
                     break;
                 }
             }
-            if(!url.contains("version") || !url.contains("wmtver")){
+            if(!(url.contains("version") || url.contains("wmtver"))){
                 valid = false;
             }
-            if(!url.contains("crs") || !url.contains("srs")){
+            if(!(url.contains("crs") || url.contains("srs"))){
                 valid = false;
             }
         }
         // GetFeatureInfo request
         if(url.contains("request=getfeatureinfo") || url.contains("request=feature_info")){
-            if(!url.contains("version") || !url.contains("wmtver")){
+            if(!(url.contains("version") || url.contains("wmtver"))){
                 valid = false;
             }
             if(!url.contains("query_layers")){
                 valid = false;
             }
-            if(!url.contains("i=") || !url.contains("x=")){
+            if(!(url.contains("i=") || url.contains("x="))){
                 valid = false;
             }
-            if(!url.contains("j=") || !url.contains("y=")){
+            if(!(url.contains("j=") || url.contains("y="))){
                 valid = false;
             }
         }

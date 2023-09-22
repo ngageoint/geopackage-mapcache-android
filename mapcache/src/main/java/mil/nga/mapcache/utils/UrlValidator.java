@@ -65,7 +65,7 @@ public class UrlValidator {
             if(!url.contains("query_layers")){
                 valid = false;
             }
-            if(!(url.contains("i=") || url.contains("x="))){
+            if(!(url.contains("&i=") || url.contains("&x="))){
                 valid = false;
             }
             if(!(url.contains("j=") || url.contains("y="))){

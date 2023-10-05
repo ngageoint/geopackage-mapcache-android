@@ -13,6 +13,7 @@ android {
     defaultConfig {
         applicationId "mil.nga.mapcache"
         resValue "string", "applicationId", applicationId
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 28
         targetSdkVersion 33
         versionCode 56
@@ -41,7 +42,7 @@ android {
     sourceSets {
         main {
             java {
-                srcDirs 'src/main/java', 'src/test'
+                srcDirs 'src/main/java', 'src/test', 'src/androidTest'
             }
         }
     }
@@ -71,11 +72,16 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
     implementation 'org.locationtech.jts:jts-core:1.18.2'
+    implementation 'com.github.matomo-org:matomo-sdk-android:v2.0.0'
     implementation 'junit:junit:4.12'
     testImplementation 'androidx.multidex:multidex:2.0.1'
-    testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    implementation 'com.github.matomo-org:matomo-sdk-android:v2.0.0'
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:4.7.3"
+    testImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test:rules:1.5.0'
 }
 
 configure extensions.android, {

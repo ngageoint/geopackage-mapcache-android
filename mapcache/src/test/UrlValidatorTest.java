@@ -7,9 +7,16 @@ import org.junit.Test;
 
 import mil.nga.mapcache.utils.UrlValidator;
 
-public class UrlValidatorTest {
+public class UrlValidatorTest{
+
+    //    private Context appContext;
     @Before
-    public void setUp(){System.out.println("UrlValidator test ready");}
+    public void setUp(){
+        //TODO: get app context so we can test xyz properly using ApplicaitonProvider
+        // appContext = ApplicationProvider.getApplicationContext();
+        // Context testContext = RuntimeEnvironment.application;
+        System.out.println("UrlValidator test ready");
+    }
 
     @After
     public void tearDown(){
@@ -19,8 +26,10 @@ public class UrlValidatorTest {
     @Test
     public void testBadFormats(){
         String url = "bad";
-        boolean isBad = UrlValidator.hasWms(url);
-        assertFalse("UrlValidator should not approve a bad url format", isBad);
+        boolean isBadWms = UrlValidator.hasWms(url);
+//        boolean isBadXyz = UrlValidator.hasXYZ(ApplicationProvider.getApplicationContext(), url);
+        assertFalse("UrlValidator should not approve a bad wms url format", isBadWms);
+//        assertFalse("UrlValidator should not approve a bad xyz url format", isBadXyz);
     }
 
     @Test

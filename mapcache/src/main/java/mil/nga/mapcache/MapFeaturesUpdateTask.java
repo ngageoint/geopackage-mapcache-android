@@ -1,7 +1,10 @@
 package mil.nga.mapcache;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
@@ -85,6 +88,11 @@ public class MapFeaturesUpdateTask implements Runnable {
      * Flag indicating if we should filter out records not in view.
      */
     private boolean filter;
+
+    /**
+     * Keep track of any errors when displaying features on the map
+     */
+    private int errorCount = 0;
 
     /**
      * Constructor.
@@ -265,6 +273,8 @@ public class MapFeaturesUpdateTask implements Runnable {
 
         // Get the GeoPackage and feature DAO
         String database = geoPackage.getName();
+        setErrorCount(0);
+
         Map<String, FeatureDao> dataAccessObjects = model.getFeatureDaos().get(database);
         if (dataAccessObjects != null) {
             FeatureDao featureDao = dataAccessObjects.get(features);
@@ -336,8 +346,16 @@ public class MapFeaturesUpdateTask implements Runnable {
                                                     + ", row: " + cursor.getPosition(), e);
                                 }
                             }
+                            if(getErrorCount() > 0){
+                                new Handler(Looper.getMainLooper()).post(() -> {
 
+                                            Toast toast = Toast.makeText(activity, "Error loading geometry", Toast.LENGTH_SHORT);
+                                            toast.show();
+                                        });
+                                setErrorCount(0);
+                            }
                         }
+
                     }
                     indexer.close();
 
@@ -361,6 +379,8 @@ public class MapFeaturesUpdateTask implements Runnable {
     private void processFeatureIndexResults(FeatureIndexResults indexResults, String database, FeatureDao featureDao,
                                             GoogleMapShapeConverter converter, StyleCache styleCache, AtomicInteger count, final int maxFeatures, final boolean editable) {
         try {
+            setErrorCount(0);
+
             for (FeatureRow row : indexResults) {
 
                 if (cancelled || count.get() >= maxFeatures) {
@@ -384,6 +404,14 @@ public class MapFeaturesUpdateTask implements Runnable {
             }
         } finally {
             indexResults.close();
+            if(getErrorCount() > 0){
+                new Handler(Looper.getMainLooper()).post(() -> {
+                            Toast toast = Toast.makeText(activity, getErrorCount() + " Geometries failed to load", Toast.LENGTH_SHORT);
+                            toast.show();
+                        });
+                setErrorCount(0);
+
+            }
         }
     }
 
@@ -401,6 +429,15 @@ public class MapFeaturesUpdateTask implements Runnable {
             MarkerFeature markerFeature = new MarkerFeature(featureId, database, tableName);
             model.getMarkerIds().put(marker.getId(), markerFeature);
         }
+    }
+    /**
+     * Update the number of errors encountered while processing features
+     */
+    public int getErrorCount() {
+        return errorCount;
+    }
+    public void setErrorCount(int errorCount) {
+        this.errorCount = errorCount;
     }
 
     @Override

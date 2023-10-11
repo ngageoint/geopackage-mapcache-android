@@ -346,9 +346,9 @@ public class MapFeaturesUpdateTask implements Runnable {
                                                     + ", row: " + cursor.getPosition(), e);
                                 }
                             }
-                            if(getErrorCount() > 0){
+                            int totalErrors = getErrorCount();
+                            if(totalErrors > 0){
                                 new Handler(Looper.getMainLooper()).post(() -> {
-
                                             Toast toast = Toast.makeText(activity, "Error loading geometry", Toast.LENGTH_SHORT);
                                             toast.show();
                                         });
@@ -404,9 +404,10 @@ public class MapFeaturesUpdateTask implements Runnable {
             }
         } finally {
             indexResults.close();
-            if(getErrorCount() > 0){
+            int totalErrors = getErrorCount();
+            if(totalErrors > 0){
                 new Handler(Looper.getMainLooper()).post(() -> {
-                            Toast toast = Toast.makeText(activity, getErrorCount() + " Geometries failed to load", Toast.LENGTH_SHORT);
+                            Toast toast = Toast.makeText(activity, totalErrors + " Geometries failed to load", Toast.LENGTH_SHORT);
                             toast.show();
                         });
                 setErrorCount(0);

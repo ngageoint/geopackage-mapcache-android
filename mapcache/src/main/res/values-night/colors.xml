@@ -23,6 +23,7 @@
 
     <color name="textPrimaryColor">@color/white87</color>
     <color name="textSecondaryColor">@color/white75</color>
+    <color name="textSecondaryError">@color/yellowWarningTextNight</color>
     <color name="textLinkColor">@color/nga_accent_primary</color>
     <color name="textNavNotSelected">@color/nav_not_selected_dark</color>
     <color name="textSecondaryLinkColor">@color/white50</color>

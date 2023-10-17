@@ -70,6 +70,8 @@
     <color name="nga_primary_bright_partial">#C4FFFFFF</color>
 
     <!-- Light mode colors -->
+    <color name="yellowWarningText">#FFC107</color>
+
 
 
     <!-- Dark mode colors -->
@@ -83,6 +85,8 @@
     <color name="darkIconTint">#7EFFFFFF</color>
     <color name="lightIconTint">#05FFFFFF</color>
     <color name="redTextNight">#954A37</color>
+    <color name="yellowWarningTextNight">#CFAE4A</color>
+
 
 
     <color name="nga_accent_muted_dark">#1E5659</color>

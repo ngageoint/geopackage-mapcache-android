@@ -191,6 +191,12 @@
         <item name="android:textColor">@color/textSecondaryColor</item>
         <item name="android:letterSpacing">0.0071</item>
     </style>
+    <style name="textAppearanceSubtitle2_light_heavy_warning" parent="@android:style/TextAppearance.Material.Subhead">
+        <item name="android:fontFamily">@font/roboto_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/textSecondaryError</item>
+        <item name="android:letterSpacing">0.0071</item>
+    </style>
     <style name="textAppearanceSubtitle3_light_heavy" parent="@android:style/TextAppearance.Material.Subhead">
         <item name="android:fontFamily">@font/roboto_medium</item>
         <item name="android:textSize">14sp</item>

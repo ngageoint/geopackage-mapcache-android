@@ -582,6 +582,11 @@ public class GeoPackageMapFragment extends Fragment implements
     AlertDialog disclaimerDialog;
 
     /**
+     * Max features warning popup dialog
+     */
+    AlertDialog maxFeaturesDialog;
+
+    /**
      * Model that contains various states involving the map.
      */
     private final MapModel model = new MapModel();
@@ -1658,6 +1663,9 @@ public class GeoPackageMapFragment extends Fragment implements
         if(disclaimerDialog != null) {
             disclaimerDialog.dismiss();
         }
+        if(maxFeaturesDialog != null){
+            maxFeaturesDialog.dismiss();
+        }
         super.onStop();
     }
 
@@ -1703,7 +1711,8 @@ public class GeoPackageMapFragment extends Fragment implements
                                     }
                                     d.cancel();
                                 });
-                dialog.show();
+                maxFeaturesDialog = dialog.create();
+                maxFeaturesDialog.show();
             }
         }
     }

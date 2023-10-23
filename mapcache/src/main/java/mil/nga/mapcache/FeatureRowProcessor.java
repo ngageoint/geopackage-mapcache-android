@@ -216,10 +216,8 @@ public class FeatureRowProcessor implements Runnable {
                     }
                 }
             } catch (Exception e) {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast toast = Toast.makeText(context, "Error loading geometry", Toast.LENGTH_SHORT);
-                    toast.show();
-                });
+                    // set task error
+                    task.setErrorCount(task.getErrorCount() + 1);
             }
         }
     }

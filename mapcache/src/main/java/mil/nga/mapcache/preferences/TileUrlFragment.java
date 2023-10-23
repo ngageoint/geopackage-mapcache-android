@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.utils.HttpUtils;
+import mil.nga.mapcache.utils.UrlValidator;
 import mil.nga.mapcache.utils.ViewAnimation;
 
 /**
@@ -242,6 +243,9 @@ public class TileUrlFragment extends PreferenceFragmentCompat implements Prefere
                     addButton.setEnabled(false);
                 } else{
                     addButton.setEnabled(true);
+                }
+                if (!UrlValidator.isValidTileUrl(getContext(), url)){
+                    inputText.setError("warning: poor url format.  This may not work.");
                 }
 
             }

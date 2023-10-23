@@ -23,6 +23,7 @@
 
     <color name="textPrimaryColor">@color/black87</color>
     <color name="textSecondaryColor">@color/black50</color>
+    <color name="textSecondaryError">@color/yellowWarningText</color>
     <color name="textLinkColor">@color/nga_primary_light</color>
     <color name="textSecondaryLinkColor">@color/nav_not_selected</color>
     <color name="textNavNotSelected">@color/nav_not_selected</color>

@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
@@ -105,19 +103,15 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
@@ -160,7 +154,6 @@ import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.SensorCallback;
-import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.Downloader;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -168,8 +161,7 @@ import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
-import mil.nga.mapcache.sensors.SensorHandler;
-import mil.nga.mapcache.utils.ProjUtils;
+import mil.nga.mapcache.repository.sensors.SensorHandler;
 import mil.nga.mapcache.utils.SampleDownloader;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
@@ -583,6 +575,16 @@ public class GeoPackageMapFragment extends Fragment implements
      * Used to zoom the maps position to various spots.
      */
     private Zoomer zoomer;
+
+    /**
+     * Disclaimer message when first launching the app
+     */
+    AlertDialog disclaimerDialog;
+
+    /**
+     * Max features warning popup dialog
+     */
+    AlertDialog maxFeaturesDialog;
 
     /**
      * Model that contains various states involving the map.
@@ -1630,29 +1632,42 @@ public class GeoPackageMapFragment extends Fragment implements
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             boolean disclaimerPref = sharedPreferences.getBoolean(getString(R.string.disclaimerPref), false);
             if (!disclaimerPref) {
-                LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
-                Button acceptButton = disclaimerView.findViewById(R.id.accept_button);
-                Button exitButton = disclaimerView.findViewById(R.id.exit_button);
+                    LayoutInflater inflater = LayoutInflater.from(getActivity());
+                    View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
+                    Button acceptButton = disclaimerView.findViewById(R.id.accept_button);
+                    Button exitButton = disclaimerView.findViewById(R.id.exit_button);
 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setView(disclaimerView);
-                final AlertDialog alertDialog = dialogBuilder.create();
-                acceptButton.setOnClickListener((View view) -> {
-                    sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
-                    alertDialog.dismiss();
-                });
-                exitButton.setOnClickListener((View view) -> getActivity().finish());
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setView(disclaimerView);
+                    disclaimerDialog = dialogBuilder.create();
+                    acceptButton.setOnClickListener((View view) -> {
+                        sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
+                        disclaimerDialog.dismiss();
+                    });
+                    exitButton.setOnClickListener((View view) -> getActivity().finish());
 
-                // Prevent the dialog from closing when clicking outside the dialog or the back button
-                alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.setOnKeyListener((DialogInterface arg0, int keyCode,
-                                              KeyEvent event) -> true);
-                alertDialog.show();
+                    // Prevent the dialog from closing when clicking outside the dialog or the back button
+                    disclaimerDialog.setCanceledOnTouchOutside(false);
+                    disclaimerDialog.setOnKeyListener((DialogInterface arg0, int keyCode,
+                                                  KeyEvent event) -> true);
+                    disclaimerDialog.show();
             }
         }
     }
 
+    /**
+     * Manually dismiss the disclaimer dialog on stop, otherwise we have a leak
+     */
+    @Override
+    public void onStop() {
+        if(disclaimerDialog != null) {
+            disclaimerDialog.dismiss();
+        }
+        if(maxFeaturesDialog != null){
+            maxFeaturesDialog.dismiss();
+        }
+        super.onStop();
+    }
 
     /**
      * Show a warning that the user has selected more features than the current max features setting
@@ -1696,7 +1711,8 @@ public class GeoPackageMapFragment extends Fragment implements
                                     }
                                     d.cancel();
                                 });
-                dialog.show();
+                maxFeaturesDialog = dialog.create();
+                maxFeaturesDialog.show();
             }
         }
     }

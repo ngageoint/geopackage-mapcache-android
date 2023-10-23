@@ -1,4 +1,4 @@
-package mil.nga.mapcache.sensors;
+package mil.nga.mapcache.repository.sensors;
 
 
 import android.app.Service;

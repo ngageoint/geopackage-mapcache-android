@@ -26,7 +26,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleRelease -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
     - name: Sign APK
-      uses: r0adkll/sign-android-release@v1
+      uses: Tlaster/android-sign@v1
       with:
         releaseDirectory: mapcache/build/outputs/apk/release
         signingKeyBase64: ${{ secrets.SIGNING_KEY }}

@@ -30,7 +30,6 @@ jobs:
       with:
         releaseDirectory: |
           mapcache/build/outputs/apk/release
-          mapcache/build/outputs/bundle/release
         signingKeyBase64: ${{ secrets.SIGNING_KEY }}
         output: build/release/signed
         alias: ${{ secrets.ALIAS }}

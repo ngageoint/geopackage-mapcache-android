@@ -15,6 +15,10 @@ jobs:
       with:
         java-version: 16
         distribution: 'adopt'
+    - name: Setup Keystore
+      run: |
+        echo "${{ secrets.SIGNING_KEY }}" > release.b64
+        base64 -d release.b64 > release.keystore
     - name: mobsfscan
       uses: MobSF/mobsfscan@0.2.0
       with:

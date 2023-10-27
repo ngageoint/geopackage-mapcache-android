@@ -24,15 +24,21 @@ jobs:
       with:
         sarif_file: results.sarif
     - name: Build with Gradle
-      run: ./gradlew assembleRelease -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
-    - name: Sign APK
-      uses: noriban/sign-android-release@v4
-      with:
-        releaseDirectory: mapcache/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
+      run: |
+        ./gradlew clean assembleRelease \
+        -PKEYSTORE=../release.keystore \
+        -PKEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
+        -PKEY_ALIAS=${{ secrets.ALIAS }} \
+        -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
+        -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
+    # - name: Sign APK
+    #   uses: noriban/sign-android-release@v4
+    #   with:
+    #     releaseDirectory: mapcache/build/outputs/apk/release
+    #     signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+    #     alias: ${{ secrets.ALIAS }}
+    #     keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+    #     keyPassword: ${{ secrets.KEY_PASSWORD }}
     - name: Copy Release Artifacts
       run: |
         mkdir mapcache/build/release

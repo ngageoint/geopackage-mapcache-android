@@ -23,8 +23,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 28
         targetSdkVersion 33
-        versionCode 59
-        versionName '2.1.10'
+        versionCode 60
+        versionName '2.1.11'
         multiDexEnabled true
     }
     buildTypes {

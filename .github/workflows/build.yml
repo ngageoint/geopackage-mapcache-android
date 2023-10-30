@@ -31,9 +31,9 @@ jobs:
       run: |
         ./gradlew clean assembleRelease \
         -PRELEASE_STORE_FILE=../release.keystore \
-        -PKEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
-        -PKEY_ALIAS=${{ secrets.ALIAS }} \
-        -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
+        -PRELEASE_STORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
+        -PRELEASE_KEY_ALIAS=${{ secrets.ALIAS }} \
+        -PRELEASE_KEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
         -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
     # - name: Sign APK
     #   uses: noriban/sign-android-release@v4

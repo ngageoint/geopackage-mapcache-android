@@ -43,10 +43,10 @@ jobs:
     #     alias: ${{ secrets.ALIAS }}
     #     keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
     #     keyPassword: ${{ secrets.KEY_PASSWORD }}
-    - name: Copy Release Artifacts
-      run: |
-        mkdir mapcache/build/release
-        cp mapcache/build/outputs/apk/release/mapcache-*-signed.apk "mapcache/build/release/mapcache-$(./gradlew mapcache:androidAppVersion | grep versionName | sed 's/^.*@//').apk"
+    # - name: Copy Release Artifacts
+    #   run: |
+    #     mkdir mapcache/build/release
+    #     cp mapcache/build/outputs/apk/release/mapcache-*-signed.apk "mapcache/build/release/mapcache-$(./gradlew mapcache:androidAppVersion | grep versionName | sed 's/^.*@//').apk"
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:

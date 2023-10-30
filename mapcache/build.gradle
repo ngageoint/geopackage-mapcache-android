@@ -44,7 +44,7 @@ android {
         release {
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = "${rootProject.name}_${versionName}.apk"
+                    outputFileName = "mapcache_${versionName}.apk"
                 }
             }
             minifyEnabled false

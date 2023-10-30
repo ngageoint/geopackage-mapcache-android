@@ -35,6 +35,10 @@ jobs:
         -PKEY_ALIAS=${{ secrets.ALIAS }} \
         -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
         -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
+    # Show information about the APK's signing certificates
+    - name: Verify Signature
+      run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs app/build/outputs/apk/release/mapcache.apk
+
     # - name: Sign APK
     #   uses: noriban/sign-android-release@v4
     #   with:

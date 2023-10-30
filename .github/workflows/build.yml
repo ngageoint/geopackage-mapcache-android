@@ -47,14 +47,9 @@ jobs:
     #   run: |
     #     mkdir mapcache/build/release
     #     cp mapcache/build/outputs/apk/release/mapcache-*-signed.apk "mapcache/build/release/mapcache-$(./gradlew mapcache:androidAppVersion | grep versionName | sed 's/^.*@//').apk"
-    - name: List Files
-      id: list-files
-      uses: mirko-felice/list-files-action@v3.0.5
-      with:
-        repo: ${{ github.repository }}
-        ref: ${{ github.ref }}
-        path: "."
-        ext: ".apk"
+    - name: List files in the repository
+      run: |
+        ls ${{ github.workspace }}
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:

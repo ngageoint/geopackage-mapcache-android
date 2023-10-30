@@ -42,6 +42,11 @@ android {
     }
     buildTypes {
         release {
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "${rootProject.name}_${versionName}.apk"
+                }
+            }
             minifyEnabled false
             signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'

@@ -30,7 +30,7 @@ jobs:
     - name: Build with Gradle
       run: |
         ./gradlew clean assembleRelease \
-        -PKEYSTORE=../release.keystore \
+        -PRELEASE_STORE_FILE=../release.keystore \
         -PKEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
         -PKEY_ALIAS=${{ secrets.ALIAS }} \
         -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \

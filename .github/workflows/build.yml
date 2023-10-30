@@ -17,7 +17,7 @@ jobs:
         distribution: 'adopt'
     - name: List files in the repository
       run: |
-        ls "${{ github.workspace }}"/build
+        ls -R "${{ github.workspace }}"/build
     - name: Setup Keystore
       run: |
         echo "${{ secrets.SIGNING_KEY }}" > release.b64

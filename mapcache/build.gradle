@@ -30,6 +30,7 @@ android {
     signingConfigs {
         release {
             if (project.hasProperty('KEYSTORE')) {
+                println 'assigning keystore'
                 storeFile file(KEYSTORE)
                 storePassword KEYSTORE_PASSWORD
                 keyAlias KEY_ALIAS

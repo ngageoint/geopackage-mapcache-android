@@ -51,4 +51,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: mapcache
-        path: mapcache/build/release
+        path: mapcache/build/outputs/apk/release/mapcache-release.apk

@@ -15,9 +15,6 @@ jobs:
       with:
         java-version: 16
         distribution: 'adopt'
-    - name: List files in the repository
-      run: |
-        ls -R ${{ github.workspace }}
     - name: Setup Keystore
       run: |
         echo "${{ secrets.SIGNING_KEY }}" > release.b64
@@ -52,7 +49,7 @@ jobs:
     #     cp mapcache/build/outputs/apk/release/mapcache-*-signed.apk "mapcache/build/release/mapcache-$(./gradlew mapcache:androidAppVersion | grep versionName | sed 's/^.*@//').apk"
     - name: List files in the repository
       run: |
-        ls ${{ github.workspace }}
+        ls -R ${{ github.workspace }}
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:

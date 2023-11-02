@@ -27,9 +27,28 @@ android {
         versionName '2.1.11'
         multiDexEnabled true
     }
+    signingConfigs {
+        release {
+            if (project.hasProperty('KEYSTORE')) {
+                println 'assigning keystore'
+                storeFile file(KEYSTORE)
+                storePassword KEYSTORE_PASSWORD
+                keyAlias KEY_ALIAS
+                keyPassword KEY_PASSWORD
+            } else {
+                println 'no keystore property configured'
+            }
+        }
+    }
     buildTypes {
         release {
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "mapcache.apk"
+                }
+            }
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", googleMapsApiReleaseKey
         }
@@ -89,26 +108,6 @@ dependencies {
     testImplementation 'androidx.test.ext:junit:1.1.5'
     testImplementation 'androidx.test:runner:1.5.2'
     testImplementation 'androidx.test:rules:1.5.0'
-}
-
-configure extensions.android, {
-    if (project.hasProperty('RELEASE_STORE_FILE') && new File((String) project.getProperty('RELEASE_STORE_FILE')).exists()) {
-        signingConfigs {
-            release {
-                storeFile file(RELEASE_STORE_FILE)
-                storePassword RELEASE_STORE_PASSWORD
-                keyAlias RELEASE_KEY_ALIAS
-                keyPassword RELEASE_KEY_PASSWORD
-            }
-        }
-        buildTypes {
-            release {
-                setSigningConfig(signingConfigs.release)
-            }
-        }
-    } else {
-        println 'no keystore configured'
-    }
 }
 
 // This is to fix the errors : java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/View$OnUnhandledKeyEventListener;

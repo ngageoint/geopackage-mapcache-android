@@ -82,38 +82,21 @@ public class ImportTask {
 
             final TextInputEditText nameInput = (TextInputEditText) importFileView
                     .findViewById(R.id.import_file_name_input);
-            final RadioButton copyRadioButton = (RadioButton) importFileView
-                    .findViewById(R.id.import_file_copy_radio_button);
-            final RadioButton externalRadioButton = (RadioButton) importFileView
-                    .findViewById(R.id.import_file_external_radio_button);
 
             // Set the default name
             if (name != null) {
                 nameInput.setText(name);
             }
 
-            // If no file path could be found, disable the external link option
-            if (path == null) {
-                externalRadioButton.setEnabled(false);
-            }
             dialog.setPositiveButton(importLabel,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int whichButton) {
-
                                     String value = nameInput.getText().toString();
-                                    if (value != null && !value.isEmpty()) {
-
-                                        boolean copy = copyRadioButton.isChecked();
-
+                                    if (!value.isEmpty()) {
                                         try {
-                                            if (copy) {
-                                                // Import the GeoPackage by copying the file
-                                                importGeoPackage(value, uri, path);
-                                            } else {
-                                                // Import the GeoPackage by linking to the file
-                                                importGeoPackageExternalLinkWithPermissions(value, uri, path);
-                                            }
+                                            // Import the GeoPackage by copying the file
+                                            importGeoPackage(value, uri, path);
                                         } catch (final Exception e) {
                                             try {
                                                 activity.runOnUiThread(

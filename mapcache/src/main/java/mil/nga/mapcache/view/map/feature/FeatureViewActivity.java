@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -156,16 +157,19 @@ public class FeatureViewActivity extends AppCompatActivity {
     private DeleteImageListener deleteImageListener;
 
     /**
-     * result listener for selecting images from the gallery
+     * Result listener for selecting images from the gallery.
+     * Registers a photo picker activity launcher in single-select mode.
      */
-    private ActivityResultLauncher<String> getImageFromGallery = registerForActivityResult(new ActivityResultContracts.GetContent(),
-            new ActivityResultCallback<Uri>() {
-                @Override
-                public void onActivityResult(Uri uri) {
+    ActivityResultLauncher<PickVisualMediaRequest> getImageFromGallery =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                // Callback is invoked after the user selects a media item or closes the
+                // photo picker.
+                if (uri != null) {
+                    Log.d("PhotoPicker", "Selected URI: " + uri);
                     Bitmap image = getImageResult(uri);
-                    if(image != null) {
-                        addImageToGallery(image);
-                    }
+                    addImageToGallery(image);
+                } else {
+                    Log.d("PhotoPicker", "No media selected");
                 }
             });
 
@@ -455,7 +459,10 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Open the phone's image gallery to add an image
      */
     private void addFromGallery(){
-        getImageFromGallery.launch("image/*");
+        ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType = (ActivityResultContracts.PickVisualMedia.VisualMediaType) ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
+        getImageFromGallery.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(mediaType)
+                .build());
     }
 
 
@@ -568,14 +575,14 @@ public class FeatureViewActivity extends AppCompatActivity {
                 flagged = true;
             }
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-               if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
+                if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getApplicationContext(),
                             "Storage permissions required",
                             Toast.LENGTH_SHORT).show();
-                   flagged = true;
+                    flagged = true;
 
-               }
+                }
             }
             if(!flagged) {
                 takePicture();

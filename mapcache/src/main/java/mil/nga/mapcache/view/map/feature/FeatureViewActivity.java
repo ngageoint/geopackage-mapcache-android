@@ -72,9 +72,14 @@ public class FeatureViewActivity extends AppCompatActivity {
 
 
     /**
-     * Permission check
+     * Permission check for multiple
      */
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 204;
+
+    /**
+     * Permission check for gallery usage
+     */
+    public static final int REQUEST_ID_GALLERY_PERMISSIONS = 205;
 
     /**
      * We'll generate a list of FCObjects to hold our data for the recycler
@@ -317,7 +322,7 @@ public class FeatureViewActivity extends AppCompatActivity {
         }
         if(galleryButton != null) {
             galleryButton.setOnClickListener(v -> {
-                if (checkAndRequestPermissions(FeatureViewActivity.this)) {
+                if (checkAndRequestGalleryPermissions(FeatureViewActivity.this)) {
                     addFromGallery();
                 }
             });
@@ -557,6 +562,25 @@ public class FeatureViewActivity extends AppCompatActivity {
         return true;
     }
 
+    public static boolean checkAndRequestGalleryPermissions(final Activity context) {
+        int writeExternalPermission = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
+            if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded
+                        .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(context, listPermissionsNeeded
+                            .toArray(new String[0]),
+                    REQUEST_ID_GALLERY_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
 
 
     /**
@@ -573,7 +597,11 @@ public class FeatureViewActivity extends AppCompatActivity {
                                 "Camera permissions required", Toast.LENGTH_SHORT)
                         .show();
                 flagged = true;
+            } else {
+                takePicture();
             }
+        }
+        if (requestCode == REQUEST_ID_GALLERY_PERMISSIONS) {
             if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
                 if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -581,11 +609,10 @@ public class FeatureViewActivity extends AppCompatActivity {
                             "Storage permissions required",
                             Toast.LENGTH_SHORT).show();
                     flagged = true;
-
                 }
             }
-            if(!flagged) {
-                takePicture();
+            if(!flagged){
+                addFromGallery();
             }
         }
     }

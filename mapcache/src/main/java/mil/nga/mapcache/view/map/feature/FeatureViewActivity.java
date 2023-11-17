@@ -261,8 +261,8 @@ public class FeatureViewActivity extends AppCompatActivity {
      */
     private void createImageGallery(){
         if(imageGalleryPager != null && featureViewObjects != null){
-            for(Map.Entry map  :  featureViewObjects.getBitmaps().entrySet() ){
-                sliderItems.add(new SliderItem((long)map.getKey(),(Bitmap)map.getValue()));
+            for(Map.Entry<Long, Bitmap> map  :  featureViewObjects.getBitmaps().entrySet() ){
+                sliderItems.add(new SliderItem(map.getKey(),map.getValue()));
             }
             imageGalleryPager.setAdapter(sliderAdapter);
             imageGalleryPager.setClipToPadding(false);
@@ -428,8 +428,8 @@ public class FeatureViewActivity extends AppCompatActivity {
         if(featureViewObjects != null){
             sliderItems.clear();
             featureViewObjects.getAddedBitmaps().clear();
-            for(Map.Entry map  :  featureViewObjects.getBitmaps().entrySet() ){
-                sliderItems.add(new SliderItem((long)map.getKey(),(Bitmap)map.getValue()));
+            for(Map.Entry<Long, Bitmap> map  :  featureViewObjects.getBitmaps().entrySet() ){
+                sliderItems.add(new SliderItem(map.getKey(),map.getValue()));
             }
         }
         sliderAdapter.setData(sliderItems);

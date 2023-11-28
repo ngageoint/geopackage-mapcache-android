@@ -51,31 +51,14 @@
             android:hint="@string/hint_name" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!--Copy or modify options-->
-    <RadioGroup
-        android:id="@+id/import_file_type_radio_group"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal" >
-
-        <RadioButton
-            android:id="@+id/import_file_copy_radio_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/import_file_copy_label"
-            android:textColor="@color/textPrimaryColor"
-            android:buttonTint="@color/textLinkColor"
-            android:checked="true" />
-
-        <RadioButton
-            android:id="@+id/import_file_external_radio_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/textPrimaryColor"
-            android:buttonTint="@color/textLinkColor"
-            android:text="@string/import_file_external_label" />
-    </RadioGroup>
+    <TextView
+        android:id="@+id/copy_description"
+        style="@style/textAppearanceSubtitle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/textSecondaryColor"
+        android:text="@string/copy_notice" />
 
 </LinearLayout>

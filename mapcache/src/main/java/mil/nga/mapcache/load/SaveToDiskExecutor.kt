@@ -2,12 +2,15 @@ package mil.nga.mapcache.load
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.DialogInterface
+import android.os.Build
 import android.os.Environment
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.fragment.app.FragmentActivity
 import mil.nga.geopackage.GeoPackageConstants
@@ -19,13 +22,17 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
- * Save a file to the downloads directory
+ * Save a file to the downloads directory using Executor threads and showing an alert dialog
  */
 class SaveToDiskExecutor(val activity : Activity) {
 
     private val myExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private val alertDialog: AlertDialog
+    private val actionLabel: TextView
 
+    /**
+     * Create an alert dialog for feedback
+     */
     init {
         val builder = AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
 
@@ -38,11 +45,11 @@ class SaveToDiskExecutor(val activity : Activity) {
         alertLogo.setImageResource(R.drawable.material_share)
         val titleText = alertView.findViewById<TextView>(R.id.alert_title)
         titleText.setText(R.string.geopackage_save_label)
-        val actionLabel = alertView.findViewById<View>(R.id.action_label) as TextView
+        actionLabel = alertView.findViewById<View>(R.id.action_label) as TextView
         actionLabel.setText(R.string.geopackage_save_message)
         actionLabel.visibility = View.VISIBLE
 
-        // Cancel button
+        // Cancel button - interrupt thread
         builder.setPositiveButton("Cancel") {alertDialog, which ->
             myExecutor.shutdownNow()
         }
@@ -56,6 +63,7 @@ class SaveToDiskExecutor(val activity : Activity) {
      * Save the gpkgFile to the downloads directory using the cacheDir and geoPackageName
      */
     fun saveToDisk(cacheDir : File, gpkgFile : File, geoPackageName : String){
+        // This appears to have been undeprecated in 2022
         val downloadDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         cacheDir.mkdir()
@@ -71,20 +79,21 @@ class SaveToDiskExecutor(val activity : Activity) {
                         + GeoPackageConstants.EXTENSION
             )
         }
+        var statusMessage: String = "File saved to downloads"
         alertDialog.show()
         myExecutor.submit {
             try {
                 GeoPackageIOUtils.copyFile(gpkgFile, cacheFile)
             } catch (e: IOException) {
-                System.out.println("IOException: $e")
+                statusMessage = "Error saving file: $e"
             } catch (e: InterruptedException){
-                System.out.println("Exception: $e")
+                statusMessage = "File save interrupted"
                 Thread.currentThread().interrupt()
             }
             handler.post {
                 deleteCachedDatabaseFiles(cacheDir)
-                Toast.makeText(activity, "GeoPackage saved to Downloads", Toast.LENGTH_SHORT).show()
-                alertDialog.dismiss()
+                actionLabel.text = statusMessage
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(R.string.button_ok_label)
             }
         }
     }

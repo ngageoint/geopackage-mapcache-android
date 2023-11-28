@@ -2,6 +2,7 @@ package mil.nga.mapcache.load
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Looper
@@ -20,7 +21,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 /**
- * Copy an internal database to a shareable location and share
+ * Copy an internal database to a shareable location and share.  feedback provided by alertdialog
  */
 class ShareCopyExecutor(val activity : Activity, val shareIntent : Intent) {
 
@@ -28,8 +29,11 @@ class ShareCopyExecutor(val activity : Activity, val shareIntent : Intent) {
     private val myExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private var geoPackageName : String = ""
     private val AUTHORITY = BuildConfig.APPLICATION_ID + ".fileprovider"
+    private val actionLabel: TextView
 
-
+    /**
+     * Create an alert dialog for feedback
+     */
     init {
         val builder = AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
 
@@ -42,7 +46,7 @@ class ShareCopyExecutor(val activity : Activity, val shareIntent : Intent) {
         alertLogo.setImageResource(R.drawable.material_share)
         val titleText = alertView.findViewById<TextView>(R.id.alert_title)
         titleText.setText(R.string.geopackage_share_label)
-        val actionLabel = alertView.findViewById<View>(R.id.action_label) as TextView
+        actionLabel = alertView.findViewById<View>(R.id.action_label) as TextView
         actionLabel.setText(R.string.geopackage_share_copy_message)
         actionLabel.visibility = View.VISIBLE
 
@@ -64,25 +68,36 @@ class ShareCopyExecutor(val activity : Activity, val shareIntent : Intent) {
         cacheDir.mkdir()
         val handler = android.os.Handler(Looper.getMainLooper())
         val cacheFile = File(cacheDir, geoPackageName + "." + GeoPackageConstants.EXTENSION)
+        var failedShare: Boolean = false
+        alertDialog.show()
         myExecutor.submit {
             try {
                 GeoPackageIOUtils.copyFile(gpkgFile, cacheFile)
             } catch (e: IOException) {
-                //TODO better handle exceptions
-                alertDialog.dismiss()
+                actionLabel.text = activity.getString(R.string.share_exception, e)
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(R.string.button_ok_label)
+                failedShare = true
             } catch (e: InterruptedException){
+                actionLabel.text = activity.getString(R.string.share_interrupted)
+                alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setText(R.string.button_ok_label)
+                failedShare = true
                 Thread.currentThread().interrupt()
             }
             handler.post {
-                alertDialog.dismiss()
-                // Create the content Uri and add intent permissions
-                val databaseUri = FileProvider.getUriForFile(activity, AUTHORITY, cacheFile)
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                launchShareIntent(shareIntent, databaseUri)
+                if(!failedShare) {
+                    alertDialog.dismiss()
+                    // Create the content Uri and add intent permissions
+                    val databaseUri = FileProvider.getUriForFile(activity, AUTHORITY, cacheFile)
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    launchShareIntent(shareIntent, databaseUri)
+                }
             }
         }
     }
 
+    /**
+     * Share the file via system sharing
+     */
     private fun launchShareIntent(shareIntent: Intent, databaseUri: Uri) {
         shareIntent.putExtra(Intent.EXTRA_STREAM, databaseUri)
         activity.startActivityForResult(

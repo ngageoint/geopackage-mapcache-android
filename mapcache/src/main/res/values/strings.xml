@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.7</string>
-    <string name="app_release_date">Released July 2023</string>
+    <string name="app_version">Version 2.1.10</string>
+    <string name="app_release_date">Released Oct 2023</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -137,6 +137,8 @@
     <string name="create_geopackage_hint">GeoPackage Name</string>
     <string name="geopackage_export_label">Export</string>
     <string name="geopackage_share_label">Share</string>
+    <string name="share_exception">Error preparing file: %1$s</string>
+    <string name="share_interrupted">File sharing was interrupted</string>
     <string name="geopackage_save_label">Save to Downloads</string>
     <string name="geopackage_save_message">Saving GeoPackage to the Downloads directory</string>
     <string name="geopackage_share_copy_message">Preparing internal GeoPackage for sharing</string>
@@ -384,9 +386,12 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.7\n \n
-        - New support for dark mode\n
-        - Backend performance improvements
+        Release Notes - 2.1.10\n \n
+        - Improved geometry error handling\n
+        - Fix for file linking errors\n
+        - Url validation improvements for tiles\n
+        - GeoPackage android map library 6.7.2\n
+        - Background improvements
         </string>
 
 
@@ -480,6 +485,7 @@
     <string name="max_lat">Max Lat</string>
     <string name="min_lat">Min Lat</string>
     <string name="add_url">Add URL</string>
+    <string name="copy_notice">MapCache will make a copy of this GeoPackage and save it internally</string>
 
 
 </resources>

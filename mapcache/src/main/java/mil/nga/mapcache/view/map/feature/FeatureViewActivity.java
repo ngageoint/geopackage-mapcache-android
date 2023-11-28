@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -70,9 +72,14 @@ public class FeatureViewActivity extends AppCompatActivity {
 
 
     /**
-     * Permission check
+     * Permission check for multiple
      */
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 204;
+
+    /**
+     * Permission check for gallery usage
+     */
+    public static final int REQUEST_ID_GALLERY_PERMISSIONS = 205;
 
     /**
      * We'll generate a list of FCObjects to hold our data for the recycler
@@ -155,16 +162,19 @@ public class FeatureViewActivity extends AppCompatActivity {
     private DeleteImageListener deleteImageListener;
 
     /**
-     * result listener for selecting images from the gallery
+     * Result listener for selecting images from the gallery.
+     * Registers a photo picker activity launcher in single-select mode.
      */
-    private ActivityResultLauncher<String> getImageFromGallery = registerForActivityResult(new ActivityResultContracts.GetContent(),
-            new ActivityResultCallback<Uri>() {
-                @Override
-                public void onActivityResult(Uri uri) {
+    ActivityResultLauncher<PickVisualMediaRequest> getImageFromGallery =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                // Callback is invoked after the user selects a media item or closes the
+                // photo picker.
+                if (uri != null) {
+                    Log.d("PhotoPicker", "Selected URI: " + uri);
                     Bitmap image = getImageResult(uri);
-                    if(image != null) {
-                        addImageToGallery(image);
-                    }
+                    addImageToGallery(image);
+                } else {
+                    Log.d("PhotoPicker", "No media selected");
                 }
             });
 
@@ -251,8 +261,8 @@ public class FeatureViewActivity extends AppCompatActivity {
      */
     private void createImageGallery(){
         if(imageGalleryPager != null && featureViewObjects != null){
-            for(Map.Entry map  :  featureViewObjects.getBitmaps().entrySet() ){
-                sliderItems.add(new SliderItem((long)map.getKey(),(Bitmap)map.getValue()));
+            for(Map.Entry<Long, Bitmap> map  :  featureViewObjects.getBitmaps().entrySet() ){
+                sliderItems.add(new SliderItem(map.getKey(),map.getValue()));
             }
             imageGalleryPager.setAdapter(sliderAdapter);
             imageGalleryPager.setClipToPadding(false);
@@ -312,7 +322,7 @@ public class FeatureViewActivity extends AppCompatActivity {
         }
         if(galleryButton != null) {
             galleryButton.setOnClickListener(v -> {
-                if (checkAndRequestPermissions(FeatureViewActivity.this)) {
+                if (checkAndRequestGalleryPermissions(FeatureViewActivity.this)) {
                     addFromGallery();
                 }
             });
@@ -418,8 +428,8 @@ public class FeatureViewActivity extends AppCompatActivity {
         if(featureViewObjects != null){
             sliderItems.clear();
             featureViewObjects.getAddedBitmaps().clear();
-            for(Map.Entry map  :  featureViewObjects.getBitmaps().entrySet() ){
-                sliderItems.add(new SliderItem((long)map.getKey(),(Bitmap)map.getValue()));
+            for(Map.Entry<Long, Bitmap> map  :  featureViewObjects.getBitmaps().entrySet() ){
+                sliderItems.add(new SliderItem(map.getKey(),map.getValue()));
             }
         }
         sliderAdapter.setData(sliderItems);
@@ -454,7 +464,10 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Open the phone's image gallery to add an image
      */
     private void addFromGallery(){
-        getImageFromGallery.launch("image/*");
+        ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType = (ActivityResultContracts.PickVisualMedia.VisualMediaType) ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
+        getImageFromGallery.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(mediaType)
+                .build());
     }
 
 
@@ -523,7 +536,7 @@ public class FeatureViewActivity extends AppCompatActivity {
 
 
     /**
-     * Check permissions for camera use
+     * Check permissions for camera use.  Note, only check write_external if < android 10
      */
     public static boolean checkAndRequestPermissions(final Activity context) {
         int writeExternalPermission = ContextCompat.checkSelfPermission(context,
@@ -534,14 +547,35 @@ public class FeatureViewActivity extends AppCompatActivity {
         if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.CAMERA);
         }
-        if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded
-                    .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
+            if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded
+                        .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(context, listPermissionsNeeded
                             .toArray(new String[0]),
                     REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean checkAndRequestGalleryPermissions(final Activity context) {
+        int writeExternalPermission = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
+            if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded
+                        .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(context, listPermissionsNeeded
+                            .toArray(new String[0]),
+                    REQUEST_ID_GALLERY_PERMISSIONS);
             return false;
         }
         return true;
@@ -555,20 +589,30 @@ public class FeatureViewActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        boolean flagged = false;
         if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
                     Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(),
-                        "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
+                                "Camera permissions required", Toast.LENGTH_SHORT)
                         .show();
-
-            } else if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getApplicationContext(),
-                        "FlagUp Requires Access to Your Storage.",
-                        Toast.LENGTH_SHORT).show();
+                flagged = true;
             } else {
                 takePicture();
+            }
+        }
+        if (requestCode == REQUEST_ID_GALLERY_PERMISSIONS) {
+            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "Storage permissions required",
+                            Toast.LENGTH_SHORT).show();
+                    flagged = true;
+                }
+            }
+            if(!flagged){
+                addFromGallery();
             }
         }
     }

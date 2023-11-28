@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.layersprovider.LayersModel;
 import mil.nga.mapcache.ogc.wms.WMSUrlProvider;
+import mil.nga.mapcache.utils.UrlValidator;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 /**
@@ -92,6 +93,12 @@ public class NewTileLayerController implements Observer, Comparator<String> {
         }
     }
 
+    /**
+     * Validate name and url fields on change.  Set error msg if invalid
+     * @param observable     the observable object.
+     * @param o   an argument passed to the {@code notifyObservers}
+     *                 method.  either name or url field
+     */
     @Override
     public void update(Observable observable, Object o) {
         if (NewTileLayerModel.LAYER_NAME_PROP.equals(o)) {
@@ -115,6 +122,8 @@ public class NewTileLayerController implements Observer, Comparator<String> {
                 model.setUrlError("URL is required");
             } else if (!URLUtil.isValidUrl(givenUrl)) {
                 model.setUrlError("URL is not valid");
+            } else if (!UrlValidator.isValidTileUrl(fragment.getContext(), givenUrl)){
+                model.setUrlError("Bad URL format");
             } else if (givenUrl.contains("${")) {
                 givenUrl = givenUrl.replaceAll("\\$\\{", "{");
                 model.setUrl(givenUrl);

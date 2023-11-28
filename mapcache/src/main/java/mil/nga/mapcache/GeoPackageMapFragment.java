@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
@@ -105,19 +103,15 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
-import mil.nga.geopackage.GeoPackageException;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
@@ -160,7 +154,6 @@ import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.SensorCallback;
-import mil.nga.mapcache.load.DownloadTask;
 import mil.nga.mapcache.load.Downloader;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
@@ -168,8 +161,7 @@ import mil.nga.mapcache.load.ShareTask;
 import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
-import mil.nga.mapcache.sensors.SensorHandler;
-import mil.nga.mapcache.utils.ProjUtils;
+import mil.nga.mapcache.repository.sensors.SensorHandler;
 import mil.nga.mapcache.utils.SampleDownloader;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
@@ -266,7 +258,7 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * True when the location is shown on the map.
      */
-    private static boolean locationVisible = false;
+    private boolean locationVisible = false;
 
     /**
      * True when we are showing bearing on the map
@@ -583,6 +575,16 @@ public class GeoPackageMapFragment extends Fragment implements
      * Used to zoom the maps position to various spots.
      */
     private Zoomer zoomer;
+
+    /**
+     * Disclaimer message when first launching the app
+     */
+    AlertDialog disclaimerDialog;
+
+    /**
+     * Max features warning popup dialog
+     */
+    AlertDialog maxFeaturesDialog;
 
     /**
      * Model that contains various states involving the map.
@@ -1422,11 +1424,27 @@ public class GeoPackageMapFragment extends Fragment implements
             } else {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MainActivity.MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             }
+        } else {
+            // Only zoom when turning location on, not when hiding it
+            if (locationVisible) {
+                zoomToMyLocation();
+            }
         }
-        // Only zoom when turning location on, not when hiding it
-        if (locationVisible) {
-            zoomToMyLocation();
+    }
+
+    /**
+     * Set the my location enabled state on the map if permission has been granted
+     *
+     * @return true if updated, false if permission is required
+     */
+    public boolean setMyLocationEnabled() {
+        boolean updated = false;
+        if (map != null && getActivity() != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.setMyLocationEnabled(locationVisible);
+            updated = true;
+            map.getUiSettings().setMyLocationButtonEnabled(false);
         }
+        return updated;
     }
 
     /**
@@ -1614,29 +1632,42 @@ public class GeoPackageMapFragment extends Fragment implements
             SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
             boolean disclaimerPref = sharedPreferences.getBoolean(getString(R.string.disclaimerPref), false);
             if (!disclaimerPref) {
-                LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
-                Button acceptButton = disclaimerView.findViewById(R.id.accept_button);
-                Button exitButton = disclaimerView.findViewById(R.id.exit_button);
+                    LayoutInflater inflater = LayoutInflater.from(getActivity());
+                    View disclaimerView = inflater.inflate(R.layout.disclaimer_window, null);
+                    Button acceptButton = disclaimerView.findViewById(R.id.accept_button);
+                    Button exitButton = disclaimerView.findViewById(R.id.exit_button);
 
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setView(disclaimerView);
-                final AlertDialog alertDialog = dialogBuilder.create();
-                acceptButton.setOnClickListener((View view) -> {
-                    sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
-                    alertDialog.dismiss();
-                });
-                exitButton.setOnClickListener((View view) -> getActivity().finish());
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setView(disclaimerView);
+                    disclaimerDialog = dialogBuilder.create();
+                    acceptButton.setOnClickListener((View view) -> {
+                        sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
+                        disclaimerDialog.dismiss();
+                    });
+                    exitButton.setOnClickListener((View view) -> getActivity().finish());
 
-                // Prevent the dialog from closing when clicking outside the dialog or the back button
-                alertDialog.setCanceledOnTouchOutside(false);
-                alertDialog.setOnKeyListener((DialogInterface arg0, int keyCode,
-                                              KeyEvent event) -> true);
-                alertDialog.show();
+                    // Prevent the dialog from closing when clicking outside the dialog or the back button
+                    disclaimerDialog.setCanceledOnTouchOutside(false);
+                    disclaimerDialog.setOnKeyListener((DialogInterface arg0, int keyCode,
+                                                  KeyEvent event) -> true);
+                    disclaimerDialog.show();
             }
         }
     }
 
+    /**
+     * Manually dismiss the disclaimer dialog on stop, otherwise we have a leak
+     */
+    @Override
+    public void onStop() {
+        if(disclaimerDialog != null) {
+            disclaimerDialog.dismiss();
+        }
+        if(maxFeaturesDialog != null){
+            maxFeaturesDialog.dismiss();
+        }
+        super.onStop();
+    }
 
     /**
      * Show a warning that the user has selected more features than the current max features setting
@@ -1680,7 +1711,8 @@ public class GeoPackageMapFragment extends Fragment implements
                                     }
                                     d.cancel();
                                 });
-                dialog.show();
+                maxFeaturesDialog = dialog.create();
+                maxFeaturesDialog.show();
             }
         }
     }
@@ -1870,19 +1902,39 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void getImportPermissions(int returnCode) {
         if (getActivity() != null) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                        .setTitle(R.string.storage_access_rational_title)
-                        .setMessage(R.string.storage_access_rational_message)
-                        .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
-                                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode)
-                        )
-                        .create()
-                        .show();
-
+            //TODO: update permissions to remove Write external storage permissions
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                executeRequestCode(returnCode);
             } else {
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
+                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                            .setTitle(R.string.storage_access_rational_title)
+                            .setMessage(R.string.storage_access_rational_message)
+                            .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
+                                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode)
+                            )
+                            .create()
+                            .show();
+
+                } else {
+                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
+                }
             }
+        }
+    }
+
+    /**
+     * Force execution of given request code option without permissions
+     * @param requestCode request code matching MainActivity onRequestPermissionsResult functions
+     */
+    private void executeRequestCode(int requestCode){
+        switch (requestCode) {
+            case MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
+                importGeopackageFromFile();
+                break;
+            case MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
+                exportGeoPackageToExternal();
+                break;
         }
     }
 
@@ -2705,9 +2757,6 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onResume() {
-        if (locationVisible) {
-            showMyLocation();
-        }
         super.onResume();
     }
 
@@ -2754,20 +2803,6 @@ public class GeoPackageMapFragment extends Fragment implements
         }
     }
 
-    /**
-     * Set the my location enabled state on the map if permission has been granted
-     *
-     * @return true if updated, false if permission is required
-     */
-    public boolean setMyLocationEnabled() {
-        boolean updated = false;
-        if (map != null && getActivity() != null && ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            map.setMyLocationEnabled(locationVisible);
-            updated = true;
-            map.getUiSettings().setMyLocationButtonEnabled(false);
-        }
-        return updated;
-    }
 
     /**
      * Handle map menu clicks

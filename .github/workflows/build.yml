@@ -15,6 +15,10 @@ jobs:
       with:
         java-version: 16
         distribution: 'adopt'
+    - name: Setup Keystore
+      run: |
+        echo "${{ secrets.SIGNING_KEY }}" > release.b64
+        base64 -d release.b64 > release.keystore
     - name: mobsfscan
       uses: MobSF/mobsfscan@0.2.0
       with:
@@ -24,21 +28,20 @@ jobs:
       with:
         sarif_file: results.sarif
     - name: Build with Gradle
-      run: ./gradlew assembleRelease -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
-    - name: Sign APK
-      uses: r0adkll/sign-android-release@v1
-      with:
-        releaseDirectory: mapcache/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD }}
-    - name: Copy Release Artifacts
       run: |
-        mkdir mapcache/build/release
-        cp mapcache/build/outputs/apk/release/mapcache-*-signed.apk "mapcache/build/release/mapcache-$(./gradlew mapcache:androidAppVersion | grep versionName | sed 's/^.*@//').apk"
+        ./gradlew clean assembleRelease \
+        -PKEYSTORE=../release.keystore \
+        -PKEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
+        -PKEY_ALIAS=${{ secrets.ALIAS }} \
+        -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
+        -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
+    - name: Verify Signature
+      run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
+    - name: List files in the repository
+      run: |
+        ls -R ${{ github.workspace }}
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:
         name: mapcache
-        path: mapcache/build/release
+        path: mapcache/build/outputs/apk/release/mapcache.apk

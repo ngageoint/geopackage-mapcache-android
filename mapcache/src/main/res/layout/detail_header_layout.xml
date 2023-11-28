@@ -80,8 +80,18 @@
         android:id="@+id/header_text_features"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:text="Feature layers"
         android:textAppearance="@style/textAppearanceSubtitle2_light_heavy" />
+
+    <!--Show any potential error messages with this geopackage-->
+    <TextView
+        android:id="@+id/header_text_errors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GeoPackage Errors"
+        android:visibility="gone"
+        android:textAppearance="@style/textAppearanceSubtitle2_light_heavy_warning" />
 
 
     <!-- Icon row: info, rename, share, copy, delete -->
@@ -171,7 +181,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:checked="true"
-            android:theme="@style/SwitchCompatTheme"
             android:paddingStart="8dp"/>
 
     </LinearLayout>

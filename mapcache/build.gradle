@@ -4,24 +4,51 @@ def googleMapsApiReleaseKey = hasProperty('RELEASE_MAPS_MAPCACHE_API_KEY') ? REL
 def googleMapsApiKeyDebug = hasProperty('DEBUG_MAPS_API_KEY') ? DEBUG_MAPS_API_KEY : ''
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    // Verbose logging for debug
+//    allprojects {
+//        tasks.withType(JavaCompile) {
+//            options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+//        }
+//    }
     defaultConfig {
         applicationId "mil.nga.mapcache"
         resValue "string", "applicationId", applicationId
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         minSdkVersion 28
-        targetSdkVersion 31
-        versionCode 53
-        versionName '2.1.7'
+        targetSdkVersion 34
+        versionCode 60
+        versionName '2.1.11'
         multiDexEnabled true
+    }
+    signingConfigs {
+        release {
+            if (project.hasProperty('KEYSTORE')) {
+                println 'assigning keystore'
+                storeFile file(KEYSTORE)
+                storePassword KEYSTORE_PASSWORD
+                keyAlias KEY_ALIAS
+                keyPassword KEY_PASSWORD
+            } else {
+                println 'no keystore property configured'
+            }
+        }
     }
     buildTypes {
         release {
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "mapcache.apk"
+                }
+            }
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
             resValue "string", "GOOGLE_MAPS_ANDROID_API_KEY", googleMapsApiReleaseKey
         }
@@ -41,7 +68,7 @@ android {
     sourceSets {
         main {
             java {
-                srcDirs 'src/main/java', 'src/test'
+                srcDirs 'src/main/java', 'src/test', 'src/androidTest'
             }
         }
     }
@@ -56,11 +83,12 @@ task androidAppVersion {
 
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    api 'androidx.appcompat:appcompat:1.3.0'
+    api 'androidx.appcompat:appcompat:1.6.1'
+    api 'androidx.activity:activity:1.8.0'
     api 'com.google.android.material:material:1.6.0'
     api 'androidx.preference:preference:1.2.1'
     api 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    api 'mil.nga.geopackage.map:geopackage-android-map:6.7.1' // comment out to build locally
+    api 'mil.nga.geopackage.map:geopackage-android-map:6.7.2' // comment out to build locally
     //api project(':geopackage-map') // uncomment me to build locally
     api 'mil.nga.mgrs:mgrs-android:2.2.2'
     api 'mil.nga.gars:gars-android:1.2.2'
@@ -71,31 +99,16 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
     implementation 'org.locationtech.jts:jts-core:1.18.2'
+    implementation 'com.github.matomo-org:matomo-sdk-android:v2.0.0'
     implementation 'junit:junit:4.12'
     testImplementation 'androidx.multidex:multidex:2.0.1'
-    testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    implementation 'com.github.matomo-org:matomo-sdk-android:v2.0.0'
-}
-
-configure extensions.android, {
-    if (project.hasProperty('RELEASE_STORE_FILE') && new File((String) project.getProperty('RELEASE_STORE_FILE')).exists()) {
-        signingConfigs {
-            release {
-                storeFile file(RELEASE_STORE_FILE)
-                storePassword RELEASE_STORE_PASSWORD
-                keyAlias RELEASE_KEY_ALIAS
-                keyPassword RELEASE_KEY_PASSWORD
-            }
-        }
-        buildTypes {
-            release {
-                setSigningConfig(signingConfigs.release)
-            }
-        }
-    } else {
-        println 'no keystore configured'
-    }
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:4.7.3"
+    testImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation 'androidx.test:core:1.5.0'
+    testImplementation 'androidx.test.ext:junit:1.1.5'
+    testImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test:rules:1.5.0'
 }
 
 // This is to fix the errors : java.lang.NoClassDefFoundError: Failed resolution of: Landroid/view/View$OnUnhandledKeyEventListener;

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.PowerManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,38 +82,21 @@ public class ImportTask {
 
             final TextInputEditText nameInput = (TextInputEditText) importFileView
                     .findViewById(R.id.import_file_name_input);
-            final RadioButton copyRadioButton = (RadioButton) importFileView
-                    .findViewById(R.id.import_file_copy_radio_button);
-            final RadioButton externalRadioButton = (RadioButton) importFileView
-                    .findViewById(R.id.import_file_external_radio_button);
 
             // Set the default name
             if (name != null) {
                 nameInput.setText(name);
             }
 
-            // If no file path could be found, disable the external link option
-            if (path == null) {
-                externalRadioButton.setEnabled(false);
-            }
             dialog.setPositiveButton(importLabel,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int whichButton) {
-
                                     String value = nameInput.getText().toString();
-                                    if (value != null && !value.isEmpty()) {
-
-                                        boolean copy = copyRadioButton.isChecked();
-
+                                    if (!value.isEmpty()) {
                                         try {
-                                            if (copy) {
-                                                // Import the GeoPackage by copying the file
-                                                importGeoPackage(value, uri, path);
-                                            } else {
-                                                // Import the GeoPackage by linking to the file
-                                                importGeoPackageExternalLinkWithPermissions(value, uri, path);
-                                            }
+                                            // Import the GeoPackage by copying the file
+                                            importGeoPackage(value, uri, path);
                                         } catch (final Exception e) {
                                             try {
                                                 activity.runOnUiThread(
@@ -162,31 +146,35 @@ public class ImportTask {
      */
     public void importGeoPackageExternalLinkWithPermissions(final String name, final Uri uri, String path) {
 
-        // Check for permission
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            importGeoPackageExternalLink(name, uri, path);
-        } else {
-            // Save off the values and ask for permission
-            importExternalName = name;
-            importExternalUri = uri;
-            importExternalPath = path;
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
-                        .setTitle(R.string.storage_access_rational_title)
-                        .setMessage(R.string.storage_access_rational_message)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
-                            }
-                        })
-                        .create()
-                        .show();
-
+        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            // Check for permission
+            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                importGeoPackageExternalLink(name, uri, path);
             } else {
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                // Save off the values and ask for permission
+                importExternalName = name;
+                importExternalUri = uri;
+                importExternalPath = path;
+
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
+                            .setTitle(R.string.storage_access_rational_title)
+                            .setMessage(R.string.storage_access_rational_message)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                                }
+                            })
+                            .create()
+                            .show();
+
+                } else {
+                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                }
             }
+        } else {
+            importGeoPackageExternalLink(name, uri, path);
         }
 
     }

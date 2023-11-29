@@ -3352,6 +3352,15 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                     updateEditState(true);
                 }
+            } else {
+                // Drop a pin on user long press when not editing specific layer
+                vibrator.vibrate(VibrationEffect.createOneShot(getActivity().getResources()
+                                .getInteger(R.integer.edit_features_add_long_click_vibrate_quick),
+                        VibrationEffect.DEFAULT_AMPLITUDE));
+                editFeatureType = EditType.POINT;
+                Marker marker = addEditPoint(point);
+                editFeatureType = null;
+//                editPoints.put(marker.getId(), marker);
             }
         }
     }

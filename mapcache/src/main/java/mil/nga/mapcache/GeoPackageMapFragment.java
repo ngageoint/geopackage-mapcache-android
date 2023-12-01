@@ -1643,6 +1643,16 @@ public class GeoPackageMapFragment extends Fragment implements
                     acceptButton.setOnClickListener((View view) -> {
                         sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
                         disclaimerDialog.dismiss();
+                        // Create the example geopackage
+                        try {
+                            if (!geoPackageViewModel.createGeoPackage("Example")) {
+                                GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_create_label),
+                                                "Failed to create example GeoPackage");
+                            }
+                        } catch (Exception e) {
+                            GeoPackageUtils.showMessage(
+                                    getActivity(), "Create example", e.getMessage());
+                        }
                     });
                     exitButton.setOnClickListener((View view) -> getActivity().finish());
 

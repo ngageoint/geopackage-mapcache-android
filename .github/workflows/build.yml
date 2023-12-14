@@ -29,14 +29,14 @@ jobs:
         sarif_file: results.sarif
     - name: Build with Gradle
       run: |
-        ./gradlew clean assembleRelease lint \
+        ./gradlew clean assembleRelease \
         -PKEYSTORE=../release.keystore \
         -PKEYSTORE_PASSWORD=${{ secrets.KEY_STORE_PASSWORD }} \
         -PKEY_ALIAS=${{ secrets.ALIAS }} \
         -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
         -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
-    - name: GitHub Action for Android Lint
-      uses: yutailang0119/action-android-lint@v3.1.0
+    - run: ./gradlew lint
+    - uses: yutailang0119/action-android-lint@v3.1.0
       with:
         report-path: build/reports/*.xml
         follow-symbolic-links: true

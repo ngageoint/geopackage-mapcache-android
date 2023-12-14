@@ -27,6 +27,9 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: results.sarif
+    - name: Gradle Lint
+      run: |
+        ./gradlew lint
     - name: Build with Gradle
       run: |
         ./gradlew clean assembleRelease \

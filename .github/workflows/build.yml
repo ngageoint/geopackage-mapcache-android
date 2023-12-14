@@ -33,7 +33,7 @@ jobs:
         report-path: build/reports/*.xml
         follow-symbolic-links: true
     - name: show lint file content
-      run: ls build/reports
+      run: ls
     - name: Build with Gradle
       run: |
         ./gradlew clean assembleRelease \

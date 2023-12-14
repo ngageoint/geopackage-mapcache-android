@@ -31,7 +31,9 @@ jobs:
       uses: yutailang0119/action-android-lint@v3.1.0
       with:
         report-path: build/reports/*.xml
-        follow-symbolic-links: true    
+        follow-symbolic-links: true
+    - name: show lint file content
+      run: ls build/reports
     - name: Build with Gradle
       run: |
         ./gradlew clean assembleRelease \

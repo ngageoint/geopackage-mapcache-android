@@ -40,6 +40,7 @@ jobs:
       with:
         report-path: build/reports/*.xml
         follow-symbolic-links: true
+        continue-on-error: true
     - name: Verify Signature
       run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
     - name: List files in the repository

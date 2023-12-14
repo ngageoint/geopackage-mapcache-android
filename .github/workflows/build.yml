@@ -27,13 +27,6 @@ jobs:
       uses: github/codeql-action/upload-sarif@v2
       with:
         sarif_file: results.sarif
-    - name: GitHub Action for Android Lint
-      uses: yutailang0119/action-android-lint@v3.1.0
-      with:
-        report-path: build/reports/*.xml
-        follow-symbolic-links: true
-    - name: show lint file content
-      run: ls
     - name: Build with Gradle
       run: |
         ./gradlew clean assembleRelease \
@@ -42,6 +35,11 @@ jobs:
         -PKEY_ALIAS=${{ secrets.ALIAS }} \
         -PKEY_PASSWORD=${{ secrets.KEY_PASSWORD }} \
         -PRELEASE_MAPS_MAPCACHE_API_KEY=${{ secrets.RELEASE_MAPS_MAPCACHE_API_KEY }}
+    - name: GitHub Action for Android Lint
+      uses: yutailang0119/action-android-lint@v3.1.0
+      with:
+        report-path: build/reports/*.xml
+        follow-symbolic-links: true
     - name: Verify Signature
       run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
     - name: List files in the repository

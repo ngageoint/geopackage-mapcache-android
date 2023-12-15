@@ -41,6 +41,9 @@ jobs:
         report-path: build/reports/*.xml
         follow-symbolic-links: true
         continue-on-error: true
+    - name: lint output
+      run: | 
+        cat mapcache/build/intermediates/lint_intermediate_text_report/debug/lint-results-debug.txt
     - name: Verify Signature
       run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
     - name: List files in the repository

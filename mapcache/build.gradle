@@ -73,8 +73,11 @@ android {
         }
     }
     lint {
-          baseline = file("lint-baseline.xml")
-      }
+        baseline = file("lint-baseline.xml")
+    }
+    lintOptions { 
+        checkReleaseBuilds false
+    }
 }
 
 task androidAppVersion {

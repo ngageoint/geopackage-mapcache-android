@@ -74,8 +74,6 @@ android {
     }
     lint {
         baseline = file("lint-baseline.xml")
-    }
-    lintOptions { 
         checkReleaseBuilds false
         abortOnError false
     }

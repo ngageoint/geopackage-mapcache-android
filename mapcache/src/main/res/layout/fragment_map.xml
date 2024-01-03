@@ -95,8 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
-            android:src="@drawable/map_layers_circle"
-            android:onClick="openMapSelect"/>
+            android:src="@drawable/map_layers_circle" />
 
         <ImageButton
             android:id="@+id/settingsIcon"

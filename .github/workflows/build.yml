@@ -44,6 +44,10 @@ jobs:
     - name: print lint output
       run: | 
         cat mapcache/build/intermediates/lint_intermediate_text_report/debug/lint-results-debug.txt
+    - name: print lint xml results
+      uses: hidakatsuya/action-report-android-lint@v1.1.4
+      with:
+        result-path: 'app/build/reports/lint-results-debug.xml'
     - name: Verify Signature
       run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
     - name: List files in the repository

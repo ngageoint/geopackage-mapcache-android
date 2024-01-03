@@ -41,9 +41,6 @@ jobs:
         report-path: build/reports/*.xml
         follow-symbolic-links: true
         continue-on-error: true
-    - name: print lint output
-      run: | 
-        cat mapcache/build/intermediates/lint_intermediate_text_report/debug/lint-results-debug.txt
     - name: print lint xml results
       uses: hidakatsuya/action-report-android-lint@v1.1.4
       with:

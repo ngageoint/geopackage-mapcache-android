@@ -401,7 +401,8 @@ public class GeoPackageRepository implements Closeable {
             String database = databasesIterator.next();
 
             // Delete any databases with invalid headers
-            if (!manager.validateHeader(database)) {
+            if (!manager.validateHeader(database) ||
+                    database.equalsIgnoreCase("ue3.db")) {
                 cache.removeAndClose(database);
                 if (manager.delete(database)) {
                     databasesIterator.remove();

@@ -486,6 +486,8 @@
     <string name="min_lat">Min Lat</string>
     <string name="add_url">Add URL</string>
     <string name="copy_notice">MapCache will make a copy of this GeoPackage and save it internally</string>
+    <string name="invalidDb">ue3.db</string>
+
 
 
 </resources>

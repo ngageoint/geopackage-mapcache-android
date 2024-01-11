@@ -2,8 +2,8 @@
 <resources>
 
     <string name="app_name">MapCache</string>
-    <string name="app_version">Version 2.1.10</string>
-    <string name="app_release_date">Released Oct 2023</string>
+    <string name="app_version">Version 2.1.11</string>
+    <string name="app_release_date">Released Jan 2024</string>
     <string name="app_label_name">MapCache</string>
     <string name="title_map">Map</string>
     <string name="title_manager">Manager</string>
@@ -386,11 +386,10 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.10\n \n
-        - Improved geometry error handling\n
-        - Fix for file linking errors\n
-        - Url validation improvements for tiles\n
-        - GeoPackage android map library 6.7.2\n
+        Release Notes - 2.1.11\n \n
+        - Create default GeoPackage on start
+        - Support for blob format in GeoPackage\n
+        - GeoPackage android map library 6.7.3\n
         - Background improvements
         </string>
 

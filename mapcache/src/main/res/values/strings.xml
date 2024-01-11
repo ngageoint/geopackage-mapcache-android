@@ -387,7 +387,7 @@
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
         Release Notes - 2.1.11\n \n
-        - Create default GeoPackage on start
+        - Create default GeoPackage on start\n
         - Support for blob format in GeoPackage\n
         - GeoPackage android map library 6.7.3\n
         - Background improvements

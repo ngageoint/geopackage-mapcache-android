@@ -1643,6 +1643,16 @@ public class GeoPackageMapFragment extends Fragment implements
                     acceptButton.setOnClickListener((View view) -> {
                         sharedPreferences.edit().putBoolean(getString(R.string.disclaimerPref), true).apply();
                         disclaimerDialog.dismiss();
+                        // Create the example geopackage
+                        try {
+                            if (!geoPackageViewModel.createGeoPackage("Example")) {
+                                GeoPackageUtils.showMessage(getActivity(), getString(R.string.geopackage_create_label),
+                                                "Failed to create example GeoPackage");
+                            }
+                        } catch (Exception e) {
+                            GeoPackageUtils.showMessage(
+                                    getActivity(), "Create example", e.getMessage());
+                        }
                     });
                     exitButton.setOnClickListener((View view) -> getActivity().finish());
 
@@ -3352,6 +3362,15 @@ public class GeoPackageMapFragment extends Fragment implements
                     }
                     updateEditState(true);
                 }
+            } else {
+                // Drop a pin on user long press when not editing specific layer
+//                vibrator.vibrate(VibrationEffect.createOneShot(getActivity().getResources()
+//                                .getInteger(R.integer.edit_features_add_long_click_vibrate_quick),
+//                        VibrationEffect.DEFAULT_AMPLITUDE));
+//                editFeatureType = EditType.POINT;
+//                Marker marker = addEditPoint(point);
+//                editFeatureType = null;
+//                editPoints.put(marker.getId(), marker);
             }
         }
     }

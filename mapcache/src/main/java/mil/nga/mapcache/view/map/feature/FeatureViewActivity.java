@@ -2,16 +2,12 @@ package mil.nga.mapcache.view.map.feature;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
@@ -29,15 +25,11 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
-import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.button.MaterialButton;
@@ -46,24 +38,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import mil.nga.geopackage.db.GeoPackageDataType;
-import mil.nga.geopackage.extension.schema.columns.DataColumns;
-import mil.nga.geopackage.features.user.FeatureColumn;
-import mil.nga.mapcache.GeoPackageMapFragment;
+import mil.nga.mapcache.MapCacheFileProvider;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.data.MarkerFeature;
+import mil.nga.mapcache.io.CacheDirectoryType;
+import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.listeners.DeleteImageListener;
 import mil.nga.mapcache.utils.ImageUtils;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -75,11 +60,6 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Permission check for multiple
      */
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 204;
-
-    /**
-     * Permission check for gallery usage
-     */
-    public static final int REQUEST_ID_GALLERY_PERMISSIONS = 205;
 
     /**
      * We'll generate a list of FCObjects to hold our data for the recycler
@@ -322,9 +302,7 @@ public class FeatureViewActivity extends AppCompatActivity {
         }
         if(galleryButton != null) {
             galleryButton.setOnClickListener(v -> {
-                if (checkAndRequestGalleryPermissions(FeatureViewActivity.this)) {
-                    addFromGallery();
-                }
+                addFromGallery();
             });
         }
         if(closeLogo != null){
@@ -435,23 +413,17 @@ public class FeatureViewActivity extends AppCompatActivity {
         sliderAdapter.setData(sliderItems);
     }
 
-
-
-    /**
-     * Open the camera to take a picture and return the image
-     */
+    //Open the camera to take a picture and return the image
     private void takePicture(){
-        // Open the camera and get the photo
-        String fileName = "image_gallery_";
-        File outputDir = getCacheDir();
-        File file;
         try{
-            file = File.createTempFile( fileName, ".jpg", outputDir );
-            String pkg = this.getApplicationContext().getPackageName();
-            cameraAppUri = FileProvider.getUriForFile(
-                    Objects.requireNonNull(getApplicationContext()),
-                    this.getApplicationContext().getPackageName()
-                            + ".fileprovider", file );
+            //delete cached files prior to storing a new one
+            MapCacheFileUtils.INSTANCE.deleteCacheFiles(CacheDirectoryType.images);
+
+            String fileName = "image_gallery_";
+            File outputDir = MapCacheFileUtils.INSTANCE.getCacheDirectory(CacheDirectoryType.images);
+            File file = File.createTempFile( fileName, ".jpg", outputDir);
+
+            cameraAppUri = MapCacheFileProvider.Companion.getUriForFile(file);
             getImageFromCamera.launch(cameraAppUri);
         } catch( Exception e ) {
             Log.e("Error saving image: ", e.toString());
@@ -464,7 +436,7 @@ public class FeatureViewActivity extends AppCompatActivity {
      * Open the phone's image gallery to add an image
      */
     private void addFromGallery(){
-        ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType = (ActivityResultContracts.PickVisualMedia.VisualMediaType) ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
+        ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE;
         getImageFromGallery.launch(new PickVisualMediaRequest.Builder()
                 .setMediaType(mediaType)
                 .build());
@@ -536,22 +508,14 @@ public class FeatureViewActivity extends AppCompatActivity {
 
 
     /**
-     * Check permissions for camera use.  Note, only check write_external if < android 10
+     * Check permissions for camera use.
      */
     public static boolean checkAndRequestPermissions(final Activity context) {
-        int writeExternalPermission = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
         int cameraPermission = ContextCompat.checkSelfPermission(context,
                 Manifest.permission.CAMERA);
         List<String> listPermissionsNeeded = new ArrayList<>();
         if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(Manifest.permission.CAMERA);
-        }
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
-            if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
-                listPermissionsNeeded
-                        .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            }
         }
         if (!listPermissionsNeeded.isEmpty()) {
             ActivityCompat.requestPermissions(context, listPermissionsNeeded
@@ -562,57 +526,20 @@ public class FeatureViewActivity extends AppCompatActivity {
         return true;
     }
 
-    public static boolean checkAndRequestGalleryPermissions(final Activity context) {
-        int writeExternalPermission = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        List<String> listPermissionsNeeded = new ArrayList<>();
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q){
-            if (writeExternalPermission != PackageManager.PERMISSION_GRANTED) {
-                listPermissionsNeeded
-                        .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            }
-        }
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(context, listPermissionsNeeded
-                            .toArray(new String[0]),
-                    REQUEST_ID_GALLERY_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-
-
-
     /**
      * If permissions are granted, allow access to the camera
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean flagged = false;
         if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
                     Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getApplicationContext(),
                                 "Camera permissions required", Toast.LENGTH_SHORT)
                         .show();
-                flagged = true;
             } else {
                 takePicture();
-            }
-        }
-        if (requestCode == REQUEST_ID_GALLERY_PERMISSIONS) {
-            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-                if (ContextCompat.checkSelfPermission(FeatureViewActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getApplicationContext(),
-                            "Storage permissions required",
-                            Toast.LENGTH_SHORT).show();
-                    flagged = true;
-                }
-            }
-            if(!flagged){
-                addFromGallery();
             }
         }
     }

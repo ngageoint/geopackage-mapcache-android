@@ -35,21 +35,6 @@ public class MainActivity extends AppCompatActivity {
     public static final int MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
 
     /**
-     * Manager permissions request code for importing a GeoPackage as an external link
-     */
-    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL = 200;
-
-    /**
-     * Manager permissions request code for reading / writing to GeoPackages already externally linked
-     */
-    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL = 201;
-
-    /**
-     * Manager permissions request code for exporting a GeoPackage to external storage
-     */
-    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE = 202;
-
-    /**
      * Map fragment
      */
     private GeoPackageMapFragment mapFragment;
@@ -115,13 +100,9 @@ public class MainActivity extends AppCompatActivity {
      */
     private void handleIntentUri(final Uri uri, Intent intent) {
         String path = FileUtils.getPath(this, uri);
-        String name = MapCacheFileUtils.getDisplayName(this, uri, path);
+        String name = MapCacheFileUtils.INSTANCE.getDisplayName(uri, path);
         try {
-            if (path != null) {
-                mapFragment.startImportTaskWithPermissions(name, uri, path, intent);
-            } else {
-                mapFragment.startImportTask(name, uri, intent);
-            }
+            mapFragment.startImportTask(name, uri, path, intent);
         } catch (final Exception e) {
             try {
                 runOnUiThread(() -> GeoPackageUtils.showMessage(MainActivity.this,
@@ -170,26 +151,15 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // Check if permission was granted
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        if(granted) {
-            switch (requestCode) {
 
-                case MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
-                    mapFragment.setMyLocationEnabled();
-                    break;
-
-                case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
-                    mapFragment.importGeopackageFromFile();
-                    break;
-
-                case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
-                    mapFragment.exportGeoPackageToExternal();
-                    break;
-
-                case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
-//                managerFragment.update(granted);
-                    break;
-            }
+        if(granted && requestCode == MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+            mapFragment.setMyLocationEnabled();
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MapCacheApplication.Companion.deleteCacheFiles();
+    }
 }

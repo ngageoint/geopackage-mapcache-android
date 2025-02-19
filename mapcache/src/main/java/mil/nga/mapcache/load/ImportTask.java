@@ -1,24 +1,18 @@
 package mil.nga.mapcache.load;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.PowerManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.RadioButton;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -31,7 +25,6 @@ import java.io.InputStream;
 import mil.nga.geopackage.io.GeoPackageIOUtils;
 import mil.nga.geopackage.io.GeoPackageProgress;
 import mil.nga.mapcache.GeoPackageUtils;
-import mil.nga.mapcache.MainActivity;
 import mil.nga.mapcache.R;
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
@@ -45,9 +38,6 @@ public class ImportTask {
     private String importLabel = "Import";
     private String okLabel = "OK";
     private String cancelLabel = "Cancel";
-    private String importExternalName;
-    private Uri importExternalUri;
-    private String importExternalPath;
     private Activity activity;
     private GeoPackageViewModel geoPackageViewModel;
     private ProgressDialog progressDialog;
@@ -70,10 +60,9 @@ public class ImportTask {
      */
     public void importFile() {
         if (activity != null && uri != null){
-
             // Try to get the file path and name
             final String path = FileUtils.getPath(activity, uri);
-            String name = MapCacheFileUtils.getDisplayName(activity, uri, path);
+            String name = MapCacheFileUtils.INSTANCE.getDisplayName(uri, path);
 
             LayoutInflater inflater = LayoutInflater.from(activity);
             View importFileView = inflater.inflate(R.layout.import_file, null);
@@ -132,79 +121,6 @@ public class ImportTask {
         }
     }
 
-
-
-    /**
-     * Import the GeoPackage by linking to the file if write external storage permissions are granted, otherwise request permission.
-     *
-     * We should never reach this method without permission, but in case we do, it'll get permissions and
-     * restart the process with the call back to MainActivity
-     *
-     * @param name
-     * @param uri
-     * @param path
-     */
-    public void importGeoPackageExternalLinkWithPermissions(final String name, final Uri uri, String path) {
-
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-            // Check for permission
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                importGeoPackageExternalLink(name, uri, path);
-            } else {
-                // Save off the values and ask for permission
-                importExternalName = name;
-                importExternalUri = uri;
-                importExternalPath = path;
-
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    new AlertDialog.Builder(activity, R.style.AppCompatAlertDialogStyle)
-                            .setTitle(R.string.storage_access_rational_title)
-                            .setMessage(R.string.storage_access_rational_message)
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
-                                }
-                            })
-                            .create()
-                            .show();
-
-                } else {
-                    ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
-                }
-            }
-        } else {
-            importGeoPackageExternalLink(name, uri, path);
-        }
-
-    }
-
-
-    /**
-     * Import a geopackage from external link with previously saved uri after waiting for permissions
-     */
-    public void importGeoPackageExternalLinkSavedData(){
-        if(importExternalName != null && importExternalUri != null && importExternalPath != null) {
-            importGeoPackageExternalLink(importExternalName, importExternalUri, importExternalPath);
-        } else{
-            try {
-                activity.runOnUiThread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                GeoPackageUtils.showMessage(activity,
-                                        "URL Import",
-                                        "Failed to import Uri: Could not get Uri name and path params");
-                            }
-                        });
-            } catch (Exception e) {
-                // eat
-            }
-        }
-    }
-
-
-
     /**
      * Import the GeoPackage by linking to the file
      *
@@ -212,8 +128,7 @@ public class ImportTask {
      * @param uri
      * @param path
      */
-    private void importGeoPackageExternalLink(final String name, final Uri uri, String path) {
-
+    public void importGeoPackageExternalLink(final String name, final Uri uri, String path) {
         // Check if a database already exists with the name
         if (geoPackageViewModel.exists(name)) {
             // If the existing is not an external file, error

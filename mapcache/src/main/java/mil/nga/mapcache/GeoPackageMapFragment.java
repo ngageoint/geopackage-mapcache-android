@@ -12,14 +12,18 @@ import android.graphics.Point;
 import android.hardware.SensorEvent;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+
 import androidx.preference.PreferenceManager;
+
+import android.provider.DocumentsContract;
 import android.text.Editable;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -100,6 +104,7 @@ import org.locationtech.proj4j.units.Units;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -112,6 +117,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import mil.nga.geopackage.BoundingBox;
 import mil.nga.geopackage.GeoPackage;
+import mil.nga.geopackage.GeoPackageConstants;
 import mil.nga.geopackage.contents.Contents;
 import mil.nga.geopackage.contents.ContentsDao;
 import mil.nga.geopackage.db.GeoPackageDataType;
@@ -157,7 +163,8 @@ import mil.nga.mapcache.listeners.SensorCallback;
 import mil.nga.mapcache.load.Downloader;
 import mil.nga.mapcache.load.ILoadTilesTask;
 import mil.nga.mapcache.load.ImportTask;
-import mil.nga.mapcache.load.ShareTask;
+import mil.nga.mapcache.load.SaveGpkgExecutor;
+import mil.nga.mapcache.load.ShareGpkgExecutor;
 import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
@@ -200,409 +207,191 @@ public class GeoPackageMapFragment extends Fragment implements
         OnMarkerDragListener, ILoadTilesTask, IIndexerTask, OnCameraIdleListener, OnDialogButtonClickListener,
         GeoPackageModifier, IBoundingBoxManager, IMapView {
 
-    /**
-     * Max features key for saving to preferences
-     */
+    //Max features key for saving to preferences
     private static final String MAX_FEATURES_KEY = "max_features_key";
 
-    /**
-     * Key for using app dark mode from preferences
-     */
+    //Key for using app dark mode from preferences
     private static final String SETTINGS_APP_DARK_KEY = "dark_app";
 
-    /**
-     * Key for zoom icons being visible from shared preferences
-     */
+    //Key for zoom icons being visible from shared preferences
     private static final String SETTINGS_ZOOM_KEY = "zoom_icons";
 
-    /**
-     * Key for the current zoom level being visible
-     */
+    //Key for the current zoom level being visible
     private static final String SETTINGS_ZOOM_LEVEL_KEY = "zoom_level";
 
-    /**
-     * Key for max features warning message
-     */
+    //Key for max features warning message
     private static final String MAX_FEATURES_MESSAGE_KEY = "max_features_warning";
 
-    /**
-     * Google map
-     */
     private GoogleMap map;
 
-    /**
-     * Map loaded flag
-     */
     private boolean mapLoaded = false;
 
-    /**
-     * View
-     */
-    private View view;
+    private View view, editFeaturesView, editFeaturesPolygonHoleView;
 
-    /**
-     * Edit features view
-     */
-    private View editFeaturesView;
-
-    /**
-     * Edit features polygon hole view
-     */
-    private View editFeaturesPolygonHoleView;
-
-    /**
-     * True when the map is visible
-     */
+    //True when the map is visible
     private static boolean visible = true;
 
-    /**
-     * True when the location is shown on the map.
-     */
+    //True when the location is shown on the map.
     private boolean locationVisible = false;
 
-    /**
-     * True when we are showing bearing on the map
-     */
+    //True when we are showing bearing on the map
     private static boolean bearingVisible = false;
 
 
-    /**
-     * Tracks the last calculated bearing from the sensors
-     */
+    //Tracks the last calculated bearing from the sensors
     float mCompassLastMeasuredBearing = 0.0f;
 
-    /**
-     * Last location saved from location services
-     */
+    //Last location saved from location services
     Location mLastLocation;
 
-    /**
-     * Handles sensor listeners for location updates
-     */
+    //Handles sensor listeners for location updates
     private SensorHandler sensorHandler;
 
-    /**
-     * Callback for location updates
-     */
+    //Callback for location updates
     private LocationCallback locationCallback;
 
-    /**
-     * Update task
-     */
     private MapUpdateTask updateTask;
 
-    /**
-     * Update features task
-     */
     private MapFeaturesUpdateTask updateFeaturesTask;
 
-    /**
-     * Update lock for creating and cancelling update tasks
-     */
+    //Update lock for creating and cancelling update tasks
     private final Lock updateLock = new ReentrantLock();
 
-    /**
-     * Vibrator
-     */
     private Vibrator vibrator;
 
-    /**
-     * Touchable map layout
-     */
+    //Touchable map layout
     private TouchableMap touch;
 
-    /**
-     * Bounding box mode
-     */
     private boolean boundingBoxMode = false;
 
-    /**
-     * Bounding box starting corner
-     */
-    private LatLng boundingBoxStartCorner = null;
+    private LatLng boundingBoxStartCorner, boundingBoxEndCorner = null;
 
-    /**
-     * Bounding box ending corner
-     */
-    private LatLng boundingBoxEndCorner = null;
-
-    /**
-     * Bounding box polygon
-     */
+    //Bounding box polygon
     private Polygon boundingBox = null;
 
-    /**
-     * True when drawing a shape
-     */
+    //True when drawing a shape
     private boolean drawing = false;
 
-    /**
-     * Bounding Box menu item
-     */
-    private MenuItem boundingBoxMenuItem;
+    private MenuItem boundingBoxMenuItem, editFeaturesMenuItem;
 
-    /**
-     * Edit Features menu item
-     */
-    private MenuItem editFeaturesMenuItem;
-
-    /**
-     * Current zoom level
-     */
+    //Current zoom level
     private int currentZoom = -1;
 
-    /**
-     * Edit points type
-     */
+    //Edit points type
     private EditType editFeatureType = null;
 
-    /**
-     * Edit type enumeration
-     */
     private enum EditType {
-
         POINT, LINESTRING, POLYGON, POLYGON_HOLE, EDIT_FEATURE
-
     }
 
-    /**
-     * Map of edit point marker ids and markers
-     */
+    //Map of edit point marker ids and markers
     private final Map<String, Marker> editPoints = new LinkedHashMap<>();
 
-    /**
-     * Map of edit point hole marker ids and markers
-     */
+    //Map of edit point hole marker ids and markers
     private final Map<String, Marker> editHolePoints = new LinkedHashMap<>();
 
-    /**
-     * Edit feature marker
-     */
     private Marker editFeatureMarker;
 
-    /**
-     * Temp Edit feature marker before validation
-     */
+    //Temp Edit feature marker before validation
     private Marker tempEditFeatureMarker;
 
-    /**
-     * Edit feature shape
-     */
     private GoogleMapShapeMarkers editFeatureShape;
 
-    /**
-     * Edit feature shape markers for adding new points
-     */
+    //Edit feature shape markers for adding new points
     private ShapeMarkers editFeatureShapeMarkers;
 
-    /**
-     * Edit linestring
-     */
     private Polyline editLinestring;
 
-    /**
-     * Edit polygon
-     */
-    private Polygon editPolygon;
+    private Polygon editPolygon, editHolePolygon;
 
-    /**
-     * Edit hole polygon
-     */
-    private Polygon editHolePolygon;
-
-    /**
-     * List of hold polygons
-     */
     private final List<List<LatLng>> holePolygons = new ArrayList<>();
 
-    /**
-     * Edit point button
-     */
-    private ImageButton editPointButton;
+    private ImageButton editPointButton, editLinestringButton, editPolygonButton;
 
-    /**
-     * Edit linestring button
-     */
-    private ImageButton editLinestringButton;
+    private ImageButton editAcceptButton, editClearButton;
 
-    /**
-     * Edit polygon button
-     */
-    private ImageButton editPolygonButton;
+    private ImageButton editPolygonHolesButton, editAcceptPolygonHolesButton, editClearPolygonHolesButton;
 
-    /**
-     * Edit accept button
-     */
-    private ImageButton editAcceptButton;
-
-    /**
-     * Edit clear button
-     */
-    private ImageButton editClearButton;
-
-    /**
-     * Edit polygon holes button
-     */
-    private ImageButton editPolygonHolesButton;
-
-    /**
-     * Edit accept button
-     */
-    private ImageButton editAcceptPolygonHolesButton;
-
-    /**
-     * Edit clear button
-     */
-    private ImageButton editClearPolygonHolesButton;
-
-    /**
-     * RecyclerView that will hold our GeoPackages
-     */
+    //RecyclerView that will hold our GeoPackages
     private RecyclerView geoPackageRecycler;
 
-    /**
-     * Adapter for the main RecyclerView of GeoPackages
-     */
+    //Adapter for the main RecyclerView of GeoPackages
     private GeoPackageAdapter geoPackageRecyclerAdapter;
 
-    /**
-     * Adapter for showing a GeoPackage detail page
-     */
+    //Adapter for showing a GeoPackage detail page
     private DetailPageAdapter detailPageAdapter;
 
-    /**
-     * Util class for opening dialogs to respond to the GeoPackage detail view buttons
-     */
+    //Util class for opening dialogs to respond to the GeoPackage detail view buttons
     private DetailActionUtil detailButtonUtil;
 
-    /**
-     * Util class for opening dialogs to respond to the feature column buttons on the layer detail page
-     */
+    //Util class for opening dialogs to respond to the feature column buttons on the layer detail page
     private FeatureColumnUtil featureColumnUtil;
 
-    /**
-     * ViewModel for accessing data from the repository
-     */
+    //ViewModel for accessing data from the repository
     private GeoPackageViewModel geoPackageViewModel;
 
-    /**
-     * Button for selecting map type
-     */
+    //Button for selecting map type
     private ImageButton mapSelectButton;
 
-    /**
-     * Button for editing features
-     */
+    //Button for editing features
     private ImageButton editFeaturesButton;
 
-    /**
-     * Button for opening the settings view
-     */
+    //Button for opening the settings view
     private ImageButton settingsIcon;
 
-    /**
-     * Zoom in button
-     */
-    private ImageButton zoomInButton;
+    private ImageButton zoomInButton, zoomOutButton;
 
-    /**
-     * Zoom out button
-     */
-    private ImageButton zoomOutButton;
-
-    /**
-     * Zoom level label
-     */
+    //Zoom level label
     private TextView zoomLevelText;
 
-    /**
-     * Shows the coordinates at the center of the screen.
-     */
+    //Shows the coordinates at the center of the screen.
     private TextView coordText;
 
-    /**
-     * Contains the coordinates text view.
-     */
+    //Contains the coordinates text view.
     private View coordTextCard;
 
-    /**
-     * Floating Action Button for creating geoPackages
-     */
+    //Floating Action Button for creating geoPackages
     private FloatingActionButton fab;
 
-    /**
-     * Floating Action Button for new layers
-     */
+    //Floating Action Button for new layers
     private FloatingActionButton layerFab;
 
-    /**
-     * Task for importing a geoPackage
-     */
+    //Task for importing a geoPackage
     private ImportTask importTask;
 
-    /**
-     * Adapter for the LayerDetailView in the Recycler
-     */
+    //Adapter for the LayerDetailView in the Recycler
     private LayerPageAdapter layerAdapter;
 
-    /**
-     * Boolean for if we should show the max feature warning
-     */
+    //Boolean for if we should show the max feature warning
     private boolean displayMaxFeatureWarning = true;
 
-    /**
-     * Location provider for getting current location
-     */
+    //Location provider for getting current location
     private FusedLocationProviderClient fusedLocationClient;
 
-    /**
-     * A view that acts as a transparent box.  Used for laying on top of a map for the user to
-     * draw a bounding box
-     */
+    //A view that acts as a transparent box.  Used for laying on top of a map for the user to draw a bounding box
     private View transBox;
 
-    /**
-     * ShareTask object handles sharing GeoPackage files to other apps or saving to disk
-     */
-    private ShareTask shareTask;
-
-    /**
-     * Controls user selected base maps.
-     */
+    //Controls user selected base maps.
     private BasemapApplier basemapApplier;
 
-    /**
-     * Used to zoom the maps position to various spots.
-     */
+    //Used to zoom the maps position to various spots.
     private Zoomer zoomer;
 
-    /**
-     * Disclaimer message when first launching the app
-     */
+    //Disclaimer message when first launching the app
     AlertDialog disclaimerDialog;
 
-    /**
-     * Max features warning popup dialog
-     */
+    //Max features warning popup dialog
     AlertDialog maxFeaturesDialog;
 
-    /**
-     * Model that contains various states involving the map.
-     */
+    //Model that contains various states involving the map.
     private final MapModel model = new MapModel();
 
-    /**
-     * Activity launchers
-     */
-    ActivityResultLauncher<Intent> importGeoPackageActivityResultLauncher;
-    ActivityResultLauncher<Intent> preferencePageActivityResultLauncher;
-    ActivityResultLauncher<Intent> downloadTaskResultLauncher;
+    GpkgDataToExport gpkgData = null;
 
+    //Activity launchers
+    ActivityResultLauncher<Intent> importGeoPackageActivityResultLauncher, preferencePageActivityResultLauncher, exportGeoPackageActivityResultLauncher;
 
-
-    /**
-     * The camera move listener.
-     */
+    //The camera move listener
     private final GoogleMap.OnCameraMoveListener moveListener = new GoogleMap.OnCameraMoveListener() {
         @Override
         public void onCameraMove() {
@@ -613,13 +402,6 @@ public class GeoPackageMapFragment extends Fragment implements
             }
         }
     };
-
-    /**
-     * Constructor
-     */
-    public GeoPackageMapFragment() {
-
-    }
 
     /**
      * {@inheritDoc}
@@ -690,9 +472,6 @@ public class GeoPackageMapFragment extends Fragment implements
         // NOTE: This view is invisible by default
         transBox = getLayoutInflater().inflate(R.layout.transparent_box_view, null);
 
-        // Create a ShareTask to handle sharing to other apps or saving to disk
-        shareTask = new ShareTask(getActivity());
-
         // Set up activity launchers registered for results
         setupLaunchers();
 
@@ -730,13 +509,36 @@ public class GeoPackageMapFragment extends Fragment implements
                         }
                     }
                 });
+
         // Launch preference page
         preferencePageActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 (ActivityResult result) -> {
                     settingsUpdate();
-                }
-        );
+                });
+
+        //result listener for gkpg export
+        exportGeoPackageActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                (ActivityResult result) -> {
+                    //if a URI is successfully returned then write the gpkg to the new file
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent intent = result.getData();
+                        if (intent != null && intent.getData() != null) {
+                            Uri uri = intent.getData();
+                            writeGpkgToUserSpecifiedFile(uri, gpkgData);
+                        }
+                    }
+                });
+
+    }
+
+    //copy the gpkg data to the file uri specified by the user
+    private void writeGpkgToUserSpecifiedFile(Uri uri, GpkgDataToExport gpkgData) {
+        if (gpkgData != null && gpkgData.geoPackageFile != null && getActivity() != null) {
+            SaveGpkgExecutor diskExecutor = new SaveGpkgExecutor(getActivity(), gpkgData.getGeoPackageFile(), uri);
+            diskExecutor.copyContentFromGpkgToNewFile();
+        }
     }
 
     /**
@@ -746,8 +548,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * we need the map to be initialized before we can set it to dark mode
      */
     private void settingsUpdate() {
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
         boolean zoomIconsVisible = settings.getBoolean(SETTINGS_ZOOM_KEY, false);
         boolean zoomLevelVisible = settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
         displayMaxFeatureWarning = settings.getBoolean(MAX_FEATURES_MESSAGE_KEY, false);
@@ -764,8 +565,7 @@ public class GeoPackageMapFragment extends Fragment implements
      * Get the boolean value for the zoom level indicator setting
      */
     public boolean isZoomLevelVisible() {
-        SharedPreferences settings = PreferenceManager
-                .getDefaultSharedPreferences(getActivity());
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
         return settings.getBoolean(SETTINGS_ZOOM_LEVEL_KEY, false);
 
     }
@@ -1080,13 +880,66 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     @Override
     public void onShareGP(String gpName) {
-        // Set the geopackage name before we ask permissions and get routed back through MainActivity
-        // to exportGeoPackageToExternal()
         File databaseFile = geoPackageViewModel.getDatabaseFile(gpName);
-        shareTask.setFileExternal(geoPackageViewModel.isExternal(gpName));
-        shareTask.setGeoPackageName(gpName);
-        shareTask.setGeoPackageFile(databaseFile);
-        getImportPermissions(MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE);
+        Boolean isExternal = geoPackageViewModel.isExternal(gpName);
+
+        gpkgData = new GpkgDataToExport(gpName, databaseFile, isExternal);
+        showSaveOrShareDialog(gpkgData);
+    }
+
+
+    public void showSaveOrShareDialog(GpkgDataToExport gpkgData){
+        try {
+            // Create Alert window with basic input text layout
+            LayoutInflater inflater = LayoutInflater.from(getActivity());
+
+            View alertView = inflater.inflate(R.layout.share_file_popup, null);
+            ViewAnimation.setScaleAnimatiom(alertView, 200);
+            // title
+            TextView titleText = (TextView) alertView.findViewById(R.id.alert_title);
+            titleText.setText("Share GeoPackage");
+
+            // Initial dialog asking for create or import
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
+                    .setView(alertView);
+            final AlertDialog alertDialog = dialog.create();
+
+            // Click listener for "Share"
+            alertView.findViewById(R.id.share_menu_share_card)
+                    .setOnClickListener(v -> {
+                        ShareGpkgExecutor shareExec = new ShareGpkgExecutor(getActivity(), gpkgData);
+                        shareExec.shareDatabaseViaIntent();
+                        alertDialog.dismiss();
+                    });
+
+            // Click listener for "Save"
+            alertView.findViewById(R.id.share_menu_save_card)
+                    .setOnClickListener(v -> {
+                        sendIntentForGpkgFileCreation(gpkgData);
+                        alertDialog.dismiss();
+                    });
+
+            alertDialog.show();
+        } catch (Exception e) {
+            GeoPackageUtils.showMessage(getActivity(), "Error sharing", e.getMessage());
+        }
+    }
+
+    //create and send ACTION_CREATE_DOCUMENT Intent to save gpkg
+    public void sendIntentForGpkgFileCreation(GpkgDataToExport gpkgData) {
+        //specify the downloads folder as the initial destination to show to the user
+        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        URI downloadUri = downloadDir.toURI();
+
+        //create the Intent for new file creation, specifying mime type and setting default file name and extension
+        Intent createFileIntent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        createFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        createFileIntent.setType("application/geopackage+sqlite3");
+        createFileIntent.putExtra(Intent.EXTRA_TITLE, gpkgData.geoPackageName + "." + GeoPackageConstants.EXTENSION);
+        createFileIntent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, downloadUri);
+
+        //launch intent to present the user with the option to save a file in the destination of their choice
+        exportGeoPackageActivityResultLauncher.launch(createFileIntent);
     }
 
     /**
@@ -1763,7 +1616,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Click listener for "Import from file"
             alertView.findViewById(R.id.new_wizard_file_card)
                     .setOnClickListener((View v) -> {
-                        getImportPermissions(MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL);
+                        importGeopackageFromFile();
                         alertDialog.dismiss();
                     });
 
@@ -1905,77 +1758,23 @@ public class GeoPackageMapFragment extends Fragment implements
         newTileLayerUI.show();
     }
 
-    /**
-     * Make sure we have permissions to read/write to external before importing.  The result will
-     * send MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL or MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE
-     * back up to main activity, and should call importGeopackageFromFile or exportGeoPackageToExternal
-     */
-    private void getImportPermissions(int returnCode) {
-        if (getActivity() != null) {
-            //TODO: update permissions to remove Write external storage permissions
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                executeRequestCode(returnCode);
-            } else {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle)
-                            .setTitle(R.string.storage_access_rational_title)
-                            .setMessage(R.string.storage_access_rational_message)
-                            .setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) ->
-                                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode)
-                            )
-                            .create()
-                            .show();
 
-                } else {
-                    ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, returnCode);
-                }
-            }
-        }
-    }
-
-    /**
-     * Force execution of given request code option without permissions
-     * @param requestCode request code matching MainActivity onRequestPermissionsResult functions
-     */
-    private void executeRequestCode(int requestCode){
-        switch (requestCode) {
-            case MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
-                importGeopackageFromFile();
-                break;
-            case MainActivity.MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
-                exportGeoPackageToExternal();
-                break;
-        }
-    }
-
-
-    /**
-     * Import a GeoPackage from a file (after we've been given permission)
-     */
+    //Import a gpkg file via ACTION_GET_CONTENT Intent
     public void importGeopackageFromFile() {
         try {
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-            chooseFile.setType("application/octet-stream");
-            Intent intent = Intent.createChooser(chooseFile,
-                    "Choose a GeoPackage file");
+            chooseFile.setType("*/*");
+
+            //set multiple mime types for compatibility across Android versions
+            String[] types = {"application/geopackage+sqlite3", "application/octet-stream", "application/x-sqlite3", "application/vnd.sqlite3"};
+            chooseFile.putExtra(Intent.EXTRA_MIME_TYPES, types);
+
+            Intent intent = Intent.createChooser(chooseFile, "Choose a GeoPackage file");
             importGeoPackageActivityResultLauncher.launch(intent);
         } catch (Exception e) {
             Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
         }
     }
-
-
-    /**
-     * Save a GeoPackage to external disk (after we've been given permission)
-     */
-    public void exportGeoPackageToExternal() {
-
-        if (shareTask != null && shareTask.getGeoPackageName() != null &&
-            shareTask.getGeoPackageFile() != null) {
-            shareTask.askToSaveOrShare();
-        }
-    }
-
 
     /**
      * Clear all active layers from the map and zoom out 1 level
@@ -2112,22 +1911,12 @@ public class GeoPackageMapFragment extends Fragment implements
         }
     }
 
-
     /**
      * Initiate an Import task (received from intent outside of application)
      */
-    public void startImportTask(String name, Uri uri, Intent intent) {
+    public void startImportTask(String name, Uri uri, String path, Intent intent) {
         importTask = new ImportTask(getActivity(), intent);
         importTask.importGeoPackage(name, uri, null);
-    }
-
-
-    /**
-     * Initiate an Import task with permissions(received from intent outside of application)
-     */
-    public void startImportTaskWithPermissions(String name, Uri uri, String path, Intent intent) {
-        importTask = new ImportTask(getActivity(), intent);
-        importTask.importGeoPackageExternalLinkWithPermissions(name, uri, path);
     }
 
     /**
@@ -4446,6 +4235,34 @@ public class GeoPackageMapFragment extends Fragment implements
                 polygonOptions.addAll(boundingBox.getPoints());
                 boundingBox = map.addPolygon(polygonOptions);
             }
+        }
+    }
+
+    public class GpkgDataToExport {
+        GpkgDataToExport(String name, File file, boolean isExternal) {
+            geoPackageName = name;
+            geoPackageFile = file;
+            isFileExternal = isExternal;
+        }
+        private String geoPackageName = "";
+
+
+        //GeoPackage file for sharing
+        private File geoPackageFile = null;
+
+        //Is the saved geoPackage an external file
+        private boolean isFileExternal = false;
+
+        public File getGeoPackageFile() {
+            return geoPackageFile;
+        }
+
+        public String getGeoPackageName() {
+            return geoPackageName;
+        }
+
+        public boolean isFileExternal() {
+            return isFileExternal;
         }
     }
 }

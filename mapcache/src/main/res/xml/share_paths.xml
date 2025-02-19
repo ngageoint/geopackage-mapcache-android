@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
     <cache-path name="database_cache" path="databases" />
+    <cache-path name="image_cache" path="images" />
     <cache-path name="cached_files" path="." />
     <external-path name="external_files" path="."/>
 </paths>

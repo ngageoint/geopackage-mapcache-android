@@ -13,12 +13,22 @@ import java.io.File
  */
 object MapCacheFileUtils {
 
+    //allow multiple mime types for compatibility across Android versions
+    val gpkgMimeTypes: Array<String> = arrayOf(
+        "application/geopackage+sqlite3",
+        "application/octet-stream",
+        "application/x-sqlite3",
+        "application/vnd.sqlite3"
+    )
+
     //get the display name from path or Uri
-    fun getDisplayName(uri: Uri, path: String?): String {
+    fun getDisplayName(uri: Uri): String {
         var name = ""
 
-        //extract file name using path if available, otherwise use Uri
-        if (!TextUtils.isEmpty(path)) {
+        val path = uri.path
+
+        //extract file name using Uri path if available, otherwise use ContentResolver
+        if (path != null && path.contains(".gpk")) {
             name = File(path).name
         } else {
             name = getDisplayNameFromUri(uri)

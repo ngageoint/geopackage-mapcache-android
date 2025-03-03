@@ -843,28 +843,10 @@ public class GeoPackageRepository implements Closeable {
     }
 
     /**
-     * Returns true if it's an external db
-     */
-    public boolean isExternal(String database) {
-        return manager.isExternal(database);
-    }
-
-    /**
      * Returns true if exists
      */
     public boolean exists(String database) {
         return manager.exists(database);
-    }
-
-    /**
-     * Import an GeoPackage as an external file link without copying locally
-     *
-     * @param path     full file path
-     * @param database name to reference the database
-     * @return true if imported successfully
-     */
-    public boolean importGeoPackageAsExternalLink(String path, String database) {
-        return manager.importGeoPackageAsExternalLink(path, database);
     }
 
     /**

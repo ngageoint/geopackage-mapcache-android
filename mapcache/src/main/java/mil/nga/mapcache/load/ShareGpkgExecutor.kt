@@ -31,13 +31,9 @@ class ShareGpkgExecutor(val activity : Activity, val gpkgData: GpkgDataToExport)
 
     fun shareDatabaseViaIntent() {
         try {
-            if (gpkgData.isFileExternal) {
-                //copying the data to cache is not necessary, so share via an Intent
-                launchShareIntent(gpkgData.geoPackageFile)
-            } else {
-                //data must first be written to cache before it can be shared
-                shareGeoPackage(gpkgData.geoPackageFile, gpkgData.geoPackageName)
-            }
+            //data must first be written to cache before it can be shared via FileProvider
+            shareGeoPackage(gpkgData.geoPackageFile, gpkgData.geoPackageName)
+
         } catch (e: Exception) {
             GeoPackageUtils.showMessage(activity, "Error sharing GeoPackage", e.message)
         }

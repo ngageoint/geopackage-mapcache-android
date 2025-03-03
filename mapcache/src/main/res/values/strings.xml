@@ -9,14 +9,6 @@
     <string name="title_manager">Manager</string>
     <string name="location_access_rational_title">Use <font color='#DD000000'>MapCache</font> location services</string>
     <string name="location_access_rational_message">MapCache allows you to view and zoom to your current location</string>
-    <string name="storage_access_rational_title">Use <font color='#DD000000'>MapCache</font> storage services</string>
-    <string name="storage_access_rational_message">MapCache allows you to read from and write to GeoPackages in external storage</string>
-    <string name="external_geopackage_access_title"><font color='#DD000000'>Storage Permission Denied</font></string>
-    <string name="external_geopackage_access_message"><font color='#DD000000'>MapCache</font> has been denied access to external storage. Please enable if you would like to access the GeoPackages that reside in external storage.</string>
-    <string name="external_export_geopackage_access_title"><font color='#DD000000'>Storage Permission Denied</font></string>
-    <string name="external_export_geopackage_access_message"><font color='#DD000000'>MapCache</font> has been denied access to external storage. Please enable if you would like to export a GeoPackage to external storage.</string>
-    <string name="external_import_geopackage_access_title"><font color='#DD000000'>Storage Permission Denied</font></string>
-    <string name="external_import_geopackage_access_message"><font color='#DD000000'>MapCache</font> has been denied access to external storage. Please enable if you would like to import an externally linked GeoPackage.</string>
     <string name="settings">Settings</string>
     <string name="import_geopackage_url">Import URL</string>
     <string name="import_geopackage_file">Import File</string>
@@ -139,8 +131,8 @@
     <string name="geopackage_share_label">Share</string>
     <string name="share_exception">Error preparing file: %1$s</string>
     <string name="share_interrupted">File sharing was interrupted</string>
-    <string name="geopackage_save_label">Save to Downloads</string>
-    <string name="geopackage_save_message">Saving GeoPackage to the Downloads directory</string>
+    <string name="geopackage_save_label">Save to storage</string>
+    <string name="geopackage_save_message">Saving GeoPackage to storage</string>
     <string name="geopackage_share_copy_message">Preparing internal GeoPackage for sharing</string>
     <string name="geopackage_import_label">Download</string>
     <string name="geopackage_create_label">Create</string>

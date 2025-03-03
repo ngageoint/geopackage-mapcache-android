@@ -983,20 +983,13 @@ public class GeoPackageRepository implements Closeable {
     }
 
     /**
-     * Get the GeoPackage databases. If external storage permissions granted get all, if not get only internal
+     * Get the GeoPackage databases
      *
      * @return The geoPackage names available to user.
      */
     public List<String> getDatabases() {
         List<String> databases;
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            databases = manager.databases();
-        } else {
-            databases = manager.internalDatabases();
-        }
-
+        databases = manager.internalDatabases();
         return databases;
     }
 

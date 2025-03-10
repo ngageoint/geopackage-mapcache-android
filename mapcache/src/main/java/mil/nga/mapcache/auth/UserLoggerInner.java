@@ -7,6 +7,8 @@ import android.util.Log;
 
 import java.net.URL;
 
+import mil.nga.mapcache.MapCacheApplication;
+
 /**
  * Logs the user into a specified server.
  */
@@ -47,7 +49,7 @@ public class UserLoggerInner {
      */
     public void login(URL url, Authenticator authenticator) {
         String host = url.getAuthority();
-        AccountManager accountManager = AccountManager.get(this.activity);
+        AccountManager accountManager = AccountManager.get(MapCacheApplication.Companion.getAppInstance());
         Account[] accounts = accountManager.getAccountsByType(MAPCACHE_ACCOUNT_TYPE);
 
         boolean authenticated = false;
@@ -91,7 +93,7 @@ public class UserLoggerInner {
             String password = model.getPassword();
             String host = model.getLoginTo();
             if (userName != null && password != null && host != null) {
-                AccountManager accountManager = AccountManager.get(this.activity);
+                AccountManager accountManager = AccountManager.get(MapCacheApplication.Companion.getAppInstance());
                 Account newAccount = new Account(userName + " - " + host, MAPCACHE_ACCOUNT_TYPE);
                 accountManager.addAccountExplicitly(newAccount, password, null);
             }

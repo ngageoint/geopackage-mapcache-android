@@ -213,6 +213,16 @@
     <string name="button_delete_label">Delete</string>
     <string name="button_cancel_label">Cancel</string>
     <string name="button_save_label">Save</string>
+    <string name="import_title">Import</string>
+    <string name="import_body">Importing %1$s geopackage</string>
+    <string name="import_percentage">%1$d%%</string>
+    <string name="import_initial_percentage_value">0%</string>
+    <string name="import_name_conflict_title">Import Cancelled</string>
+    <string name="import_name_conflict_body">A GeoPackage already exists with the name %1$s</string>
+    <string name="import_download_failure">Failed to download %1$s at url %2$s</string>
+    <string name="import_file_failure">Failed to import %1$s</string>
+    <string name="import_invalid_name">Please enter a valid name</string>
+
     <string name="delete_url_title">Delete URL</string>
     <string name="delete_url_message">Delete this saved URL?</string>
 
@@ -318,8 +328,8 @@
     <string name="hint_tile_url">Tile Server URL</string>
 
     <string name="example_geopackages"><font color='#009688'>Example GeoPackages</font></string>
-    <string name="err_msg_invalid">is not valid</string>
-    <string name="err_msg_invalid_url">is not a valid URL</string>
+    <string name="err_msg_invalid">Not a valid name</string>
+    <string name="err_msg_invalid_url">Not a valid URL</string>
     <string name="no_packages_text">No GeoPackage files found</string>
     <string name="activity_geo_package_detail">All GeoPackages</string>
     <string name="layers_label">Layers</string>

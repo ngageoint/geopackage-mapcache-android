@@ -24,7 +24,6 @@ import android.provider.DocumentsContract;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -34,7 +33,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -96,7 +94,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.proj4j.units.Units;
@@ -160,16 +157,15 @@ import mil.nga.mapcache.listeners.GeoPackageClickListener;
 import mil.nga.mapcache.listeners.LayerActiveSwitchListener;
 import mil.nga.mapcache.listeners.OnDialogButtonClickListener;
 import mil.nga.mapcache.listeners.SensorCallback;
-import mil.nga.mapcache.load.Downloader;
 import mil.nga.mapcache.load.ILoadTilesTask;
-import mil.nga.mapcache.load.ImportTask;
+import mil.nga.mapcache.load.ImportGpkgDownloadTask;
+import mil.nga.mapcache.load.ImportGpkgFileTask;
 import mil.nga.mapcache.load.SaveGpkgExecutor;
 import mil.nga.mapcache.load.ShareGpkgExecutor;
 import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.repository.sensors.SensorHandler;
-import mil.nga.mapcache.utils.SampleDownloader;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
@@ -501,7 +497,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         Intent intent = result.getData();
                         if (intent != null) {
                             //import geoPackage from Uri
-                            startImportTask(intent);
+                            showGpkgImportFromFileDialog(intent);
                         }
                     }
                 });
@@ -1604,7 +1600,7 @@ public class GeoPackageMapFragment extends Fragment implements
             // Click listener for "Import URL"
             alertView.findViewById(R.id.new_wizard_download_card)
                     .setOnClickListener((View v) -> {
-                        importGeopackageFromUrl();
+                        showGpkgImportFromUrlDialog();
                         alertDialog.dismiss();
                     });
 
@@ -1767,6 +1763,7 @@ public class GeoPackageMapFragment extends Fragment implements
             importGeoPackageActivityResultLauncher.launch(intent);
         } catch (Exception e) {
             Log.e(GeoPackageMapFragment.class.getSimpleName(), e.getMessage(), e);
+
         }
     }
 
@@ -1782,159 +1779,22 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Import a GeoPackage from a URL
      */
-    private void importGeopackageFromUrl() {
+    private void showGpkgImportFromUrlDialog() {
         if (getActivity() != null) {
-            LayoutInflater inflater = LayoutInflater.from(getActivity());
-            View importUrlView = inflater.inflate(R.layout.import_url, null);
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity(), R.style.AppCompatAlertDialogStyle);
-            dialog.setView(importUrlView);
-
-            // Set example url links
-            ((TextView) importUrlView.findViewById(R.id.import_url_web1)).setMovementMethod(LinkMovementMethod.getInstance());
-            ((TextView) importUrlView.findViewById(R.id.import_url_web2)).setMovementMethod(LinkMovementMethod.getInstance());
-
-            // Text validation
-            final TextInputLayout inputLayoutName = importUrlView.findViewById(R.id.import_url_name_layout);
-            final TextInputLayout inputLayoutUrl = importUrlView.findViewById(R.id.import_url_layout);
-            final TextInputEditText inputName = importUrlView.findViewById(R.id.import_url_name_input);
-            final TextInputEditText inputUrl = importUrlView.findViewById(R.id.import_url_input);
-
-            // Listen for text changes in the name input.  This will clear error messages when the user types
-            TextWatcher inputNameWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    inputLayoutName.setErrorEnabled(false);
-                    validateInput(inputLayoutName, inputName, false);
-                }
-            };
-            inputName.addTextChangedListener(inputNameWatcher);
-
-            // Listen for text changes in the url input.  This will clear error messages when the user types
-            TextWatcher inputUrlWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    inputLayoutUrl.setErrorEnabled(false);
-                    validateInput(inputLayoutUrl, inputUrl, true);
-                }
-            };
-            inputUrl.addTextChangedListener(inputUrlWatcher);
-
-            // Example GeoPackages link handler
-            importUrlView.findViewById(R.id.import_examples)
-                    .setOnClickListener((View v) -> {
-                        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                                getActivity(), android.R.layout.select_dialog_item){
-                            @Override
-                            public View getView(int position, View convertView, ViewGroup parent) {
-                                View view = super.getView(position, convertView, parent);
-                                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-                                text1.setTextColor(getResources().getColor(R.color.textPrimaryColor, getContext().getTheme()));
-                                return view;
-                            }
-                        };
-
-                        // Download sample geopackages from our github server, and combine that list
-                        // with our own locally provided preloaded geopackages
-                        SampleDownloader sampleDownloader = new SampleDownloader(getActivity(), adapter);
-                        sampleDownloader.loadLocalGeoPackageSamples();
-                        sampleDownloader.getExampleData(getString(R.string.sample_geopackage_url));
-                        AlertDialog.Builder builder = new AlertDialog.Builder(
-                                getActivity(), R.style.AppCompatAlertDialogStyle);
-                        builder.setTitle(getString(R.string.import_url_preloaded_label));
-                        builder.setAdapter(adapter,
-                                (DialogInterface d, int item) -> {
-                                    if (item >= 0) {
-                                        String name = adapter.getItem(item);
-                                        inputName.setText(name);
-                                        inputUrl.setText(sampleDownloader.getSampleList().get(name));
-                                    }
-                                });
-
-                        AlertDialog alert = builder.create();
-                        alert.show();
-                    });
-
-            dialog.setPositiveButton(getString(R.string.geopackage_import_label),
-                    (DialogInterface d, int id) -> {
-                        // This will be overridden by click listener after show is called
-                    }).setNegativeButton(getString(R.string.button_cancel_label),
-                    (DialogInterface d, int id) -> d.cancel());
-
-            final AlertDialog alertDialog = dialog.create();
-            alertDialog.show();
-
-            // Override the positive click listener to enable validation
-            Button downloadButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            downloadButton.setOnClickListener((View v) -> {
-
-                // Validate input on both fields
-                boolean nameValid = validateInput(inputLayoutName, inputName, false);
-                boolean urlValid = validateInput(inputLayoutUrl, inputUrl, true);
-
-                if (nameValid && urlValid) {
-                    String database = inputName.getText() != null ? inputName.getText().toString() : "";
-                    String url = inputUrl.getText() != null ? inputUrl.getText().toString() : "";
-                    // Use new Downloader to import the GeoPackage
-                    Downloader geoPackageDownloader = new Downloader(getActivity());
-                    geoPackageDownloader.downloadGeoPackage(geoPackageViewModel, url, database);
-//                    DownloadTask downloadTask = new DownloadTask(database, url, getActivity());
-//                    downloadTask.execute();
-                    alertDialog.dismiss();
-                } else if (!nameValid) {
-                    inputName.requestFocus();
-                } else {
-                    inputUrl.requestFocus();
-                }
-            });
+            ImportGpkgDownloadTask importFromUrl = new ImportGpkgDownloadTask(this, geoPackageViewModel);
+            importFromUrl.showDownloadDialog();
         }
     }
 
     /**
      * Initiate an Import task (received from intent outside of application)
      */
-    public void startImportTask(Intent intent) {
+    public void showGpkgImportFromFileDialog(Intent intent) {
         if (intent.getData() != null) {
-            ImportTask task = new ImportTask(getActivity(), intent);
-            task.importFile();
+            ImportGpkgFileTask importFromFile = new ImportGpkgFileTask(this, geoPackageViewModel, intent.getData());
+            importFromFile.showImportFileDialog();
         }
     }
-
-    /**
-     * validate input - check for empty or valid url
-     *
-     * @param inputLayout The layout for the view.
-     * @return true if input is not empty and is valid
-     */
-    private boolean validateInput(TextInputLayout inputLayout, TextInputEditText inputName, boolean isUrl) {
-        if (inputName.getText() == null || inputName.getText().toString().trim().isEmpty()) {
-            inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid));
-            return false;
-        }
-        if (isUrl) {
-            if (!URLUtil.isValidUrl(inputName.getText().toString().trim())) {
-                inputLayout.setError(inputLayout.getHint() + " " + getString(R.string.err_msg_invalid_url));
-                return false;
-            }
-        }
-        return true;
-    }
-
 
     /**
      * {@inheritDoc}

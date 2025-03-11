@@ -319,13 +319,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     *  Returns true if it's an external db
-     */
-    public boolean isExternal(String database){
-        return repository.isExternal(database);
-    }
-
-    /**
      *  Returns true if the db exists
      */
     public boolean exists(String database){
@@ -337,21 +330,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
      */
     public boolean geoPackageNameExists(String database){
         return repository.geoPackageNameExists(database);
-    }
-
-    /**
-     * Import an GeoPackage as an external file link without copying locally
-     *
-     * @param path     full file path
-     * @param database name to reference the database
-     * @return true if imported successfully
-     */
-    public boolean importGeoPackageAsExternalLink(String path, String database){
-        if(repository.importGeoPackageAsExternalLink(path, database)){
-            regenerateGeoPackageTableList();
-            return true;
-        }
-        return false;
     }
 
     /**

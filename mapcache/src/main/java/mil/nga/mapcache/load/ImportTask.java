@@ -11,15 +11,10 @@ import android.os.AsyncTask;
 import android.os.PowerManager;
 import android.view.LayoutInflater;
 import android.view.View;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
-
 import com.google.android.material.textfield.TextInputEditText;
-import com.ipaulpro.afilechooser.utils.FileUtils;
-
-import java.io.File;
 import java.io.InputStream;
 
 import mil.nga.geopackage.io.GeoPackageIOUtils;
@@ -60,9 +55,7 @@ public class ImportTask {
      */
     public void importFile() {
         if (activity != null && uri != null){
-            // Try to get the file path and name
-            final String path = FileUtils.getPath(activity, uri);
-            String name = MapCacheFileUtils.INSTANCE.getDisplayName(uri, path);
+            String name = MapCacheFileUtils.INSTANCE.getDisplayName(uri);
 
             LayoutInflater inflater = LayoutInflater.from(activity);
             View importFileView = inflater.inflate(R.layout.import_file, null);
@@ -85,7 +78,7 @@ public class ImportTask {
                                     if (!value.isEmpty()) {
                                         try {
                                             // Import the GeoPackage by copying the file
-                                            importGeoPackage(value, uri, path);
+                                            importGeoPackage(value, uri);
                                         } catch (final Exception e) {
                                             try {
                                                 activity.runOnUiThread(
@@ -122,73 +115,12 @@ public class ImportTask {
     }
 
     /**
-     * Import the GeoPackage by linking to the file
-     *
-     * @param name
-     * @param uri
-     * @param path
-     */
-    public void importGeoPackageExternalLink(final String name, final Uri uri, String path) {
-        // Check if a database already exists with the name
-        if (geoPackageViewModel.exists(name)) {
-            // If the existing is not an external file, error
-            boolean alreadyExistsError = !geoPackageViewModel.isExternal(name);
-            if (!alreadyExistsError) {
-                // If the existing external file has a different file path, error
-                File existingFile = geoPackageViewModel.getDatabaseFile(name);
-                alreadyExistsError = !(new File(path)).equals(existingFile);
-            }
-            if (alreadyExistsError) {
-                try {
-                    activity.runOnUiThread(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    GeoPackageUtils.showMessage(activity,
-                                            "Import Cancelled",
-                                            "A different GeoPackage already exists with the name '" + name + "'");
-                                }
-                            });
-                } catch (Exception e) {
-                    // eat
-                }
-            }
-        } else {
-            // Import the GeoPackage by linking to the file
-            boolean imported = geoPackageViewModel
-                    .importGeoPackageAsExternalLink(
-                            path, name);
-
-            if (!imported) {
-                try {
-                    activity.runOnUiThread(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    GeoPackageUtils.showMessage(activity,
-                                            "URL Import",
-                                            "Failed to import Uri: "
-                                                    + uri.getPath());
-                                }
-                            });
-                } catch (Exception e) {
-                    // eat
-                }
-            }
-        }
-    }
-
-
-
-
-    /**
      * Run the import task to import a GeoPackage by copying it
      *
      * @param name
      * @param uri
-     * @param path
      */
-    public void importGeoPackage(final String name, Uri uri, String path) {
+    public void importGeoPackage(final String name, Uri uri) {
 
         // Check if a database already exists with the name
         if (geoPackageViewModel.geoPackageNameExists(name)) {
@@ -207,9 +139,9 @@ public class ImportTask {
             }
         } else {
 
-            ImportGeoTask importGeoTask = new ImportGeoTask(name, path, uri);
+            ImportGeoTask importGeoTask = new ImportGeoTask(name, uri);
             progressDialog = createImportProgressDialog(name,
-                    importGeoTask, path, uri, null);
+                    importGeoTask, uri, null);
             progressDialog.setIndeterminate(true);
             importGeoTask.execute();
         }
@@ -227,7 +159,6 @@ public class ImportTask {
         private Integer max = null;
         private int progress = 0;
         private final String database;
-        private final String path;
         private final Uri uri;
         private PowerManager.WakeLock wakeLock;
 
@@ -235,12 +166,10 @@ public class ImportTask {
          * Constructor
          *
          * @param database
-         * @param path
          * @param uri
          */
-        public ImportGeoTask(String database, String path, Uri uri) {
+        public ImportGeoTask(String database, Uri uri) {
             this.database = database;
-            this.path = path;
             this.uri = uri;
         }
 
@@ -309,7 +238,7 @@ public class ImportTask {
                         + GeoPackageIOUtils.formatBytes(max);
 
                 ProgressDialog newProgressDialog = createImportProgressDialog(
-                        database, this, path, uri, messageSuffix);
+                        database, this, uri, messageSuffix);
                 newProgressDialog
                         .setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 newProgressDialog.setIndeterminate(false);
@@ -344,7 +273,7 @@ public class ImportTask {
                 GeoPackageUtils.showMessage(activity,
                         "Import",
                         "Failed to import: "
-                                + (path != null ? path : uri.getPath()));
+                                + (uri.getPath()));
             }
         }
 
@@ -374,17 +303,15 @@ public class ImportTask {
      *
      * @param database
      * @param importGeoTask
-     * @param path
      * @param uri
      * @param suffix
      * @return
      */
     private ProgressDialog createImportProgressDialog(String database, final ImportGeoTask importGeoTask,
-                                                      String path, Uri uri,
-                                                      String suffix) {
+                                                      Uri uri, String suffix) {
         ProgressDialog dialog = new ProgressDialog(activity);
         dialog.setTitle(importLabel);
-        dialog.setMessage("\n" + database + "\n\n" + (path != null ? path : uri.getPath()) + (suffix != null ? suffix : ""));
+        dialog.setMessage("\n" + database + "\n" + (suffix != null ? suffix : ""));
         dialog.setCancelable(false);
         dialog.setButton(ProgressDialog.BUTTON_NEGATIVE,
                 cancelLabel,

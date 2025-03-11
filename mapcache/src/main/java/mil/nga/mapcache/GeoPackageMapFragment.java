@@ -23,7 +23,6 @@ import androidx.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.text.Editable;
 import android.text.InputType;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -152,6 +151,7 @@ import mil.nga.mapcache.data.GeoPackageTable;
 import mil.nga.mapcache.data.GeoPackageTableType;
 import mil.nga.mapcache.data.MarkerFeature;
 import mil.nga.mapcache.indexer.IIndexerTask;
+import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.listeners.DetailActionListener;
 import mil.nga.mapcache.listeners.DetailLayerClickListener;
 import mil.nga.mapcache.listeners.EnableAllLayersListener;
@@ -356,9 +356,6 @@ public class GeoPackageMapFragment extends Fragment implements
     //Floating Action Button for new layers
     private FloatingActionButton layerFab;
 
-    //Task for importing a geoPackage
-    private ImportTask importTask;
-
     //Adapter for the LayerDetailView in the Recycler
     private LayerPageAdapter layerAdapter;
 
@@ -501,11 +498,10 @@ public class GeoPackageMapFragment extends Fragment implements
                 new ActivityResultContracts.StartActivityForResult(),
                 (ActivityResult result) -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            // Import geoPackage from file
-                            ImportTask task = new ImportTask(getActivity(), data);
-                            task.importFile();
+                        Intent intent = result.getData();
+                        if (intent != null) {
+                            //import geoPackage from Uri
+                            startImportTask(intent);
                         }
                     }
                 });
@@ -881,9 +877,8 @@ public class GeoPackageMapFragment extends Fragment implements
     @Override
     public void onShareGP(String gpName) {
         File databaseFile = geoPackageViewModel.getDatabaseFile(gpName);
-        Boolean isExternal = geoPackageViewModel.isExternal(gpName);
 
-        gpkgData = new GpkgDataToExport(gpName, databaseFile, isExternal);
+        gpkgData = new GpkgDataToExport(gpName, databaseFile);
         showSaveOrShareDialog(gpkgData);
     }
 
@@ -1766,8 +1761,7 @@ public class GeoPackageMapFragment extends Fragment implements
             chooseFile.setType("*/*");
 
             //set multiple mime types for compatibility across Android versions
-            String[] types = {"application/geopackage+sqlite3", "application/octet-stream", "application/x-sqlite3", "application/vnd.sqlite3"};
-            chooseFile.putExtra(Intent.EXTRA_MIME_TYPES, types);
+            chooseFile.putExtra(Intent.EXTRA_MIME_TYPES, MapCacheFileUtils.INSTANCE.getGpkgMimeTypes());
 
             Intent intent = Intent.createChooser(chooseFile, "Choose a GeoPackage file");
             importGeoPackageActivityResultLauncher.launch(intent);
@@ -1914,9 +1908,11 @@ public class GeoPackageMapFragment extends Fragment implements
     /**
      * Initiate an Import task (received from intent outside of application)
      */
-    public void startImportTask(String name, Uri uri, String path, Intent intent) {
-        importTask = new ImportTask(getActivity(), intent);
-        importTask.importGeoPackage(name, uri, null);
+    public void startImportTask(Intent intent) {
+        if (intent.getData() != null) {
+            ImportTask task = new ImportTask(getActivity(), intent);
+            task.importFile();
+        }
     }
 
     /**
@@ -4239,10 +4235,9 @@ public class GeoPackageMapFragment extends Fragment implements
     }
 
     public class GpkgDataToExport {
-        GpkgDataToExport(String name, File file, boolean isExternal) {
+        GpkgDataToExport(String name, File file) {
             geoPackageName = name;
             geoPackageFile = file;
-            isFileExternal = isExternal;
         }
         private String geoPackageName = "";
 
@@ -4250,19 +4245,12 @@ public class GeoPackageMapFragment extends Fragment implements
         //GeoPackage file for sharing
         private File geoPackageFile = null;
 
-        //Is the saved geoPackage an external file
-        private boolean isFileExternal = false;
-
         public File getGeoPackageFile() {
             return geoPackageFile;
         }
 
         public String getGeoPackageName() {
             return geoPackageName;
-        }
-
-        public boolean isFileExternal() {
-            return isFileExternal;
         }
     }
 }

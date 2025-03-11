@@ -2,18 +2,16 @@ package mil.nga.mapcache;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.ipaulpro.afilechooser.utils.FileUtils;
+import java.util.Arrays;
 
 import org.piwik.sdk.Piwik;
 import org.piwik.sdk.Tracker;
@@ -58,18 +56,8 @@ public class MainActivity extends AppCompatActivity {
         // Handle opening and importing GeoPackages
         if(getIntent() != null) {
             Intent intent = getIntent();
-            Uri uri = intent.getData();
-            if (uri == null) {
-                Bundle bundle = intent.getExtras();
-                if (bundle != null) {
-                    Object objectUri = bundle.get(Intent.EXTRA_STREAM);
-                    if (objectUri != null) {
-                        uri = (Uri) objectUri;
-                    }
-                }
-            }
-            if (uri != null) {
-                handleIntentUri(uri, intent);
+            if (checkIntentDataForGpkgImport(intent)) {
+                handleIntentForGpkgImport(intent);
             }
         }
 
@@ -80,6 +68,27 @@ public class MainActivity extends AppCompatActivity {
         piWik.dispatch();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (checkIntentDataForGpkgImport(intent)) {
+            handleIntentForGpkgImport(intent);
+        }
+    }
+
+    //check if intent is populated with a mime type contained in the gpkg mime type list
+    private boolean checkIntentDataForGpkgImport(Intent intent) {
+        boolean isGpkgData = false;
+
+        if (intent != null && !TextUtils.isEmpty(intent.getType()) && intent.getData() != null) {
+            String mimeTypesListLowerCase = Arrays.toString(MapCacheFileUtils.INSTANCE.getGpkgMimeTypes()).toLowerCase();
+            if (mimeTypesListLowerCase.contains(intent.getType().toLowerCase())) {
+                isGpkgData = true;
+            }
+        }
+
+        return isGpkgData;
+    }
 
     /**
      * Set up the map fragment
@@ -93,16 +102,10 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    /**
-     * Handle the URI from an intent for opening or importing a GeoPackage
-     *
-     * @param uri intent uri
-     */
-    private void handleIntentUri(final Uri uri, Intent intent) {
-        String path = FileUtils.getPath(this, uri);
-        String name = MapCacheFileUtils.INSTANCE.getDisplayName(uri, path);
+    //Handle the URI from an intent for opening or importing a GeoPackage
+    private void handleIntentForGpkgImport(Intent intent) {
         try {
-            mapFragment.startImportTask(name, uri, path, intent);
+            mapFragment.startImportTask(intent);
         } catch (final Exception e) {
             try {
                 runOnUiThread(() -> GeoPackageUtils.showMessage(MainActivity.this,

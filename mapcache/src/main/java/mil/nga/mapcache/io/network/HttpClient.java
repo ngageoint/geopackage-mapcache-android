@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import mil.nga.mapcache.io.network.slowserver.SlowServerNotifier;
 import mil.nga.mapcache.utils.ThreadUtils;
 
 /**

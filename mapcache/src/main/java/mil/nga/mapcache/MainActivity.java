@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         if(getIntent() != null) {
             Intent intent = getIntent();
             if (checkIntentDataForGpkgImport(intent)) {
-                handleIntentForGpkgImport(intent);
+                mapFragment.showGpkgImportFromFileDialog(intent);
             }
         }
 
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (checkIntentDataForGpkgImport(intent)) {
-            handleIntentForGpkgImport(intent);
+            mapFragment.showGpkgImportFromFileDialog(intent);
         }
     }
 
@@ -98,25 +98,6 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.show(mapFragment);
         transaction.commit();
-    }
-
-
-
-    //Handle the URI from an intent for opening or importing a GeoPackage
-    private void handleIntentForGpkgImport(Intent intent) {
-        try {
-            mapFragment.startImportTask(intent);
-        } catch (final Exception e) {
-            try {
-                runOnUiThread(() -> GeoPackageUtils.showMessage(MainActivity.this,
-                                        "Open GeoPackage",
-                                        "Could not open file as a GeoPackage"
-                                                + "\n\n"
-                                                + e.getMessage()));
-            } catch (Exception e2) {
-                Log.e(MainActivity.class.getSimpleName(), e2.getMessage(), e2);
-            }
-        }
     }
 
     @Override

@@ -253,18 +253,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * import a geoPackage from url.  GeoPackageProgress should be an instance of DownloadTask
-     */
-    public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
-        if(repository.importGeoPackage(name, source, progress)){
-            regenerateGeoPackageTableList();
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
      * Copy GeoPackage and regenerate the list of GeoPackages
      */
     public boolean copyGeoPackage(String geoPackageName, String newName){
@@ -333,16 +321,31 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Import a GeoPackage stream
+     * Import a GeoPackage
      *
-     * @param database database name to save as
+     * @param name database name to save as
      * @param stream   GeoPackage stream to import
      * @param progress progress tracker
-     * @return true if loaded
+     * @return true if file copied successfully
      */
-    public boolean importGeoPackage(String database, InputStream stream,
-                                    GeoPackageProgress progress){
-        if(repository.importGeoPackage(database, stream, progress)){
+    public boolean importGeoPackageViaFile(String name, InputStream stream, GeoPackageProgress progress){
+        if(repository.importGeoPackage(name, stream, progress)){
+            regenerateGeoPackageTableList();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Download a GeoPackage
+     *
+     * @param name database name to save as
+     * @param url   url to download from
+     * @param progress progress tracker
+     * @return true if downloaded successfully
+     */
+    public boolean downloadGeoPackageViaUrl(String name, URL url, GeoPackageProgress progress){
+        if(repository.importGeoPackage(name, url, progress)){
             regenerateGeoPackageTableList();
             return true;
         }

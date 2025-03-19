@@ -13,8 +13,9 @@ jobs:
     - name: set up JDK 17
       uses: actions/setup-java@v3
       with:
+        distribution: 'temurin'
         java-version: 17
-        distribution: 'adopt'
+        cache: 'gradle'
     - name: Setup Keystore
       run: |
         echo "${{ secrets.SIGNING_KEY }}" > release.b64
@@ -46,7 +47,7 @@ jobs:
         result-path: 'mapcache/build/reports/lint-results-debug.xml'
         fail-on-warning: false
     - name: Verify Signature
-      run: $ANDROID_SDK_ROOT/build-tools/33.0.1/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
+      run: $ANDROID_SDK_ROOT/build-tools/34.0.0/apksigner verify --print-certs mapcache/build/outputs/apk/release/mapcache.apk
     - name: List files in the repository
       run: |
         ls -R ${{ github.workspace }}

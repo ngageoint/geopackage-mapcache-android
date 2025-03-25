@@ -67,6 +67,13 @@
                 android:targetPackage="@string/applicationId"/>
         </Preference>
         <Preference
+            app:key="contact_us"
+            app:title="Contact Us" >
+            <intent
+                android:action="android.intent.action.SENDTO"
+                android:data="@string/contact_us_distro" />
+        </Preference>
+        <Preference
             app:key="privacy"
             app:title="Privacy Policy" >
             <intent

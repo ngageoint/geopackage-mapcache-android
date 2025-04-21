@@ -388,11 +388,9 @@
     <string name="geopackage_android_url">&lt;a href=http://ngageoint.github.io/geopackage-android>GeoPackage Android on Github&lt;/a></string>
     <string name="ogc_url">&lt;a href=http://www.geopackage.org/#implementations_nga>OGC GeoPackage&lt;/a></string>
     <string name="release_notes">
-        Release Notes - 2.1.11\n \n
-        - Create default GeoPackage on start\n
-        - Support for blob format in GeoPackage\n
-        - GeoPackage android map library 6.7.3\n
-        - Background improvements
+        Release Notes - 2.1.13\n \n
+        - Fix issues with geopackage import and export on modern Android versions\n
+        - Add "contact us" button
         </string>
 
     <string name="contact_us_distro">mailto:magesuitesupport@nga.mil</string>

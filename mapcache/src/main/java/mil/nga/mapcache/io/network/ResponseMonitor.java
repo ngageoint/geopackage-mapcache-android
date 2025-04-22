@@ -3,8 +3,6 @@ package mil.nga.mapcache.io.network;
 import java.io.IOException;
 import java.io.InputStream;
 
-import mil.nga.mapcache.io.network.slowserver.SlowServerNotifier;
-
 /**
  * Monitors for a download response and records the time.  Routes all handler calls to the original
  * handler.

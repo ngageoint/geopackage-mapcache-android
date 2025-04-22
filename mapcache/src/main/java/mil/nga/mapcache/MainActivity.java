@@ -2,18 +2,16 @@ package mil.nga.mapcache;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.ipaulpro.afilechooser.utils.FileUtils;
+import java.util.Arrays;
 
 import org.piwik.sdk.Piwik;
 import org.piwik.sdk.Tracker;
@@ -33,21 +31,6 @@ public class MainActivity extends AppCompatActivity {
      * Map permissions request code for accessing fine locations
      */
     public static final int MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 100;
-
-    /**
-     * Manager permissions request code for importing a GeoPackage as an external link
-     */
-    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL = 200;
-
-    /**
-     * Manager permissions request code for reading / writing to GeoPackages already externally linked
-     */
-    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL = 201;
-
-    /**
-     * Manager permissions request code for exporting a GeoPackage to external storage
-     */
-    public static final int MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE = 202;
 
     /**
      * Map fragment
@@ -73,18 +56,8 @@ public class MainActivity extends AppCompatActivity {
         // Handle opening and importing GeoPackages
         if(getIntent() != null) {
             Intent intent = getIntent();
-            Uri uri = intent.getData();
-            if (uri == null) {
-                Bundle bundle = intent.getExtras();
-                if (bundle != null) {
-                    Object objectUri = bundle.get(Intent.EXTRA_STREAM);
-                    if (objectUri != null) {
-                        uri = (Uri) objectUri;
-                    }
-                }
-            }
-            if (uri != null) {
-                handleIntentUri(uri, intent);
+            if (checkIntentDataForGpkgImport(intent)) {
+                mapFragment.showGpkgImportFromFileDialog(intent);
             }
         }
 
@@ -95,6 +68,27 @@ public class MainActivity extends AppCompatActivity {
         piWik.dispatch();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (checkIntentDataForGpkgImport(intent)) {
+            mapFragment.showGpkgImportFromFileDialog(intent);
+        }
+    }
+
+    //check if intent is populated with a mime type contained in the gpkg mime type list
+    private boolean checkIntentDataForGpkgImport(Intent intent) {
+        boolean isGpkgData = false;
+
+        if (intent != null && !TextUtils.isEmpty(intent.getType()) && intent.getData() != null) {
+            String mimeTypesListLowerCase = Arrays.toString(MapCacheFileUtils.INSTANCE.getGpkgMimeTypes()).toLowerCase();
+            if (mimeTypesListLowerCase.contains(intent.getType().toLowerCase())) {
+                isGpkgData = true;
+            }
+        }
+
+        return isGpkgData;
+    }
 
     /**
      * Set up the map fragment
@@ -104,35 +98,6 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.show(mapFragment);
         transaction.commit();
-    }
-
-
-
-    /**
-     * Handle the URI from an intent for opening or importing a GeoPackage
-     *
-     * @param uri intent uri
-     */
-    private void handleIntentUri(final Uri uri, Intent intent) {
-        String path = FileUtils.getPath(this, uri);
-        String name = MapCacheFileUtils.getDisplayName(this, uri, path);
-        try {
-            if (path != null) {
-                mapFragment.startImportTaskWithPermissions(name, uri, path, intent);
-            } else {
-                mapFragment.startImportTask(name, uri, intent);
-            }
-        } catch (final Exception e) {
-            try {
-                runOnUiThread(() -> GeoPackageUtils.showMessage(MainActivity.this,
-                                        "Open GeoPackage",
-                                        "Could not open file as a GeoPackage"
-                                                + "\n\n"
-                                                + e.getMessage()));
-            } catch (Exception e2) {
-                Log.e(MainActivity.class.getSimpleName(), e2.getMessage(), e2);
-            }
-        }
     }
 
     @Override
@@ -170,26 +135,15 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // Check if permission was granted
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
-        if(granted) {
-            switch (requestCode) {
 
-                case MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION:
-                    mapFragment.setMyLocationEnabled();
-                    break;
-
-                case MANAGER_PERMISSIONS_REQUEST_ACCESS_IMPORT_EXTERNAL:
-                    mapFragment.importGeopackageFromFile();
-                    break;
-
-                case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXPORT_DATABASE:
-                    mapFragment.exportGeoPackageToExternal();
-                    break;
-
-                case MANAGER_PERMISSIONS_REQUEST_ACCESS_EXISTING_EXTERNAL:
-//                managerFragment.update(granted);
-                    break;
-            }
+        if(granted && requestCode == MAP_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+            mapFragment.setMyLocationEnabled();
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MapCacheApplication.Companion.deleteCacheFiles();
+    }
 }

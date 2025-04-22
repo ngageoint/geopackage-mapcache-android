@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Collection of active GeoPackage database tables
@@ -50,7 +52,7 @@ public class GeoPackageDatabases {
     /**
      * Map of databases
      */
-    private final Map<String, GeoPackageDatabase> databases = new HashMap<>();
+    private final ConcurrentMap<String, GeoPackageDatabase> databases = new ConcurrentHashMap<>();
 
     /**
      * Context

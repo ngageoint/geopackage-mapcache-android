@@ -253,18 +253,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * import a geoPackage from url.  GeoPackageProgress should be an instance of DownloadTask
-     */
-    public boolean importGeoPackage(String name, URL source, GeoPackageProgress progress){
-        if(repository.importGeoPackage(name, source, progress)){
-            regenerateGeoPackageTableList();
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
      * Copy GeoPackage and regenerate the list of GeoPackages
      */
     public boolean copyGeoPackage(String geoPackageName, String newName){
@@ -319,13 +307,6 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     *  Returns true if it's an external db
-     */
-    public boolean isExternal(String database){
-        return repository.isExternal(database);
-    }
-
-    /**
      *  Returns true if the db exists
      */
     public boolean exists(String database){
@@ -340,14 +321,15 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Import an GeoPackage as an external file link without copying locally
+     * Import a GeoPackage
      *
-     * @param path     full file path
-     * @param database name to reference the database
-     * @return true if imported successfully
+     * @param name database name to save as
+     * @param stream   GeoPackage stream to import
+     * @param progress progress tracker
+     * @return true if file copied successfully
      */
-    public boolean importGeoPackageAsExternalLink(String path, String database){
-        if(repository.importGeoPackageAsExternalLink(path, database)){
+    public boolean importGeoPackageViaFile(String name, InputStream stream, GeoPackageProgress progress){
+        if(repository.importGeoPackage(name, stream, progress)){
             regenerateGeoPackageTableList();
             return true;
         }
@@ -355,16 +337,15 @@ public class GeoPackageViewModel extends AndroidViewModel implements IIndexerTas
     }
 
     /**
-     * Import a GeoPackage stream
+     * Download a GeoPackage
      *
-     * @param database database name to save as
-     * @param stream   GeoPackage stream to import
+     * @param name database name to save as
+     * @param url   url to download from
      * @param progress progress tracker
-     * @return true if loaded
+     * @return true if downloaded successfully
      */
-    public boolean importGeoPackage(String database, InputStream stream,
-                                    GeoPackageProgress progress){
-        if(repository.importGeoPackage(database, stream, progress)){
+    public boolean downloadGeoPackageViaUrl(String name, URL url, GeoPackageProgress progress){
+        if(repository.importGeoPackage(name, url, progress)){
             regenerateGeoPackageTableList();
             return true;
         }

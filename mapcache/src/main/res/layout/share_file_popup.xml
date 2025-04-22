@@ -109,7 +109,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
-                    android:text="Save to Downloads"
+                    android:text="@string/geopackage_save_label"
                     android:textAppearance="@style/textAppearanceBody1Medium"
                     android:textColor="@color/textLinkColor"/>
             </LinearLayout>

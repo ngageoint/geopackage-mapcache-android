@@ -1,6 +1,10 @@
-package mil.nga.mapcache.io.network.slowserver;
+package mil.nga.mapcache.io.network;
 
-import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,15 +39,15 @@ public class SlowServerNotifier {
     /**
      * The applications activity.
      */
-    private final Activity activity;
+    private final Context context;
 
     /**
      * Constructor.
      *
-     * @param activity The applications activity.
+     * @param context The applications activity.
      */
-    public SlowServerNotifier(Activity activity) {
-        this.activity = activity;
+    public SlowServerNotifier(Context context) {
+        this.context = context;
     }
 
     /**
@@ -62,13 +66,26 @@ public class SlowServerNotifier {
             slowCount++;
             slowResponseCounts.put(host, slowCount);
             if (slowCount >= slowResponseCount && !notified.contains(host)) {
-                SlowServerModel model = new SlowServerModel();
-                model.setMessage("Downloads from " + host + " are taking a long time.  " +
+                String message = ("Downloads from " + host + " are taking a long time.  " +
                         "Either your connection is poor or the server's performance is slow.");
-                SlowServerView view = new SlowServerView(model);
-                view.show(this.activity);
+                showDialog(message);
                 notified.add(host);
             }
         }
+    }
+
+    /**
+     * Shows the dialog informing the user of a slow server.
+     *
+     * @param message The message to display to the user to notify them of a slow server.
+     */
+    private void showDialog(String message) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Slow Downloads");
+            builder.setMessage(message);
+            builder.setPositiveButton("Ok", (DialogInterface dialog, int arg1) -> dialog.dismiss());
+            builder.show();
+        });
     }
 }

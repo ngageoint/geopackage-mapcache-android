@@ -843,28 +843,10 @@ public class GeoPackageRepository implements Closeable {
     }
 
     /**
-     * Returns true if it's an external db
-     */
-    public boolean isExternal(String database) {
-        return manager.isExternal(database);
-    }
-
-    /**
      * Returns true if exists
      */
     public boolean exists(String database) {
         return manager.exists(database);
-    }
-
-    /**
-     * Import an GeoPackage as an external file link without copying locally
-     *
-     * @param path     full file path
-     * @param database name to reference the database
-     * @return true if imported successfully
-     */
-    public boolean importGeoPackageAsExternalLink(String path, String database) {
-        return manager.importGeoPackageAsExternalLink(path, database);
     }
 
     /**
@@ -983,20 +965,13 @@ public class GeoPackageRepository implements Closeable {
     }
 
     /**
-     * Get the GeoPackage databases. If external storage permissions granted get all, if not get only internal
+     * Get the GeoPackage databases
      *
      * @return The geoPackage names available to user.
      */
     public List<String> getDatabases() {
         List<String> databases;
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            databases = manager.databases();
-        } else {
-            databases = manager.internalDatabases();
-        }
-
+        databases = manager.internalDatabases();
         return databases;
     }
 

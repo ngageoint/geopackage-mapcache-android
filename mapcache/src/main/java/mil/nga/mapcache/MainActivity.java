@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -13,10 +12,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import java.util.Arrays;
 
-import org.piwik.sdk.Piwik;
-import org.piwik.sdk.Tracker;
-import org.piwik.sdk.TrackerConfig;
-import org.piwik.sdk.extra.TrackHelper;
+import org.matomo.sdk.Matomo;
+import org.matomo.sdk.Tracker;
+import org.matomo.sdk.TrackerBuilder;
+import org.matomo.sdk.extra.TrackHelper;
 
 import mil.nga.mapcache.io.MapCacheFileUtils;
 
@@ -63,9 +62,10 @@ public class MainActivity extends AppCompatActivity {
 
         String siteUrl = getString(R.string.matomo_url);
         int siteId = getResources().getInteger(R.integer.matomo_site_id);
-        Tracker piWik = Piwik.getInstance(getApplicationContext()).newTracker(new TrackerConfig(siteUrl, siteId, "MapCacheTracker"));
-        TrackHelper.track().screen("/Main Activity").title("App Opened").with(piWik);
-        piWik.dispatch();
+
+        Tracker tracker = new TrackerBuilder(siteUrl, siteId, "MapCacheTracker").build(Matomo.getInstance(this));
+        TrackHelper.track().screen("/Main Activity").title("App Opened").with(tracker);
+        tracker.dispatch();
     }
 
     @Override

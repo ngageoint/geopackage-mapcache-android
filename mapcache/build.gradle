@@ -119,7 +119,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
     implementation 'org.locationtech.jts:jts-core:1.18.2'
-    implementation 'com.github.matomo-org:matomo-sdk-android:v2.0.0'
+    implementation 'com.github.matomo-org:matomo-sdk-android:4.3.4'
     implementation 'junit:junit:4.12'
     testImplementation 'androidx.multidex:multidex:2.0.1'
     testImplementation 'junit:junit:4.12'

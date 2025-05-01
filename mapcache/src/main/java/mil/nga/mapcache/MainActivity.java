@@ -10,14 +10,15 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+
 import java.util.Arrays;
 
-import org.matomo.sdk.Matomo;
 import org.matomo.sdk.Tracker;
-import org.matomo.sdk.TrackerBuilder;
 import org.matomo.sdk.extra.TrackHelper;
 
 import mil.nga.mapcache.io.MapCacheFileUtils;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
+import mil.nga.mapcache.utils.MatomoHeartBeatManager;
 
 /**
  * Main Activity
@@ -35,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
      * Map fragment
      */
     private GeoPackageMapFragment mapFragment;
+
+    private MatomoHeartBeatManager matomoHeartBeatManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,12 +63,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        String siteUrl = getString(R.string.matomo_url);
-        int siteId = getResources().getInteger(R.integer.matomo_site_id);
+        MatomoEventDispatcher.Companion.submitScreenEvent("/Main Activity", "App Opened");
 
-        Tracker tracker = new TrackerBuilder(siteUrl, siteId, "MapCacheTracker").build(Matomo.getInstance(this));
-        TrackHelper.track().screen("/Main Activity").title("App Opened").with(tracker);
-        tracker.dispatch();
+        Tracker tracker = MapCacheApplication.Companion.getMatomoTracker();
+        matomoHeartBeatManager = new MatomoHeartBeatManager(15);
+        getLifecycle().addObserver(matomoHeartBeatManager);
     }
 
     @Override
@@ -145,5 +147,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         MapCacheApplication.Companion.deleteCacheFiles();
+        if (matomoHeartBeatManager != null) {
+            matomoHeartBeatManager.destroy();
+        }
     }
 }

@@ -94,7 +94,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
-
 import org.jetbrains.annotations.NotNull;
 import org.locationtech.proj4j.units.Units;
 
@@ -166,6 +165,7 @@ import mil.nga.mapcache.preferences.GridType;
 import mil.nga.mapcache.preferences.PreferencesActivity;
 import mil.nga.mapcache.repository.GeoPackageModifier;
 import mil.nga.mapcache.repository.sensors.SensorHandler;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 import mil.nga.mapcache.utils.SwipeController;
 import mil.nga.mapcache.utils.ViewAnimation;
 import mil.nga.mapcache.view.GeoPackageAdapter;
@@ -477,6 +477,7 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void launchPreferences() {
         try {
+            MatomoEventDispatcher.Companion.submitButtonClickEvent("Settings");
             Intent intent = new Intent(getContext(), PreferencesActivity.class);
             preferencePageActivityResultLauncher.launch(intent);
         } catch (Exception e) {
@@ -1095,6 +1096,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     public void openMapSelect() {
         if (getActivity() != null) {
+            MatomoEventDispatcher.Companion.submitButtonClickEvent("BaseMap Selection");
+
             Context wrapper = new ContextThemeWrapper(getContext(), R.style.MyPopupMenu);
             PopupMenu pm = new PopupMenu(wrapper, mapSelectButton);
             // Needed to make the icons visible
@@ -1577,6 +1580,8 @@ public class GeoPackageMapFragment extends Fragment implements
      */
     private void createNewWizard() {
         if (getActivity() != null) {
+            MatomoEventDispatcher.Companion.submitButtonClickEvent("New Geopackage");
+            
             // Create Alert window with basic input text layout
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);

@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 
 /**
  * The activity where the user can configure their basemaps.
@@ -19,6 +20,8 @@ public class BasemapSettingsActivity extends AppCompatActivity {
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new BasemapSettingsFragment(this)).commit();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/BaseMap Settings Activity", "BaseMap Settings Opened");
     }
 
     /**

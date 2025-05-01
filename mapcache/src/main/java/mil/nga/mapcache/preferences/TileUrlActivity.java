@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 
 public class TileUrlActivity extends AppCompatActivity {
     @Override
@@ -16,6 +17,8 @@ public class TileUrlActivity extends AppCompatActivity {
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new TileUrlFragment()).commit();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/Add Tile Server Activity", "Add Tile Server Opened");
     }
 
     /**

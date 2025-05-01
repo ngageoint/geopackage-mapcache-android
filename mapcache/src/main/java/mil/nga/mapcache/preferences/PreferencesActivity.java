@@ -15,6 +15,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 
 /**
  * Activity for the Preferences menu
@@ -34,6 +35,8 @@ public class PreferencesActivity extends AppCompatActivity implements
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new PreferencesFragment()).commit();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/Preferences Activity", "Settings Opened");
     }
 
     /**

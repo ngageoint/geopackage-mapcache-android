@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 
 public class DisclaimerActivity extends AppCompatActivity {
 
@@ -17,6 +18,8 @@ public class DisclaimerActivity extends AppCompatActivity {
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new DisclaimerFragment()).commit();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/Disclaimer Activity", "Disclaimer Opened");
     }
 
     /**

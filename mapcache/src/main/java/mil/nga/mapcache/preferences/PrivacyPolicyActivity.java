@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 
 public class PrivacyPolicyActivity extends AppCompatActivity {
 
@@ -23,6 +24,8 @@ public class PrivacyPolicyActivity extends AppCompatActivity {
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new PrivacyPolicyFragment()).commit();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/Privacy Policy Activity", "Privacy Policy Opened");
     }
 
     /**

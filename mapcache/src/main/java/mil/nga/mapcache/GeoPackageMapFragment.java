@@ -877,6 +877,7 @@ public class GeoPackageMapFragment extends Fragment implements
 
         gpkgData = new GpkgDataToExport(gpName, databaseFile);
         showSaveOrShareDialog(gpkgData);
+        MatomoEventDispatcher.Companion.submitButtonClickEvent("Share GeoPackage");
     }
 
 
@@ -902,6 +903,7 @@ public class GeoPackageMapFragment extends Fragment implements
                         ShareGpkgExecutor shareExec = new ShareGpkgExecutor(getActivity(), gpkgData);
                         shareExec.shareDatabaseViaIntent();
                         alertDialog.dismiss();
+                        MatomoEventDispatcher.Companion.submitButtonClickEvent("Share with apps");
                     });
 
             // Click listener for "Save"
@@ -909,6 +911,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     .setOnClickListener(v -> {
                         sendIntentForGpkgFileCreation(gpkgData);
                         alertDialog.dismiss();
+                        MatomoEventDispatcher.Companion.submitButtonClickEvent("Save to storage");
                     });
 
             alertDialog.show();
@@ -1412,6 +1415,7 @@ public class GeoPackageMapFragment extends Fragment implements
             String geoName = detailPageAdapter.getGeoPackageName();
             if (geoName != null) {
                 newLayerWizard();
+                MatomoEventDispatcher.Companion.submitButtonClickEvent("New GeoPackage Layer");
             }
         });
     }
@@ -1581,7 +1585,7 @@ public class GeoPackageMapFragment extends Fragment implements
     private void createNewWizard() {
         if (getActivity() != null) {
             MatomoEventDispatcher.Companion.submitButtonClickEvent("New Geopackage");
-            
+
             // Create Alert window with basic input text layout
             LayoutInflater inflater = LayoutInflater.from(getActivity());
             View alertView = inflater.inflate(R.layout.new_geopackage_wizard, null);
@@ -1600,6 +1604,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     .setOnClickListener((View v) -> {
                         createGeoPackage();
                         alertDialog.dismiss();
+                        MatomoEventDispatcher.Companion.submitButtonClickEvent("Create New");
                     });
 
             // Click listener for "Import URL"
@@ -1607,6 +1612,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     .setOnClickListener((View v) -> {
                         showGpkgImportFromUrlDialog();
                         alertDialog.dismiss();
+                        MatomoEventDispatcher.Companion.submitButtonClickEvent("Import from URL");
                     });
 
             // Click listener for "Import from file"
@@ -1614,6 +1620,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     .setOnClickListener((View v) -> {
                         importGeopackageFromFile();
                         alertDialog.dismiss();
+                        MatomoEventDispatcher.Companion.submitButtonClickEvent("Import from File");
                     });
 
             alertDialog.show();
@@ -1697,6 +1704,7 @@ public class GeoPackageMapFragment extends Fragment implements
             createFeature.setOnClickListener((View v) -> {
                 createFeatureOption();
                 alertDialog.dismiss();
+                MatomoEventDispatcher.Companion.submitButtonClickEvent("Create Feature Layer");
             });
 
             // Listener for create tiles
@@ -1707,6 +1715,7 @@ public class GeoPackageMapFragment extends Fragment implements
                     newTileLayerWizard(geoName);
                 }
                 alertDialog.dismiss();
+                MatomoEventDispatcher.Companion.submitButtonClickEvent("Create Tile Layer");
             });
 
 

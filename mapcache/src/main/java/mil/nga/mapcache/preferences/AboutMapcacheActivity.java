@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 
 import mil.nga.mapcache.R;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 
 public class AboutMapcacheActivity extends AppCompatActivity {
 
@@ -17,6 +18,8 @@ public class AboutMapcacheActivity extends AppCompatActivity {
         // Adds back arrow button to action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new AboutMapcacheActivityFragment()).commit();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/About MapCache Activity", "About MapCache Opened");
     }
 
     /**

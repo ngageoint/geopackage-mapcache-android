@@ -51,6 +51,7 @@ import mil.nga.mapcache.io.CacheDirectoryType;
 import mil.nga.mapcache.io.MapCacheFileUtils;
 import mil.nga.mapcache.listeners.DeleteImageListener;
 import mil.nga.mapcache.utils.ImageUtils;
+import mil.nga.mapcache.utils.MatomoEventDispatcher;
 import mil.nga.mapcache.viewmodel.GeoPackageViewModel;
 
 public class FeatureViewActivity extends AppCompatActivity {
@@ -233,6 +234,8 @@ public class FeatureViewActivity extends AppCompatActivity {
 
         // set up the image gallery
         createImageGallery();
+
+        MatomoEventDispatcher.Companion.submitScreenEvent("/Feature View Activity", "Feature View Opened");
     }
 
 
